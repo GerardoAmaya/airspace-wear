@@ -1,4 +1,5 @@
-import Anthropic from '@anthropic-ai/sdk';
+// Imports con nombre: funcionan igual con la compilación ESM local y la de Vercel.
+import { Anthropic } from '@anthropic-ai/sdk';
 import { Module } from '@nestjs/common';
 import { CatalogModule } from '../catalog/catalog.module.js';
 import { APP_CONFIG, type AppConfig } from '../config/config.module.js';

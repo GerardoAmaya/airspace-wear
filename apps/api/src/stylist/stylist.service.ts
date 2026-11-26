@@ -1,4 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk';
+import { type Anthropic, RateLimitError } from '@anthropic-ai/sdk';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { type Locale, STYLIST_LIMITS, type StylistEvent, type StylistRequest, type StylistStatus } from '@airspace/contracts';
 import { z } from 'zod';
@@ -126,7 +126,7 @@ export class StylistService {
       emit({ type: 'done' });
     } catch (error) {
       if (signal.aborted) return;
-      if (error instanceof Anthropic.RateLimitError) return emit({ type: 'error', code: 'rate_limited' });
+      if (error instanceof RateLimitError) return emit({ type: 'error', code: 'rate_limited' });
       // Sin detalles del proveedor hacia el cliente; el registro sí los guarda.
       this.logger.error(error instanceof Error ? `${error.name}: ${error.message}` : String(error));
       emit({ type: 'error', code: 'internal_error' });

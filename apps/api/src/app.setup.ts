@@ -1,8 +1,23 @@
 import type { INestApplication } from '@nestjs/common';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import type { ApiError } from '@airspace/contracts';
-import helmet from 'helmet';
+import type { IncomingMessage, ServerResponse } from 'node:http';
+import * as helmetModule from 'helmet';
+import type { HelmetOptions } from 'helmet';
 import type { AppConfig } from './config/config.module.js';
+
+// Vercel compila la API con otras reglas de módulos que tsc local, y según
+// cuál, helmet llega como función, como { default } o anidado dos veces. Se
+// busca la función en tiempo de ejecución con un tipo explícito.
+type HelmetMiddleware = (request: IncomingMessage, response: ServerResponse, next: (error?: unknown) => void) => void;
+type HelmetFactory = (options?: HelmetOptions) => HelmetMiddleware;
+function resolveHelmet(candidate: unknown): HelmetFactory {
+  let current = candidate;
+  for (let depth = 0; depth < 3 && typeof current !== 'function'; depth++) current = (current as { default?: unknown }).default;
+  if (typeof current !== 'function') throw new Error('helmet no se pudo cargar');
+  return current as HelmetFactory;
+}
+const helmet = resolveHelmet(helmetModule);
 
 // Configuración HTTP compartida por main.ts y las pruebas e2e, para que las
 // pruebas corran contra la misma app que producción. Llamar antes de init().
