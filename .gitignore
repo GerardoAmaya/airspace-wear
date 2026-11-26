@@ -9,6 +9,9 @@ node_modules/
 # Modelos 3D originales: pesados, se regeneran con `pnpm models:download`
 /assets/models/raw/
 
+# Avatar de Mixamo: la licencia no permite redistribuir los archivos tal cual
+/assets/avatar/raw/
+
 # Builds, caché y código generado
 next-env.d.ts
 apps/api/src/generated/

@@ -18,16 +18,18 @@
 
 import { mkdir, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { EXTTextureWebP } from '@gltf-transform/extensions';
 import {
   cloneDocument,
+  compressTexture,
   dedup,
   flatten,
   join,
+  listTextureSlots,
   meshopt,
   prune,
   simplify,
   simplifyPrimitive,
-  textureCompress,
   weld,
 } from '@gltf-transform/functions';
 import validator from 'gltf-validator';
@@ -66,9 +68,6 @@ import {
 // Intentos máximos de simplificación: algunas mallas pequeñas no se reducen en
 // la proporción pedida y hace falta pedir un poco menos para llegar a la meta.
 const MAX_SIMPLIFY_ATTEMPTS = 4;
-
-// Texturas que no son de datos: color base, emisión, especular, etc.
-const COLOR_TEXTURE_SLOTS = new RegExp(`^(?!${DATA_TEXTURE_SLOTS.source.slice(1, -1)}$).*$`);
 
 const options = readCliOptions();
 const models = selectModels(options.only);
@@ -148,12 +147,48 @@ async function simplifyToTarget(
   return { document: best.document, applied: true, reachedTarget: best.triangles <= targetTriangles };
 }
 
-async function compressTextures(document, { maxTextureSize, quality }) {
-  const shared = { encoder: sharp, targetFormat: 'webp', resize: [maxTextureSize, maxTextureSize], effort: 100 };
-  await document.transform(
-    textureCompress({ ...shared, slots: DATA_TEXTURE_SLOTS, quality: DATA_TEXTURE_QUALITY }),
-    textureCompress({ ...shared, slots: COLOR_TEXTURE_SLOTS, quality }),
+// Nombres de los materiales que usan una textura. Las texturas de una
+// extensión (por ejemplo la especular) cuelgan de la propiedad de la
+// extensión, y esta a su vez del material.
+function textureMaterialNames(texture) {
+  const names = new Set();
+  for (const parent of texture.listParents()) {
+    const owners = parent.propertyType === 'Material' ? [parent] : parent.listParents();
+    for (const owner of owners) if (owner.propertyType === 'Material') names.add(owner.getName());
+  }
+  return [...names];
+}
+
+// Lado máximo de una textura: el de la variante, reducido por los ajustes del
+// modelo según el slot (por ejemplo specularTexture) o el material que la usa.
+function textureSizeFor(texture, slots, settings) {
+  const limits = [settings.maxTextureSize];
+  for (const slot of slots) limits.push(settings.textureSizeBySlot?.[slot] ?? Infinity);
+  for (const name of textureMaterialNames(texture)) limits.push(settings.textureSizeByMaterial?.[name] ?? Infinity);
+  return Math.min(...limits);
+}
+
+// Convierte cada textura a WebP una sola vez, con su tamaño y su calidad: las
+// de datos usan dataTextureQuality y las de color la calidad del intento.
+async function compressTextures(document, settings, quality) {
+  const textures = document.getRoot().listTextures();
+  await Promise.all(
+    textures.map((texture) => {
+      const slots = listTextureSlots(texture);
+      const isData = slots.some((slot) => DATA_TEXTURE_SLOTS.test(slot));
+      const size = textureSizeFor(texture, slots, settings);
+      return compressTexture(texture, {
+        encoder: sharp,
+        targetFormat: 'webp',
+        resize: [size, size],
+        effort: 100,
+        quality: isData ? settings.dataTextureQuality : quality,
+      });
+    }),
   );
+  if (textures.some((texture) => texture.getMimeType() === 'image/webp')) {
+    document.createExtension(EXTTextureWebP).setRequired(true);
+  }
 }
 
 async function validate(glb) {
@@ -168,7 +203,12 @@ async function validate(glb) {
 
 // Genera una variante probando calidades de textura hasta caber en el presupuesto.
 async function buildVariant(model, geometry, variantName) {
-  const variant = VARIANTS[variantName];
+  // Ajustes de la variante con los propios del modelo (variantOverrides).
+  const variant = {
+    dataTextureQuality: DATA_TEXTURE_QUALITY,
+    ...VARIANTS[variantName],
+    ...model.variantOverrides?.[variantName],
+  };
   // Presupuesto de la variante, con el ajuste propio del modelo si lo tiene.
   const budget = { ...variant.budget, ...model.budgetOverrides?.[variantName] };
   const cleaned = cloneDocument(geometry);
@@ -194,7 +234,7 @@ async function buildVariant(model, geometry, variantName) {
   let result;
   for (const quality of TEXTURE_QUALITY_STEPS) {
     const candidate = cloneDocument(simplification.document);
-    await compressTextures(candidate, { maxTextureSize: variant.maxTextureSize, quality });
+    await compressTextures(candidate, variant, quality);
     await candidate.transform(dedup(), prune(), meshopt({ encoder: MeshoptEncoder, level: 'high' }));
     const glb = await io.writeBinary(candidate);
     result = { document: candidate, glb, quality };

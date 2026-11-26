@@ -32,7 +32,7 @@ The pipeline lives in `scripts/models/` and is configured in `scripts/models/con
 ## 4. Optimize
 
 - Run `pnpm models:optimize --only <slug>`.
-- Both variants must report `OK`: hero under 100k triangles and 5 MB, lite under 40k triangles and 1.5 MB, and 0 validator errors.
+- Both variants must report `OK`: hero under 100k triangles and 1.1 MB, lite under 40k triangles and 450 KB, and 0 validator errors.
 
 ## 5. Check visually
 

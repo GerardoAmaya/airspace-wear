@@ -119,8 +119,8 @@ Rules:
 - Pipeline: `pnpm models` runs download, optimize and credits. Settings live in `scripts/models/config.mjs`.
 - Posters: `pnpm models:posters` renders one transparent WebP per model and theme (`apps/web/public/posters/<slug>-dark.webp` and `-light.webp`) with the prototype's stage and light presets. Re-run it after optimizing a model, then `pnpm db:seed` so the API serves the poster URLs.
 - Each model produces two files in `apps/web/public/models/`, in kebab case:
-  - `<slug>.glb` (hero): under 100k triangles and 5 MB, textures up to 2048 px.
-  - `<slug>-lite.glb`: target 20k triangles (ceiling 40k), 512 px textures, tiny loose parts such as stitching removed. Used in lite mode, on low-end phones and on the avatar.
+  - `<slug>.glb` (hero): under 100k triangles and 1.1 MB, textures up to 2048 px (per-model `variantOverrides` in `scripts/models/config.mjs` can lower sizes and quality per texture or material).
+  - `<slug>-lite.glb`: target 20k triangles (ceiling 40k), under 450 KB, 512 px textures, tiny loose parts such as stitching removed. Used in lite mode, on low-end phones and on the avatar.
 - Canonical pose for sneakers: sole on y = 0, centered on X and Z, toe pointing to +X, real length 0.30 m. The default camera (+Z) sees the outer side of a right shoe and the inner side of a left shoe. `pose.foot` and `pose.lateralSideFacing` in the manifest say which.
 - Balls (`category: 'ball'` in the config): 0.22 m diameter (FIFA size 5), resting on y = 0, centered on X and Z, with no automatic yaw. They have no `foot`.
 - Because pose and scale are shared, hotspot positions are in meters in model space and stay valid when a model is re-optimized.

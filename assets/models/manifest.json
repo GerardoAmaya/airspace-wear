@@ -129,6 +129,7 @@
         ]
       },
       "pose": {
+        "category": "sneaker",
         "foot": "right",
         "lateralSideFacing": "+z",
         "extractedFromPair": false,
@@ -148,7 +149,7 @@
       "variants": {
         "hero": {
           "file": "/models/new-balance-997.glb",
-          "bytes": 1929836,
+          "bytes": 1032548,
           "triangles": 54925,
           "drawCalls": 4,
           "meshes": 4,
@@ -169,7 +170,7 @@
         },
         "lite": {
           "file": "/models/new-balance-997-lite.glb",
-          "bytes": 633176,
+          "bytes": 423988,
           "triangles": 19996,
           "drawCalls": 4,
           "meshes": 4,
@@ -414,6 +415,7 @@
         ]
       },
       "pose": {
+        "category": "sneaker",
         "foot": "right",
         "lateralSideFacing": "+z",
         "extractedFromPair": false,
@@ -433,8 +435,8 @@
       "variants": {
         "hero": {
           "file": "/models/adidas-sambae.glb",
-          "bytes": 1714940,
-          "triangles": 89999,
+          "bytes": 1041892,
+          "triangles": 64999,
           "drawCalls": 2,
           "meshes": 2,
           "materials": 2,
@@ -454,7 +456,7 @@
         },
         "lite": {
           "file": "/models/adidas-sambae-lite.glb",
-          "bytes": 489720,
+          "bytes": 388620,
           "triangles": 19996,
           "drawCalls": 2,
           "meshes": 2,
@@ -1011,7 +1013,7 @@
       "variants": {
         "hero": {
           "file": "/models/nike-pegasus-36.glb",
-          "bytes": 1230696,
+          "bytes": 1059180,
           "triangles": 71085,
           "drawCalls": 1,
           "meshes": 1,
@@ -1203,8 +1205,8 @@
       "variants": {
         "hero": {
           "file": "/models/nike-dunk-high-hawaii.glb",
-          "bytes": 1175820,
-          "triangles": 90000,
+          "bytes": 1096564,
+          "triangles": 77672,
           "drawCalls": 1,
           "meshes": 1,
           "materials": 1,

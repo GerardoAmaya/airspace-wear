@@ -43,7 +43,11 @@ export const CATEGORIES = {
 //   fracción del tamaño de la malla (0.005 en un zapato de 30 cm = 1.5 mm).
 // targetTriangles es la meta de la simplificación; maxSimplifyError es el
 // desvío máximo permitido, como fracción del tamaño de cada malla; budget son
-// los límites que el reporte verifica (el de hero viene de la especificación).
+// los límites que el reporte verifica. Los bytes vienen del plan del paso 2
+// (docs/plan-paso-2.md, sección 3.8): hero hasta 1,1 MB y lite hasta 450 KB.
+// Si un archivo no cabe, primero se baja la calidad de las texturas de color
+// (TEXTURE_QUALITY_STEPS) y, si no basta, el modelo ajusta sus texturas o su
+// meta de triángulos con variantOverrides.
 export const VARIANTS = {
   hero: {
     suffix: '',
@@ -52,7 +56,7 @@ export const VARIANTS = {
     pruneSmallParts: 0,
     dropTransmission: false,
     maxTextureSize: 2048,
-    budget: { triangles: 100_000, bytes: 5_000_000 },
+    budget: { triangles: 100_000, bytes: 1_100_000 },
   },
   lite: {
     suffix: '-lite',
@@ -63,7 +67,7 @@ export const VARIANTS = {
     // extra en cada cuadro: en lite se quita y queda solo la transparencia.
     dropTransmission: true,
     maxTextureSize: 512,
-    budget: { triangles: 40_000, bytes: 1_500_000 },
+    budget: { triangles: 40_000, bytes: 450_000 },
   },
 };
 
@@ -136,6 +140,12 @@ export const LICENSES = {
 //   partido en miles de islas, que de otro modo no bajan de la meta.
 // - budgetOverrides: ajusta el presupuesto de una variante para este modelo,
 //   con la razón documentada junto al valor.
+// - variantOverrides: ajustes de una variante solo para este modelo, para que
+//   quepa en el presupuesto de bytes. Acepta targetTriangles, maxTextureSize,
+//   dataTextureQuality (calidad WebP de normales, rugosidad/metal y oclusión,
+//   por defecto DATA_TEXTURE_QUALITY), textureSizeBySlot (lado máximo por slot,
+//   por ejemplo { specularTexture: 512 }) y textureSizeByMaterial (lado máximo
+//   de las texturas de un material, por nombre). Documentar la razón al lado.
 export const MODELS = [
   {
     slug: 'air-jordan-1',
@@ -154,6 +164,15 @@ export const MODELS = [
     source: { provider: 'sketchfab', uid: '05e79a2dffbc4356bba7e0751fada08f' },
     foot: 'right',
     transform: { rotation: [0, 90, 0] },
+    // Cuatro materiales con su propio juego de texturas (color, rugosidad y
+    // normales): 11 texturas que pesaban 1,5 MB en hero. La capellada (Outer)
+    // conserva 1024 px; la suela baja a 768 y los cordones y el forro interior,
+    // que se ven pequeños, a 512. En lite, los cordones van a 256 px y el forro
+    // a 384 (con 256 el logo de la lengüeta se veía borroso).
+    variantOverrides: {
+      hero: { dataTextureQuality: 85, textureSizeByMaterial: { Sole: 768, Laces: 512, Inner: 512 } },
+      lite: { dataTextureQuality: 85, textureSizeByMaterial: { Laces: 256, Inner: 384 } },
+    },
   },
   {
     slug: 'nike-air-uptempo',
@@ -179,6 +198,19 @@ export const MODELS = [
     foot: 'right',
     // El original ya trae la punta en +X; solo hace falta escalar y centrar.
     transform: { rotation: [0, 0, 0] },
+    // La textura especular (KHR_materials_specular) guarda su valor en el
+    // canal alfa, que WebP comprime sin pérdida: no baja con la calidad, solo
+    // con el tamaño. La suela de goma translúcida (SOLE) es lisa y aguanta
+    // 768 px. La capellada (UPPER) conserva 1024 px en color y normales.
+    variantOverrides: {
+      hero: {
+        targetTriangles: 65_000,
+        dataTextureQuality: 85,
+        textureSizeBySlot: { specularTexture: 512 },
+        textureSizeByMaterial: { SOLE: 768 },
+      },
+      lite: { dataTextureQuality: 85, textureSizeBySlot: { specularTexture: 256 } },
+    },
   },
   {
     slug: 'adidas-prophere',
@@ -238,6 +270,9 @@ export const MODELS = [
     foot: 'right',
     // El original trae la punta hacia -Z.
     transform: { rotation: [0, -90, 0] },
+    // Las normales y la rugosidad/oclusión (1024 px) eran casi 500 KB con
+    // calidad 92; con 85 el hero cabe en 1,1 MB sin bajar de resolución.
+    variantOverrides: { hero: { dataTextureQuality: 85 } },
   },
   {
     slug: 'jordan-4-travis-scott',
@@ -264,6 +299,12 @@ export const MODELS = [
     // 3.3 millones de triángulos con el atlas de textura partido en miles de
     // islas: sin cruzar costuras de UV el lite no bajaba de 77k triángulos.
     simplifyAcrossSeams: ['lite'],
+    // Por las mismas islas, cada triángulo trae vértices propios y la
+    // geometría pesaba 870 KB con 90k triángulos. La textura es una sola
+    // (276 KB), así que el hero baja de triángulos y no de textura. Las
+    // costuras de UV frenan la simplificación cerca de 78k (1,10 MB), que
+    // cabe en el presupuesto sin cruzarlas en hero.
+    variantOverrides: { hero: { targetTriangles: 70_000 } },
   },
   {
     slug: 'adidas-teamgeist-2006',
