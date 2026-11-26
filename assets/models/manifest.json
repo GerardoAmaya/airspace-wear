@@ -3863,7 +3863,77 @@
       },
       "raw": {
         "bytes": 10063084,
-        "sketchfabFaceCount": 258636
+        "sketchfabFaceCount": 258636,
+        "triangles": 258636,
+        "drawCalls": 5,
+        "meshes": 5,
+        "materials": 2,
+        "textures": 2,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.0101416,
+        "dimensionsCm": {
+          "width": 55.1,
+          "height": 70,
+          "depth": 29.5
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/camiseta-futbol-roja.glb",
+          "bytes": 656132,
+          "triangles": 89998,
+          "drawCalls": 2,
+          "meshes": 2,
+          "materials": 2,
+          "textures": 2,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/camiseta-futbol-roja-lite.glb",
+          "bytes": 192616,
+          "triangles": 19998,
+          "drawCalls": 2,
+          "meshes": 2,
+          "materials": 2,
+          "textures": 2,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "camiseta-futbol-naranja": {
@@ -3888,7 +3958,77 @@
       },
       "raw": {
         "bytes": 10067772,
-        "sketchfabFaceCount": 258636
+        "sketchfabFaceCount": 258636,
+        "triangles": 258636,
+        "drawCalls": 5,
+        "meshes": 5,
+        "materials": 2,
+        "textures": 2,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.0101416,
+        "dimensionsCm": {
+          "width": 55.1,
+          "height": 70,
+          "depth": 29.5
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/camiseta-futbol-naranja.glb",
+          "bytes": 655824,
+          "triangles": 89998,
+          "drawCalls": 2,
+          "meshes": 2,
+          "materials": 2,
+          "textures": 2,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/camiseta-futbol-naranja-lite.glb",
+          "bytes": 192476,
+          "triangles": 19998,
+          "drawCalls": 2,
+          "meshes": 2,
+          "materials": 2,
+          "textures": 2,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "kit-futbol-gris-geff": {
@@ -3913,7 +4053,74 @@
       },
       "raw": {
         "bytes": 1543216,
-        "sketchfabFaceCount": 44358
+        "sketchfabFaceCount": 44358,
+        "triangles": 44217,
+        "drawCalls": 8,
+        "meshes": 8,
+        "materials": 6,
+        "textures": 0,
+        "maxTextureSize": 0,
+        "textureFormats": []
+      },
+      "edits": [
+        "removed the caption text and the shorts"
+      ],
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": true,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.00948857,
+        "dimensionsCm": {
+          "width": 63.4,
+          "height": 70,
+          "depth": 27.2
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/kit-futbol-gris-geff.glb",
+          "bytes": 147096,
+          "triangles": 26805,
+          "drawCalls": 4,
+          "meshes": 4,
+          "materials": 4,
+          "textures": 0,
+          "maxTextureSize": 0,
+          "textureFormats": [],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/kit-futbol-gris-geff-lite.glb",
+          "bytes": 113764,
+          "triangles": 19994,
+          "drawCalls": 4,
+          "meshes": 4,
+          "materials": 4,
+          "textures": 0,
+          "maxTextureSize": 0,
+          "textureFormats": [],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "camiseta-blanca-geff": {
@@ -3938,7 +4145,73 @@
       },
       "raw": {
         "bytes": 10973496,
-        "sketchfabFaceCount": 272894
+        "sketchfabFaceCount": 272894,
+        "triangles": 272750,
+        "drawCalls": 2016,
+        "meshes": 2016,
+        "materials": 15,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.000942355,
+        "dimensionsCm": {
+          "width": 62.5,
+          "height": 70,
+          "depth": 27
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/camiseta-blanca-geff.glb",
+          "bytes": 438236,
+          "triangles": 89997,
+          "drawCalls": 5,
+          "meshes": 5,
+          "materials": 5,
+          "textures": 0,
+          "maxTextureSize": 0,
+          "textureFormats": [],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/camiseta-blanca-geff-lite.glb",
+          "bytes": 102008,
+          "triangles": 19998,
+          "drawCalls": 4,
+          "meshes": 4,
+          "materials": 4,
+          "textures": 0,
+          "maxTextureSize": 0,
+          "textureFormats": [],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "camiseta-run-turquesa": {
@@ -3963,7 +4236,78 @@
       },
       "raw": {
         "bytes": 4525300,
-        "sketchfabFaceCount": 29678
+        "sketchfabFaceCount": 29678,
+        "triangles": 29678,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 4,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.0249408,
+        "dimensionsCm": {
+          "width": 59,
+          "height": 70,
+          "depth": 28.4
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/camiseta-run-turquesa.glb",
+          "bytes": 907164,
+          "triangles": 29678,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 4,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/camiseta-run-turquesa-lite.glb",
+          "bytes": 298220,
+          "triangles": 20000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 4,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "polo-rayas": {
@@ -3988,7 +4332,77 @@
       },
       "raw": {
         "bytes": 1819640,
-        "sketchfabFaceCount": 54381
+        "sketchfabFaceCount": 54381,
+        "triangles": 54381,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 1,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.00925929,
+        "dimensionsCm": {
+          "width": 66.5,
+          "height": 70,
+          "depth": 27.2
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/polo-rayas.glb",
+          "bytes": 334932,
+          "triangles": 54381,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/polo-rayas-lite.glb",
+          "bytes": 134380,
+          "triangles": 19998,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "top-deportivo-blanco-geff": {
@@ -4013,7 +4427,71 @@
       },
       "raw": {
         "bytes": 8461560,
-        "sketchfabFaceCount": 218882
+        "sketchfabFaceCount": 218882,
+        "triangles": 218882,
+        "drawCalls": 1260,
+        "meshes": 1260,
+        "materials": 5,
+        "textures": 0,
+        "maxTextureSize": 0,
+        "textureFormats": []
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.000987474,
+        "dimensionsCm": {
+          "width": 29.8,
+          "height": 31,
+          "depth": 25.1
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/top-deportivo-blanco-geff.glb",
+          "bytes": 429500,
+          "triangles": 89997,
+          "drawCalls": 3,
+          "meshes": 3,
+          "materials": 3,
+          "textures": 0,
+          "maxTextureSize": 0,
+          "textureFormats": [],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/top-deportivo-blanco-geff-lite.glb",
+          "bytes": 111368,
+          "triangles": 20000,
+          "drawCalls": 3,
+          "meshes": 3,
+          "materials": 3,
+          "textures": 0,
+          "maxTextureSize": 0,
+          "textureFormats": [],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "conjunto-deportivo-mujer": {
@@ -4038,7 +4516,82 @@
       },
       "raw": {
         "bytes": 3833216,
-        "sketchfabFaceCount": 13498
+        "sketchfabFaceCount": 13498,
+        "triangles": 13496,
+        "drawCalls": 24,
+        "meshes": 24,
+        "materials": 24,
+        "textures": 84,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "edits": [
+        "kept the top of the original set",
+        "removed the Nike logo from the texture"
+      ],
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.980616,
+        "dimensionsCm": {
+          "width": 28.1,
+          "height": 38,
+          "depth": 24.4
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/conjunto-deportivo-mujer.glb",
+          "bytes": 252552,
+          "triangles": 3480,
+          "drawCalls": 12,
+          "meshes": 12,
+          "materials": 12,
+          "textures": 36,
+          "maxTextureSize": 256,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/conjunto-deportivo-mujer-lite.glb",
+          "bytes": 252552,
+          "triangles": 3480,
+          "drawCalls": 12,
+          "meshes": 12,
+          "materials": 12,
+          "textures": 36,
+          "maxTextureSize": 256,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "leggings-deportivos-mujer": {
@@ -4063,7 +4616,82 @@
       },
       "raw": {
         "bytes": 3833216,
-        "sketchfabFaceCount": 13498
+        "sketchfabFaceCount": 13498,
+        "triangles": 13496,
+        "drawCalls": 24,
+        "meshes": 24,
+        "materials": 24,
+        "textures": 84,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "edits": [
+        "kept the leggings of the original set",
+        "removed the Nike logo from the texture"
+      ],
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.993766,
+        "dimensionsCm": {
+          "width": 35.2,
+          "height": 91,
+          "depth": 24.1
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/leggings-deportivos-mujer.glb",
+          "bytes": 493460,
+          "triangles": 10016,
+          "drawCalls": 12,
+          "meshes": 12,
+          "materials": 12,
+          "textures": 36,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/leggings-deportivos-mujer-lite.glb",
+          "bytes": 434320,
+          "triangles": 10016,
+          "drawCalls": 12,
+          "meshes": 12,
+          "materials": 12,
+          "textures": 36,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "jersey-basquet-llamas": {
@@ -4088,7 +4716,81 @@
       },
       "raw": {
         "bytes": 3034792,
-        "sketchfabFaceCount": 11016
+        "sketchfabFaceCount": 11016,
+        "triangles": 11016,
+        "drawCalls": 4,
+        "meshes": 4,
+        "materials": 4,
+        "textures": 8,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "edits": [
+        "removed the shorts",
+        "painted over the \"YOUR LOGO\" placeholder text"
+      ],
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.3921,
+        "dimensionsCm": {
+          "width": 41.2,
+          "height": 70,
+          "depth": 25.6
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/jersey-basquet-llamas.glb",
+          "bytes": 893316,
+          "triangles": 7080,
+          "drawCalls": 2,
+          "meshes": 2,
+          "materials": 2,
+          "textures": 4,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/jersey-basquet-llamas-lite.glb",
+          "bytes": 341640,
+          "triangles": 7080,
+          "drawCalls": 2,
+          "meshes": 2,
+          "materials": 2,
+          "textures": 4,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "sudadera-nike-club-fleece": {
@@ -4113,7 +4815,78 @@
       },
       "raw": {
         "bytes": 2230740,
-        "sketchfabFaceCount": 14648
+        "sketchfabFaceCount": 14648,
+        "triangles": 14648,
+        "drawCalls": 6,
+        "meshes": 6,
+        "materials": 1,
+        "textures": 4,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.656074,
+        "dimensionsCm": {
+          "width": 131.2,
+          "height": 70,
+          "depth": 39.5
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/sudadera-nike-club-fleece.glb",
+          "bytes": 303296,
+          "triangles": 14648,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 4,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/sudadera-nike-club-fleece-lite.glb",
+          "bytes": 151664,
+          "triangles": 14648,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 4,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "anorak-gris": {
@@ -4138,7 +4911,80 @@
       },
       "raw": {
         "bytes": 8178436,
-        "sketchfabFaceCount": 14890
+        "sketchfabFaceCount": 14890,
+        "triangles": 14890,
+        "drawCalls": 4,
+        "meshes": 4,
+        "materials": 2,
+        "textures": 6,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "edits": [
+        "kept the sweatshirt of the original set"
+      ],
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.99988,
+        "dimensionsCm": {
+          "width": 97.3,
+          "height": 58.9,
+          "depth": 33
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/anorak-gris.glb",
+          "bytes": 751776,
+          "triangles": 3593,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 1,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/anorak-gris-lite.glb",
+          "bytes": 202340,
+          "triangles": 3593,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 1,
+            "errorMessages": []
+          }
+        }
       }
     },
     "sudadera-basica-bicolor": {
@@ -4163,7 +5009,77 @@
       },
       "raw": {
         "bytes": 4574088,
-        "sketchfabFaceCount": 20064
+        "sketchfabFaceCount": 20064,
+        "triangles": 20064,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 4,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.0961625,
+        "dimensionsCm": {
+          "width": 111.4,
+          "height": 70,
+          "depth": 29
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/sudadera-basica-bicolor.glb",
+          "bytes": 970920,
+          "triangles": 20064,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 4,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/sudadera-basica-bicolor-lite.glb",
+          "bytes": 350668,
+          "triangles": 20000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 4,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "sudadera-zip-crema": {
@@ -4188,7 +5104,81 @@
       },
       "raw": {
         "bytes": 10717140,
-        "sketchfabFaceCount": 159580
+        "sketchfabFaceCount": 159580,
+        "triangles": 159580,
+        "drawCalls": 2,
+        "meshes": 2,
+        "materials": 1,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "edits": [
+        "removed the author's logo prints from the texture"
+      ],
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.909248,
+        "dimensionsCm": {
+          "width": 98.9,
+          "height": 72,
+          "depth": 33.7
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/sudadera-zip-crema.glb",
+          "bytes": 987044,
+          "triangles": 90000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/sudadera-zip-crema-lite.glb",
+          "bytes": 243780,
+          "triangles": 19998,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "hoodie-corto-rosa": {
@@ -4213,7 +5203,77 @@
       },
       "raw": {
         "bytes": 5022440,
-        "sketchfabFaceCount": 109778
+        "sketchfabFaceCount": 109778,
+        "triangles": 109770,
+        "drawCalls": 11,
+        "meshes": 11,
+        "materials": 5,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.00100035,
+        "dimensionsCm": {
+          "width": 50.3,
+          "height": 71.5,
+          "depth": 30.5
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/hoodie-corto-rosa.glb",
+          "bytes": 735640,
+          "triangles": 89999,
+          "drawCalls": 2,
+          "meshes": 2,
+          "materials": 2,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/hoodie-corto-rosa-lite.glb",
+          "bytes": 210916,
+          "triangles": 19998,
+          "drawCalls": 2,
+          "meshes": 2,
+          "materials": 2,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "hoodie-nike-turquesa-mujer": {
@@ -4238,7 +5298,77 @@
       },
       "raw": {
         "bytes": 21617536,
-        "sketchfabFaceCount": 709436
+        "sketchfabFaceCount": 709436,
+        "triangles": 709388,
+        "drawCalls": 8,
+        "meshes": 8,
+        "materials": 1,
+        "textures": 1,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": true,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.499592,
+        "dimensionsCm": {
+          "width": 71.7,
+          "height": 72,
+          "depth": 30
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/hoodie-nike-turquesa-mujer.glb",
+          "bytes": 697968,
+          "triangles": 89998,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/hoodie-nike-turquesa-mujer-lite.glb",
+          "bytes": 188104,
+          "triangles": 19999,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "chaqueta-adidas-negra": {
@@ -4263,7 +5393,78 @@
       },
       "raw": {
         "bytes": 2386820,
-        "sketchfabFaceCount": 5924
+        "sketchfabFaceCount": 5924,
+        "triangles": 5924,
+        "drawCalls": 3,
+        "meshes": 3,
+        "materials": 1,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.23424,
+        "dimensionsCm": {
+          "width": 129.7,
+          "height": 70,
+          "depth": 33.5
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/chaqueta-adidas-negra.glb",
+          "bytes": 309980,
+          "triangles": 5924,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/chaqueta-adidas-negra-lite.glb",
+          "bytes": 141224,
+          "triangles": 5924,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "chaqueta-acolchada-roja": {
@@ -4288,7 +5489,77 @@
       },
       "raw": {
         "bytes": 5198576,
-        "sketchfabFaceCount": 85407
+        "sketchfabFaceCount": 85407,
+        "triangles": 85373,
+        "drawCalls": 30,
+        "meshes": 30,
+        "materials": 7,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.914834,
+        "dimensionsCm": {
+          "width": 60.7,
+          "height": 70,
+          "depth": 30.1
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/chaqueta-acolchada-roja.glb",
+          "bytes": 681880,
+          "triangles": 85373,
+          "drawCalls": 4,
+          "meshes": 4,
+          "materials": 4,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/chaqueta-acolchada-roja-lite.glb",
+          "bytes": 219168,
+          "triangles": 20003,
+          "drawCalls": 4,
+          "meshes": 4,
+          "materials": 4,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "chaqueta-varsity": {
@@ -4313,8 +5584,81 @@
       },
       "raw": {
         "bytes": 4610136,
-        "sketchfabFaceCount": 116926
-      }
+        "sketchfabFaceCount": 116926,
+        "triangles": 116926,
+        "drawCalls": 4,
+        "meshes": 4,
+        "materials": 2,
+        "textures": 2,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.0009529,
+        "dimensionsCm": {
+          "width": 64.1,
+          "height": 70,
+          "depth": 29.4
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/chaqueta-varsity.glb",
+          "bytes": 796476,
+          "triangles": 89997,
+          "drawCalls": 2,
+          "meshes": 2,
+          "materials": 2,
+          "textures": 2,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/chaqueta-varsity-lite.glb",
+          "bytes": 219380,
+          "triangles": 19998,
+          "drawCalls": 2,
+          "meshes": 2,
+          "materials": 2,
+          "textures": 2,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      },
+      "edits": [
+        "removed the author's logo from the texture"
+      ]
     },
     "pants-mujer-franjas-lima": {
       "slug": "pants-mujer-franjas-lima",
@@ -4338,7 +5682,77 @@
       },
       "raw": {
         "bytes": 5601592,
-        "sketchfabFaceCount": 6688
+        "sketchfabFaceCount": 6688,
+        "triangles": 6688,
+        "drawCalls": 2,
+        "meshes": 2,
+        "materials": 2,
+        "textures": 7,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 113.586,
+        "dimensionsCm": {
+          "width": 41.3,
+          "height": 100,
+          "depth": 31.6
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/pants-mujer-franjas-lima.glb",
+          "bytes": 516388,
+          "triangles": 3344,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 4,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/pants-mujer-franjas-lima-lite.glb",
+          "bytes": 141356,
+          "triangles": 3344,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 4,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "pants-anorak-gris": {
@@ -4363,7 +5777,80 @@
       },
       "raw": {
         "bytes": 8178436,
-        "sketchfabFaceCount": 14890
+        "sketchfabFaceCount": 14890,
+        "triangles": 14890,
+        "drawCalls": 4,
+        "meshes": 4,
+        "materials": 2,
+        "textures": 6,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "edits": [
+        "kept the pants of the original set"
+      ],
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.999954,
+        "dimensionsCm": {
+          "width": 40.4,
+          "height": 94.8,
+          "depth": 26
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/pants-anorak-gris.glb",
+          "bytes": 662996,
+          "triangles": 3852,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 1,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/pants-anorak-gris-lite.glb",
+          "bytes": 189232,
+          "triangles": 3852,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 1,
+            "errorMessages": []
+          }
+        }
       }
     },
     "jogger-gris": {
@@ -4388,7 +5875,167 @@
       },
       "raw": {
         "bytes": 7843688,
-        "sketchfabFaceCount": 127008
+        "sketchfabFaceCount": 127008,
+        "triangles": 127008,
+        "drawCalls": 2,
+        "meshes": 2,
+        "materials": 1,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 1.01888,
+        "dimensionsCm": {
+          "width": 36.3,
+          "height": 100,
+          "depth": 27.3
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/jogger-gris.glb",
+          "bytes": 761336,
+          "triangles": 90000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/jogger-gris-lite.glb",
+          "bytes": 195392,
+          "triangles": 20000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "pants-buzo-marino-geff": {
+      "slug": "pants-buzo-marino-geff",
+      "displayName": "Pants de buzo marino GEFF",
+      "brand": "GEFF",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "d5462d7e184d418890d3ddfdd8e93edc",
+        "title": "PANTCHANDAL SLIM NAVY - GEFF",
+        "url": "https://sketchfab.com/3d-models/pantchandal-slim-navy-geff-d5462d7e184d418890d3ddfdd8e93edc",
+        "author": "GEFF SPORT",
+        "authorUrl": "https://sketchfab.com/geffsport",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 33243724,
+        "sketchfabFaceCount": 715594,
+        "triangles": 715275,
+        "drawCalls": 7441,
+        "meshes": 7441,
+        "materials": 14,
+        "textures": 0,
+        "maxTextureSize": 0,
+        "textureFormats": []
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.000943956,
+        "dimensionsCm": {
+          "width": 41.7,
+          "height": 100,
+          "depth": 26.8
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/pants-buzo-marino-geff.glb",
+          "bytes": 489868,
+          "triangles": 89976,
+          "drawCalls": 6,
+          "meshes": 6,
+          "materials": 6,
+          "textures": 0,
+          "maxTextureSize": 0,
+          "textureFormats": [],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/pants-buzo-marino-geff-lite.glb",
+          "bytes": 103620,
+          "triangles": 19999,
+          "drawCalls": 6,
+          "meshes": 6,
+          "materials": 6,
+          "textures": 0,
+          "maxTextureSize": 0,
+          "textureFormats": [],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "short-geff-blanco": {
@@ -4413,7 +6060,166 @@
       },
       "raw": {
         "bytes": 14199860,
-        "sketchfabFaceCount": 332258
+        "sketchfabFaceCount": 332258,
+        "triangles": 332258,
+        "drawCalls": 2959,
+        "meshes": 2959,
+        "materials": 5,
+        "textures": 0,
+        "maxTextureSize": 0,
+        "textureFormats": []
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 1.03076,
+        "dimensionsCm": {
+          "width": 50.3,
+          "height": 45,
+          "depth": 28.4
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/short-geff-blanco.glb",
+          "bytes": 457076,
+          "triangles": 89995,
+          "drawCalls": 4,
+          "meshes": 4,
+          "materials": 4,
+          "textures": 0,
+          "maxTextureSize": 0,
+          "textureFormats": [],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/short-geff-blanco-lite.glb",
+          "bytes": 100176,
+          "triangles": 19997,
+          "drawCalls": 3,
+          "meshes": 3,
+          "materials": 3,
+          "textures": 0,
+          "maxTextureSize": 0,
+          "textureFormats": [],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "short-geff-negro-naranja": {
+      "slug": "short-geff-negro-naranja",
+      "displayName": "Short GEFF negro y naranja",
+      "brand": "GEFF",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "c2695299194c4771b984c75d4175fb9d",
+        "title": "SHORT_OBLIVIA_MUESTRA _",
+        "url": "https://sketchfab.com/3d-models/short-oblivia-muestra-c2695299194c4771b984c75d4175fb9d",
+        "author": "GEFF SPORT",
+        "authorUrl": "https://sketchfab.com/geffsport",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 14302324,
+        "sketchfabFaceCount": 332258,
+        "triangles": 332258,
+        "drawCalls": 2959,
+        "meshes": 2959,
+        "materials": 5,
+        "textures": 2,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 1.03076,
+        "dimensionsCm": {
+          "width": 50.3,
+          "height": 45,
+          "depth": 28.4
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/short-geff-negro-naranja.glb",
+          "bytes": 503048,
+          "triangles": 89994,
+          "drawCalls": 5,
+          "meshes": 5,
+          "materials": 5,
+          "textures": 2,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/short-geff-negro-naranja-lite.glb",
+          "bytes": 148532,
+          "triangles": 19997,
+          "drawCalls": 4,
+          "meshes": 4,
+          "materials": 4,
+          "textures": 2,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "short-deportivo-coral": {
@@ -4438,7 +6244,77 @@
       },
       "raw": {
         "bytes": 3769508,
-        "sketchfabFaceCount": 8854
+        "sketchfabFaceCount": 8854,
+        "triangles": 8854,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.798652,
+        "dimensionsCm": {
+          "width": 39.2,
+          "height": 50,
+          "depth": 23.2
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/short-deportivo-coral.glb",
+          "bytes": 789412,
+          "triangles": 8854,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/short-deportivo-coral-lite.glb",
+          "bytes": 228420,
+          "triangles": 8854,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "gorra-ny-marino": {
@@ -4463,7 +6339,78 @@
       },
       "raw": {
         "bytes": 2171064,
-        "sketchfabFaceCount": 17334
+        "sketchfabFaceCount": 17334,
+        "triangles": 17334,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          -90,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.35406,
+        "dimensionsCm": {
+          "width": 20,
+          "height": 18.2,
+          "depth": 35.4
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/gorra-ny-marino.glb",
+          "bytes": 266728,
+          "triangles": 17334,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/gorra-ny-marino-lite.glb",
+          "bytes": 187372,
+          "triangles": 17334,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "gorra-gris-flexfit": {
@@ -4488,7 +6435,77 @@
       },
       "raw": {
         "bytes": 19636740,
-        "sketchfabFaceCount": 337004
+        "sketchfabFaceCount": 337004,
+        "triangles": 336540,
+        "drawCalls": 56,
+        "meshes": 56,
+        "materials": 11,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 1.05842,
+        "dimensionsCm": {
+          "width": 20,
+          "height": 15.7,
+          "depth": 33.3
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/gorra-gris-flexfit.glb",
+          "bytes": 899552,
+          "triangles": 89990,
+          "drawCalls": 2,
+          "meshes": 2,
+          "materials": 2,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/gorra-gris-flexfit-lite.glb",
+          "bytes": 357604,
+          "triangles": 34996,
+          "drawCalls": 2,
+          "meshes": 2,
+          "materials": 2,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "gorro-gris-canale": {
@@ -4513,7 +6530,77 @@
       },
       "raw": {
         "bytes": 3842072,
-        "sketchfabFaceCount": 38844
+        "sketchfabFaceCount": 38844,
+        "triangles": 38844,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 1.00516,
+        "dimensionsCm": {
+          "width": 20,
+          "height": 19,
+          "depth": 21.3
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/gorro-gris-canale.glb",
+          "bytes": 547844,
+          "triangles": 38844,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/gorro-gris-canale-lite.glb",
+          "bytes": 213224,
+          "triangles": 20000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "lentes-sol-negros": {
@@ -4538,7 +6625,80 @@
       },
       "raw": {
         "bytes": 1798004,
-        "sketchfabFaceCount": 47196
+        "sketchfabFaceCount": 47196,
+        "triangles": 47193,
+        "drawCalls": 12,
+        "meshes": 12,
+        "materials": 10,
+        "textures": 3,
+        "maxTextureSize": 256,
+        "textureFormats": [
+          "jpeg"
+        ]
+      },
+      "edits": [
+        "kept the black pair of the original two"
+      ],
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": true,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          -90,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.0599017,
+        "dimensionsCm": {
+          "width": 14,
+          "height": 4.2,
+          "depth": 16.1
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/lentes-sol-negros.glb",
+          "bytes": 205584,
+          "triangles": 23598,
+          "drawCalls": 5,
+          "meshes": 5,
+          "materials": 5,
+          "textures": 2,
+          "maxTextureSize": 256,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/lentes-sol-negros-lite.glb",
+          "bytes": 182688,
+          "triangles": 19993,
+          "drawCalls": 5,
+          "meshes": 5,
+          "materials": 5,
+          "textures": 2,
+          "maxTextureSize": 256,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "lentes-deportivos-espejo": {
@@ -4563,7 +6723,78 @@
       },
       "raw": {
         "bytes": 582008,
-        "sketchfabFaceCount": 2198
+        "sketchfabFaceCount": 2198,
+        "triangles": 2198,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.742509,
+        "dimensionsCm": {
+          "width": 15,
+          "height": 5.4,
+          "depth": 14.8
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/lentes-deportivos-espejo.glb",
+          "bytes": 103620,
+          "triangles": 2198,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/lentes-deportivos-espejo-lite.glb",
+          "bytes": 56064,
+          "triangles": 2198,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "maleta-deportiva-blanca": {
@@ -4588,7 +6819,77 @@
       },
       "raw": {
         "bytes": 2908068,
-        "sketchfabFaceCount": 19400
+        "sketchfabFaceCount": 19400,
+        "triangles": 19400,
+        "drawCalls": 10,
+        "meshes": 10,
+        "materials": 1,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.949929,
+        "dimensionsCm": {
+          "width": 60,
+          "height": 37.3,
+          "depth": 31.6
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/maleta-deportiva-blanca.glb",
+          "bytes": 531204,
+          "triangles": 19400,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/maleta-deportiva-blanca-lite.glb",
+          "bytes": 254432,
+          "triangles": 19400,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "mochila-negra": {
@@ -4613,7 +6914,78 @@
       },
       "raw": {
         "bytes": 6971984,
-        "sketchfabFaceCount": 66344
+        "sketchfabFaceCount": 66344,
+        "triangles": 66344,
+        "drawCalls": 11,
+        "meshes": 11,
+        "materials": 1,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.0648976,
+        "dimensionsCm": {
+          "width": 28.3,
+          "height": 45,
+          "depth": 26.6
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/mochila-negra.glb",
+          "bytes": 965564,
+          "triangles": 66344,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/mochila-negra-lite.glb",
+          "bytes": 261744,
+          "triangles": 19999,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     },
     "reloj-inteligente-negro": {
@@ -4638,7 +7010,78 @@
       },
       "raw": {
         "bytes": 1158868,
-        "sketchfabFaceCount": 9625
+        "sketchfabFaceCount": 9625,
+        "triangles": 19233,
+        "drawCalls": 15,
+        "meshes": 15,
+        "materials": 8,
+        "textures": 2,
+        "maxTextureSize": 512,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.00422339,
+        "dimensionsCm": {
+          "width": 4.5,
+          "height": 6.3,
+          "depth": 6.2
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/reloj-inteligente-negro.glb",
+          "bytes": 272328,
+          "triangles": 19233,
+          "drawCalls": 8,
+          "meshes": 8,
+          "materials": 8,
+          "textures": 2,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/reloj-inteligente-negro-lite.glb",
+          "bytes": 272328,
+          "triangles": 19233,
+          "drawCalls": 8,
+          "meshes": 8,
+          "materials": 8,
+          "textures": 2,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
       }
     }
   }

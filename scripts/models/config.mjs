@@ -157,6 +157,8 @@ export const LICENSES = {
 //   expresión regular) de nodo, malla o material. remove quita piezas que no
 //   son la prenda (piso, maniquí, percha, rótulos); keep separa un conjunto en
 //   productos (cada slug conserva su prenda del mismo archivo).
+// - edits (ropa): cambios propios del modelo, en inglés, para los créditos
+//   (por ejemplo 'removed the shorts').
 // - texturePatches (ropa): retoques de textura antes de optimizar (tapar un
 //   "YOUR LOGO" o el parche del autor). Ver scripts/models/textures.mjs.
 // - variantOverrides: ajustes de una variante solo para este modelo, para que
@@ -677,6 +679,11 @@ export const MODELS = [
     brand: 'AIRSPACE',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: '72b85d298e804cf68faca548b5c86905' },
+    // Exportada de CLO sobre un maniquí invisible; el frente ya mira a +Z.
+    // Exportada de un programa de diseño de prendas (CLO): paneles en capas
+    // a cerca de 1 mm. Con el error del lite (3%) la simplificación deformaba
+    // ruedos y costuras; con 0,5% las capas no se cruzan.
+    maxSimplifyError: 0.005,
     transform: { rotation: [0, 0, 0] },
   },
   {
@@ -685,6 +692,11 @@ export const MODELS = [
     brand: 'AIRSPACE',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: 'd00dffa54c5b49b2941e0a34995f914e' },
+    // Misma malla que la camiseta roja (otra textura). El frente ya mira a +Z.
+    // Exportada de un programa de diseño de prendas (CLO): paneles en capas
+    // a cerca de 1 mm. Con el error del lite (3%) la simplificación deformaba
+    // ruedos y costuras; con 0,5% las capas no se cruzan.
+    maxSimplifyError: 0.005,
     transform: { rotation: [0, 0, 0] },
   },
   {
@@ -693,7 +705,16 @@ export const MODELS = [
     brand: 'GEFF',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: '72c88cf8edad46b7905499745e01b3fe' },
+    // El original trae camiseta y short, más el rótulo "A KOREAN" bajo el
+    // short (material LETRAS_COLLECTION). Se vende solo la camiseta: se quita el
+    // rótulo y el short se separa por pieza conexa: la camiseta cubre la
+    // pretina del short (y 49 a 54 cm) y su ruedo baja a 31 cm, así que se
+    // conserva cada pieza que sube por encima de 60 cm (las del short no pasan
+    // de 54).
+    parts: { remove: ['LETRAS_COLLECTION'] },
+    extract: { normal: [0, 1, 0], offset: 60, side: 'positive', byComponent: 'max' },
     transform: { rotation: [0, 0, 0] },
+    edits: ['removed the caption text and the shorts'],
   },
   {
     slug: 'camiseta-blanca-geff',
@@ -701,6 +722,10 @@ export const MODELS = [
     brand: 'GEFF',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: '1c04cc0acd734feea29b2b0cd1cf8214' },
+    // Exportada de un programa de diseño de prendas (CLO): paneles en capas
+    // a cerca de 1 mm. Con el error del lite (3%) la simplificación deformaba
+    // ruedos y costuras; con 0,5% las capas no se cruzan.
+    maxSimplifyError: 0.005,
     transform: { rotation: [0, 0, 0] },
   },
   {
@@ -725,6 +750,13 @@ export const MODELS = [
     brand: 'GEFF',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: '6621ae8c44e6462ebb47959e73d6569e' },
+    // Top corto: la escala sale de su alto real (CLO, en milímetros), no de la
+    // medida de una camiseta.
+    size: { axis: 'y', meters: 0.31 },
+    // Exportada de un programa de diseño de prendas (CLO): paneles en capas
+    // a cerca de 1 mm. Con el error del lite (3%) la simplificación deformaba
+    // ruedos y costuras; con 0,5% las capas no se cruzan.
+    maxSimplifyError: 0.005,
     transform: { rotation: [0, 0, 0] },
   },
   {
@@ -733,7 +765,25 @@ export const MODELS = [
     brand: 'AIRSPACE',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: 'a9022683c61a4db7bdc24d8afc7671c5' },
-    transform: { rotation: [0, 0, 0] },
+    // El modelo "Women Sportswear" trae top y leggings: este producto es el
+    // top (materiales Tri-Planar_1). Los leggings salen del mismo archivo
+    // (leggings-deportivos-mujer). Alto real del top corto, como en el original.
+    parts: { keep: [/Tri-Planar_1/] },
+    size: { axis: 'y', meters: 0.38 },
+    // El frente mira a -X en el original.
+    transform: { rotation: [0, 90, 0] },
+    // El top es de la marca de la tienda, pero la textura traía un swoosh de
+    // Nike: se tapa copiando la tela de al lado o, junto al borde de la isla
+    // de UV (donde al lado no hay tela), con el rosa de la tela.
+    texturePatches: [
+      { material: 'Plain_Purple_Texture_2768328_-_Tri-Planar_1_5', rects: [[0.18, 0.87, 0.285, 1]], copyFrom: [-0.12, 0] },
+      { material: 'Plain_Purple_Texture_2768328_-_Tri-Planar_1_9', rects: [[0.38, 0.86, 0.46, 1]], fill: [140, 85, 114] },
+    ],
+    edits: ['kept the top of the original set', 'removed the Nike logo from the texture'],
+    // Los materiales del top traen transmisión (KHR_materials_transmission),
+    // que en tela no aporta y cuesta una pasada de render extra: se quita
+    // también en hero.
+    variantOverrides: { hero: { dropTransmission: true } },
   },
   {
     slug: 'leggings-deportivos-mujer',
@@ -741,7 +791,16 @@ export const MODELS = [
     brand: 'AIRSPACE',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: 'a9022683c61a4db7bdc24d8afc7671c5' },
-    transform: { rotation: [0, 0, 0] },
+    // Los leggings del modelo "Women Sportswear" (materiales Tri-Planar_3).
+    parts: { keep: [/Tri-Planar_3/] },
+    size: { axis: 'y', meters: 0.91 },
+    // El frente mira a -X en el original.
+    transform: { rotation: [0, 90, 0] },
+    // Swoosh de Nike en la cadera: se tapa copiando la tela de abajo.
+    texturePatches: [
+      { material: 'Plain_Purple_Texture_2768328_-_Tri-Planar_3_0', rects: [[0.09, 0.4, 0.72, 0.68]], copyFrom: [0, 0.27] },
+    ],
+    edits: ['kept the leggings of the original set', 'removed the Nike logo from the texture'],
   },
   {
     slug: 'jersey-basquet-llamas',
@@ -749,7 +808,18 @@ export const MODELS = [
     brand: 'AIRSPACE',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: 'd353042ccf20414d85dd3fd87bba43d5' },
+    // El original trae jersey (front002) y short (Box008): se vende solo el
+    // jersey. La plantilla decía "YOUR LOGO" bajo el número del frente: se
+    // pinta encima con el rojo que lo rodea, en el color y también en la
+    // textura de rugosidad/metal (el texto estaba grabado ahí y se seguía
+    // leyendo como un brillo distinto).
+    parts: { keep: ['front002', 'front002_1'] },
+    texturePatches: [
+      { material: 'Ceramic__3', rects: [[0.266, 0.358, 0.422, 0.416]], fill: 'surround' },
+      { material: 'Ceramic__3', slot: 'metallicRoughnessTexture', rects: [[0.266, 0.358, 0.422, 0.416]], fill: 'surround' },
+    ],
     transform: { rotation: [0, 0, 0] },
+    edits: ['removed the shorts', 'painted over the "YOUR LOGO" placeholder text'],
   },
   {
     slug: 'sudadera-nike-club-fleece',
@@ -765,7 +835,14 @@ export const MODELS = [
     brand: 'AIRSPACE',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: 'f72f208b242a415c84d0087a790faa5f' },
+    // Piloto del avatar. El original trae el conjunto puesto sobre un cuerpo
+    // (MetaHuman, con esqueleto) dos veces: de frente y girado. Se hornea la pose
+    // y se conserva la sudadera de la copia de frente (Object_350). Conserva su
+    // escala real de MetaHuman (0.59 m del cuello al ruedo) para el ajuste.
+    parts: { keep: ['Object_350'] },
+    size: { axis: 'y', meters: 0.589 },
     transform: { rotation: [0, 0, 0] },
+    edits: ['kept the sweatshirt of the original set'],
   },
   {
     slug: 'sudadera-basica-bicolor',
@@ -773,6 +850,9 @@ export const MODELS = [
     brand: 'AIRSPACE',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: '92800a4c11ce4b8daccb75e60035535f' },
+    // Las texturas de datos (normales, rugosidad/metal) pesaban casi todo el
+    // hero (1,11 MB con el color en calidad 64): bajan a calidad 85.
+    variantOverrides: { hero: { dataTextureQuality: 85 } },
     transform: { rotation: [0, 0, 0] },
   },
   {
@@ -781,7 +861,25 @@ export const MODELS = [
     brand: 'AIRSPACE',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: '2dfa849756dc45f2bf6c6b2d8100905a' },
+    // El autor estampó su logo (LIVIN COOL con un globo) en el pecho y en la
+    // espalda: se tapan en la textura con el crema de la tela que los rodea.
+    size: { axis: 'y', meters: 0.72 },
+    texturePatches: [
+      { material: 'WORLD_ZIP_HOODIE', rects: [[0.05, 0.74, 0.226, 0.905], [0.742, 0.912, 0.792, 0.962]], fill: 'surround' },
+      // El estampado también estaba en relieve en el mapa de normales.
+      {
+        material: 'WORLD_ZIP_HOODIE',
+        slot: 'normalTexture',
+        rects: [[0.05, 0.74, 0.226, 0.905], [0.742, 0.912, 0.792, 0.962]],
+        fill: 'surround',
+      },
+    ],
+    // Exportada de un programa de diseño de prendas (CLO): paneles en capas
+    // a cerca de 1 mm. Con el error del lite (3%) la simplificación deformaba
+    // ruedos y costuras; con 0,5% las capas no se cruzan.
+    maxSimplifyError: 0.005,
     transform: { rotation: [0, 0, 0] },
+    edits: ["removed the author's logo prints from the texture"],
   },
   {
     slug: 'hoodie-corto-rosa',
@@ -789,6 +887,13 @@ export const MODELS = [
     brand: 'AIRSPACE',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: 'fd03f442026f4252b2507dda53bba564' },
+    // Hoodie corto (Style3D, en milímetros): las mangas cuelgan por debajo del
+    // ruedo, así que la escala sale de su alto real completo (capucha a puños).
+    size: { axis: 'y', meters: 0.715 },
+    // Exportada de un programa de diseño de prendas (Style3D): paneles en capas
+    // a cerca de 1 mm. Con el error del lite (3%) la simplificación deformaba
+    // ruedos y costuras; con 0,5% las capas no se cruzan.
+    maxSimplifyError: 0.005,
     transform: { rotation: [0, 0, 0] },
   },
   {
@@ -797,6 +902,14 @@ export const MODELS = [
     brand: 'Nike',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: '132697d70644446aab83c6fb41040076' },
+    // El original trae dos copias (de frente y de espalda): se conserva la de
+    // frente (z > -0.3), por pieza conexa.
+    extract: { normal: [0, 0, 1], offset: -0.3, side: 'positive', byComponent: true },
+    size: { axis: 'y', meters: 0.72 },
+    // Exportada de un programa de diseño de prendas (CLO): paneles en capas
+    // a cerca de 1 mm. Con el error del lite (3%) la simplificación deformaba
+    // ruedos y costuras; con 0,5% las capas no se cruzan.
+    maxSimplifyError: 0.005,
     transform: { rotation: [0, 0, 0] },
   },
   {
@@ -813,6 +926,10 @@ export const MODELS = [
     brand: 'AIRSPACE',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: '7d95660645834760a0a638775e5fe4a7' },
+    // Exportada de un programa de diseño de prendas (Marvelous Designer): paneles en capas
+    // a cerca de 1 mm. Con el error del lite (3%) la simplificación deformaba
+    // ruedos y costuras; con 0,5% las capas no se cruzan.
+    maxSimplifyError: 0.005,
     transform: { rotation: [0, 0, 0] },
   },
   {
@@ -821,7 +938,16 @@ export const MODELS = [
     brand: 'AIRSPACE',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: '40ee5970950b48b4a38d657dc671f007' },
+    // Exportada de CLO con materiales especular/brillo (sin convertir se ve
+    // blanca). La textura traía el logo "3DEE" del autor en el frente: se tapa
+    // con el azul marino del panel.
+    texturePatches: [{ material: 'FABRIC_1_FRONT_3990', rects: [[0.335, 0.815, 0.45, 0.878]], fill: 'surround' }],
+    // Exportada de un programa de diseño de prendas (CLO): paneles en capas
+    // a cerca de 1 mm. Con el error del lite (3%) la simplificación deformaba
+    // ruedos y costuras; con 0,5% las capas no se cruzan.
+    maxSimplifyError: 0.005,
     transform: { rotation: [0, 0, 0] },
+    edits: ["removed the author's logo from the texture"],
   },
   {
     slug: 'pants-mujer-franjas-lima',
@@ -829,6 +955,9 @@ export const MODELS = [
     brand: 'AIRSPACE',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: '2c2bd2f956df4db29ecfe93d250ad31e' },
+    // El original trae dos copias (de frente y de espalda): se conserva una.
+    parts: { keep: ['defaultPolygonShader'] },
+    size: { axis: 'y', meters: 1.0 },
     transform: { rotation: [0, 0, 0] },
   },
   {
@@ -837,7 +966,12 @@ export const MODELS = [
     brand: 'AIRSPACE',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: 'f72f208b242a415c84d0087a790faa5f' },
+    // Los pantalones del mismo archivo que anorak-gris (Object_348, la copia
+    // de frente), con su escala real de MetaHuman.
+    parts: { keep: ['Object_348'] },
+    size: { axis: 'y', meters: 0.948 },
     transform: { rotation: [0, 0, 0] },
+    edits: ['kept the pants of the original set'],
   },
   {
     slug: 'jogger-gris',
@@ -845,6 +979,11 @@ export const MODELS = [
     brand: 'AIRSPACE',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: '8939b47916ab4b2486a3fa2613eac54c' },
+    size: { axis: 'y', meters: 1.0 },
+    // Exportada de un programa de diseño de prendas (CLO): paneles en capas
+    // a cerca de 1 mm. Con el error del lite (3%) la simplificación deformaba
+    // ruedos y costuras; con 0,5% las capas no se cruzan.
+    maxSimplifyError: 0.005,
     transform: { rotation: [0, 0, 0] },
   },
   {
@@ -853,6 +992,11 @@ export const MODELS = [
     brand: 'GEFF',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: 'd5462d7e184d418890d3ddfdd8e93edc' },
+    size: { axis: 'y', meters: 1.0 },
+    // Exportada de un programa de diseño de prendas (CLO): paneles en capas
+    // a cerca de 1 mm. Con el error del lite (3%) la simplificación deformaba
+    // ruedos y costuras; con 0,5% las capas no se cruzan.
+    maxSimplifyError: 0.005,
     transform: { rotation: [0, 0, 0] },
   },
   {
@@ -861,7 +1005,14 @@ export const MODELS = [
     brand: 'GEFF',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: '2f568dba2f1343e89f278860618cd3ed' },
-    transform: { rotation: [0, 0, 0] },
+    // Short GEFF (CLO, tamaño real): 0.45 m de la pretina al ruedo.
+    size: { axis: 'y', meters: 0.45 },
+    // Exportada de un programa de diseño de prendas (CLO): paneles en capas
+    // a cerca de 1 mm. Con el error del lite (3%) la simplificación deformaba
+    // ruedos y costuras; con 0,5% las capas no se cruzan.
+    maxSimplifyError: 0.005,
+    // El frente (con el logo GEFF en la pierna) mira a -Z en el original.
+    transform: { rotation: [0, 180, 0] },
   },
   {
     slug: 'short-geff-negro-naranja',
@@ -869,7 +1020,14 @@ export const MODELS = [
     brand: 'GEFF',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: 'c2695299194c4771b984c75d4175fb9d' },
-    transform: { rotation: [0, 0, 0] },
+    // Misma malla que el short GEFF blanco.
+    size: { axis: 'y', meters: 0.45 },
+    // Exportada de un programa de diseño de prendas (CLO): paneles en capas
+    // a cerca de 1 mm. Con el error del lite (3%) la simplificación deformaba
+    // ruedos y costuras; con 0,5% las capas no se cruzan.
+    maxSimplifyError: 0.005,
+    // El frente (con el logo GEFF en la pierna) mira a -Z en el original.
+    transform: { rotation: [0, 180, 0] },
   },
   {
     slug: 'short-deportivo-coral',
@@ -877,6 +1035,7 @@ export const MODELS = [
     brand: 'AIRSPACE',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: '9f872504291644d8b05c0b85702d019e' },
+    size: { axis: 'y', meters: 0.5 },
     transform: { rotation: [0, 0, 0] },
   },
   {
@@ -885,7 +1044,10 @@ export const MODELS = [
     brand: 'New York Yankees',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: '455523a744a84087b584f6a0cd8ec357' },
-    transform: { rotation: [0, 0, 0] },
+    // Piloto del avatar. La visera del original apunta a +X: se gira para que
+    // mire a +Z. Escala por el ancho real de la copa (0.20 m de lado a lado).
+    size: { axis: 'x', meters: 0.2 },
+    transform: { rotation: [0, -90, 0] },
   },
   {
     slug: 'gorra-gris-flexfit',
@@ -893,7 +1055,14 @@ export const MODELS = [
     brand: 'Flexfit',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: '3a131a461d01447d866c7ab119d1707b' },
+    size: { axis: 'x', meters: 0.2 },
     transform: { rotation: [0, 0, 0] },
+    // 336k triángulos en 56 piezas: en lite, la limpieza de piezas diminutas y
+    // la simplificación abrían huecos en la correa de atrás y facetaban la
+    // copa. El lite no quita piezas, se simplifica cuidando normales y UV y
+    // admite 35k triángulos (dentro del techo de 40k).
+    simplifyWithAttributes: true,
+    variantOverrides: { lite: { targetTriangles: 35_000, pruneSmallParts: 0 } },
   },
   {
     slug: 'gorro-gris-canale',
@@ -901,6 +1070,7 @@ export const MODELS = [
     brand: 'AIRSPACE',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: 'ff6dc83c818c4e2aa722cb89e6ada577' },
+    size: { axis: 'x', meters: 0.2 },
     transform: { rotation: [0, 0, 0] },
   },
   {
@@ -909,7 +1079,13 @@ export const MODELS = [
     brand: 'AIRSPACE',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: 'd0d86024a30f49b7937b932f6f993f92' },
-    transform: { rotation: [0, 0, 0] },
+    // Piloto del avatar. El original trae dos pares: uno carey (x < -3.9) y el
+    // negro (x > -1.9). Se conserva el negro, cuyo frente mira a +X: se gira
+    // para que mire a +Z. Ancho real del frente: 0.14 m.
+    extract: { normal: [1, 0, 0], offset: -2.9, side: 'positive' },
+    size: { axis: 'x', meters: 0.14 },
+    transform: { rotation: [0, -90, 0] },
+    edits: ['kept the black pair of the original two'],
   },
   {
     slug: 'lentes-deportivos-espejo',
@@ -917,6 +1093,8 @@ export const MODELS = [
     brand: 'AIRSPACE',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: '1a29942363754f798ac2dd9e61d857fc' },
+    // Lentes envolventes: ancho real del frente, 0.15 m.
+    size: { axis: 'x', meters: 0.15 },
     transform: { rotation: [0, 0, 0] },
   },
   {
@@ -925,6 +1103,7 @@ export const MODELS = [
     brand: 'AIRSPACE',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: '4f3da061584a4c51be8cb4a54b7586a2' },
+    size: { axis: 'x', meters: 0.6 },
     transform: { rotation: [0, 0, 0] },
   },
   {
@@ -933,7 +1112,9 @@ export const MODELS = [
     brand: 'AIRSPACE',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: '524d7fc724094ead9f203ed06bae76e1' },
-    transform: { rotation: [0, 0, 0] },
+    size: { axis: 'y', meters: 0.45 },
+    // Los bolsillos del frente miran a -Z en el original.
+    transform: { rotation: [0, 180, 0] },
   },
   {
     slug: 'reloj-inteligente-negro',
@@ -941,6 +1122,9 @@ export const MODELS = [
     brand: 'AIRSPACE',
     category: 'apparel',
     source: { provider: 'sketchfab', uid: 'c896964ab7274bff810ac5ae9165cf8c' },
+    // La escala sale del ancho de la caja (4.5 cm); la correa queda cerrada
+    // como en la muñeca. El original trae una animación que no se usa.
+    size: { axis: 'x', meters: 0.045 },
     transform: { rotation: [0, 0, 0] },
   },
 ];

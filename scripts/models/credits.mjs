@@ -24,7 +24,8 @@ ${END_MARKER}
 // Describe qué se cambió respecto del original (lo exigen las licencias CC BY).
 function describeChanges(model) {
   const changes = [];
-  if (model.pose?.extractedFromPair) changes.push('kept one shoe of the original pair');
+  if (model.pose?.extractedFromPair && model.pose?.category !== 'apparel') changes.push('kept one shoe of the original pair');
+  changes.push(...(model.edits ?? []));
   changes.push('reoriented and rescaled to real size');
   if (model.variants && model.raw?.drawCalls > model.variants.hero?.drawCalls) changes.push('meshes merged');
   if (Object.values(model.variants ?? {}).some((variant) => variant.simplified)) changes.push('mesh simplified');

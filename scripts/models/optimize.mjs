@@ -83,14 +83,19 @@ async function prepareGeometry(model) {
   const document = await io.read(rawModelPath(model.slug));
   // Prendas con esqueleto (exportadas sobre un cuerpo): se fijan en su pose.
   bakeSkins(document);
+  // La ropa se muestra quieta: una animación del original (el reloj trae
+  // una) no se usa y solo pesa.
+  if (model.category === 'apparel') for (const animation of document.getRoot().listAnimations()) animation.dispose();
   if (model.parts) filterParts(document, model.parts);
   if (model.extract) keepTrianglesOnSide(document, model.extract);
-  if (model.texturePatches) await patchTextures(document, model.texturePatches);
   // metalRough convierte los materiales especular/brillo
   // (KHR_materials_pbrSpecularGlossiness) a metal/rugosidad: three.js y
   // model-viewer ya no leen esa extensión y el zapato se vería blanco, sin
   // texturas. En los modelos que no la usan no hace nada.
   await document.transform(metalRough());
+  // Los retoques van después de metalRough: así encuentran el color en
+  // baseColorTexture también en los modelos especular/brillo.
+  if (model.texturePatches) await patchTextures(document, model.texturePatches);
   await document.transform(dedup(), prune(), flatten(), join(), weld(), prune());
   const category = CATEGORIES[model.category ?? 'sneaker'];
   const pose = normalizePose(document, {
@@ -335,6 +340,9 @@ for (const model of models) {
     // los declaran en config.mjs (source.provider = 'local').
     ...(model.source.provider === 'local' && { source: model.source }),
     raw: { ...previous.raw, bytes: rawBytes, ...rawDescription },
+    // Cambios propios del modelo (en inglés, para los créditos): piezas
+    // quitadas, conjuntos separados, retoques de textura.
+    edits: model.edits,
     pose: {
       category: model.category ?? 'sneaker',
       foot: model.foot,

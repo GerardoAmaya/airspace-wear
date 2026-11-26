@@ -52,10 +52,11 @@ function triangleComponents(indices) {
 // un eje. Sirve para quedarse con un zapato cuando el archivo trae el par.
 // Si el par está en diagonal, un eje no los separa: en vez de axis se da un
 // plano de corte con normal [x, y, z] (en mundo) y offset (n · p = offset).
-// Con byComponent se decide por pieza conexa (el centro de toda la pieza) y
-// no por triángulo: separa una camiseta de su short aunque el ruedo de la
-// camiseta baje más que la pretina del short (un corte por triángulo partiría
-// el ruedo).
+// Con byComponent se decide por pieza conexa y no por triángulo: 'center'
+// (o true) usa el centro de la pieza, 'max' y 'min' su punto más alejado o
+// más cercano en la dirección del corte. Separa una camiseta de su short
+// aunque el ruedo de la camiseta baje más que la pretina del short (un corte
+// por triángulo partiría el ruedo).
 export function keepTrianglesOnSide(document, { axis, side, normal, offset = 0, byComponent = false }) {
   const keepPositive = side === 'positive';
   const length = normal ? Math.hypot(...normal) : 1;
@@ -81,14 +82,19 @@ export function keepTrianglesOnSide(document, { axis, side, normal, offset = 0, 
       // Por pieza: el centro de cada triángulo pasa a ser el promedio de su pieza.
       if (byComponent) {
         const components = triangleComponents(indices);
-        const sums = new Map();
+        const stats = new Map();
         components.forEach((component, triangle) => {
-          const [sum, count] = sums.get(component) ?? [0, 0];
-          sums.set(component, [sum + centers[triangle], count + 1]);
+          const value = centers[triangle];
+          const entry = stats.get(component) ?? { sum: 0, count: 0, min: Infinity, max: -Infinity };
+          entry.sum += value;
+          entry.count++;
+          entry.min = Math.min(entry.min, value);
+          entry.max = Math.max(entry.max, value);
+          stats.set(component, entry);
         });
         components.forEach((component, triangle) => {
-          const [sum, count] = sums.get(component);
-          centers[triangle] = sum / count;
+          const entry = stats.get(component);
+          centers[triangle] = byComponent === 'max' ? entry.max : byComponent === 'min' ? entry.min : entry.sum / entry.count;
         });
       }
       const kept = [];
