@@ -5,7 +5,7 @@
     <title>Póster · AIRSPACE Wear</title>
     <!-- Página de apoyo para scripts/models/posters.mjs: dibuja un modelo con
          fondo transparente, la iluminación del tema pedido y vista de tres
-         cuartos desde su lado externo. Uso: /dev/poster.html?slug=air-jordan-1&theme=light -->
+         cuartos desde su lado externo (la ropa, de frente). Uso: /dev/poster.html?slug=air-jordan-1&theme=light -->
     <script>
       document.documentElement.setAttribute('data-theme', new URLSearchParams(location.search).get('theme') || 'dark');
     </script>
@@ -41,13 +41,35 @@
       const slug = params.get('slug');
       const { models } = await (await fetch('/data/manifest.json')).json();
       const model = models[slug];
-      const isBall = !model?.pose?.foot;
+      const isGarment = model?.pose?.category === 'apparel';
+      const isBall = !isGarment && !model?.pose?.foot;
       const stage = createStage(document.querySelector('canvas'), { models: [slug], cameraZ: isBall ? 0.62 : 0.9 });
       await stage.ready;
-      // Tres cuartos desde el lado externo: con el lado externo hacia +z basta
-      // un giro leve; si mira a -z, se gira media vuelta.
-      const facingMinusZ = model?.pose?.lateralSideFacing === '-z';
-      stage.sneaker.rotation.y = isBall ? 0.35 : facingMinusZ ? Math.PI + 0.5 : -0.5;
+      if (isGarment) {
+        // Ropa y accesorios: de frente (giro 0) y sin sombra de contacto, como
+        // la vista general de la ficha (GARMENT_OVERVIEW). Las prendas miden de
+        // 4 cm (un reloj) a 1 m (un pantalón): la cámara se aleja o se acerca
+        // según el tamaño para que el objeto llene el cuadro, pero conserva la
+        // elevación de los zapatos (0.02 m por cada 0.9 m de distancia), que es
+        // la que espera POSTER_POSE.apparelElevation en
+        // apps/web/lib/three/poster-match.ts.
+        const { THREE, camera } = stage;
+        const size = new THREE.Box3().setFromObject(stage.sneaker, true).getSize(new THREE.Vector3());
+        const halfFov = THREE.MathUtils.degToRad(camera.fov / 2);
+        const aspect = 1200 / 900;
+        const fill = Math.max(size.y, size.x / aspect) / 2 / Math.tan(halfFov);
+        const distance = fill * 1.12 + size.z / 2;
+        camera.position.set(0, (distance * 0.02) / 0.9, distance);
+        camera.near = distance / 100;
+        camera.updateProjectionMatrix();
+        stage.sneaker.rotation.y = 0;
+        stage.shadowOpacity = 0;
+      } else {
+        // Tres cuartos desde el lado externo: con el lado externo hacia +z basta
+        // un giro leve; si mira a -z, se gira media vuelta.
+        const facingMinusZ = model?.pose?.lateralSideFacing === '-z';
+        stage.sneaker.rotation.y = isBall ? 0.35 : facingMinusZ ? Math.PI + 0.5 : -0.5;
+      }
       stage.setRendering?.(true);
       // Unos cuadros para que carguen texturas y la sombra.
       await new Promise((resolve) => setTimeout(resolve, 600));

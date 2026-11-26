@@ -2,7 +2,9 @@
   "Metadata": {
     "title": "AIRSPACE Wear",
     "description": "Sneakers, apparel and balls from the brands you love, to explore in 3D before you buy.",
-    "titleTemplate": "%s · AIRSPACE Wear"
+    "titleTemplate": "%s · AIRSPACE Wear",
+    "ogAlt": "AIRSPACE Wear: sneakers, apparel and balls from the brands you love, in 3D.",
+    "ogKicker": "Sneakers · Apparel · Balls"
   },
   "Brand": {
     "name": "AIRSPACE",
@@ -47,7 +49,7 @@
     "title": "Cart",
     "buttonLabel": "Cart {count, plural, =0 {0 items} one {# item} other {# items}}",
     "close": "Close cart",
-    "empty": "You haven't added anything yet. Pick a pair or a ball from the catalog.",
+    "empty": "You haven't added anything yet. Pick a pair, some apparel or a ball from the catalog.",
     "remove": "Remove",
     "removeLabel": " {name}",
     "removed": "{name} removed from cart",
@@ -70,10 +72,10 @@
   },
   "Catalog": {
     "metaTitle": "Catalog",
-    "metaDescription": "Sneakers and balls from the brands you love, with a 3D model of every pair.",
-    "kicker": "Sneakers and balls · Season 26",
+    "metaDescription": "Sneakers, cleats, apparel and balls from the brands you love, ready to explore in 3D.",
+    "kicker": "Sneakers, cleats, apparel and balls · Season 26",
     "title": "Catalog",
-    "lead": "Pick a pair or a ball and take a close look: each one has its own 3D model.",
+    "lead": "Pick a pair, a piece of apparel or a ball and get a close look in 3D.",
     "loading": "Loading catalog",
     "filtersLabel": "Filters",
     "categoryLabel": "Category",
@@ -83,6 +85,7 @@
     "comingSoon": "Coming soon",
     "category": {
       "sneaker": "Sneakers",
+      "cleat": "Cleats",
       "ball": "Balls",
       "apparel": "Apparel"
     },
@@ -92,7 +95,21 @@
     "reference": "Ref. {reference}",
     "has3d": "3D",
     "posterAlt": "{name}, side view",
-    "sizeRange": "EU sizes {min} to {max}"
+    "sizeRange": "EU sizes {min} to {max}",
+    "sizeRangeAlpha": "Sizes {min} to {max}",
+    "sizeSingleAlpha": "Size {size}",
+    "oneSize": "One size",
+    "subcategoryLabel": "Garment type",
+    "allSubcategories": "All apparel",
+    "subcategory": {
+      "tshirt": "T-shirts",
+      "sweatshirt": "Sweatshirts",
+      "jacket": "Jackets",
+      "pants": "Pants",
+      "shorts": "Shorts",
+      "cap": "Caps",
+      "accessory": "Accessories"
+    }
   },
   "Product": {
     "breadcrumbLabel": "Breadcrumb",
@@ -100,6 +117,7 @@
     "reference": "Ref. {reference}",
     "posterAlt": "{name}, side view",
     "chooseSize": "Choose your size (EU)",
+    "chooseSizeAlpha": "Choose your size",
     "pickSizeFirst": "Choose a size",
     "addToCart": "Add to cart",
     "added": "Added to cart",
@@ -121,7 +139,8 @@
       "year": "Year",
       "upper": "Upper",
       "sole": "Sole",
-      "finish": "Finish"
+      "finish": "Finish",
+      "fabric": "Fabric"
     },
     "viewer": {
       "posterAlt": "{name}, side view",
@@ -136,7 +155,8 @@
       "button": "View in your space",
       "loading": "Getting the view ready",
       "unsupported": "Open this page on your phone to see the {name} in your space, at real size."
-    }
+    },
+    "ogAlt": "{name} at AIRSPACE Wear, {price}"
   },
   "Credits": {
     "metaTitle": "Credits",
@@ -242,6 +262,50 @@
     "dragHint": "Drag to turn",
     "touchHint": "Swipe to turn",
     "rotation": "ROT {degrees}°",
-    "viewProduct": "View product"
+    "viewProduct": "View product",
+    "outfit": {
+      "title": "Outfit",
+      "shirt": "Shirt",
+      "shirtStyles": {
+        "sleeves": "Sleeves",
+        "tank": "Sleeveless"
+      },
+      "bottoms": "Bottoms",
+      "bottomsStyles": {
+        "shorts": "Shorts",
+        "pants": "Pants"
+      },
+      "accessories": "Extras",
+      "cap": "Cap",
+      "glasses": "Glasses",
+      "socks": "Socks",
+      "stripes": "Stripes",
+      "colorTarget": "Color for",
+      "slots": {
+        "shirt": "Shirt",
+        "bottoms": "Bottoms",
+        "socks": "Socks",
+        "stripes": "Stripes",
+        "cap": "Cap",
+        "glasses": "Glasses"
+      },
+      "palette": "Color: {garment}",
+      "swatches": {
+        "white": "White",
+        "cream": "Cream",
+        "grey": "Grey",
+        "graphite": "Graphite",
+        "black": "Black",
+        "lime": "Lime",
+        "orange": "Orange",
+        "cobalt": "Cobalt blue",
+        "navy": "Navy",
+        "olive": "Olive",
+        "wine": "Wine"
+      },
+      "match": "Match the sneaker",
+      "matchHint": "The cap and the sock stripes take the pair's color and follow it when you switch pairs.",
+      "reset": "Reset"
+    }
   }
 }

@@ -1,0 +1,183 @@
+{
+  "version": 1,
+  "hideInset": 0.03,
+  "forward": [
+    0,
+    0,
+    1
+  ],
+  "garments": {
+    "socks": {
+      "node": "Outfit_Socks",
+      "bones": [
+        "LeftLeg",
+        "RightLeg"
+      ],
+      "cuts": [
+        {
+          "from": "LeftLeg",
+          "to": "LeftFoot",
+          "t": 0.58,
+          "keep": "above"
+        },
+        {
+          "from": "RightLeg",
+          "to": "RightFoot",
+          "t": 0.58,
+          "keep": "above"
+        }
+      ],
+      "holes": []
+    },
+    "shorts": {
+      "node": "Outfit_Shorts",
+      "bones": [
+        "Hips",
+        "LeftUpLeg",
+        "RightUpLeg"
+      ],
+      "cuts": [
+        {
+          "from": "Hips",
+          "to": "Spine",
+          "t": 0.5,
+          "keep": "below"
+        },
+        {
+          "from": "LeftUpLeg",
+          "to": "LeftLeg",
+          "t": 0.68,
+          "keep": "below"
+        },
+        {
+          "from": "RightUpLeg",
+          "to": "RightLeg",
+          "t": 0.68,
+          "keep": "below"
+        }
+      ],
+      "holes": []
+    },
+    "pants": {
+      "node": "Outfit_Pants",
+      "bones": [
+        "Hips",
+        "LeftUpLeg",
+        "RightUpLeg",
+        "LeftLeg",
+        "RightLeg"
+      ],
+      "cuts": [
+        {
+          "from": "Hips",
+          "to": "Spine",
+          "t": 0.5,
+          "keep": "below"
+        },
+        {
+          "from": "LeftLeg",
+          "to": "LeftFoot",
+          "t": 0.74,
+          "keep": "below"
+        },
+        {
+          "from": "RightLeg",
+          "to": "RightFoot",
+          "t": 0.74,
+          "keep": "below"
+        }
+      ],
+      "holes": []
+    },
+    "shirt": {
+      "node": "Outfit_Shirt",
+      "bones": [
+        "Hips",
+        "Spine",
+        "Spine1",
+        "Spine2",
+        "LeftShoulder",
+        "RightShoulder",
+        "LeftArm",
+        "RightArm"
+      ],
+      "cuts": [
+        {
+          "from": "Hips",
+          "to": "Spine",
+          "t": -0.42,
+          "keep": "above"
+        },
+        {
+          "from": "LeftArm",
+          "to": "LeftForeArm",
+          "t": 0.46,
+          "keep": "below"
+        },
+        {
+          "from": "RightArm",
+          "to": "RightForeArm",
+          "t": 0.46,
+          "keep": "below"
+        }
+      ],
+      "holes": [
+        {
+          "from": "Neck",
+          "to": "Head",
+          "radius": 0.062,
+          "forward": 0.01,
+          "minT": -0.6
+        }
+      ]
+    },
+    "tank": {
+      "node": "Outfit_Tank",
+      "bones": [
+        "Hips",
+        "Spine",
+        "Spine1",
+        "Spine2",
+        "LeftShoulder",
+        "RightShoulder"
+      ],
+      "cuts": [
+        {
+          "from": "Hips",
+          "to": "Spine",
+          "t": -0.42,
+          "keep": "above"
+        },
+        {
+          "from": "LeftShoulder",
+          "to": "LeftArm",
+          "t": 0.78,
+          "keep": "below"
+        },
+        {
+          "from": "RightShoulder",
+          "to": "RightArm",
+          "t": 0.78,
+          "keep": "below"
+        }
+      ],
+      "holes": [
+        {
+          "from": "Neck",
+          "to": "Head",
+          "radius": 0.07,
+          "forward": 0.025,
+          "minT": -0.6
+        }
+      ]
+    }
+  },
+  "accessories": {
+    "cap": {
+      "node": "Outfit_Cap"
+    },
+    "glasses": {
+      "node": "Outfit_Glasses"
+    }
+  }
+}

@@ -8,6 +8,7 @@ import {
   type ProductDetail,
   type ProductList,
   type ProductListQuery,
+  SUBCATEGORIES,
 } from '@airspace/contracts';
 import { TtlCache } from '../common/ttl-cache.js';
 import { PrismaService } from '../prisma/prisma.service.js';
@@ -28,14 +29,19 @@ export class CatalogService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async listProducts({ locale, category, brand }: ProductListQuery): Promise<ProductList> {
+  async listProducts({ locale, category, brand, subcategory }: ProductListQuery): Promise<ProductList> {
     if (brand) {
       const brands = await this.listBrands();
       if (!brands.items.some((item) => item.slug === brand)) return { locale, items: [] };
     }
-    return this.lists.get(`products:${locale}:${category ?? '*'}:${brand ?? '*'}`, async () => {
+    return this.lists.get(`products:${locale}:${category ?? '*'}:${brand ?? '*'}:${subcategory ?? '*'}`, async () => {
       const rows = await this.prisma.product.findMany({
-        where: { published: true, ...(category ? { category } : {}), ...(brand ? { brand: { slug: brand } } : {}) },
+        where: {
+          published: true,
+          ...(category ? { category } : {}),
+          ...(brand ? { brand: { slug: brand } } : {}),
+          ...(subcategory ? { subcategory } : {}),
+        },
         include: cardInclude(locale),
         orderBy: { sortOrder: 'asc' },
       });
@@ -75,12 +81,22 @@ export class CatalogService {
     }) as Promise<BrandList>;
   }
 
-  // Todas las categorías, también las vacías (ropa): la web decide si mostrarlas.
+  // Todas las categorías, también las vacías: la web decide si mostrarlas.
+  // La ropa trae además el conteo por subcategoría (todas, también en 0).
   listCategories(): Promise<CategoryList> {
     return this.facets.get('categories', async () => {
-      const groups = await this.prisma.product.groupBy({ by: ['category'], where: { published: true }, _count: { _all: true } });
-      const counts = new Map(groups.map((group) => [group.category, group._count._all]));
-      return { items: CATEGORIES.map((slug) => ({ slug, productCount: counts.get(slug) ?? 0 })) };
+      const groups = await this.prisma.product.groupBy({ by: ['category', 'subcategory'], where: { published: true }, _count: { _all: true } });
+      const count = (category: string, subcategory?: string) =>
+        groups
+          .filter((group) => group.category === category && (subcategory === undefined || group.subcategory === subcategory))
+          .reduce((sum, group) => sum + group._count._all, 0);
+      return {
+        items: CATEGORIES.map((slug) => ({
+          slug,
+          productCount: count(slug),
+          subcategories: slug === 'apparel' ? SUBCATEGORIES.map((sub) => ({ slug: sub, productCount: count(slug, sub) })) : [],
+        })),
+      };
     }) as Promise<CategoryList>;
   }
 }

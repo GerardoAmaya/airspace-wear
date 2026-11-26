@@ -1,3 +1,4 @@
+import { isWearable } from '@airspace/contracts';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -19,8 +20,10 @@ export default async function HangarPage({ params }: PageProps<'/[locale]/hangar
   if (!HANGAR_ENABLED) notFound();
   const locale = pageLocale((await params).locale);
   setRequestLocale(locale);
-  const { items } = await getProducts({ locale, category: 'sneaker' });
-  const withModel = items.filter((item) => item.model?.foot);
+  // Se calzan sneakers y tacos (nunca balones): todo el catálogo en orden de
+  // vitrina, filtrado por categoría calzable y con modelo de un pie.
+  const { items } = await getProducts({ locale });
+  const withModel = items.filter((item) => isWearable(item.category) && item.model?.foot);
   // Las tallas vienen en el detalle (lecturas en la caché de Next).
   const details = await Promise.all(withModel.map((item) => getProduct(item.slug, locale)));
   const products: HangarProduct[] = withModel.map((item, index) => ({

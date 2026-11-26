@@ -55,6 +55,8 @@ export function toCard(row: CardRow, locale: Locale): ProductCard {
     slug: row.slug,
     reference: row.reference,
     category: row.category,
+    subcategory: row.subcategory,
+    avatarSlot: row.avatarSlot,
     brand: row.brand,
     name: text.name,
     colorway: text.colorway,

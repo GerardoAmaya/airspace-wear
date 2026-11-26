@@ -17,6 +17,19 @@ export function ProductCard({ product, headingLevel: Heading = 'h2' }: { product
   const locale = useLocale();
   const poster = product.model?.poster ?? null;
   const detail = product.colorway ?? product.edition;
+  // Tallas: EU en calzado, letras en ropa (S a XL) o talla única. Los balones
+  // (talla 5) no la muestran.
+  const range = product.sizeRange;
+  const sizes =
+    range?.system === 'EU'
+      ? t('sizeRange', { min: range.min, max: range.max })
+      : range?.system === 'ALPHA'
+        ? range.min === range.max
+          ? t('sizeSingleAlpha', { size: range.min })
+          : t('sizeRangeAlpha', { min: range.min, max: range.max })
+        : range?.system === 'ONE'
+          ? t('oneSize')
+          : null;
 
   return (
     <article className={styles.card}>
@@ -52,9 +65,7 @@ export function ProductCard({ product, headingLevel: Heading = 'h2' }: { product
               {availability(product.availability)}
             </span>
           </div>
-          {product.sizeRange && product.sizeRange.system === 'EU' && (
-            <p className={styles.sizes}>{t('sizeRange', { min: product.sizeRange.min, max: product.sizeRange.max })}</p>
-          )}
+          {sizes && <p className={styles.sizes}>{sizes}</p>}
         </div>
       </Link>
     </article>

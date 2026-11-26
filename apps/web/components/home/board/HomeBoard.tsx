@@ -1,5 +1,6 @@
 import type { Locale } from '@airspace/contracts';
-import { getTranslations } from 'next-intl/server';
+import { getFormatter, getTranslations } from 'next-intl/server';
+import { HomeApparel } from '@/components/home/apparel/HomeApparel';
 import { ProductCard } from '@/components/catalog/ProductCard';
 import { Reveal } from '@/components/motion/Reveal';
 import { Link } from '@/i18n/navigation';
@@ -17,16 +18,29 @@ import ui from './ui.module.css';
 const FEATURED_COUNT = 6;
 
 // "Destacados" de la home: los sneakers de vitrina con la misma tarjeta del
-// catálogo (y su transición al producto), un botón al catálogo completo y,
-// debajo, el adelanto del Hangar 360°. Componente de servidor: los datos van
+// catálogo (y su transición al producto), un botón al catálogo completo, la
+// sección "Ropa" y, debajo, el adelanto del Hangar 360°. Componente de servidor: los datos van
 // en la caché de Next; solo el encabezado y el hangar son de cliente.
 export async function HomeBoard({ locale }: { locale: Locale }) {
-  const [t, sneakers, all] = await Promise.all([getTranslations('HomeBoard'), getProducts({ locale, category: 'sneaker' }), getProducts({ locale })]);
+  const [t, format, sneakers, all] = await Promise.all([
+    getTranslations('HomeBoard'),
+    getFormatter(),
+    getProducts({ locale, category: 'sneaker' }),
+    getProducts({ locale }),
+  ]);
   const featured = sneakers.items.slice(0, FEATURED_COUNT);
   if (!featured.length) return null;
 
   const brands = [...new Map(sneakers.items.map((item) => [item.brand.slug, item.brand.name])).values()];
   const total = all.items.length;
+  const count = featured.length;
+  const copy = {
+    store: t('store'),
+    kicker: t('kicker'),
+    title: t('title'),
+    count: t('count', { padded: format.number(count, { minimumIntegerDigits: 2 }), count }),
+    lead: t('lead'),
+  };
 
   // El hangar gira el par elegido en lib/home.ts (o el primer destacado).
   const first = sneakers.items.find((item) => item.slug === HOME_HANGAR_SLUG) ?? featured[0];
@@ -52,7 +66,7 @@ export async function HomeBoard({ locale }: { locale: Locale }) {
           #catalogo (a veces antes de hidratar); declararlo evita el desajuste. */}
       <section id={HOME_ANCHORS.board} className={styles.section} aria-labelledby="catalogo-title" tabIndex={-1}>
         <div className={`${styles.inner} ${ui.container}`}>
-          <FeaturedHead brands={brands} count={featured.length} />
+          <FeaturedHead brands={brands} copy={copy} titleId="catalogo-title" />
 
           <Reveal as="ul" className={styles.grid} stagger={0.05}>
             {featured.map((product) => (
@@ -73,6 +87,9 @@ export async function HomeBoard({ locale }: { locale: Locale }) {
           </div>
         </div>
       </section>
+
+      {/* "Ropa": justo después de Destacados; no se pinta sin prendas publicadas. */}
+      <HomeApparel locale={locale} />
 
       <HangarMount product={hangarProduct} />
     </>

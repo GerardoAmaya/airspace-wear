@@ -1250,6 +1250,2125 @@
         }
       }
     },
+    "nike-air-max-270": {
+      "slug": "nike-air-max-270",
+      "displayName": "Nike Air Max 270",
+      "brand": "Nike",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "ea75ce07668f4cf296eff3604fab5363",
+        "title": "AirMax 270",
+        "url": "https://sketchfab.com/3d-models/airmax-270-ea75ce07668f4cf296eff3604fab5363",
+        "author": "Andre Bond Sr.",
+        "authorUrl": "https://sketchfab.com/leadblacktech",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 19920408,
+        "sketchfabFaceCount": 428440,
+        "triangles": 428440,
+        "drawCalls": 4,
+        "meshes": 4,
+        "materials": 1,
+        "textures": 4,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "left",
+        "lateralSideFacing": "-z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "yawCorrection": -6,
+        "scale": 0.0126792,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 10.9,
+          "height": 16
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/nike-air-max-270.glb",
+          "bytes": 1064892,
+          "triangles": 90000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 4,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 80,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/nike-air-max-270-lite.glb",
+          "bytes": 279572,
+          "triangles": 20000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 4,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "nike-air-max-pre-day": {
+      "slug": "nike-air-max-pre-day",
+      "displayName": "Nike Air Max Pre-Day",
+      "brand": "Nike",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "753c08b324d94f4f86e9d33f5016d6d1",
+        "title": "Nike Air Max Pre-Day SE - 'Light Orewood Brown'",
+        "url": "https://sketchfab.com/3d-models/nike-air-max-pre-day-se-light-orewood-brown-753c08b324d94f4f86e9d33f5016d6d1",
+        "author": "Andre Bond Sr.",
+        "authorUrl": "https://sketchfab.com/leadblacktech",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 171608120,
+        "sketchfabFaceCount": 4097760,
+        "triangles": 4097760,
+        "drawCalls": 39,
+        "meshes": 39,
+        "materials": 1,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "right",
+        "lateralSideFacing": "+z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "yawCorrection": -1.5,
+        "scale": 0.0122004,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 10.4,
+          "height": 12.3
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/nike-air-max-pre-day.glb",
+          "bytes": 1077236,
+          "triangles": 69184,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/nike-air-max-pre-day-lite.glb",
+          "bytes": 289356,
+          "triangles": 20000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "nike-react-presto": {
+      "slug": "nike-react-presto",
+      "displayName": "Nike React Presto",
+      "brand": "Nike",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "c9b878b60d524413becd63dae298b027",
+        "title": "NIKE REACT PRESTO RUNNING SHOES",
+        "url": "https://sketchfab.com/3d-models/nike-react-presto-running-shoes-c9b878b60d524413becd63dae298b027",
+        "author": "FletchTech",
+        "authorUrl": "https://sketchfab.com/FletchTech",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 10068260,
+        "sketchfabFaceCount": 253924,
+        "triangles": 253924,
+        "drawCalls": 4,
+        "meshes": 4,
+        "materials": 1,
+        "textures": 2,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "right",
+        "lateralSideFacing": "+z",
+        "extractedFromPair": true,
+        "rotation": [
+          0,
+          -90,
+          0
+        ],
+        "yawCorrection": -1.75,
+        "scale": 0.0203475,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 11.2,
+          "height": 16
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/nike-react-presto.glb",
+          "bytes": 792156,
+          "triangles": 90000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 2,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/nike-react-presto-lite.glb",
+          "bytes": 263812,
+          "triangles": 20000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 2,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "nike-structure-plus": {
+      "slug": "nike-structure-plus",
+      "displayName": "Nike Structure Plus",
+      "brand": "Nike",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "27623926c4104d698241183d4f5b7f4e",
+        "title": "Nike Structure Plus",
+        "url": "https://sketchfab.com/3d-models/nike-structure-plus-27623926c4104d698241183d4f5b7f4e",
+        "author": "RenderReady",
+        "authorUrl": "https://sketchfab.com/RenderReady",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 18439848,
+        "sketchfabFaceCount": 312102,
+        "triangles": 312102,
+        "drawCalls": 3,
+        "meshes": 3,
+        "materials": 1,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "right",
+        "lateralSideFacing": "+z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "yawCorrection": -3.25,
+        "scale": 0.157955,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 12.1,
+          "height": 13.4
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/nike-structure-plus.glb",
+          "bytes": 979072,
+          "triangles": 90000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/nike-structure-plus-lite.glb",
+          "bytes": 296784,
+          "triangles": 19998,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "nike-quest-running": {
+      "slug": "nike-quest-running",
+      "displayName": "Nike Quest Running",
+      "brand": "Nike",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "5cd1cb05a4ae432a8c4fb650ab3a8d72",
+        "title": "Nike Running Shoe",
+        "url": "https://sketchfab.com/3d-models/nike-running-shoe-5cd1cb05a4ae432a8c4fb650ab3a8d72",
+        "author": "Ambel3D",
+        "authorUrl": "https://sketchfab.com/Ambel3D",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 9493828,
+        "sketchfabFaceCount": 249974,
+        "triangles": 249974,
+        "drawCalls": 3,
+        "meshes": 3,
+        "materials": 1,
+        "textures": 1,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "left",
+        "lateralSideFacing": "-z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 7.5,
+        "scale": 0.0124013,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 10.7,
+          "height": 13.6
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/nike-quest-running.glb",
+          "bytes": 820636,
+          "triangles": 90000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/nike-quest-running-lite.glb",
+          "bytes": 265748,
+          "triangles": 19998,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "nike-defy-all-day": {
+      "slug": "nike-defy-all-day",
+      "displayName": "Nike Defy All Day",
+      "brand": "Nike",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "b404398cf8ab4773b4b15230a2f7c292",
+        "title": "Nike Defy All Day walking sneakers shoes",
+        "url": "https://sketchfab.com/3d-models/nike-defy-all-day-walking-sneakers-shoes-b404398cf8ab4773b4b15230a2f7c292",
+        "author": "CookieCake",
+        "authorUrl": "https://sketchfab.com/cookiecake250",
+        "license": {
+          "slug": "by-nc-sa",
+          "name": "CC BY-NC-SA 4.0",
+          "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+          "commercialUse": false,
+          "shareAlike": true
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 2630324,
+        "sketchfabFaceCount": 50000,
+        "triangles": 50000,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 1,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "left",
+        "lateralSideFacing": "-z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "yawCorrection": 2.75,
+        "scale": 0.960171,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 11.3,
+          "height": 12.9
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/nike-defy-all-day.glb",
+          "bytes": 483684,
+          "triangles": 50000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/nike-defy-all-day-lite.glb",
+          "bytes": 189792,
+          "triangles": 20000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "vans-old-skool-blue": {
+      "slug": "vans-old-skool-blue",
+      "displayName": "Vans Old Skool Blue",
+      "brand": "Vans",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "96baa4684df7415ba8ba87d39bd1c2ee",
+        "title": "Unused Blue Vans Shoe",
+        "url": "https://sketchfab.com/3d-models/unused-blue-vans-shoe-96baa4684df7415ba8ba87d39bd1c2ee",
+        "author": "Lassi Kaukonen",
+        "authorUrl": "https://sketchfab.com/thesidekick",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 5353840,
+        "sketchfabFaceCount": 77987,
+        "triangles": 77987,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "right",
+        "lateralSideFacing": "+z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "yawCorrection": -2.75,
+        "scale": 0.056861,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 10.7,
+          "height": 12.3
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/vans-old-skool-blue.glb",
+          "bytes": 944960,
+          "triangles": 77987,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/vans-old-skool-blue-lite.glb",
+          "bytes": 310756,
+          "triangles": 19999,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "vans-rock-haters": {
+      "slug": "vans-rock-haters",
+      "displayName": "Vans Rock Haters",
+      "brand": "Vans",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "5f1b57feaaff4078ae54dc630a65547d",
+        "title": "Vans Shoes \"rock haters\"",
+        "url": "https://sketchfab.com/3d-models/vans-shoes-rock-haters-5f1b57feaaff4078ae54dc630a65547d",
+        "author": "ivandrodejesues908",
+        "authorUrl": "https://sketchfab.com/ivandrodejesues908",
+        "license": {
+          "slug": "by-nc-sa",
+          "name": "CC BY-NC-SA 4.0",
+          "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+          "commercialUse": false,
+          "shareAlike": true
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 5275840,
+        "sketchfabFaceCount": 155946,
+        "triangles": 155946,
+        "drawCalls": 3,
+        "meshes": 3,
+        "materials": 1,
+        "textures": 1,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "right",
+        "lateralSideFacing": "+z",
+        "extractedFromPair": true,
+        "rotation": [
+          52.5,
+          34.8,
+          -53.2
+        ],
+        "yawCorrection": 0.25,
+        "scale": 0.0919034,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 10.7,
+          "height": 12.4
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/vans-rock-haters.glb",
+          "bytes": 596452,
+          "triangles": 77959,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/vans-rock-haters-lite.glb",
+          "bytes": 193288,
+          "triangles": 19997,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "adidas-lightstrike": {
+      "slug": "adidas-lightstrike",
+      "displayName": "Adidas Lightstrike",
+      "brand": "Adidas",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "38df3a4bdbee4118af332498884c947d",
+        "title": "Adidas Lightstrike Shoes Scan",
+        "url": "https://sketchfab.com/3d-models/adidas-lightstrike-shoes-scan-38df3a4bdbee4118af332498884c947d",
+        "author": "fastjt",
+        "authorUrl": "https://sketchfab.com/fastjt",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 3901788,
+        "sketchfabFaceCount": 99938,
+        "triangles": 99938,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 2,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "right",
+        "lateralSideFacing": "+z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": -3.5,
+        "scale": 0.116492,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 11.4,
+          "height": 13.1
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/adidas-lightstrike.glb",
+          "bytes": 863428,
+          "triangles": 90000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 2,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/adidas-lightstrike-lite.glb",
+          "bytes": 235192,
+          "triangles": 20000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 2,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "adidas-retro-court": {
+      "slug": "adidas-retro-court",
+      "displayName": "Adidas Retro Court",
+      "brand": "Adidas",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "179aa5a7845a4625821a8c7afb0d0979",
+        "title": "Sport Shoes",
+        "url": "https://sketchfab.com/3d-models/sport-shoes-179aa5a7845a4625821a8c7afb0d0979",
+        "author": "eyesCloud3D",
+        "authorUrl": "https://sketchfab.com/eyesCloud3D",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 5674760,
+        "sketchfabFaceCount": 123606,
+        "triangles": 123593,
+        "drawCalls": 2,
+        "meshes": 2,
+        "materials": 1,
+        "textures": 1,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "left",
+        "lateralSideFacing": "-z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          -90,
+          0
+        ],
+        "yawCorrection": 24.25,
+        "scale": 1.34552,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 12,
+          "height": 12.1
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/adidas-retro-court.glb",
+          "bytes": 953824,
+          "triangles": 89999,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/adidas-retro-court-lite.glb",
+          "bytes": 336432,
+          "triangles": 20000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "adidas-orange-running": {
+      "slug": "adidas-orange-running",
+      "displayName": "Adidas Orange Running",
+      "brand": "Adidas",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "e10ac3f9959146d8b0094aff82ce5f65",
+        "title": "Red sport running shoes",
+        "url": "https://sketchfab.com/3d-models/red-sport-running-shoes-e10ac3f9959146d8b0094aff82ce5f65",
+        "author": "Numbian",
+        "authorUrl": "https://sketchfab.com/numbian",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 5407468,
+        "sketchfabFaceCount": 106306,
+        "triangles": 106306,
+        "drawCalls": 4,
+        "meshes": 4,
+        "materials": 1,
+        "textures": 2,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "right",
+        "lateralSideFacing": "+z",
+        "extractedFromPair": true,
+        "rotation": [
+          0,
+          -90,
+          0
+        ],
+        "yawCorrection": -13.75,
+        "scale": 0.926287,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 11.6,
+          "height": 14.2
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/adidas-orange-running.glb",
+          "bytes": 595240,
+          "triangles": 53153,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 2,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/adidas-orange-running-lite.glb",
+          "bytes": 220392,
+          "triangles": 19999,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 2,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "adidas-football-boot": {
+      "slug": "adidas-football-boot",
+      "displayName": "Adidas Football Boot",
+      "brand": "Adidas",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "17f21b0a2515455f96ad194ad5be9142",
+        "title": "Scanned Adidas Sports Shoe",
+        "url": "https://sketchfab.com/3d-models/scanned-adidas-sports-shoe-17f21b0a2515455f96ad194ad5be9142",
+        "author": "3Digify",
+        "authorUrl": "https://sketchfab.com/3digify",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 8114128,
+        "sketchfabFaceCount": 159901,
+        "triangles": 159901,
+        "drawCalls": 2,
+        "meshes": 2,
+        "materials": 1,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "cleat",
+        "foot": "left",
+        "lateralSideFacing": "-z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "yawCorrection": -18.25,
+        "scale": 0.480744,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 9.7,
+          "height": 12.4
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/adidas-football-boot.glb",
+          "bytes": 1066504,
+          "triangles": 89999,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/adidas-football-boot-lite.glb",
+          "bytes": 332472,
+          "triangles": 19999,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "on-cloud": {
+      "slug": "on-cloud",
+      "displayName": "On Cloud",
+      "brand": "On",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "3b6483658c5b4eb2a945a40bff243eda",
+        "title": "On Running, Cloud (Sports Shoe)",
+        "url": "https://sketchfab.com/3d-models/on-running-cloud-sports-shoe-3b6483658c5b4eb2a945a40bff243eda",
+        "author": "Hans-Joachim Brucherseifer",
+        "authorUrl": "https://sketchfab.com/hanjo.bru",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 15147416,
+        "sketchfabFaceCount": 324633,
+        "triangles": 324633,
+        "drawCalls": 3,
+        "meshes": 3,
+        "materials": 1,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "right",
+        "lateralSideFacing": "+z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          -122,
+          0
+        ],
+        "yawCorrection": -2.5,
+        "scale": 1.00426,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 10.9,
+          "height": 13.3
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/on-cloud.glb",
+          "bytes": 1083284,
+          "triangles": 90000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/on-cloud-lite.glb",
+          "bytes": 312012,
+          "triangles": 20000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "hoka-mach-5": {
+      "slug": "hoka-mach-5",
+      "displayName": "Hoka Mach 5",
+      "brand": "Hoka",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "15af8c871de64a1a8350c38ff0a91a6c",
+        "title": "Hoka Mach 5 Running Trainer",
+        "url": "https://sketchfab.com/3d-models/hoka-mach-5-running-trainer-15af8c871de64a1a8350c38ff0a91a6c",
+        "author": "Ellis Rogers-Byrne",
+        "authorUrl": "https://sketchfab.com/ellisrb",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 8855732,
+        "sketchfabFaceCount": 250008,
+        "triangles": 250008,
+        "drawCalls": 3,
+        "meshes": 3,
+        "materials": 1,
+        "textures": 1,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "left",
+        "lateralSideFacing": "-z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 2.75,
+        "scale": 0.00780786,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 11,
+          "height": 13.8
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/hoka-mach-5.glb",
+          "bytes": 903228,
+          "triangles": 90000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/hoka-mach-5-lite.glb",
+          "bytes": 279352,
+          "triangles": 20000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "converse-chuck-taylor": {
+      "slug": "converse-chuck-taylor",
+      "displayName": "Converse Chuck Taylor All Star",
+      "brand": "Converse",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "bc791439d26f4dd9974819c168e12385",
+        "title": "Converse — FREE",
+        "url": "https://sketchfab.com/3d-models/converse-free-bc791439d26f4dd9974819c168e12385",
+        "author": "Yaroslav Karas",
+        "authorUrl": "https://sketchfab.com/yakaras",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 3210588,
+        "sketchfabFaceCount": 75000,
+        "triangles": 75000,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 1,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "right",
+        "lateralSideFacing": "+z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "yawCorrection": 7.25,
+        "scale": 0.0812785,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 10.6,
+          "height": 16.5
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/converse-chuck-taylor.glb",
+          "bytes": 552096,
+          "triangles": 75000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/converse-chuck-taylor-lite.glb",
+          "bytes": 160884,
+          "triangles": 19999,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "salomon-xt-6": {
+      "slug": "salomon-xt-6",
+      "displayName": "Salomon XT-6",
+      "brand": "Salomon",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "717a18bd58544842afbabc81523cda77",
+        "title": "Salomon XT6 Sneaker Photo Scan",
+        "url": "https://sketchfab.com/3d-models/salomon-xt6-sneaker-photo-scan-717a18bd58544842afbabc81523cda77",
+        "author": "Renderedbyzhai",
+        "authorUrl": "https://sketchfab.com/renderedbyzhai",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 20831488,
+        "sketchfabFaceCount": 500000,
+        "triangles": 500000,
+        "drawCalls": 6,
+        "meshes": 6,
+        "materials": 1,
+        "textures": 1,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "left",
+        "lateralSideFacing": "-z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "yawCorrection": -4.5,
+        "scale": 0.00491941,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 11.1,
+          "height": 12.2
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/salomon-xt-6.glb",
+          "bytes": 788812,
+          "triangles": 90000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/salomon-xt-6-lite.glb",
+          "bytes": 237844,
+          "triangles": 20000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "dior-b30": {
+      "slug": "dior-b30",
+      "displayName": "Dior B30",
+      "brand": "Dior",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "c5ac5910a4694734b64da1473001c1dc",
+        "title": "Sneaker B30",
+        "url": "https://sketchfab.com/3d-models/sneaker-b30-c5ac5910a4694734b64da1473001c1dc",
+        "author": "Roberto Domínguez",
+        "authorUrl": "https://sketchfab.com/vmmaniac",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 19943536,
+        "sketchfabFaceCount": 111452,
+        "triangles": 111452,
+        "drawCalls": 13,
+        "meshes": 13,
+        "materials": 13,
+        "textures": 30,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "right",
+        "lateralSideFacing": "+z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": -2.25,
+        "scale": 0.189392,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 11.4,
+          "height": 13.2
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/dior-b30.glb",
+          "bytes": 1082236,
+          "triangles": 49989,
+          "drawCalls": 13,
+          "meshes": 13,
+          "materials": 13,
+          "textures": 29,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/dior-b30-lite.glb",
+          "bytes": 424176,
+          "triangles": 14000,
+          "drawCalls": 13,
+          "meshes": 13,
+          "materials": 13,
+          "textures": 28,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "dior-star-platform": {
+      "slug": "dior-star-platform",
+      "displayName": "Dior Star Platform",
+      "brand": "Dior",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "4aaf6674c9114085903ded3bc88fd752",
+        "title": "❤️LIKE if download - DR Sneaker - Plataforma",
+        "url": "https://sketchfab.com/3d-models/like-if-download-dr-sneaker-plataforma-4aaf6674c9114085903ded3bc88fd752",
+        "author": "Roberto Domínguez",
+        "authorUrl": "https://sketchfab.com/vmmaniac",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 19763656,
+        "sketchfabFaceCount": 96123,
+        "triangles": 96123,
+        "drawCalls": 17,
+        "meshes": 17,
+        "materials": 17,
+        "textures": 42,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "right",
+        "lateralSideFacing": "+z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": -5.25,
+        "scale": 0.189586,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 11,
+          "height": 13.6
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/dior-star-platform.glb",
+          "bytes": 1086124,
+          "triangles": 34991,
+          "drawCalls": 16,
+          "meshes": 16,
+          "materials": 16,
+          "textures": 39,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 64,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/dior-star-platform-lite.glb",
+          "bytes": 435164,
+          "triangles": 9000,
+          "drawCalls": 16,
+          "meshes": 16,
+          "materials": 16,
+          "textures": 39,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 80,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "new-balance-fresh-foam-roav": {
+      "slug": "new-balance-fresh-foam-roav",
+      "displayName": "New Balance Fresh Foam Roav",
+      "brand": "New Balance",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "d47f890dfff24d2d9cb3aeadd9c183e5",
+        "title": "New Balance Fresh Foam ROAV",
+        "url": "https://sketchfab.com/3d-models/new-balance-fresh-foam-roav-d47f890dfff24d2d9cb3aeadd9c183e5",
+        "author": "Andrei Alexandrescu",
+        "authorUrl": "https://sketchfab.com/Andrei_Alexandrescu",
+        "license": {
+          "slug": "by-nc-sa",
+          "name": "CC BY-NC-SA 4.0",
+          "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+          "commercialUse": false,
+          "shareAlike": true
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 8553696,
+        "sketchfabFaceCount": 100000,
+        "triangles": 100000,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "right",
+        "lateralSideFacing": "+z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "yawCorrection": -4.25,
+        "scale": 0.961384,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 11.5,
+          "height": 14.4
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/new-balance-fresh-foam-roav.glb",
+          "bytes": 1069588,
+          "triangles": 75000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 80,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/new-balance-fresh-foam-roav-lite.glb",
+          "bytes": 393396,
+          "triangles": 20000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "adidas-ozelia": {
+      "slug": "adidas-ozelia",
+      "displayName": "Adidas Ozelia",
+      "brand": "Adidas",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "bd99ae674f724ca690198f22764081f8",
+        "title": "Adidas Ozelia",
+        "url": "https://sketchfab.com/3d-models/adidas-ozelia-bd99ae674f724ca690198f22764081f8",
+        "author": "Romain DI CORATO",
+        "authorUrl": "https://sketchfab.com/dicorato.romain",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 26038688,
+        "sketchfabFaceCount": 440590,
+        "triangles": 440583,
+        "drawCalls": 5,
+        "meshes": 5,
+        "materials": 1,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "right",
+        "lateralSideFacing": "+z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": -1.5,
+        "scale": 0.0781899,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 10.5,
+          "height": 12.2
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/adidas-ozelia.glb",
+          "bytes": 1032016,
+          "triangles": 65627,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/adidas-ozelia-lite.glb",
+          "bytes": 403876,
+          "triangles": 37830,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "air-jordan-1-low-dior": {
+      "slug": "air-jordan-1-low-dior",
+      "displayName": "Air Jordan 1 Low Dior",
+      "brand": "Nike",
+      "raw": {
+        "bytes": 5987252,
+        "triangles": 89992,
+        "drawCalls": 2,
+        "meshes": 2,
+        "materials": 2,
+        "textures": 1,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ],
+        "sketchfabFaceCount": 89992
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "left",
+        "lateralSideFacing": "-z",
+        "extractedFromPair": true,
+        "rotation": [
+          179.7,
+          -11,
+          178.5
+        ],
+        "yawCorrection": 0,
+        "scale": 0.967086,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 11.4,
+          "height": 15.8
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/air-jordan-1-low-dior.glb",
+          "bytes": 728884,
+          "triangles": 44996,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/air-jordan-1-low-dior-lite.glb",
+          "bytes": 380436,
+          "triangles": 20000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      },
+      "source": {
+        "provider": "sketchfab",
+        "uid": "cc4e34d5480b4eea80da16cfc2b95acf",
+        "title": "Air Jordan 1 Low Dior",
+        "url": "https://sketchfab.com/3d-models/air-jordan-1-low-dior-cc4e34d5480b4eea80da16cfc2b95acf",
+        "author": "VTX",
+        "authorUrl": "https://sketchfab.com/VTX_car",
+        "license": {
+          "slug": "by-nc-sa",
+          "name": "CC BY-NC-SA 4.0",
+          "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+          "commercialUse": false,
+          "shareAlike": true
+        },
+        "downloadedAt": null
+      }
+    },
+    "jordan-4-black-cat": {
+      "slug": "jordan-4-black-cat",
+      "displayName": "Jordan 4 Retro Black Cat",
+      "brand": "Nike",
+      "raw": {
+        "bytes": 7583008,
+        "triangles": 95408,
+        "drawCalls": 2,
+        "meshes": 2,
+        "materials": 1,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ],
+        "sketchfabFaceCount": 95540
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "left",
+        "lateralSideFacing": "-z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "yawCorrection": 0.5,
+        "scale": 0.0607751,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 10.5,
+          "height": 17.6
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/jordan-4-black-cat.glb",
+          "bytes": 1008480,
+          "triangles": 60000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/jordan-4-black-cat-lite.glb",
+          "bytes": 448260,
+          "triangles": 19999,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 80,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      },
+      "source": {
+        "provider": "sketchfab",
+        "uid": "74daa127306f4eb5bd6411042c75a287",
+        "title": "Nike Jordan 4 Retro \"Black Cat\"",
+        "url": "https://sketchfab.com/3d-models/nike-jordan-4-retro-black-cat-74daa127306f4eb5bd6411042c75a287",
+        "author": "blarg",
+        "authorUrl": "https://sketchfab.com/blarg1",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": null
+      }
+    },
     "adidas-teamgeist-2006": {
       "slug": "adidas-teamgeist-2006",
       "displayName": "Adidas Teamgeist 2006",
@@ -1720,6 +3839,806 @@
             "errorMessages": []
           }
         }
+      }
+    },
+    "camiseta-futbol-roja": {
+      "slug": "camiseta-futbol-roja",
+      "displayName": "Camiseta de fútbol roja",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "72b85d298e804cf68faca548b5c86905",
+        "title": "Jersey Design",
+        "url": "https://sketchfab.com/3d-models/jersey-design-72b85d298e804cf68faca548b5c86905",
+        "author": "Wearable3D",
+        "authorUrl": "https://sketchfab.com/Wearable3D",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 10063084,
+        "sketchfabFaceCount": 258636
+      }
+    },
+    "camiseta-futbol-naranja": {
+      "slug": "camiseta-futbol-naranja",
+      "displayName": "Camiseta de fútbol naranja",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "d00dffa54c5b49b2941e0a34995f914e",
+        "title": "Football Jersey Style Design",
+        "url": "https://sketchfab.com/3d-models/football-jersey-style-design-d00dffa54c5b49b2941e0a34995f914e",
+        "author": "Wearable3D",
+        "authorUrl": "https://sketchfab.com/Wearable3D",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 10067772,
+        "sketchfabFaceCount": 258636
+      }
+    },
+    "kit-futbol-gris-geff": {
+      "slug": "kit-futbol-gris-geff",
+      "displayName": "Kit de fútbol gris GEFF",
+      "brand": "GEFF",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "72c88cf8edad46b7905499745e01b3fe",
+        "title": "A KOREAN COLLECTION - FOOTBALL MASCULINO",
+        "url": "https://sketchfab.com/3d-models/a-korean-collection-football-masculino-72c88cf8edad46b7905499745e01b3fe",
+        "author": "GEFF SPORT",
+        "authorUrl": "https://sketchfab.com/geffsport",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 1543216,
+        "sketchfabFaceCount": 44358
+      }
+    },
+    "camiseta-blanca-geff": {
+      "slug": "camiseta-blanca-geff",
+      "displayName": "Camiseta blanca GEFF",
+      "brand": "GEFF",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "1c04cc0acd734feea29b2b0cd1cf8214",
+        "title": "White T-shirt",
+        "url": "https://sketchfab.com/3d-models/white-t-shirt-1c04cc0acd734feea29b2b0cd1cf8214",
+        "author": "GEFF SPORT",
+        "authorUrl": "https://sketchfab.com/geffsport",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 10973496,
+        "sketchfabFaceCount": 272894
+      }
+    },
+    "camiseta-run-turquesa": {
+      "slug": "camiseta-run-turquesa",
+      "displayName": "Camiseta running turquesa",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "4d055bb8c1e04549a4b2dac7b27ebb2c",
+        "title": "Men Regular Apparel Fit Sporty T-Shirt",
+        "url": "https://sketchfab.com/3d-models/men-regular-apparel-fit-sporty-t-shirt-4d055bb8c1e04549a4b2dac7b27ebb2c",
+        "author": "BINARYCLOTH",
+        "authorUrl": "https://sketchfab.com/binaryclothofficial",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 4525300,
+        "sketchfabFaceCount": 29678
+      }
+    },
+    "polo-rayas": {
+      "slug": "polo-rayas",
+      "displayName": "Polo a rayas",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "7c8a4dede482474fa5a74f24c6fc5e81",
+        "title": "T-shirt",
+        "url": "https://sketchfab.com/3d-models/t-shirt-7c8a4dede482474fa5a74f24c6fc5e81",
+        "author": "Hyperrealitystudio",
+        "authorUrl": "https://sketchfab.com/Hyperrealitystudio",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 1819640,
+        "sketchfabFaceCount": 54381
+      }
+    },
+    "top-deportivo-blanco-geff": {
+      "slug": "top-deportivo-blanco-geff",
+      "displayName": "Top deportivo blanco GEFF",
+      "brand": "GEFF",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "6621ae8c44e6462ebb47959e73d6569e",
+        "title": "GEFF - TOP - 0132",
+        "url": "https://sketchfab.com/3d-models/geff-top-0132-6621ae8c44e6462ebb47959e73d6569e",
+        "author": "GEFF SPORT",
+        "authorUrl": "https://sketchfab.com/geffsport",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 8461560,
+        "sketchfabFaceCount": 218882
+      }
+    },
+    "conjunto-deportivo-mujer": {
+      "slug": "conjunto-deportivo-mujer",
+      "displayName": "Top deportivo de mujer",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "a9022683c61a4db7bdc24d8afc7671c5",
+        "title": "Women Sportswear",
+        "url": "https://sketchfab.com/3d-models/women-sportswear-a9022683c61a4db7bdc24d8afc7671c5",
+        "author": "Trazatrum",
+        "authorUrl": "https://sketchfab.com/trazatrum",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 3833216,
+        "sketchfabFaceCount": 13498
+      }
+    },
+    "leggings-deportivos-mujer": {
+      "slug": "leggings-deportivos-mujer",
+      "displayName": "Leggings deportivos de mujer",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "a9022683c61a4db7bdc24d8afc7671c5",
+        "title": "Women Sportswear",
+        "url": "https://sketchfab.com/3d-models/women-sportswear-a9022683c61a4db7bdc24d8afc7671c5",
+        "author": "Trazatrum",
+        "authorUrl": "https://sketchfab.com/trazatrum",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 3833216,
+        "sketchfabFaceCount": 13498
+      }
+    },
+    "jersey-basquet-llamas": {
+      "slug": "jersey-basquet-llamas",
+      "displayName": "Jersey de básquet llamas",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "d353042ccf20414d85dd3fd87bba43d5",
+        "title": "Basketball jersy",
+        "url": "https://sketchfab.com/3d-models/basketball-jersy-d353042ccf20414d85dd3fd87bba43d5",
+        "author": "ferry",
+        "authorUrl": "https://sketchfab.com/ferry2901",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 3034792,
+        "sketchfabFaceCount": 11016
+      }
+    },
+    "sudadera-nike-club-fleece": {
+      "slug": "sudadera-nike-club-fleece",
+      "displayName": "Sudadera Nike Club Fleece",
+      "brand": "Nike",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "bc387203ef184f2dbd25b236945857c5",
+        "title": "Sweater_Nike Sportswear Club Fleece",
+        "url": "https://sketchfab.com/3d-models/sweater-nike-sportswear-club-fleece-bc387203ef184f2dbd25b236945857c5",
+        "author": "PKY_studio",
+        "authorUrl": "https://sketchfab.com/PKY_studio",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 2230740,
+        "sketchfabFaceCount": 14648
+      }
+    },
+    "anorak-gris": {
+      "slug": "anorak-gris",
+      "displayName": "Anorak gris",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "f72f208b242a415c84d0087a790faa5f",
+        "title": "Male sweatpants and sweatshirt (anorak)",
+        "url": "https://sketchfab.com/3d-models/male-sweatpants-and-sweatshirt-anorak-f72f208b242a415c84d0087a790faa5f",
+        "author": "Alexander Kurmanin",
+        "authorUrl": "https://sketchfab.com/kurmanin",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 8178436,
+        "sketchfabFaceCount": 14890
+      }
+    },
+    "sudadera-basica-bicolor": {
+      "slug": "sudadera-basica-bicolor",
+      "displayName": "Sudadera básica bicolor",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "92800a4c11ce4b8daccb75e60035535f",
+        "title": "Basic sweatshirt",
+        "url": "https://sketchfab.com/3d-models/basic-sweatshirt-92800a4c11ce4b8daccb75e60035535f",
+        "author": "Alexander Kurmanin",
+        "authorUrl": "https://sketchfab.com/kurmanin",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 4574088,
+        "sketchfabFaceCount": 20064
+      }
+    },
+    "sudadera-zip-crema": {
+      "slug": "sudadera-zip-crema",
+      "displayName": "Sudadera con zíper crema",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "2dfa849756dc45f2bf6c6b2d8100905a",
+        "title": "Sweater",
+        "url": "https://sketchfab.com/3d-models/sweater-2dfa849756dc45f2bf6c6b2d8100905a",
+        "author": "ARize",
+        "authorUrl": "https://sketchfab.com/ARizegroup",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 10717140,
+        "sketchfabFaceCount": 159580
+      }
+    },
+    "hoodie-corto-rosa": {
+      "slug": "hoodie-corto-rosa",
+      "displayName": "Hoodie corto rosa",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "fd03f442026f4252b2507dda53bba564",
+        "title": "Pink Drawstring Hooded Sweatshirt",
+        "url": "https://sketchfab.com/3d-models/pink-drawstring-hooded-sweatshirt-fd03f442026f4252b2507dda53bba564",
+        "author": "Style3D CG",
+        "authorUrl": "https://sketchfab.com/Style3DMeta",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 5022440,
+        "sketchfabFaceCount": 109778
+      }
+    },
+    "hoodie-nike-turquesa-mujer": {
+      "slug": "hoodie-nike-turquesa-mujer",
+      "displayName": "Hoodie Nike turquesa de mujer",
+      "brand": "Nike",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "132697d70644446aab83c6fb41040076",
+        "title": "Women's Sportswear",
+        "url": "https://sketchfab.com/3d-models/womens-sportswear-132697d70644446aab83c6fb41040076",
+        "author": "Dave N.",
+        "authorUrl": "https://sketchfab.com/davidnunes",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 21617536,
+        "sketchfabFaceCount": 709436
+      }
+    },
+    "chaqueta-adidas-negra": {
+      "slug": "chaqueta-adidas-negra",
+      "displayName": "Chaqueta Adidas negra",
+      "brand": "Adidas",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "2f69634f33ee4173beba410a673da22c",
+        "title": "Adidas Jacket",
+        "url": "https://sketchfab.com/3d-models/adidas-jacket-2f69634f33ee4173beba410a673da22c",
+        "author": "Ryan Maduro",
+        "authorUrl": "https://sketchfab.com/rmaduro",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 2386820,
+        "sketchfabFaceCount": 5924
+      }
+    },
+    "chaqueta-acolchada-roja": {
+      "slug": "chaqueta-acolchada-roja",
+      "displayName": "Chaqueta acolchada roja",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "7d95660645834760a0a638775e5fe4a7",
+        "title": "Puffer Jacket",
+        "url": "https://sketchfab.com/3d-models/puffer-jacket-7d95660645834760a0a638775e5fe4a7",
+        "author": "oluwaphemi",
+        "authorUrl": "https://sketchfab.com/oluwaphemi",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 5198576,
+        "sketchfabFaceCount": 85407
+      }
+    },
+    "chaqueta-varsity": {
+      "slug": "chaqueta-varsity",
+      "displayName": "Chaqueta varsity",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "40ee5970950b48b4a38d657dc671f007",
+        "title": "Varsity Jacket",
+        "url": "https://sketchfab.com/3d-models/varsity-jacket-40ee5970950b48b4a38d657dc671f007",
+        "author": "Sev",
+        "authorUrl": "https://sketchfab.com/sevclothing",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 4610136,
+        "sketchfabFaceCount": 116926
+      }
+    },
+    "pants-mujer-franjas-lima": {
+      "slug": "pants-mujer-franjas-lima",
+      "displayName": "Pants de mujer con franjas lima",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "2c2bd2f956df4db29ecfe93d250ad31e",
+        "title": "Female sweatpants for Metahuman",
+        "url": "https://sketchfab.com/3d-models/female-sweatpants-for-metahuman-2c2bd2f956df4db29ecfe93d250ad31e",
+        "author": "Alexander Kurmanin",
+        "authorUrl": "https://sketchfab.com/kurmanin",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 5601592,
+        "sketchfabFaceCount": 6688
+      }
+    },
+    "pants-anorak-gris": {
+      "slug": "pants-anorak-gris",
+      "displayName": "Pants anorak gris",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "f72f208b242a415c84d0087a790faa5f",
+        "title": "Male sweatpants and sweatshirt (anorak)",
+        "url": "https://sketchfab.com/3d-models/male-sweatpants-and-sweatshirt-anorak-f72f208b242a415c84d0087a790faa5f",
+        "author": "Alexander Kurmanin",
+        "authorUrl": "https://sketchfab.com/kurmanin",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 8178436,
+        "sketchfabFaceCount": 14890
+      }
+    },
+    "jogger-gris": {
+      "slug": "jogger-gris",
+      "displayName": "Jogger gris",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "8939b47916ab4b2486a3fa2613eac54c",
+        "title": "The Pants",
+        "url": "https://sketchfab.com/3d-models/the-pants-8939b47916ab4b2486a3fa2613eac54c",
+        "author": "ARize",
+        "authorUrl": "https://sketchfab.com/ARizegroup",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 7843688,
+        "sketchfabFaceCount": 127008
+      }
+    },
+    "short-geff-blanco": {
+      "slug": "short-geff-blanco",
+      "displayName": "Short GEFF blanco",
+      "brand": "GEFF",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "2f568dba2f1343e89f278860618cd3ed",
+        "title": "SHORT - GEFF",
+        "url": "https://sketchfab.com/3d-models/short-geff-2f568dba2f1343e89f278860618cd3ed",
+        "author": "GEFF SPORT",
+        "authorUrl": "https://sketchfab.com/geffsport",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 14199860,
+        "sketchfabFaceCount": 332258
+      }
+    },
+    "short-deportivo-coral": {
+      "slug": "short-deportivo-coral",
+      "displayName": "Short deportivo coral",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "9f872504291644d8b05c0b85702d019e",
+        "title": "man shorts",
+        "url": "https://sketchfab.com/3d-models/man-shorts-9f872504291644d8b05c0b85702d019e",
+        "author": "MalahovaVladislava",
+        "authorUrl": "https://sketchfab.com/MalahovaVladislava",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 3769508,
+        "sketchfabFaceCount": 8854
+      }
+    },
+    "gorra-ny-marino": {
+      "slug": "gorra-ny-marino",
+      "displayName": "Gorra NY marino",
+      "brand": "New York Yankees",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "455523a744a84087b584f6a0cd8ec357",
+        "title": "Navy Baseball Cap with Embroidered NY Logo",
+        "url": "https://sketchfab.com/3d-models/navy-baseball-cap-with-embroidered-ny-logo-455523a744a84087b584f6a0cd8ec357",
+        "author": "Iffah Kashif",
+        "authorUrl": "https://sketchfab.com/IffahKash07",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 2171064,
+        "sketchfabFaceCount": 17334
+      }
+    },
+    "gorra-gris-flexfit": {
+      "slug": "gorra-gris-flexfit",
+      "displayName": "Gorra gris Flexfit",
+      "brand": "Flexfit",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "3a131a461d01447d866c7ab119d1707b",
+        "title": "Baseball Cap",
+        "url": "https://sketchfab.com/3d-models/baseball-cap-3a131a461d01447d866c7ab119d1707b",
+        "author": "oluwaphemi",
+        "authorUrl": "https://sketchfab.com/oluwaphemi",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 19636740,
+        "sketchfabFaceCount": 337004
+      }
+    },
+    "gorro-gris-canale": {
+      "slug": "gorro-gris-canale",
+      "displayName": "Gorro gris de canalé",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "ff6dc83c818c4e2aa722cb89e6ada577",
+        "title": "Beanie",
+        "url": "https://sketchfab.com/3d-models/beanie-ff6dc83c818c4e2aa722cb89e6ada577",
+        "author": "oluwaphemi",
+        "authorUrl": "https://sketchfab.com/oluwaphemi",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 3842072,
+        "sketchfabFaceCount": 38844
+      }
+    },
+    "lentes-sol-negros": {
+      "slug": "lentes-sol-negros",
+      "displayName": "Lentes de sol negros",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "d0d86024a30f49b7937b932f6f993f92",
+        "title": "Sunglasses",
+        "url": "https://sketchfab.com/3d-models/sunglasses-d0d86024a30f49b7937b932f6f993f92",
+        "author": "RANYA",
+        "authorUrl": "https://sketchfab.com/RANYA35",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 1798004,
+        "sketchfabFaceCount": 47196
+      }
+    },
+    "lentes-deportivos-espejo": {
+      "slug": "lentes-deportivos-espejo",
+      "displayName": "Lentes deportivos espejo",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "1a29942363754f798ac2dd9e61d857fc",
+        "title": "Glasses Spy tron 2 - Gafas PBR",
+        "url": "https://sketchfab.com/3d-models/glasses-spy-tron-2-gafas-pbr-1a29942363754f798ac2dd9e61d857fc",
+        "author": "Hey Arnold",
+        "authorUrl": "https://sketchfab.com/lheyarnold",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 582008,
+        "sketchfabFaceCount": 2198
+      }
+    },
+    "maleta-deportiva-blanca": {
+      "slug": "maleta-deportiva-blanca",
+      "displayName": "Maleta deportiva blanca",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "4f3da061584a4c51be8cb4a54b7586a2",
+        "title": "Sports Bag",
+        "url": "https://sketchfab.com/3d-models/sports-bag-4f3da061584a4c51be8cb4a54b7586a2",
+        "author": "Zeps3D",
+        "authorUrl": "https://sketchfab.com/Zeps3D",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 2908068,
+        "sketchfabFaceCount": 19400
+      }
+    },
+    "mochila-negra": {
+      "slug": "mochila-negra",
+      "displayName": "Mochila negra",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "524d7fc724094ead9f203ed06bae76e1",
+        "title": "School Backpack",
+        "url": "https://sketchfab.com/3d-models/school-backpack-524d7fc724094ead9f203ed06bae76e1",
+        "author": "MadeByYeshe",
+        "authorUrl": "https://sketchfab.com/MadeByYeshe",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 6971984,
+        "sketchfabFaceCount": 66344
+      }
+    },
+    "reloj-inteligente-negro": {
+      "slug": "reloj-inteligente-negro",
+      "displayName": "Reloj inteligente negro",
+      "brand": "AIRSPACE",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "c896964ab7274bff810ac5ae9165cf8c",
+        "title": "Wrist watch (smartWatch)",
+        "url": "https://sketchfab.com/3d-models/wrist-watch-smartwatch-c896964ab7274bff810ac5ae9165cf8c",
+        "author": "Mohit Batta",
+        "authorUrl": "https://sketchfab.com/mohitdx",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 1158868,
+        "sketchfabFaceCount": 9625
       }
     }
   }

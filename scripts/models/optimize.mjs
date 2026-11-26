@@ -27,6 +27,7 @@ import {
   join,
   listTextureSlots,
   meshopt,
+  metalRough,
   prune,
   simplify,
   simplifyPrimitive,
@@ -44,7 +45,10 @@ import {
   TEXTURE_QUALITY_STEPS,
   VARIANTS,
 } from './config.mjs';
+import { patchTextures } from './textures.mjs';
 import {
+  bakeSkins,
+  filterParts,
   keepTrianglesOnSide,
   normalizePose,
   removeSmallParts,
@@ -77,12 +81,24 @@ await MeshoptSimplifier.ready;
 // Lee el original y deja la geometría limpia y en pose canónica.
 async function prepareGeometry(model) {
   const document = await io.read(rawModelPath(model.slug));
+  // Prendas con esqueleto (exportadas sobre un cuerpo): se fijan en su pose.
+  bakeSkins(document);
+  if (model.parts) filterParts(document, model.parts);
   if (model.extract) keepTrianglesOnSide(document, model.extract);
+  if (model.texturePatches) await patchTextures(document, model.texturePatches);
+  // metalRough convierte los materiales especular/brillo
+  // (KHR_materials_pbrSpecularGlossiness) a metal/rugosidad: three.js y
+  // model-viewer ya no leen esa extensión y el zapato se vería blanco, sin
+  // texturas. En los modelos que no la usan no hace nada.
+  await document.transform(metalRough());
   await document.transform(dedup(), prune(), flatten(), join(), weld(), prune());
+  const category = CATEGORIES[model.category ?? 'sneaker'];
   const pose = normalizePose(document, {
     rotation: model.transform?.rotation,
-    lengthMeters: CATEGORIES[model.category ?? 'sneaker'].sizeMeters,
-    autoYaw: CATEGORIES[model.category ?? 'sneaker'].autoYaw,
+    lengthMeters: model.size?.meters ?? category.sizeMeters,
+    sizeAxis: model.size?.axis ?? category.sizeAxis ?? 'x',
+    autoYaw: category.autoYaw,
+    garment: category.garment ?? false,
   });
   return { document, pose };
 }
@@ -277,9 +293,12 @@ for (const model of models) {
 
   const rawDescription = describeDocument(await io.read(rawPath));
   const { document: geometry, pose } = await prepareGeometry(model);
+  const size = pose.dimensionsCm;
   console.log(
     `  Pose: giro ${pose.rotation.join('/')}°, ajuste fino ${pose.yawCorrection}°, ` +
-      `${pose.dimensionsCm.length} x ${pose.dimensionsCm.width} x ${pose.dimensionsCm.height} cm`,
+      (size.length === undefined
+        ? `${size.width} x ${size.height} x ${size.depth} cm (ancho x alto x fondo)`
+        : `${size.length} x ${size.width} x ${size.height} cm`),
   );
 
   const variants = {};
@@ -322,6 +341,8 @@ for (const model of models) {
       // Con la punta a +X, el lado exterior de un zapato derecho mira a +Z.
       lateralSideFacing: model.foot ? (model.foot === 'right' ? '+z' : '-z') : undefined,
       extractedFromPair: Boolean(model.extract),
+      // Las prendas miran de frente a +Z (la cámara por defecto).
+      frontFacing: model.category === 'apparel' ? '+z' : undefined,
       ...pose,
     },
     variants,

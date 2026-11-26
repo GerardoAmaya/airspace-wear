@@ -1348,7 +1348,10 @@
     display: none;
   }
 
-  /* Detalles: lista en fila, tarjeta abajo, "Ver catálogo" arriba a la derecha. */
+  /* Detalles: lista en fila y datos al pie, la tarjeta sobre la lista (en la
+     franja libre bajo el zapato) y "Ver catálogo" arriba a la derecha. Antes
+     la tarjeta iba debajo de los datos y su hueco quedaba vacío mientras no
+     había un detalle activo: unos 350 px sin nada antes del catálogo. */
   .details {
     min-height: 600px;
   }
@@ -1398,7 +1401,7 @@
   }
 
   .rail {
-    bottom: 13.25rem;
+    bottom: 3.25rem;
     right: 0;
     width: auto;
   }
@@ -1457,7 +1460,7 @@
   .specs {
     left: 0;
     right: 0;
-    bottom: 10rem;
+    bottom: 0;
     width: auto;
     display: flex;
     gap: var(--space-6);
@@ -1480,11 +1483,12 @@
     display: none;
   }
 
+  /* 8.5rem = datos (3.25rem) + lista (unos 69 px) + un respiro. */
   .card {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: 8.5rem;
     display: grid;
     align-content: start;
     gap: var(--space-2);

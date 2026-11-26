@@ -56,6 +56,7 @@ export async function getProducts(query: ProductListQuery): Promise<ProductList>
   const params = new URLSearchParams({ locale: query.locale });
   if (query.category) params.set('category', query.category);
   if (query.brand) params.set('brand', query.brand);
+  if (query.subcategory) params.set('subcategory', query.subcategory);
   return request(`/v1/products?${params}`, productListSchema);
 }
 

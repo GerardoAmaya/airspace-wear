@@ -1,6 +1,5 @@
 'use client';
 
-import { useFormatter, useTranslations } from 'next-intl';
 import { useRef } from 'react';
 import { gsap, ScrollTrigger, useGSAP } from '@/lib/motion/gsap';
 import { DURATION, EASE } from '@/lib/motion/tokens';
@@ -8,17 +7,25 @@ import styles from './Featured.module.css';
 import { scramble } from './scramble';
 import ui from './ui.module.css';
 
-// Encabezado de "Destacados". Único guiño al tablero de salidas: el título y
-// el conteo de pares se decodifican letra por letra una sola vez, cuando el
+// Textos del encabezado, ya traducidos y formateados en el servidor (cada
+// sección usa su propio espacio de nombres de mensajes).
+export interface FeaturedHeadCopy {
+  store: string;
+  kicker: string;
+  title: string;
+  // Conteo con relleno, por ejemplo "06 pares" o "06 prendas".
+  count: string;
+  lead: string;
+}
+
+// Encabezado de "Destacados" y de "Ropa". Único guiño al tablero de salidas:
+// el título y el conteo se decodifican letra por letra una sola vez, cuando el
 // encabezado entra en vista (ScrollTrigger solo como disparador, once: true).
 // Con movimiento reducido o sin JS el texto se ve fijo desde el inicio. El
 // estado oculto vive en CSS (Featured.module.css, [data-enter='idle']).
-export function FeaturedHead({ brands, count }: { brands: string[]; count: number }) {
-  const t = useTranslations('HomeBoard');
-  const format = useFormatter();
+export function FeaturedHead({ brands, copy, titleId }: { brands: string[]; copy: FeaturedHeadCopy; titleId: string }) {
   const root = useRef<HTMLDivElement>(null);
-  const title = t('title');
-  const countText = t('count', { padded: format.number(count, { minimumIntegerDigits: 2 }), count });
+  const { title, count: countText } = copy;
 
   useGSAP(
     () => {
@@ -70,13 +77,13 @@ export function FeaturedHead({ brands, count }: { brands: string[]; count: numbe
   return (
     <div ref={root} className={styles.head} data-enter="idle">
       <div className={styles.intro} aria-hidden="true">
-        <span className={ui.hudLabel}>{t('store')}</span>
+        <span className={ui.hudLabel}>{copy.store}</span>
         <span className={styles.introRule} data-rule="" />
         <span className={`${ui.hudLabel} ${styles.introBrands}`}>{brands.join(' · ')}</span>
       </div>
 
       <div className={styles.headMeta}>
-        <p className={`${ui.hudLabel} ${ui.hudPrimary}`}>{t('kicker')}</p>
+        <p className={`${ui.hudLabel} ${ui.hudPrimary}`}>{copy.kicker}</p>
         <p className={`${ui.hudLabel} ${styles.count}`}>
           <span className="visually-hidden">{countText}</span>
           <span aria-hidden="true" data-scramble={countText}>
@@ -86,14 +93,14 @@ export function FeaturedHead({ brands, count }: { brands: string[]; count: numbe
       </div>
 
       <div className={styles.headTitle}>
-        <h2 id="catalogo-title" className={`${ui.display} ${styles.title}`}>
+        <h2 id={titleId} className={`${ui.display} ${styles.title}`}>
           <span className="visually-hidden">{title}</span>
           <span aria-hidden="true" data-scramble={title}>
             {title}
           </span>
         </h2>
         <p className={styles.lead} data-fade="">
-          {t('lead')}
+          {copy.lead}
         </p>
       </div>
     </div>

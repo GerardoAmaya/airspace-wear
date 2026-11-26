@@ -8,24 +8,41 @@ import {
   productListSchema,
 } from '@airspace/contracts';
 import request from 'supertest';
-import { FEATURED, PRODUCTS } from '../prisma/seed/catalog.js';
+import { APPAREL_PRODUCTS } from '../prisma/seed/apparel.js';
+import { FEATURED, PUBLISHED_PRODUCTS as PRODUCTS } from '../prisma/seed/catalog.js';
 import {
   createTestApp,
+  prismaOf,
   PUBLIC_CACHE_CONTROL,
   type TestApp,
 } from './support/app.js';
+import { seededCatalog, setPublished } from './support/catalog.js';
 
-// Catálogo de solo lectura contra airspace_test recién sembrada (ver
-// test/support/global-setup.ts). Este archivo no modifica datos, así que una
-// sola app (y su caché de 60 s) sirve para todas las pruebas.
+// Catálogo de lectura contra airspace_test recién sembrada (ver
+// test/support/global-setup.ts). PRODUCTS son los productos publicados del
+// seed (un borrador, published: false, no se lista). El seed oculta los que
+// esperan su modelo 3D (hoy, la ropa); antes de leer, este archivo los
+// publica sin 3D para cubrir el catálogo completo, sin importar cuántos
+// modelos haya ya en el manifest, y al final los deja como estaban (la regla
+// del seed se prueba en catalog-mutations.e2e-spec.ts). Una sola app (y su
+// caché de 60 s) sirve para todas las pruebas, porque los datos ya no
+// cambian después del beforeAll.
+
 describe('Catálogo (integración)', () => {
   let app: TestApp;
+  let models = new Set<string>();
+  let restore: () => Promise<void> = async () => {};
 
   beforeAll(async () => {
     app = await createTestApp();
+    const prisma = prismaOf(app);
+    const seeded = await seededCatalog(prisma);
+    models = seeded.models;
+    restore = await setPublished(prisma, seeded.pending.map((product) => product.slug), true);
   });
 
   afterAll(async () => {
+    await restore();
     await app.close();
   });
 
@@ -81,27 +98,51 @@ describe('Catálogo (integración)', () => {
       const nike = await list('?brand=nike');
       expect(nike.items.map((item) => item.slug).sort()).toEqual([
         'air-jordan-1',
+        'air-jordan-1-low-dior',
         'air-jordan-1-mid-particle-beige',
+        'hoodie-nike-turquesa-mujer',
+        'jordan-4-black-cat',
         'jordan-4-travis-scott',
         'jordan-4-university-blue',
+        'nike-air-max-270',
+        'nike-air-max-pre-day',
         'nike-air-uptempo',
+        'nike-defy-all-day',
         'nike-dunk-high-hawaii',
         'nike-pegasus-36',
+        'nike-quest-running',
+        'nike-react-presto',
+        'nike-structure-plus',
+        'sudadera-nike-club-fleece',
       ]);
 
       const nikeBalls = await list('?brand=nike&category=ball');
       expect(nikeBalls.items).toEqual([]);
 
       const adidasSneakers = await list('?brand=adidas&category=sneaker');
-      expect(adidasSneakers.items).toHaveLength(5);
+      expect(adidasSneakers.items).toHaveLength(9);
       expect(
         adidasSneakers.items.every(
           (item) => item.brand.slug === 'adidas' && item.category === 'sneaker',
         ),
       ).toBe(true);
 
+      // La ropa sale en el orden de APPAREL_PRODUCTS (después del calzado).
       const apparel = await list('?category=apparel');
-      expect(apparel.items).toEqual([]);
+      expect(apparel.items.map((item) => item.slug)).toEqual(APPAREL_PRODUCTS.map((product) => product.slug));
+      const caps = await list('?category=apparel&subcategory=cap');
+      expect(caps.items.map((item) => item.slug)).toEqual(['gorra-ny-marino', 'gorra-gris-flexfit', 'gorro-gris-canale']);
+    });
+
+    it('filtra los tacos (cleat) aparte de los sneakers', async () => {
+      const cleats = await list('?category=cleat');
+      expect(cleats.items.map((item) => item.slug)).toEqual(['adidas-football-boot']);
+      const en = await list('?category=cleat&locale=en');
+      expect(en.items[0]?.name).toBe('Adidas Football Boots');
+      expect(en.items[0]?.sizeRange).toEqual({ system: 'EU', min: '38', max: '46' });
+
+      const sneakers = await list('?category=sneaker');
+      expect(sneakers.items.some((item) => item.category === 'cleat')).toBe(false);
     });
 
     it('ordena como la vitrina: FEATURED primero y luego el resto del seed', async () => {
@@ -112,9 +153,14 @@ describe('Catálogo (integración)', () => {
       expect(body.items.slice(0, 2).map((item) => item.slug)).toEqual(['jordan-4-travis-scott', 'nike-dunk-high-hawaii']);
     });
 
-    it('cada producto trae su modelo 3D hero y lite', async () => {
+    it('cada producto con modelo cargado trae su 3D hero y lite, y el resto ninguno', async () => {
       const body = await list();
       for (const item of body.items) {
+        const seed = PRODUCTS.find((product) => product.slug === item.slug);
+        if (!seed?.model || !models.has(seed.model)) {
+          expect(item.model).toBeNull();
+          continue;
+        }
         expect(item.model).not.toBeNull();
         expect(item.model?.heroUrl).toBe(`/models/${item.model?.slug}.glb`);
         expect(item.model?.liteUrl).toBe(
@@ -169,6 +215,24 @@ describe('Catálogo (integración)', () => {
       expect(es.hotspots[0]?.title).toBe('Swoosh de cuero');
     });
 
+    it('la ropa expone subcategoría, lugar en el avatar y tallas de letra o talla única', async () => {
+      const hoodie = await detail('sudadera-nike-club-fleece', '?locale=en');
+      expect(hoodie).toMatchObject({ category: 'apparel', subcategory: 'sweatshirt', avatarSlot: 'top' });
+      expect(hoodie.sizes.map((size) => `${size.system}:${size.label}`)).toEqual(['ALPHA:S', 'ALPHA:M', 'ALPHA:L', 'ALPHA:XL']);
+      const cap = await detail('gorra-ny-marino');
+      expect(cap).toMatchObject({ subcategory: 'cap', avatarSlot: 'head' });
+      expect(cap.sizes.map((size) => `${size.system}:${size.label}`)).toEqual(['ONE:OS']);
+      // Solo los 5 pilotos llevan lugar en el avatar; el resto es de catálogo.
+      const jacket = await detail('chaqueta-varsity');
+      expect(jacket.avatarSlot).toBeNull();
+    });
+
+    it('el calzado expone subcategoría y lugar en el avatar en null', async () => {
+      const jordan = await detail('air-jordan-1');
+      expect(jordan).toMatchObject({ subcategory: null, avatarSlot: null });
+      expect(jordan.sizes.every((size) => size.system === 'EU')).toBe(true);
+    });
+
     it('un producto sin hotspots devuelve []', async () => {
       const ball = await detail('adidas-telstar-1970');
       expect(ball.hotspots).toEqual([]);
@@ -199,6 +263,8 @@ describe('Catálogo (integración)', () => {
       ['locale=fr en el detalle', '/v1/products/air-jordan-1?locale=fr'],
       ['locale=fr en el listado', '/v1/products?locale=fr'],
       ['category=shoes', '/v1/products?category=shoes'],
+      ['category=cleats (plural)', '/v1/products?category=cleats'],
+      ['subcategory=socks', '/v1/products?category=apparel&subcategory=socks'],
     ])('%s responde 400 invalid_request con issues', async (_label, url) => {
       const body = await expectError(url, 400, 'invalid_request');
       expect(body.issues?.length).toBeGreaterThan(0);
@@ -210,22 +276,47 @@ describe('Catálogo (integración)', () => {
       const response = await get('/v1/brands').expect(200);
       expect(response.headers['cache-control']).toBe(PUBLIC_CACHE_CONTROL);
       const body = brandListSchema.parse(response.body);
+      // Orden por nombre con la intercalación de la base (mayúsculas primero:
+      // AIRSPACE va antes que Adidas).
       expect(body.items).toEqual([
-        { slug: 'adidas', name: 'Adidas', productCount: 10 },
-        { slug: 'new-balance', name: 'New Balance', productCount: 1 },
-        { slug: 'nike', name: 'Nike', productCount: 7 },
+        { slug: 'airspace', name: 'AIRSPACE', productCount: 23 },
+        { slug: 'adidas', name: 'Adidas', productCount: 16 },
+        { slug: 'converse', name: 'Converse', productCount: 1 },
+        { slug: 'dior', name: 'Dior', productCount: 2 },
+        { slug: 'flexfit', name: 'Flexfit', productCount: 1 },
+        { slug: 'geff', name: 'GEFF', productCount: 6 },
+        { slug: 'hoka', name: 'Hoka', productCount: 1 },
+        { slug: 'new-balance', name: 'New Balance', productCount: 2 },
+        { slug: 'new-york-yankees', name: 'New York Yankees', productCount: 1 },
+        { slug: 'nike', name: 'Nike', productCount: 17 },
+        { slug: 'on', name: 'On', productCount: 1 },
+        { slug: 'salomon', name: 'Salomon', productCount: 1 },
+        { slug: 'vans', name: 'Vans', productCount: 2 },
       ]);
     });
 
-    it('GET /v1/categories incluye apparel con 0', async () => {
+    it('GET /v1/categories cuenta cada categoría y las subcategorías de la ropa', async () => {
       const response = await get('/v1/categories').expect(200);
       expect(response.headers['cache-control']).toBe(PUBLIC_CACHE_CONTROL);
       const body = categoryListSchema.parse(response.body);
-      expect(body.items).toEqual([
-        { slug: 'sneaker', productCount: 13 },
-        { slug: 'apparel', productCount: 0 },
+      expect(body.items.map(({ slug, productCount }) => ({ slug, productCount }))).toEqual([
+        { slug: 'sneaker', productCount: 34 },
+        { slug: 'cleat', productCount: 1 },
+        { slug: 'apparel', productCount: 34 },
         { slug: 'ball', productCount: 5 },
       ]);
+      // La ropa trae sus subcategorías con su conteo; las demás, ninguna.
+      const apparel = body.items.find((item) => item.slug === 'apparel');
+      expect(apparel?.subcategories).toEqual([
+        { slug: 'tshirt', productCount: 9 },
+        { slug: 'sweatshirt', productCount: 6 },
+        { slug: 'jacket', productCount: 3 },
+        { slug: 'pants', productCount: 5 },
+        { slug: 'shorts', productCount: 3 },
+        { slug: 'cap', productCount: 3 },
+        { slug: 'accessory', productCount: 5 },
+      ]);
+      expect(body.items.filter((item) => item.slug !== 'apparel').every((item) => item.subcategories.length === 0)).toBe(true);
     });
   });
 

@@ -5,9 +5,53 @@ import { localeSchema } from './locale.js';
 // vienen en el idioma pedido; categorías, disponibilidad y cambios de
 // créditos son códigos que la web traduce con sus mensajes.
 
-export const CATEGORIES = ['sneaker', 'apparel', 'ball'] as const;
+// cleat: tacos de fútbol (botines con tapones). Se calzan como un sneaker.
+export const CATEGORIES = ['sneaker', 'cleat', 'apparel', 'ball'] as const;
 export const categorySchema = z.enum(CATEGORIES);
 export type Category = z.infer<typeof categorySchema>;
+
+// Categorías que se calzan: el Hangar 360° las prueba en el avatar. Los
+// balones no; la ropa entra prenda por prenda, según su avatarSlot.
+export const WEARABLE_CATEGORIES = ['sneaker', 'cleat'] as const satisfies readonly Category[];
+export const isWearable = (category: Category): boolean => (WEARABLE_CATEGORIES as readonly Category[]).includes(category);
+
+// Subcategorías: hoy solo de la ropa (camisetas, sudaderas, chaquetas,
+// pantalones, shorts, gorras y accesorios como lentes o mochila). Es un solo
+// valor por producto, de una lista cerrada: sirve para filtrar y se traduce
+// con los mensajes de la web. Las etiquetas (tags) siguen siendo texto libre
+// por idioma, para describir, no para filtrar.
+export const SUBCATEGORIES = ['tshirt', 'sweatshirt', 'jacket', 'pants', 'shorts', 'cap', 'accessory'] as const;
+export const subcategorySchema = z.enum(SUBCATEGORIES);
+export type Subcategory = z.infer<typeof subcategorySchema>;
+
+// Lugar que ocupa una prenda en el avatar del Hangar 360° (null: solo
+// catálogo). top reemplaza la camiseta base, bottom el short o pantalón,
+// head va en la cabeza (gorra) y eyes en la cara (lentes). Los zapatos no
+// usan este campo: se prueban por categoría (WEARABLE_CATEGORIES).
+export const AVATAR_SLOTS = ['top', 'bottom', 'head', 'eyes'] as const;
+export const avatarSlotSchema = z.enum(AVATAR_SLOTS);
+export type AvatarSlot = z.infer<typeof avatarSlotSchema>;
+
+// Sistemas de tallas. EU: números de calzado; ALPHA: tallas de letra de la
+// ropa; ONE: talla única (gorras, lentes, mochilas); BALL: talla de balón (5).
+export const SIZE_SYSTEMS = ['EU', 'ALPHA', 'ONE', 'BALL'] as const;
+export const sizeSystemSchema = z.enum(SIZE_SYSTEMS);
+export type SizeSystem = z.infer<typeof sizeSystemSchema>;
+
+// Tallas de letra en su orden. La ropa del catálogo va de S a XL; XS y XXL
+// quedan admitidas para prendas que las traigan.
+export const ALPHA_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'] as const;
+export type AlphaSize = (typeof ALPHA_SIZES)[number];
+// Etiqueta guardada de la talla única (la web muestra su texto traducido).
+export const ONE_SIZE_LABEL = 'OS';
+
+// Sistemas válidos por categoría (lo comprueba el seed).
+export const SIZE_SYSTEMS_BY_CATEGORY = {
+  sneaker: ['EU'],
+  cleat: ['EU'],
+  apparel: ['ALPHA', 'ONE'],
+  ball: ['BALL'],
+} as const satisfies Record<Category, readonly SizeSystem[]>;
 
 export const AVAILABILITY = ['new', 'available', 'low_stock', 'coming_soon'] as const;
 export const availabilitySchema = z.enum(AVAILABILITY);
@@ -22,6 +66,7 @@ export const productListQuerySchema = z.object({
   locale: localeSchema.default('es'),
   category: categorySchema.optional(),
   brand: slugSchema.optional(),
+  subcategory: subcategorySchema.optional(),
 });
 export type ProductListQuery = z.infer<typeof productListQuerySchema>;
 
@@ -52,13 +97,15 @@ export const model3dSchema = z.object({
 });
 export type Model3D = z.infer<typeof model3dSchema>;
 
-export const sizeRangeSchema = z.object({ system: z.string(), min: z.string(), max: z.string() }).nullable();
+export const sizeRangeSchema = z.object({ system: sizeSystemSchema, min: z.string(), max: z.string() }).nullable();
 
 // Tarjeta (listados)
 export const productCardSchema = z.object({
   slug: slugSchema,
   reference: z.string(),
   category: categorySchema,
+  subcategory: subcategorySchema.nullable(),
+  avatarSlot: avatarSlotSchema.nullable(),
   brand: brandSummarySchema,
   name: z.string(),
   colorway: z.string().nullable(),
@@ -80,7 +127,7 @@ export type ProductList = z.infer<typeof productListSchema>;
 // Detalle
 export const SIZE_STOCK = ['in_stock', 'low', 'out'] as const;
 export const productSizeSchema = z.object({
-  system: z.string(),
+  system: sizeSystemSchema,
   label: z.string(),
   stock: z.enum(SIZE_STOCK),
 });
@@ -135,7 +182,10 @@ export const brandFacetSchema = brandSummarySchema.extend({ productCount: z.numb
 export const brandListSchema = z.object({ items: z.array(brandFacetSchema) });
 export type BrandList = z.infer<typeof brandListSchema>;
 
-export const categoryFacetSchema = z.object({ slug: categorySchema, productCount: z.number().int() });
+export const subcategoryFacetSchema = z.object({ slug: subcategorySchema, productCount: z.number().int() });
+// subcategories: conteo por subcategoría (todas, también en 0) en la ropa;
+// vacío en las demás categorías.
+export const categoryFacetSchema = z.object({ slug: categorySchema, productCount: z.number().int(), subcategories: z.array(subcategoryFacetSchema) });
 export const categoryListSchema = z.object({ items: z.array(categoryFacetSchema) });
 export type CategoryList = z.infer<typeof categoryListSchema>;
 

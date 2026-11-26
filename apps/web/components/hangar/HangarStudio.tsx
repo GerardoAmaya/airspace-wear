@@ -8,14 +8,18 @@ import { AddToCart } from '@/components/cart/AddToCart';
 import { ThemedPoster } from '@/components/catalog/ThemedPoster';
 import { createSpin, keySpin, turnOf, useSpinDrag } from '@/components/home/board/rig';
 import { Link } from '@/i18n/navigation';
-import { type Clip, CLIPS } from '@/lib/avatar/avatar';
+import { type Clip, CLIPS, OUTFIT_LITE_URL, OUTFIT_URL } from '@/lib/avatar/avatar';
 import { FITTING } from '@/lib/avatar/fitting';
+import { resolveLook } from '@/lib/avatar/outfit';
 import { accentProps } from '@/lib/accent';
 import { useMotionStore } from '@/lib/motion/store';
 import { formatPrice } from '@/lib/price';
+import { useThemeStore } from '@/lib/theme';
 import { useStageActivity } from '@/lib/three/director';
-import type { AvatarStatus } from './AvatarScene';
+import type { AvatarStatus, OutfitStatus } from './AvatarScene';
 import styles from './HangarStudio.module.css';
+import { OutfitPanel } from './OutfitPanel';
+import { useOutfitChoice } from './outfit-store';
 import { type AvatarView, ringTransform, type StagePose, VIEWS } from './rig';
 
 // El canvas solo existe en el cliente y se descarga aparte.
@@ -79,6 +83,14 @@ export function HangarStudio({ products }: { products: HangarProduct[] }) {
   const [status, setStatus] = useState<AvatarStatus>('loading');
   const onReady = useCallback(() => setReady(true), []);
   const product = products.find((item) => item.slug === slug) ?? products[0];
+
+  // Vestuario: sin URL (producción antes de subirlo) o si el GLB no carga, el
+  // maniquí va sin ropa y el panel no se muestra.
+  const outfitUrl = lite ? OUTFIT_LITE_URL : OUTFIT_URL;
+  const [outfitStatus, setOutfitStatus] = useState<OutfitStatus>('loading');
+  const choice = useOutfitChoice();
+  const theme = useThemeStore((state) => state.theme);
+  const look = resolveLook(choice, theme, product?.accent?.dark ?? null);
 
   const rings = useRef<HTMLDivElement>(null);
   const rot = useRef<HTMLSpanElement>(null);
@@ -163,6 +175,7 @@ export function HangarStudio({ products }: { products: HangarProduct[] }) {
             data-ready={ready || undefined}
             data-loading={loading || undefined}
             data-view={view}
+            data-outfit={outfitUrl ? outfitStatus : undefined}
             onKeyDown={onKeyDown}
           >
             <span className={styles.halo} aria-hidden="true" />
@@ -189,6 +202,8 @@ export function HangarStudio({ products }: { products: HangarProduct[] }) {
                 view={view}
                 spin={spin}
                 autoRotate
+                outfit={outfitUrl ? { url: outfitUrl, look } : null}
+                onOutfitStatus={setOutfitStatus}
                 onReady={onReady}
                 onStatus={setStatus}
                 onFrame={onFrame}
@@ -223,6 +238,7 @@ export function HangarStudio({ products }: { products: HangarProduct[] }) {
               ))}
             </div>
           </div>
+          {outfitUrl && outfitStatus !== 'error' && <OutfitPanel />}
         </div>
 
         <section className={styles.picker} aria-label={t('pickerLabel')}>

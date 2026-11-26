@@ -77,7 +77,7 @@
     "freeReply": "¡Gracias por escribir! En esta demo mis respuestas vienen preparadas, pero en el sitio real tu estilista usa IA y responde cualquier pregunta sobre el catálogo, en tu idioma. Mientras tanto, prueba una de las ideas de abajo.",
     "errors": {
       "rateLimited": "Estás preguntando muy rápido. Espera un momento y vuelve a intentarlo.",
-      "refused": "Prefiero no responder eso. Cuéntame qué buscas en tenis o balones y te ayudo.",
+      "refused": "Prefiero no responder eso. Cuéntame qué buscas en sneakers, ropa o balones y te ayudo.",
       "generic": "No pude responder ahora. Intenta de nuevo en un momento."
     }
   },

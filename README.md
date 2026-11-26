@@ -2,7 +2,7 @@
 
 A multi-brand store for sneakers, apparel and soccer balls, built around 3D. Every pair has its own model: you turn it, look at the details up close, place it in your room with AR and ask an AI stylist which one fits your plans.
 
-**Live:** https://airspace-wear-web.vercel.app
+**Live:** https://airspace-wear-web.vercel.app (site) and https://airspace-wear-api.vercel.app/health (API)
 
 > **Portfolio project. Not affiliated with any brand shown.** Nike, Adidas, New Balance and every other name, logo and design belong to their owners and appear only to illustrate the project. Prices, sizes and stock are sample data, and nothing is sold.
 
@@ -11,7 +11,9 @@ A multi-brand store for sneakers, apparel and soccer balls, built around 3D. Eve
 - **Scroll-free 3D product pages.** Cinematic sequences that play on their own when they come into view, with hotspots you can reach by keyboard and a drag (or arrow keys) to turn the shoe. Scroll never drives the animation.
 - **AR view** with `model-viewer` (Scene Viewer on Android, Quick Look on iOS, where the USDZ is generated from the GLB).
 - **AI stylist** that recommends products from the catalog only, streams its answer and replies in the visitor's language.
-- **Hangar 360°** (coming soon): an animated Mixamo avatar wearing the selected sneaker.
+- **Hangar 360°** (`/hangar`): an animated Mixamo avatar that walks, turns and poses wearing the pair you pick, with a base outfit you can restyle.
+- **Sneakers, cleats and soccer balls** in the catalog today. Apparel is the next step (see [`docs/plan-paso-4.md`](docs/plan-paso-4.md)).
+- **Share previews:** a sitemap with hreflang alternates and branded Open Graph and X images for the home and every product page, in both languages.
 - **Spanish and English** on every screen (`/es` and `/en`), with **light and dark themes** and no flash on load.
 - **Lite mode** for modest devices: lighter models, capped pixel ratio, no postprocessing.
 
@@ -31,6 +33,7 @@ A multi-brand store for sneakers, apparel and soccer balls, built around 3D. Eve
 - pnpm 11 (`corepack enable` picks the version pinned in `package.json`).
 - Docker with Compose v2, for Postgres.
 - Optional: a Sketchfab API token (only to download the original 3D models) and an Anthropic API key (only for the live AI stylist).
+- Optional, only to rebuild the Hangar 360° avatar: [Blender](https://www.blender.org) (it converts the Mixamo FBX files) and a Vercel Blob token to publish the result. See [Hangar 360° avatar](#hangar-360-avatar-scriptsavatar).
 
 ## Quick start
 
@@ -73,6 +76,9 @@ All scripts run from the repository root.
 | `pnpm models:credits` | Regenerates the 3D models section of `CREDITS.md` from the manifest. |
 | `pnpm models:posters` | Renders a transparent WebP poster per model and theme into `apps/web/public/posters`. Run `pnpm db:seed` afterwards. |
 | `pnpm models:preview` | Opens a local viewer (http://localhost:4173) that compares the original, hero and lite models. |
+| `pnpm avatar:build` | Converts the Mixamo downloads in `assets/avatar/raw` with Blender, optimizes the avatar and its outfit into `assets/avatar/out` and updates `assets/avatar/manifest.json`. `--skip-convert` reuses the intermediate GLB files. |
+| `pnpm avatar:upload` | Uploads the built avatar and outfit to Vercel Blob (needs `BLOB_READ_WRITE_TOKEN`) and prints the `NEXT_PUBLIC_AVATAR_*` and `NEXT_PUBLIC_OUTFIT_*` values to set in Vercel. |
+| `pnpm fx:smoke` | Renders the smoke flipbook of the home hero intro into `apps/web/public/fx` (`smoke-atlas.webp` and `smoke-atlas-lite.webp`). |
 | `pnpm design:preview` | Serves the reference design prototype in `design/prototype`. |
 
 The web package also has its own Playwright end-to-end suite in `apps/web/e2e` (see [Testing](#testing)).
@@ -85,8 +91,11 @@ In development all of them are optional:
 
 - **API:** `DATABASE_URL` (defaults to the local Compose database), `DATABASE_URL_TEST`, `API_PORT`, `API_HOST`, `WEB_ORIGIN` (CORS), `TRUST_PROXY`.
 - **AI stylist:** `ANTHROPIC_API_KEY`, `STYLIST_ENABLED`, `STYLIST_MODEL`, `STYLIST_DAILY_BUDGET_USD`.
-- **Web:** `API_URL` (server side), `NEXT_PUBLIC_API_URL` (browser, stylist stream only), `SITE_URL` (absolute URLs in metadata, read at build time), `REVALIDATE_SECRET` (required in production).
+- **Web:** `API_URL` (server side), `NEXT_PUBLIC_API_URL` (browser, stylist stream only), `SITE_URL` (absolute URLs in metadata, the sitemap and share images, read at build time), `REVALIDATE_SECRET` (required in production).
+- **Web and API:** `INTERNAL_API_KEY`, a shared secret. The web server sends it in the `x-internal-key` header, and the API then skips its rate limit for it (regenerating the home asks for every product, about 50 requests per locale from one IP). In development, requests from 127.0.0.1 skip the limit without it.
+- **Hangar 360°:** `NEXT_PUBLIC_AVATAR_URL` and `NEXT_PUBLIC_AVATAR_LITE_URL` (the avatar GLB files on Vercel Blob), `NEXT_PUBLIC_OUTFIT_URL` and `NEXT_PUBLIC_OUTFIT_LITE_URL` (its outfit). In development they default to `apps/web/public/avatar-local/`. In production, without `NEXT_PUBLIC_AVATAR_URL` the `/hangar` page answers 404 and the site links to the home section instead. They are read at build time.
 - **3D pipeline:** `SKETCHFAB_TOKEN`.
+- **Avatar pipeline:** `BLENDER_PATH` (when Blender is not on the `PATH` or in `/Applications`) and `BLOB_READ_WRITE_TOKEN` (only for `pnpm avatar:upload`).
 - **Docker:** `WEB_BUILD_API_URL` and `BUILD_STANDALONE` (see [Docker](#docker)).
 
 In production the API refuses to start without `DATABASE_URL`, and configuration errors name the variable without printing its value.
@@ -107,6 +116,7 @@ apps/web  (Next.js)  ──server fetch──▶  apps/api  (NestJS)  ──Pris
 - The browser never calls the API, except for the stylist stream.
 - One React Three Fiber canvas per area, created on demand. Canvases stop rendering when offscreen, only one draws at a time and the pixel ratio is capped at 1.5 (1 in lite mode).
 - Motion has clear owners: GSAP for timelines, Motion for UI state, Lenis only for anchor jumps, React `<ViewTransition>` for route changes. `prefers-reduced-motion` turns sequences into static states.
+- SEO: `app/sitemap.ts` lists the fixed pages and every published product in both locales with hreflang alternates (if the API is down it still returns the fixed pages), and `robots.txt` points to it. `opengraph-image.tsx` files draw the share images with `ImageResponse`: one for the home (also used by pages without their own) and one per product, with its dark poster, name, brand and price. They read the colors from `styles/tokens.css` and load Hubot Sans, Mona Sans and Martian Mono from Google Fonts, all cached.
 
 ### API (`apps/api`)
 
@@ -122,6 +132,21 @@ zod schemas and types for the catalog, credits, health and the stylist events. B
 ### 3D pipeline (`scripts/models`)
 
 Downloads the original models, then normalizes them to a shared pose (sole on y = 0, toe to +X, 0.30 m long; balls are 0.22 m), simplifies the meshes, converts textures to WebP and compresses with Meshopt. Each model ships as a hero GLB (under 100k triangles and 5 MB) and a lite GLB (about 20k triangles, 512 px textures). Settings live in `scripts/models/config.mjs`, and `assets/models/manifest.json` records credits, license, pose and stats. Because the pose is shared, hotspot positions are stored in meters in model space.
+
+### Catalog
+
+Products belong to one of four categories: `sneaker`, `cleat` (soccer cleats, sized like sneakers and shown on the avatar), `apparel` and `ball`. Apparel is being added in step 4, with its own sizes and subcategories; the plan, with the garments chosen and how they fit the avatar, is in [`docs/plan-paso-4.md`](docs/plan-paso-4.md).
+
+### Hangar 360° avatar (`scripts/avatar`)
+
+- The avatar is Mixamo's Y Bot with four clips (idle, walk, turn and pose). Mixamo's terms allow using it in a project but not redistributing the original files, so **the downloads and the built files are never committed**. Download them from Mixamo into `assets/avatar/raw` (git ignored): `ybot.fbx` ("With Skin", T-pose) and one FBX per clip ("Without Skin", "In Place", 30 fps). The output in `assets/avatar/out` is ignored too, and so is `apps/web/public/avatar-local/`, the copy that `pnpm dev` loads by default. Only `assets/avatar/manifest.json` is committed.
+- `pnpm avatar:build` needs Blender. It converts each FBX to GLB, copies the clips onto the character, normalizes pose and scale (facing +Z, feet on y = 0, 1.75 m tall), trims the feet so the sneakers fit, and writes a hero and a lite variant with Meshopt and WebP textures. It also builds the base outfit (`outfit.glb`, made by the project in Blender) as separate files. Fitting notes live in [`docs/avatar-fitting.md`](docs/avatar-fitting.md).
+- `pnpm avatar:upload` publishes the files to a public Vercel Blob store as `avatar/<name>-<hash>.glb`. A new build gets a new URL, so the files can be cached for a year. Then set the printed `NEXT_PUBLIC_AVATAR_*` and `NEXT_PUBLIC_OUTFIT_*` variables in the web project and redeploy.
+- Only the sneakers (and, with step 4, the compatible apparel) change on the avatar. The sneakers are the catalog's own lite GLB files, attached to the foot bones.
+
+### Hero smoke (`scripts/fx`)
+
+The home hero intro lands the shoe with a puff of textured smoke. `pnpm fx:smoke` draws that flipbook (8 x 8 frames of procedural noise, the project's own work with no third-party assets) into `apps/web/public/fx`, in a full and a lite size. The files are committed; run it again only to change the look.
 
 ### AI stylist
 
@@ -236,11 +261,13 @@ The live site runs on two Vercel projects (Hobby plan) connected to this reposit
 | Project | Variables |
 | --- | --- |
 | API | `DATABASE_URL` and `DATABASE_URL_UNPOOLED` (added by the Neon integration), `ANTHROPIC_API_KEY`, `INTERNAL_API_KEY`, `WEB_ORIGIN`, `TRUST_PROXY=1`, `STYLIST_DAILY_BUDGET_USD`, `ENABLE_EXPERIMENTAL_COREPACK=1` |
-| Web | `API_URL`, `NEXT_PUBLIC_API_URL`, `SITE_URL`, `INTERNAL_API_KEY` (same value as the API), `REVALIDATE_SECRET`, `ENABLE_EXPERIMENTAL_COREPACK=1` |
+| Web | `API_URL`, `NEXT_PUBLIC_API_URL`, `SITE_URL`, `INTERNAL_API_KEY` (same value as the API), `REVALIDATE_SECRET`, `NEXT_PUBLIC_AVATAR_URL`, `NEXT_PUBLIC_AVATAR_LITE_URL`, `NEXT_PUBLIC_OUTFIT_URL`, `NEXT_PUBLIC_OUTFIT_LITE_URL`, `ENABLE_EXPERIMENTAL_COREPACK=1` |
+
+**Avatar hosting.** The Hangar 360° avatar is not in the repository (Mixamo license), so the web cannot serve it from `public/`. It lives in a public Vercel Blob store: run `pnpm avatar:build` and `pnpm avatar:upload` locally, set the printed `NEXT_PUBLIC_*` variables in the web project and redeploy (they are read at build time).
 
 **Seeding.** Seed the Neon database once from your machine. Point `DATABASE_URL` at Neon's direct connection for that run only (for example from `vercel env pull` into a file outside the repository), then run `pnpm db:seed`. Delete the pulled file afterwards.
 
-**Hosting cost.** Both projects and Neon run on free plans. The only running cost is the AI stylist, capped by `STYLIST_DAILY_BUDGET_USD`.
+**Hosting cost.** Both projects, Neon and the Blob store run on free plans. The only running cost is the AI stylist, capped by `STYLIST_DAILY_BUDGET_USD`.
 
 ## Project layout
 
@@ -250,7 +277,10 @@ apps/web/public/       optimized GLB models, posters and the self-hosted Meshopt
 apps/api/              NestJS API (Prisma schema, migrations and seed in prisma/)
 packages/contracts/    zod schemas shared by web and API
 scripts/models/        3D model pipeline
+scripts/avatar/        Hangar 360° avatar pipeline (Blender conversion, optimization, Blob upload)
+scripts/fx/            procedural effects (hero smoke atlas)
 assets/models/         model manifest (original downloads in raw/, git ignored)
+assets/avatar/         avatar manifest (Mixamo downloads in raw/ and builds in out/, git ignored)
 design/prototype/      static design and motion prototype (reference only)
 docker/                Postgres init scripts
 docs/                  plans and decisions
@@ -259,7 +289,7 @@ CREDITS.md             third-party credits
 
 ## Credits and licenses
 
-Every third-party asset (3D models, fonts, libraries) is credited with its author, source, license and the changes made, in [`CREDITS.md`](CREDITS.md) and on the `/credits` page of the site. The 3D models section is generated from the model manifest by `pnpm models:credits`.
+Every third-party asset (3D models, the Mixamo avatar and animations, fonts, libraries) is credited with its author, source, license and the changes made, in [`CREDITS.md`](CREDITS.md) and on the `/credits` page of the site. The 3D models section is generated from the model manifest by `pnpm models:credits`.
 
 The fonts (Hubot Sans, Mona Sans and Martian Mono) use the SIL Open Font License. Most 3D models are CC BY 4.0.
 

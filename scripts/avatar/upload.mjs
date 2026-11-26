@@ -1,5 +1,7 @@
 // Sube el avatar optimizado (assets/avatar/out/avatar.glb y avatar-lite.glb)
-// a Vercel Blob y guarda las URLs públicas en assets/avatar/manifest.json.
+// y el vestuario (outfit.glb y outfit-lite.glb) a Vercel Blob, y guarda las
+// URLs públicas en assets/avatar/manifest.json. Al final imprime las variables
+// NEXT_PUBLIC_* que hay que poner en Vercel (ver .env.example).
 //
 // Uso:
 //   pnpm avatar:upload            (después de pnpm avatar:build)
@@ -40,11 +42,21 @@ try {
   fail('No existe assets/avatar/manifest.json. Ejecuta primero pnpm avatar:build.');
 }
 
-const variants = Object.entries(manifest.variants ?? {});
+// Avatar y vestuario, cada variante con la variable de la web que la usa.
+const ENV_NAMES = {
+  avatar: { hero: 'NEXT_PUBLIC_AVATAR_URL', lite: 'NEXT_PUBLIC_AVATAR_LITE_URL' },
+  outfit: { hero: 'NEXT_PUBLIC_OUTFIT_URL', lite: 'NEXT_PUBLIC_OUTFIT_LITE_URL' },
+};
+const variants = [
+  ...Object.entries(manifest.variants ?? {}).map(([name, variant]) => ['avatar', name, variant]),
+  ...Object.entries(manifest.outfit?.variants ?? {}).map(([name, variant]) => ['outfit', name, variant]),
+];
 if (!variants.length) fail('El manifiesto no tiene variantes. Ejecuta primero pnpm avatar:build.');
+if (!manifest.outfit) console.warn('  El manifiesto no tiene vestuario: se sube solo el avatar.');
 
 let failures = 0;
-for (const [variantName, variant] of variants) {
+for (const [group, name, variant] of variants) {
+  const variantName = `${group} ${name}`;
   const filePath = path.join(AVATAR_PATHS.outDir, variant.file);
   let body;
   try {
@@ -87,5 +99,9 @@ for (const [variantName, variant] of variants) {
 }
 
 await writeFile(AVATAR_PATHS.manifest, `${JSON.stringify(manifest, null, 2)}\n`);
+const envLines = variants
+  .filter(([, , variant]) => variant.url)
+  .map(([group, name, variant]) => `${ENV_NAMES[group]?.[name] ?? `${group}.${name}`}=${variant.url}`);
+if (envLines.length) console.log(`\nVariables para Vercel (Settings > Environment Variables):\n  ${envLines.join('\n  ')}`);
 console.log(failures ? `\n${failures} archivo(s) con error.` : '\nAvatar publicado. Las URLs están en assets/avatar/manifest.json.');
 process.exit(failures ? 1 : 0);

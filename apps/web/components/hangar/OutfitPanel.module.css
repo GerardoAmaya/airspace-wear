@@ -1,0 +1,312 @@
+/*
+ * Panel "Vestuario" del Hangar 360°. En pantallas anchas flota sobre el lado
+ * izquierdo de la plataforma (el avatar queda al centro); en las angostas va
+ * debajo de los chips, plegado. Sin backdrop-filter: fondo de superficie
+ * casi opaco.
+ */
+
+.panel {
+  position: relative;
+  z-index: 1;
+  font-size: var(--text-sm);
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.chevron {
+  width: 12px;
+  height: 12px;
+  transition: transform var(--duration-micro) var(--ease-out);
+}
+
+.panel[data-open] .chevron {
+  transform: rotate(180deg);
+}
+
+.title {
+  display: none;
+  margin: 0 0 var(--space-2);
+  color: var(--hangar-ink, var(--color-primary));
+}
+
+.title,
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+}
+
+.body {
+  display: none;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+}
+
+/* Plegado en pantallas angostas: el contenido se muestra al abrir, con un
+   fundido corto (sin animar el alto). */
+.panel[data-open] .body {
+  display: grid;
+  animation: outfit-in var(--duration-ui) var(--ease-out);
+}
+
+@keyframes outfit-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.row {
+  display: grid;
+  gap: 4px;
+}
+
+/* Paneles anchos: etiqueta y opciones en la misma línea. */
+@media (min-width: 100rem) {
+  .row {
+    grid-template-columns: 6rem minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-2);
+  }
+}
+
+.label {
+  color: var(--color-text-faint);
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.option,
+.match,
+.reset {
+  min-height: 30px;
+  padding: 4px var(--space-3);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-micro) var(--ease-out),
+    border-color var(--duration-micro) var(--ease-out);
+}
+
+.option:hover,
+.match:hover,
+.reset:hover {
+  border-color: var(--hangar-ink, var(--color-primary));
+}
+
+.option[aria-pressed='true'],
+.match[aria-pressed='true'] {
+  border-color: var(--color-primary-fill);
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+}
+
+.select {
+  justify-self: start;
+  min-height: 30px;
+  padding: 2px var(--space-3);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding-top: 2px;
+}
+
+/* Muestra: el botón da el área táctil; el círculo es el color. */
+.swatch {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.swatch::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--swatch);
+  /* Borde fino: el blanco y la crema se ven sobre fondos claros. */
+  box-shadow: inset 0 0 0 1px var(--color-line-strong);
+  transition: transform var(--duration-micro) var(--ease-out);
+}
+
+.swatch:hover::before {
+  transform: scale(1.12);
+}
+
+.swatch[aria-pressed='true'] {
+  box-shadow: 0 0 0 2px var(--hangar-ink, var(--color-primary));
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding-top: 2px;
+}
+
+.match {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Punto con el acento del par (el vivo, el de los rellenos). */
+.matchDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent-dark, var(--color-primary-fill));
+  box-shadow: inset 0 0 0 1px var(--color-line-strong);
+}
+
+.option:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.reset {
+  border-color: transparent;
+  color: var(--color-text-muted);
+}
+
+/* La explicación de "Combinar" la leen los lectores de pantalla (y el
+   title al pasar el cursor); a la vista solo en el panel plegable. */
+.hint {
+  margin: 0;
+  color: var(--color-text-faint);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.toggle:focus-visible,
+.select:focus-visible,
+.option:focus-visible,
+.swatch:focus-visible,
+.match:focus-visible,
+.reset:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Táctil: áreas de 44 px. */
+@media (pointer: coarse) {
+  .option,
+  .select,
+  .match,
+  .reset {
+    min-height: 44px;
+  }
+
+  .swatch {
+    width: 44px;
+    height: 44px;
+  }
+
+  .swatch::before {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+/* Pantallas anchas: panel flotante, siempre abierto, sin botón de plegar.
+   Desde 100rem la plataforma deja lugar a la izquierda del avatar. Nunca
+   tapa los chips de abajo: si no entra, se desplaza por dentro. */
+@media (min-width: 100rem) {
+  .panel {
+    position: absolute;
+    top: var(--space-2);
+    left: 0;
+    width: 22rem;
+    max-height: calc(100% - 4.5rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: var(--space-3);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  }
+
+  .toggle {
+    display: none;
+  }
+
+  .title {
+    display: block;
+  }
+
+  .body,
+  .panel[data-open] .body {
+    display: grid;
+    padding-top: 0;
+    animation: none;
+  }
+
+  .hint {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel[data-open] .body {
+    animation: none;
+  }
+
+  .chevron,
+  .option,
+  .match,
+  .reset,
+  .swatch::before {
+    transition: none;
+  }
+}

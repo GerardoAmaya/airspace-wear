@@ -69,6 +69,26 @@
   --color-mannequin-joint: #bdb7ab;
 }
 
+/* Vestuario del maniquí (Hangar 360°): colores de tela, iguales en ambos
+   temas (son el color de la prenda, no de la interfaz). Los lee la escena 3D
+   y los muestran las muestras del panel. Lima y naranja son los rellenos de
+   marca. */
+:root {
+  --color-garment-white: #dfddd6;
+  --color-garment-cream: #e2d6bd;
+  --color-garment-grey: #9a9aa1;
+  --color-garment-graphite: #4a4a52;
+  --color-garment-black: #19191c;
+  --color-garment-lime: var(--color-primary-fill);
+  --color-garment-orange: var(--color-secondary-fill);
+  --color-garment-cobalt: #2d5bd2;
+  --color-garment-navy: #1f2b4d;
+  --color-garment-olive: #5c693a;
+  --color-garment-wine: #6c2234;
+  /* Cristal oscuro de los lentes (fijo). */
+  --color-garment-lens: #141418;
+}
+
 :root {
 
   /*

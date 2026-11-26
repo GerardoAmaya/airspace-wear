@@ -15,7 +15,12 @@ export function AddToCart({ slug, sizes }: { slug: string; sizes: ProductSize[] 
   // Nombre propio del grupo de tallas: dos selectores en la misma página no se mezclan.
   const group = useId();
   const needsSize = sizes.length > 1;
-  const [size, setSize] = useState<string | null>(needsSize ? null : (sizes[0]?.label ?? null));
+  // Talla única (gorras, lentes, mochilas): la línea del carrito va sin talla.
+  // Una sola talla de otro sistema (balón talla 5) se elige sola y se anota.
+  const single = sizes.length === 1 && sizes[0]?.system !== 'ONE' ? sizes[0].label : null;
+  const [size, setSize] = useState<string | null>(needsSize ? null : single);
+  // Las letras (ropa) no llevan "(EU)" en la leyenda.
+  const legend = sizes[0]?.system === 'ALPHA' ? t('chooseSizeAlpha') : t('chooseSize');
   const [added, setAdded] = useState(false);
   const [atMax, setAtMax] = useState(false);
   const soldOut = sizes.length > 0 && sizes.every((item) => item.stock === 'out');
@@ -24,7 +29,7 @@ export function AddToCart({ slug, sizes }: { slug: string; sizes: ProductSize[] 
     <div className={styles.block}>
       {needsSize && (
         <fieldset className={styles.sizes}>
-          <legend className={styles.legend}>{t('chooseSize')}</legend>
+          <legend className={styles.legend}>{legend}</legend>
           <div className={styles.grid}>
             {sizes.map((item) => (
               <label key={item.label} className={styles.size} data-stock={item.stock}>

@@ -23,7 +23,10 @@ import {
 } from './shared.mjs';
 
 const API_BASE = 'https://api.sketchfab.com/v3';
-const MAX_ATTEMPTS = 4;
+const MAX_ATTEMPTS = 6;
+// Pausa entre modelos: Sketchfab limita la tasa de pedidos (HTTP 429) cuando
+// se descargan muchos seguidos.
+const PAUSE_BETWEEN_MODELS_MS = 2000;
 
 const token = process.env.SKETCHFAB_TOKEN;
 if (!token) {
@@ -118,6 +121,7 @@ for (const model of models) {
     if (existingBytes && !options.force) {
       console.log(`  Ya existe (${formatMegabytes(existingBytes)}), se omite. Usa --force para reemplazarlo.`);
     } else {
+      await new Promise((resolve) => setTimeout(resolve, PAUSE_BETWEEN_MODELS_MS));
       // Los enlaces firmados caducan en minutos: se descargan de inmediato.
       const download = await fetchJson(`${API_BASE}/models/${uid}/download`, { auth: true });
       if (!download.glb?.url) throw new Error('La API no ofrece formato GLB para este modelo.');

@@ -23,6 +23,11 @@
 //   6. Por variante: simplificación si supera la meta, limpieza de
 //      fotogramas, texturas a WebP, Meshopt, validación y presupuesto.
 //   7. Manifiesto con alturas, huesos, clips y archivos.
+//   8. Vestuario (outfit.py en Blender): prendas generadas a partir del
+//      cuerpo, con el mismo esqueleto. Se les aplica la misma pose y escala
+//      que al avatar y salen en outfit.glb y outfit-lite.glb, aparte del
+//      avatar. Las reglas para ocultar el cuerpo bajo la ropa se escriben en
+//      apps/web/lib/avatar/outfit-rules.json.
 
 import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -57,6 +62,8 @@ import {
   CLIPS,
   FOOT_TRIM,
   MAX_ROOT_TRAVEL_METERS,
+  OUTFIT,
+  OUTFIT_VARIANTS,
 } from './config.mjs';
 
 /** @typedef {import('@gltf-transform/core').Document} Document */
@@ -78,6 +85,8 @@ const outDir = path.resolve(cli['out-dir'] ?? AVATAR_PATHS.outDir);
 const manifestPath = cli['out-dir'] ? path.join(outDir, 'manifest.json') : AVATAR_PATHS.manifest;
 const characterGlb = path.join(workDir, 'character.glb');
 const clipGlb = (name) => path.join(workDir, `${name}.glb`);
+const outfitGlb = path.join(workDir, 'outfit.glb');
+const outfitConfig = path.join(workDir, 'outfit-config.json');
 
 // ---------- Utilidades ----------
 
@@ -267,6 +276,31 @@ async function convertWithBlender() {
     const output = `${error.stdout ?? ''}\n${error.stderr ?? ''}`.trim().split('\n').slice(-25).join('\n');
     fail(`Blender no pudo convertir los FBX.\n\n${output}`);
   }
+
+  // Vestuario: Blender genera las prendas a partir del cuerpo (outfit.py).
+  await writeFile(outfitConfig, `${JSON.stringify({ outfit: OUTFIT, heightMeters: AVATAR_HEIGHT_METERS }, null, 2)}\n`);
+  const outfitArgs = [
+    '--background',
+    '--factory-startup',
+    '--python-exit-code',
+    '1',
+    '--python',
+    AVATAR_PATHS.outfitScript,
+    '--',
+    '--character',
+    path.join(AVATAR_PATHS.rawDir, CHARACTER_FILE),
+    '--config',
+    outfitConfig,
+    '--out',
+    outfitGlb,
+  ];
+  try {
+    const { stdout } = await execFileAsync(blender.path, outfitArgs, { maxBuffer: 64 * 1024 * 1024, timeout: 600_000 });
+    for (const line of stdout.split('\n')) if (line.startsWith('[outfit]')) console.log(`  ${line.slice(9)}`);
+  } catch (error) {
+    const output = `${error.stdout ?? ''}\n${error.stderr ?? ''}`.trim().split('\n').slice(-25).join('\n');
+    fail(`Blender no pudo generar el vestuario.\n\n${output}`);
+  }
 }
 
 // ---------- 2. Animaciones ----------
@@ -444,6 +478,7 @@ function normalizeAvatarPose(document) {
 
   ({ min, max } = measureRestBounds(document));
   return {
+    pivot: { translation: pivot.getTranslation(), rotation: pivot.getRotation(), scale: pivot.getScale() },
     turnDegrees: Math.round((turn * 180) / Math.PI),
     scale: Number(scale.toPrecision(6)),
     dimensionsCm: {
@@ -682,6 +717,104 @@ async function readPreviousManifest() {
   }
 }
 
+// ---------- 8. Vestuario ----------
+
+// Envuelve la escena del vestuario en el mismo AvatarRoot que el avatar
+// (giro, escala y traslación): así los huesos quedan idénticos y la web puede
+// enlazar cada prenda al esqueleto del avatar por nombre.
+function applyPivot(document, pivotTransform) {
+  const scene = defaultScene(document);
+  const pivot = document.createNode('AvatarRoot');
+  for (const child of scene.listChildren()) {
+    scene.removeChild(child);
+    pivot.addChild(child);
+  }
+  scene.addChild(pivot);
+  pivot.setTranslation(pivotTransform.translation).setRotation(pivotTransform.rotation).setScale(pivotTransform.scale);
+}
+
+// Materiales mate de un color (la web les pone el color de cada prenda y un
+// relieve de tejido procedural). Sin UV: no hay texturas.
+function finishFabric(document) {
+  for (const material of document.getRoot().listMaterials()) {
+    if (material.getName().startsWith('outfit-')) material.setMetallicFactor(0).setRoughnessFactor(0.85);
+  }
+  for (const mesh of document.getRoot().listMeshes()) {
+    for (const primitive of mesh.listPrimitives()) {
+      for (const semantic of primitive.listSemantics()) {
+        if (semantic.startsWith('TEXCOORD_')) primitive.setAttribute(semantic, null);
+      }
+    }
+  }
+}
+
+async function buildOutfitVariant(io, source, variantName) {
+  const variant = OUTFIT_VARIANTS[variantName];
+  const document = cloneDocument(source);
+  const initialTriangles = countTriangles(document);
+  if (variant.ratio < 1) {
+    // lockBorder: los dobladillos quedan limpios.
+    await document.transform(
+      simplify({ simplifier: MeshoptSimplifier, ratio: variant.ratio, error: 0.01, lockBorder: true }),
+    );
+  }
+  finishFabric(document);
+  // keepUniqueNames: la web elige el material de cada pieza por su nombre
+  // (tela, franja, marco, cristal), aunque sean iguales en el archivo.
+  await document.transform(dedup({ keepUniqueNames: true }), prune(), meshopt({ encoder: MeshoptEncoder, level: 'high' }));
+  const glb = await io.writeBinary(document);
+  const fileName = `outfit${variant.suffix}.glb`;
+  await writeFile(path.join(outDir, fileName), glb);
+  const triangles = countTriangles(document);
+  const validation = await validate(glb);
+  const garments = Object.fromEntries(
+    document
+      .getRoot()
+      .listNodes()
+      .filter((node) => node.getMesh() && node.getName().startsWith('Outfit_'))
+      .map((node) => [
+        node.getName(),
+        node
+          .getMesh()
+          .listPrimitives()
+          .reduce((sum, primitive) => sum + (primitive.getIndices()?.getCount() ?? 0) / 3, 0),
+      ]),
+  );
+  return {
+    file: fileName,
+    bytes: glb.byteLength,
+    sha256: createHash('sha256').update(glb).digest('hex'),
+    triangles,
+    simplifiedFrom: variant.ratio < 1 ? initialTriangles : undefined,
+    garments,
+    budget: variant.budget,
+    withinBudget: triangles <= variant.budget.triangles && glb.byteLength <= variant.budget.bytes,
+    validation,
+  };
+}
+
+// Reglas para ocultar el cuerpo bajo la ropa en la web (sin nada de Mixamo):
+// huesos, cortes y aberturas de cada prenda con esqueleto, y el nombre del
+// nodo de cada prenda en el GLB.
+async function writeOutfitRules() {
+  const garments = Object.fromEntries(
+    Object.entries(OUTFIT.garments).map(([key, garment]) => [
+      key,
+      { node: garment.node, bones: garment.bones, cuts: garment.cuts, holes: garment.holes ?? [] },
+    ]),
+  );
+  const rules = {
+    // Generado por pnpm avatar:build desde scripts/avatar/config.mjs (OUTFIT).
+    version: 1,
+    hideInset: OUTFIT.hideInset,
+    forward: [0, 0, 1],
+    garments,
+    accessories: { cap: { node: OUTFIT.cap.node }, glasses: { node: OUTFIT.glasses.node } },
+  };
+  await mkdir(path.dirname(AVATAR_PATHS.outfitRules), { recursive: true });
+  await writeFile(AVATAR_PATHS.outfitRules, `${JSON.stringify(rules, null, 2)}\n`);
+}
+
 // ---------- Ejecución ----------
 
 await checkInputs();
@@ -750,6 +883,43 @@ for (const variantName of Object.keys(AVATAR_VARIANTS)) {
   for (const message of output.validation.errorMessages) console.log(`       ${message}`);
 }
 
+console.log('\nVestuario');
+let outfit;
+if (await exists(outfitGlb)) {
+  const outfitSource = await io.read(outfitGlb);
+  normalizeBoneNames(outfitSource);
+  applyPivot(outfitSource, pose.pivot);
+  const outfitVariants = {};
+  for (const variantName of Object.keys(OUTFIT_VARIANTS)) {
+    const output = await buildOutfitVariant(io, outfitSource, variantName);
+    const previousVariant = previous.outfit?.variants?.[variantName];
+    outfitVariants[variantName] = {
+      ...output,
+      url: previousVariant?.sha256 === output.sha256 ? previousVariant.url : undefined,
+    };
+    const ok = output.withinBudget && output.validation.errors === 0;
+    if (!ok) problems++;
+    console.log(
+      `  ${variantName.padEnd(4)} ${formatThousands(output.triangles).padStart(7)} tris, ${formatMegabytes(output.bytes)} ` +
+        `(máx. ${formatMegabytes(output.budget.bytes)}), validador ${output.validation.errors} errores / ` +
+        `${output.validation.warnings} avisos  [${ok ? 'OK' : 'REVISAR'}]`,
+    );
+    for (const message of output.validation.errorMessages) console.log(`       ${message}`);
+  }
+  await writeOutfitRules();
+  console.log(`  Reglas del cuerpo: ${relative(AVATAR_PATHS.outfitRules)}`);
+  outfit = {
+    // Prendas generadas por el proyecto (no son de Mixamo) sobre el cuerpo del Y Bot.
+    source: 'generated by scripts/avatar/outfit.py from the avatar body',
+    variants: outfitVariants,
+  };
+} else {
+  console.warn('  Falta outfit.glb en la carpeta intermedia: ejecuta pnpm avatar:build sin --skip-convert.');
+}
+
+// El pivote solo sirve para el vestuario; el manifiesto guarda las medidas.
+const poseData = { ...pose };
+delete poseData.pivot;
 const manifest = {
   source: {
     provider: 'mixamo',
@@ -764,7 +934,7 @@ const manifest = {
   // Espacio del avatar: metros, Y arriba, mirando a +Z, pies en y = 0.
   heightMeters: AVATAR_HEIGHT_METERS,
   facing: '+z',
-  pose,
+  pose: poseData,
   ...boneData,
   footTrim: { ...FOOT_TRIM, removedTriangles },
   clips: clips.map((clip) => ({
@@ -773,6 +943,7 @@ const manifest = {
     rootMotionRemoved: clip.rootMotionRemoved,
   })),
   variants,
+  outfit,
 };
 await mkdir(path.dirname(manifestPath), { recursive: true });
 await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);

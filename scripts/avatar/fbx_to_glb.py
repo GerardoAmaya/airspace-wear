@@ -59,24 +59,7 @@ def fbx_importer():
 
 def convert(job):
     # Escena vacía con los valores de fábrica en cada archivo.
-    bpy.ops.wm.read_factory_settings(use_empty=True)
-
-    import_operator = fbx_importer()
-    import_options = supported_kwargs(
-        import_operator,
-        {
-            "filepath": job["source"],
-            "use_anim": True,
-            # Quita los huesos hoja "_End" (HeadTop_End, LeftToe_End...): no
-            # deforman nada y sumarían canales de animación.
-            "ignore_leaf_bones": True,
-            # Conserva la orientación original de los huesos: la misma en el
-            # personaje y en las animaciones.
-            "automatic_bone_orientation": False,
-            "use_custom_props": False,
-        },
-    )
-    import_operator(**import_options)
+    import_fbx(job["source"])
 
     scene = bpy.context.scene
     armatures = [obj for obj in scene.objects if obj.type == "ARMATURE"]
@@ -89,10 +72,39 @@ def convert(job):
     fps = scene.render.fps / scene.render.fps_base
     print(f"[fbx_to_glb] {job['source']}: {len(meshes)} mallas, {fps:.2f} fps")
 
-    export_options = supported_kwargs(
+    # El personaje trae una animación de un fotograma (la T-pose): no se
+    # exporta. Las animaciones exportan solo su acción.
+    bpy.ops.export_scene.gltf(**export_options(job["target"], animations=not job["skin"]))
+
+
+def import_fbx(source):
+    # Importa un FBX en una escena vacía con los ajustes de siempre. También lo
+    # usa outfit.py, para que el esqueleto de la ropa sea idéntico al del avatar.
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    import_operator = fbx_importer()
+    import_options = supported_kwargs(
+        import_operator,
+        {
+            "filepath": source,
+            "use_anim": True,
+            # Quita los huesos hoja "_End" (HeadTop_End, LeftToe_End...): no
+            # deforman nada y sumarían canales de animación.
+            "ignore_leaf_bones": True,
+            # Conserva la orientación original de los huesos: la misma en el
+            # personaje y en las animaciones.
+            "automatic_bone_orientation": False,
+            "use_custom_props": False,
+        },
+    )
+    import_operator(**import_options)
+
+
+def export_options(target, animations, selection=False):
+    # Ajustes de exportación comunes al personaje, los clips y la ropa.
+    return supported_kwargs(
         bpy.ops.export_scene.gltf,
         {
-            "filepath": job["target"],
+            "filepath": target,
             "export_format": "GLB",
             "export_yup": True,
             "export_apply": False,
@@ -102,18 +114,16 @@ def convert(job):
             "export_lights": False,
             "export_extras": False,
             "export_materials": "EXPORT",
-            # El personaje trae una animación de un fotograma (la T-pose): no
-            # se exporta. Las animaciones exportan solo su acción.
-            "export_animations": not job["skin"],
+            "export_animations": animations,
             "export_force_sampling": True,
             "export_anim_slide_to_zero": True,
             "export_reset_pose_bones": True,
             "export_def_bones": False,
+            "use_selection": selection,
             # Sin compresión aquí: build.mjs aplica Meshopt al final.
             "export_draco_mesh_compression_enable": False,
         },
     )
-    bpy.ops.export_scene.gltf(**export_options)
 
 
 def main():
@@ -121,4 +131,5 @@ def main():
         convert(job)
 
 
-main()
+if __name__ == "__main__":
+    main()

@@ -31,9 +31,11 @@ import { LIGHT_PRESETS } from '@/components/three/kit/StudioLights';
 import { type Spin, stepSpin } from '@/components/home/board/rig';
 import { AVATAR_LITE_URL, AVATAR_URL, type Clip, CROSSFADE, FOOT_BONES } from '@/lib/avatar/avatar';
 import { type Fitting, resolveFit } from '@/lib/avatar/fitting';
+import type { OutfitLook } from '@/lib/avatar/outfit';
 import { gsap } from '@/lib/motion/gsap';
 import { DURATION, EASE } from '@/lib/motion/tokens';
 import { type Theme, useThemeStore } from '@/lib/theme';
+import { AvatarOutfit } from './AvatarOutfit';
 import { type AvatarView, FOV, type StagePose, TAN_HALF, VIEWS } from './rig';
 
 // Escena 3D del Hangar 360°: el avatar de Mixamo con el sneaker elegido en
@@ -44,6 +46,13 @@ import { type AvatarView, FOV, type StagePose, TAN_HALF, VIEWS } from './rig';
 
 export type Foot = 'left' | 'right';
 export type AvatarStatus = 'loading' | 'idle' | 'error';
+export type OutfitStatus = 'loading' | 'ready' | 'error';
+
+// Vestuario: GLB de las prendas (según el modo liviano) y lo que lleva puesto.
+export interface AvatarOutfitSpec {
+  url: string;
+  look: OutfitLook;
+}
 
 export interface AvatarShoe {
   slug: string;
@@ -71,6 +80,9 @@ export interface AvatarSceneProps {
   // Giro automático de la plataforma (nunca con movimiento reducido).
   autoRotate: boolean;
   playback?: RefObject<AvatarPlayback>;
+  // Sin vestuario (null), el maniquí va sin ropa.
+  outfit?: AvatarOutfitSpec | null;
+  onOutfitStatus?(status: OutfitStatus): void;
   // Ayudas de calibración: plano del piso y ejes del zapato.
   debug?: { grid: boolean; axes: boolean };
   onReady(): void;
@@ -258,7 +270,25 @@ function useMannequinMaterials(theme: Theme) {
   return materials;
 }
 
-function Rig({ lite, reducedMotion, shoe, clip, fitting, view, spin, autoRotate, playback, debug, onReady, onStatus, onFrame }: AvatarSceneProps) {
+function Rig({
+  lite,
+  reducedMotion,
+  shoe,
+  clip,
+  fitting,
+  view,
+  spin,
+  autoRotate,
+  playback,
+  outfit,
+  onOutfitStatus,
+  debug,
+  onReady,
+  onStatus,
+  onFrame,
+}: AvatarSceneProps) {
+  // El vestuario se pide a la par del avatar (no después).
+  if (outfit) useGLTF.preload(outfit.url);
   const { scene, animations } = useGLTF(lite ? AVATAR_LITE_URL : AVATAR_URL);
   const theme = useThemeStore((state) => state.theme);
   const materials = useMannequinMaterials(theme);
@@ -273,7 +303,13 @@ function Rig({ lite, reducedMotion, shoe, clip, fitting, view, spin, autoRotate,
       if (!bone) throw new Error(`Avatar sin hueso ${FOOT_BONES[side]}`);
       return { bone, inverse: new Matrix4().copy(bone.matrixWorld).invert() };
     };
-    return { root, left: rest('left'), right: rest('right') };
+    // Reposo de todos los huesos: el vestuario lo usa para saber qué parte
+    // del cuerpo queda bajo la ropa.
+    const bones = new Map<string, Matrix4>();
+    root.traverse((object) => {
+      if ((object as Object3D & { isBone?: boolean }).isBone) bones.set(object.name, object.matrixWorld.clone());
+    });
+    return { root, left: rest('left'), right: rest('right'), bones };
   }, [scene]);
 
   // Material mate del maniquí (en vez del rojo de Mixamo). Las mallas con
@@ -281,7 +317,8 @@ function Rig({ lite, reducedMotion, shoe, clip, fitting, view, spin, autoRotate,
   useEffect(() => {
     avatar.root.traverse((object) => {
       const mesh = object as SkinnedMesh;
-      if (!mesh.isMesh) return;
+      // La ropa trae sus propios materiales (y puede montarse antes que esto).
+      if (!mesh.isMesh || mesh.userData.outfit) return;
       const name = (mesh.material as Material).name ?? '';
       mesh.material = /joint/i.test(name) || /joint/i.test(mesh.name) ? materials.joint : materials.body;
       mesh.frustumCulled = false;
@@ -456,7 +493,24 @@ function Rig({ lite, reducedMotion, shoe, clip, fitting, view, spin, autoRotate,
   const shadows = useRef<{ body: Group | null; left: Group | null; right: Group | null }>({ body: null, left: null, right: null });
   const scratch = useMemo(() => new Vector3(), []);
   const drawn = useRef(0);
-  const ready = !requestUrl || !!entry;
+  // Vestuario: el avatar entra ya vestido (o sin ropa si el GLB no carga).
+  const outfitUrl = outfit?.url ?? null;
+  const [outfitSettled, setOutfitSettled] = useState<string | null>(null);
+  const onOutfitReady = useMemo(
+    () => () => {
+      setOutfitSettled(outfitUrl);
+      onOutfitStatus?.('ready');
+    },
+    [outfitUrl, onOutfitStatus],
+  );
+  const onOutfitError = useMemo(
+    () => () => {
+      setOutfitSettled(outfitUrl);
+      onOutfitStatus?.('error');
+    },
+    [outfitUrl, onOutfitStatus],
+  );
+  const ready = (!requestUrl || !!entry) && (!outfitUrl || outfitSettled === outfitUrl);
 
   useFrame((state, delta) => {
     const width = state.size.width;
@@ -555,6 +609,21 @@ function Rig({ lite, reducedMotion, shoe, clip, fitting, view, spin, autoRotate,
         </group>
         {debug?.grid && <FloorGrid />}
       </group>
+      {outfit && (
+        <LoadBoundary key={outfit.url} onError={onOutfitError}>
+          <Suspense fallback={null}>
+            <AvatarOutfit
+              url={outfit.url}
+              look={outfit.look}
+              avatar={avatar.root}
+              rest={avatar.bones}
+              lite={lite}
+              reducedMotion={reducedMotion}
+              onReady={onOutfitReady}
+            />
+          </Suspense>
+        </LoadBoundary>
+      )}
       {shoe && !entries.has(shoe.url) && failed !== shoe.url && (
         <LoadBoundary key={shoe.url} onError={() => setFailed(shoe.url)}>
           <Suspense fallback={null}>

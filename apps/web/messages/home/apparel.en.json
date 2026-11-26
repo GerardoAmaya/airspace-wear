@@ -1,0 +1,11 @@
+{
+  "HomeApparel": {
+    "store": "AIRSPACE Wear · Apparel",
+    "kicker": "Apparel · Season 26",
+    "title": "Apparel",
+    "count": "{padded} {count, plural, one {piece} other {pieces}}",
+    "lead": "Tees, sweatshirts and more to pair with your sneakers. Open one to see it in 3D.",
+    "cta": "See all apparel",
+    "ctaCount": "{count, plural, one {# piece} other {# pieces}}"
+  }
+}

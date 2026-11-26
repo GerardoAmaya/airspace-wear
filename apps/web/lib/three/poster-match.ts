@@ -20,11 +20,15 @@ export interface Box {
 // Pose con la que se dibujaron los pósters (design/prototype/dev/poster.html):
 // cámara a 0.9 m (0.62 m para balones) y 0.02 m sobre el centro del objeto;
 // zapato a tres cuartos (0.5 rad) desde su lado externo, balón girado 0.35 rad.
+// La ropa (paso 4) se dibuja de frente, con la cámara de los zapatos: si
+// scripts/models/posters.mjs usa otra pose para las prendas, se ajusta aquí.
 export const POSTER_POSE = {
   sneakerYaw: 0.5,
   ballYaw: 0.35,
+  apparelYaw: 0,
   sneakerElevation: Math.atan2(0.02, 0.9),
   ballElevation: Math.atan2(0.02, 0.62),
+  apparelElevation: Math.atan2(0.02, 0.9),
 };
 
 // Alfa mínimo de la silueta: deja fuera la sombra suave del póster (su alfa

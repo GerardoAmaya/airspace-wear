@@ -1,0 +1,12 @@
+/*
+ * "Ropa" de la home: reusa el encabezado, la rejilla y el botón de
+ * "Destacados" (board/Featured.module.css). Solo cambia el aire de arriba:
+ * va justo después de Destacados, que ya deja su propio pie. Al saltar a
+ * #ropa, scroll-padding-top (styles/base.css) deja libre el encabezado.
+ */
+
+/* Selector doble: gana a .inner de Featured.module.css sin depender del
+   orden de carga de las hojas. */
+.tight.tight {
+  padding-top: 0;
+}

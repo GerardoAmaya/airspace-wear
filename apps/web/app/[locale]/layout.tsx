@@ -66,6 +66,11 @@ export async function generateMetadata({ params }: LayoutProps<'/[locale]'>): Pr
     description: t('description'),
     // Las de la home; cada página declara las suyas.
     alternates: localeAlternates(code, ''),
+    // Vista previa al compartir: la imagen sale de opengraph-image.tsx (la de
+    // la home aquí y la de cada ficha en products/[slug]); X la hereda de
+    // og:image. El título y la descripción los toma de cada página.
+    openGraph: { type: 'website', siteName: t('title') },
+    twitter: { card: 'summary_large_image' },
   };
 }
 

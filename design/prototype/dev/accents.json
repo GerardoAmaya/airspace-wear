@@ -142,5 +142,109 @@
     "light": "#696a6c",
     "contrastDark": 13.71,
     "contrastLight": 4.8
+  },
+  "nike-air-max-270": {
+    "base": "#ef4444",
+    "reason": "rojo del Swoosh y de la cámara de aire",
+    "dark": "#ef4a4a",
+    "light": "#c63838",
+    "contrastDark": 4.65,
+    "contrastLight": 4.63
+  },
+  "nike-air-max-pre-day": {
+    "base": "#c2652a",
+    "reason": "marrón óxido del Swoosh",
+    "dark": "#c67039",
+    "light": "#a75724",
+    "contrastDark": 4.67,
+    "contrastLight": 4.62
+  },
+  "nike-react-presto": {
+    "base": "#8b5cf6",
+    "reason": "morado del lateral",
+    "dark": "#956bf7",
+    "light": "#7a51d8",
+    "contrastDark": 4.63,
+    "contrastLight": 4.66
+  },
+  "nike-defy-all-day": {
+    "base": "#dc2626",
+    "reason": "rojo del Swoosh",
+    "dark": "#e45656",
+    "light": "#d12424",
+    "contrastDark": 4.66,
+    "contrastLight": 4.67
+  },
+  "vans-old-skool-blue": {
+    "base": "#3b82f6",
+    "reason": "azul del corte",
+    "dark": "#3b82f6",
+    "light": "#3069c7",
+    "contrastDark": 4.61,
+    "contrastLight": 4.69
+  },
+  "vans-rock-haters": {
+    "base": "#e879f9",
+    "reason": "reflejo holográfico",
+    "dark": "#e879f9",
+    "light": "#9950a4",
+    "contrastDark": 6.9,
+    "contrastLight": 4.61
+  },
+  "adidas-lightstrike": {
+    "base": "#5b7bb8",
+    "reason": "azul marino del corte",
+    "dark": "#6886be",
+    "light": "#506ca2",
+    "contrastDark": 4.64,
+    "contrastLight": 4.65
+  },
+  "adidas-retro-court": {
+    "base": "#b794d4",
+    "reason": "lila de la gamuza",
+    "dark": "#b794d4",
+    "light": "#7b638e",
+    "contrastDark": 6.63,
+    "contrastLight": 4.63
+  },
+  "adidas-orange-running": {
+    "base": "#fb7a55",
+    "reason": "naranja coral del tejido",
+    "dark": "#fb7a55",
+    "light": "#ab533a",
+    "contrastDark": 6.48,
+    "contrastLight": 4.62
+  },
+  "adidas-football-boot": {
+    "base": "#7dd3fc",
+    "reason": "celeste del corte",
+    "dark": "#7dd3fc",
+    "light": "#447288",
+    "contrastDark": 10.18,
+    "contrastLight": 4.64
+  },
+  "hoka-mach-5": {
+    "base": "#3b82f6",
+    "reason": "azul del corte",
+    "dark": "#3b82f6",
+    "light": "#3069c7",
+    "contrastDark": 4.61,
+    "contrastLight": 4.69
+  },
+  "converse-chuck-taylor": {
+    "base": "#ef4444",
+    "reason": "rojo de la lona",
+    "dark": "#ef4a4a",
+    "light": "#c63838",
+    "contrastDark": 4.65,
+    "contrastLight": 4.63
+  },
+  "dior-b30": {
+    "base": "#be123c",
+    "reason": "vino de los paneles",
+    "dark": "#d3607c",
+    "light": "#be123c",
+    "contrastDark": 4.63,
+    "contrastLight": 5.57
   }
 }

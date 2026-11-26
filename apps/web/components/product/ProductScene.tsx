@@ -1,6 +1,6 @@
 'use client';
 
-import type { Hotspot, HotspotView, Model3D } from '@airspace/contracts';
+import type { Category, Hotspot, HotspotView, Model3D } from '@airspace/contracts';
 import { Shadow, useGLTF } from '@react-three/drei';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { type RefObject, Suspense, useEffect, useMemo, useRef } from 'react';
@@ -34,8 +34,24 @@ const OVERVIEW: HotspotView = {
   mobile: { zoom: 1, yaw: 0.35 },
 };
 
+// Vista general de una prenda: de frente (la pose canónica de la ropa mira a
+// +Z), centrada y sin sombra de contacto (la prenda no apoya en el piso).
+const GARMENT_OVERVIEW: HotspotView = {
+  pose: { yaw: 0, pitch: 0, bank: 0, shadow: 0 },
+  camera: { zoom: 1, elev: 0.05, focus: 0, shift: 0 },
+  slot: { side: 'right', y: 0.5 },
+  mobile: { zoom: 1, yaw: 0 },
+};
+
+// Ancho mínimo del encuadre (m): el largo de un zapato (pose canónica). Un
+// objeto más ancho (una prenda con mangas) agranda el encuadre; uno más
+// angosto (un balón) conserva el de siempre.
+const FRAME_WIDTH = 0.3;
+
 interface SceneProps {
   model: Model3D;
+  // La ropa se encuadra de frente; el calzado, a tres cuartos.
+  category: Category;
   lite: boolean;
   active: boolean;
   reducedMotion: boolean;
@@ -78,14 +94,17 @@ export default function ProductScene(props: SceneProps) {
   );
 }
 
-function Rig({ model, lite, reducedMotion, hotspots, activeKey, controls, markers, onReady, posterRef, decidePoster }: SceneProps) {
+function Rig({ model, category, lite, reducedMotion, hotspots, activeKey, controls, markers, onReady, posterRef, decidePoster }: SceneProps) {
   const { scene } = useGLTF(lite ? model.liteUrl : model.heroUrl);
   // Copia propia de la escena: el mismo GLB puede estar en otro canvas.
   const object = useMemo(() => scene.clone(true), [scene]);
-  const height = useMemo(() => {
+  // Alto y ancho de giro (el mayor entre X y Z) del modelo en su pose.
+  const { height, width } = useMemo(() => {
     const box = new Box3().setFromObject(object, true);
-    return box.max.y - box.min.y;
+    return { height: box.max.y - box.min.y, width: Math.max(box.max.x - box.min.x, box.max.z - box.min.z) };
   }, [object]);
+  const isGarment = category === 'apparel';
+  const overview = isGarment ? GARMENT_OVERVIEW : OVERVIEW;
 
   const pivot = useRef<Group>(null);
   const shadow = useRef<Group>(null);
@@ -106,14 +125,15 @@ function Rig({ model, lite, reducedMotion, hotspots, activeKey, controls, marker
   // Empieza con la vista del póster (giro y elevación de su cámara); al
   // revelarse se asienta en la vista general (ver settle).
   // Un balón (sin pie) se fotografió girado al revés y con la cámara más cerca.
-  const isBall = model.foot === null;
+  // Una prenda (tampoco tiene pie) se fotografía de frente.
+  const isBall = model.foot === null && !isGarment;
   const view = useRef({
-    yaw: isBall ? -POSTER_POSE.ballYaw : POSTER_POSE.sneakerYaw,
+    yaw: isGarment ? POSTER_POSE.apparelYaw : isBall ? -POSTER_POSE.ballYaw : POSTER_POSE.sneakerYaw,
     bank: 0,
     zoom: 1,
-    elev: Math.tan(isBall ? POSTER_POSE.ballElevation : POSTER_POSE.sneakerElevation),
+    elev: Math.tan(isGarment ? POSTER_POSE.apparelElevation : isBall ? POSTER_POSE.ballElevation : POSTER_POSE.sneakerElevation),
     focus: 0,
-    shadow: 1,
+    shadow: overview.pose.shadow ?? 1,
   });
   // Ajuste de pantalla de la entrada (escala y desplazamiento en px) y ritmo
   // del giro libre (0 quieto, 1 normal).
@@ -121,7 +141,7 @@ function Rig({ model, lite, reducedMotion, hotspots, activeKey, controls, marker
   const entryState = useRef<'measure' | 'reveal' | 'settled'>('measure');
   const posterBox = useRef<Awaited<ReturnType<typeof posterBoxOnCanvas>> | undefined>(undefined);
   const drawn = useRef(0);
-  const targetView = useRef(OVERVIEW);
+  const targetView = useRef(overview);
   const withPoster = useRef(false);
   const focusPoint = useRef(new Vector3(0, height / 2, 0));
   const drag = useRef(0);
@@ -152,7 +172,7 @@ function Rig({ model, lite, reducedMotion, hotspots, activeKey, controls, marker
   // Al cambiar de detalle, cámara y pose se mueven por tiempo (no por scroll).
   useEffect(() => {
     const hotspot = hotspots.find((item) => item.key === activeKey);
-    const next = hotspot?.view ?? OVERVIEW;
+    const next = hotspot?.view ?? overview;
     if (hotspot) focusPoint.current.set(...hotspot.position);
     else focusPoint.current.set(0, height / 2, 0);
     // Elegir un detalle cancela el giro manual: la vista lo muestra de frente.
@@ -177,7 +197,7 @@ function Rig({ model, lite, reducedMotion, hotspots, activeKey, controls, marker
     return () => {
       tween.kill();
     };
-  }, [activeKey, hotspots, height, reducedMotion, controls]);
+  }, [activeKey, hotspots, height, reducedMotion, controls, overview]);
 
   // Al cambiar de detalle se vuelve a medir (fuentes o idioma pudieron cambiar).
   useEffect(() => {
@@ -205,12 +225,14 @@ function Rig({ model, lite, reducedMotion, hotspots, activeKey, controls, marker
     if (info.shift !== shift) label.style.transform = info.shift = shift;
   };
 
-  // Distancia base: el zapato (0.30 m) y su alto entran con aire en el cuadro.
+  // Distancia base: el zapato (0.30 m) o la prenda, y su alto, entran con
+  // aire en el cuadro. La prenda es alta: lleva menos aire vertical.
   const baseDistance = useMemo(() => {
     const vertical = MathUtils.degToRad(28) / 2;
     const horizontal = Math.atan(Math.tan(vertical) * (size.width / Math.max(size.height, 1)));
-    return Math.max((0.3 * 1.35) / 2 / Math.tan(horizontal), (height * 2.1) / 2 / Math.tan(vertical));
-  }, [size.width, size.height, height]);
+    const frame = Math.max(FRAME_WIDTH, width);
+    return Math.max((frame * 1.35) / 2 / Math.tan(horizontal), (height * (isGarment ? 1.5 : 2.1)) / 2 / Math.tan(vertical));
+  }, [size.width, size.height, height, width, isGarment]);
 
   const preset = LIGHT_PRESETS[theme];
 

@@ -2,7 +2,9 @@
   "Metadata": {
     "title": "AIRSPACE Wear",
     "description": "Sneakers, ropa y balones de las marcas que amas, para ver en 3D antes de comprar.",
-    "titleTemplate": "%s · AIRSPACE Wear"
+    "titleTemplate": "%s · AIRSPACE Wear",
+    "ogAlt": "AIRSPACE Wear: sneakers, ropa y balones de las marcas que amas, para ver en 3D.",
+    "ogKicker": "Sneakers · Ropa · Balones"
   },
   "Brand": {
     "name": "AIRSPACE",
@@ -47,7 +49,7 @@
     "title": "Carrito",
     "buttonLabel": "Carrito {count, plural, =0 {0 productos} one {# producto} other {# productos}}",
     "close": "Cerrar carrito",
-    "empty": "Todavía no agregas nada. Elige un par o un balón del catálogo.",
+    "empty": "Todavía no agregas nada. Elige un par, una prenda o un balón del catálogo.",
     "remove": "Quitar",
     "removeLabel": " {name}",
     "removed": "{name} quitado del carrito",
@@ -70,10 +72,10 @@
   },
   "Catalog": {
     "metaTitle": "Catálogo",
-    "metaDescription": "Sneakers y balones de las marcas que amas, con modelo 3D de cada par.",
-    "kicker": "Sneakers y balones · Temporada 26",
+    "metaDescription": "Sneakers, tacos, ropa y balones de las marcas que amas, para ver en 3D.",
+    "kicker": "Sneakers, tacos, ropa y balones · Temporada 26",
     "title": "Catálogo",
-    "lead": "Elige un par o un balón y míralo de cerca: cada uno tiene su modelo 3D.",
+    "lead": "Elige un par, una prenda o un balón y míralo de cerca en 3D.",
     "loading": "Cargando catálogo",
     "filtersLabel": "Filtros",
     "categoryLabel": "Categoría",
@@ -83,6 +85,7 @@
     "comingSoon": "Próximamente",
     "category": {
       "sneaker": "Sneakers",
+      "cleat": "Tacos",
       "ball": "Balones",
       "apparel": "Ropa"
     },
@@ -92,7 +95,21 @@
     "reference": "Ref. {reference}",
     "has3d": "3D",
     "posterAlt": "{name}, vista de perfil",
-    "sizeRange": "Tallas EU {min} a {max}"
+    "sizeRange": "Tallas EU {min} a {max}",
+    "sizeRangeAlpha": "Tallas {min} a {max}",
+    "sizeSingleAlpha": "Talla {size}",
+    "oneSize": "Talla única",
+    "subcategoryLabel": "Tipo de prenda",
+    "allSubcategories": "Toda la ropa",
+    "subcategory": {
+      "tshirt": "Camisetas",
+      "sweatshirt": "Sudaderas",
+      "jacket": "Chaquetas",
+      "pants": "Pantalones",
+      "shorts": "Shorts",
+      "cap": "Gorras",
+      "accessory": "Accesorios"
+    }
   },
   "Product": {
     "breadcrumbLabel": "Ruta",
@@ -100,6 +117,7 @@
     "reference": "Ref. {reference}",
     "posterAlt": "{name}, vista de perfil",
     "chooseSize": "Elige tu talla (EU)",
+    "chooseSizeAlpha": "Elige tu talla",
     "pickSizeFirst": "Elige una talla",
     "addToCart": "Agregar al carrito",
     "added": "Agregado al carrito",
@@ -121,7 +139,8 @@
       "year": "Año",
       "upper": "Parte superior",
       "sole": "Suela",
-      "finish": "Acabado"
+      "finish": "Acabado",
+      "fabric": "Tejido"
     },
     "viewer": {
       "posterAlt": "{name}, vista de perfil",
@@ -136,7 +155,8 @@
       "button": "Ver en tu espacio",
       "loading": "Preparando la vista",
       "unsupported": "Abre esta página en tu teléfono para ver el {name} en tu espacio, a tamaño real."
-    }
+    },
+    "ogAlt": "{name} en AIRSPACE Wear, {price}"
   },
   "Credits": {
     "metaTitle": "Créditos",
@@ -242,6 +262,50 @@
     "dragHint": "Arrastra para girar",
     "touchHint": "Desliza para girar",
     "rotation": "ROT {degrees}°",
-    "viewProduct": "Ver ficha"
+    "viewProduct": "Ver ficha",
+    "outfit": {
+      "title": "Vestuario",
+      "shirt": "Camiseta",
+      "shirtStyles": {
+        "sleeves": "Con mangas",
+        "tank": "Sin mangas"
+      },
+      "bottoms": "Abajo",
+      "bottomsStyles": {
+        "shorts": "Shorts",
+        "pants": "Pantalón"
+      },
+      "accessories": "Extras",
+      "cap": "Gorra",
+      "glasses": "Lentes",
+      "socks": "Calcetines",
+      "stripes": "Franjas",
+      "colorTarget": "Color de",
+      "slots": {
+        "shirt": "Camiseta",
+        "bottoms": "Abajo",
+        "socks": "Calcetines",
+        "stripes": "Franjas",
+        "cap": "Gorra",
+        "glasses": "Lentes"
+      },
+      "palette": "Color: {garment}",
+      "swatches": {
+        "white": "Blanco",
+        "cream": "Crema",
+        "grey": "Gris",
+        "graphite": "Grafito",
+        "black": "Negro",
+        "lime": "Lima",
+        "orange": "Naranja",
+        "cobalt": "Azul cobalto",
+        "navy": "Azul marino",
+        "olive": "Oliva",
+        "wine": "Vino"
+      },
+      "match": "Combinar con el zapato",
+      "matchHint": "La gorra y las franjas de los calcetines toman el color del par y lo siguen al cambiar de par.",
+      "reset": "Restablecer"
+    }
   }
 }

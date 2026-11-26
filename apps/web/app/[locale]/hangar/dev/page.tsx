@@ -1,3 +1,4 @@
+import { isWearable } from '@airspace/contracts';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
@@ -14,9 +15,10 @@ export default async function HangarDevPage({ params }: PageProps<'/[locale]/han
   if (process.env.NODE_ENV === 'production') notFound();
   const locale = pageLocale((await params).locale);
   setRequestLocale(locale);
-  const { items } = await getProducts({ locale, category: 'sneaker' });
+  // Sneakers y tacos: lo mismo que se puede calzar en el Hangar.
+  const { items } = await getProducts({ locale });
   const sneakers: DevSneaker[] = items.flatMap((item) =>
-    item.model?.foot ? [{ slug: item.slug, name: item.name, url: item.model.liteUrl, foot: item.model.foot }] : [],
+    isWearable(item.category) && item.model?.foot ? [{ slug: item.slug, name: item.name, url: item.model.liteUrl, foot: item.model.foot }] : [],
   );
   return <AvatarDevTool sneakers={sneakers} />;
 }

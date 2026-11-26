@@ -26,8 +26,38 @@ enum Locale {
 
 enum Category {
   sneaker
+  // Tacos de fútbol (botines con tapones).
+  cleat
   apparel
   ball
+}
+
+// Subcategoría de la ropa (camisetas, sudaderas, chaquetas, pantalones,
+// shorts, gorras y accesorios). Solo la ropa la tiene (CHECK en la migración).
+enum Subcategory {
+  tshirt
+  sweatshirt
+  jacket
+  pants
+  shorts
+  cap
+  accessory
+}
+
+// Lugar de una prenda en el avatar del Hangar 360°. Null: solo catálogo.
+enum AvatarSlot {
+  top
+  bottom
+  head
+  eyes
+}
+
+// EU: calzado; ALPHA: tallas de letra (S a XL); ONE: talla única; BALL: balones.
+enum SizeSystem {
+  EU
+  ALPHA
+  ONE
+  BALL
 }
 
 enum Availability {
@@ -67,6 +97,10 @@ model Product {
   // Referencia de tienda, por ejemplo "AS-001".
   reference    String               @unique
   category     Category
+  // Solo ropa: una subcategoría (obligatoria en la ropa) y, si se puede
+  // poner en el avatar, su lugar en él.
+  subcategory  Subcategory?
+  avatarSlot   AvatarSlot?
   brandId      Int
   brand        Brand                @relation(fields: [brandId], references: [id])
   priceCents   Int
@@ -95,6 +129,7 @@ model Product {
 
   @@index([published, sortOrder])
   @@index([category, published, sortOrder])
+  @@index([category, subcategory, published, sortOrder])
   @@index([brandId])
   @@index([modelId])
 }
@@ -118,22 +153,23 @@ model ProductTranslation {
 }
 
 model ProductSize {
-  id        Int     @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   productId Int
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  // Sistema de tallas: "EU" en sneakers, "BALL" en balones (talla 5).
-  system    String
+  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  // Sistema de tallas: EU en sneakers y tacos, ALPHA (S a XL) u ONE (talla
+  // única) en la ropa, BALL en balones (talla 5).
+  system    SizeSystem
   label     String
-  sortOrder Int     @default(0)
-  stock     Int     @default(0)
+  sortOrder Int        @default(0)
+  stock     Int        @default(0)
 
   @@unique([productId, system, label])
 }
 
 model Model3D {
-  id                Int         @id @default(autoincrement())
+  id                Int          @id @default(autoincrement())
   // Slug del manifest (assets/models/manifest.json).
-  slug              String      @unique
+  slug              String       @unique
   heroUrl           String
   liteUrl           String
   heroBytes         Int
@@ -146,8 +182,8 @@ model Model3D {
   // Pósters WebP por tema (pnpm models:posters): la luz cambia con el tema.
   posterDarkUrl     String?
   posterLightUrl    String?
-  creditId          Int         @unique
-  credit            AssetCredit @relation(fields: [creditId], references: [id])
+  creditId          Int          @unique
+  credit            AssetCredit  @relation(fields: [creditId], references: [id])
   products          Product[]
 }
 

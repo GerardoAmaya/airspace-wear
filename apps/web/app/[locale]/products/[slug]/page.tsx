@@ -92,7 +92,7 @@ async function ProductContent({ params }: { params: PageProps<'/[locale]/product
   if (typeof attributes.panels === 'number') specs.push([t('spec.panels'), String(attributes.panels)]);
   if (typeof attributes.year === 'number') specs.push([t('spec.year'), String(attributes.year)]);
   for (const [part, value] of Object.entries(product.materials)) {
-    if (part === 'upper' || part === 'sole' || part === 'finish') specs.push([t(`spec.${part}`), value]);
+    if (part === 'upper' || part === 'sole' || part === 'finish' || part === 'fabric') specs.push([t(`spec.${part}`), value]);
   }
 
   return (
@@ -104,7 +104,7 @@ async function ProductContent({ params }: { params: PageProps<'/[locale]/product
       <div className={styles.layout}>
         <div className={styles.media}>
           {product.model ? (
-            <ProductViewer model={product.model} hotspots={product.hotspots} name={product.name} slug={product.slug} accent={product.accent} />
+            <ProductViewer model={product.model} category={product.category} hotspots={product.hotspots} name={product.name} slug={product.slug} accent={product.accent} />
           ) : (
             <div className={styles.mediaFrame}>
               <div className={styles.halo} aria-hidden="true" />

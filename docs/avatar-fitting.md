@@ -123,3 +123,14 @@ Si con un zapato bajo (Samba) se ve un hueco entre la pierna y el cuello, se sub
 - Zapatos siempre en su versión `-lite.glb` (CLAUDE.md), compartida entre los dos pies.
 - El avatar en su versión lite en modo liviano.
 - Un solo lienzo dibujando, DPR máximo de 1,5 (1 en modo liviano) y render detenido fuera de vista, como el resto de las escenas.
+
+## 9. Vestuario del maniquí
+
+Prendas propias del proyecto (no son de Mixamo ni de ninguna marca), generadas por `pnpm avatar:build` con `scripts/avatar/outfit.py` en Blender. La configuración vive en `scripts/avatar/config.mjs` (`OUTFIT` y `OUTFIT_VARIANTS`).
+
+- **Prendas con esqueleto** (camiseta, musculosa, short, pantalón jogger, calcetines): se toman las piezas del Y Bot cuyo hueso dominante está en la lista de la prenda, se inflan por la normal, se unen con un remallado de vóxeles, se suavizan y se cortan con planos limpios en cada dobladillo. Después: caída de la tela (el radio no se achica al bajar), holgura mínima sobre el cuerpo, capas (la camiseta va por fuera del short, el pantalón por fuera de los calcetines), canto del dobladillo (solidify solo borde) y pesos copiados del cuerpo y suavizados.
+- **Calcetines:** de media pantorrilla al tobillo, cerrados dentro del zapato, con dos franjas en el puño (material `outfit-stripe`). Sin logos.
+- **Accesorios rígidos** (gorra y lentes): geometría propia ajustada a la cabeza, hijos del hueso `mixamorig:Head`, sin pesos.
+- **Archivos:** `outfit.glb` y `outfit-lite.glb`, aparte del avatar, con el mismo esqueleto y la misma pose y escala. La web enlaza cada prenda a los huesos del avatar por nombre. Sin las URLs (`NEXT_PUBLIC_OUTFIT_URL`), el Hangar muestra el maniquí sin ropa.
+- **Cuerpo bajo la ropa:** las mismas reglas que cortaron las prendas (`apps/web/lib/avatar/outfit-rules.json`, generado) marcan en la web qué vértices del cuerpo quedan cubiertos, con un margen (`hideInset`) para que dentro de cada abertura se siga viendo cuerpo. Esos triángulos no se dibujan mientras la prenda está puesta.
+- **Tela:** materiales mate de un color, sin UV ni texturas; en el hero, un relieve de tejido procedural en el shader que se apaga de lejos.

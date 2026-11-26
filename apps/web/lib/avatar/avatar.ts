@@ -7,6 +7,16 @@
 export const AVATAR_URL = process.env.NEXT_PUBLIC_AVATAR_URL || '/avatar-local/avatar.glb';
 export const AVATAR_LITE_URL = process.env.NEXT_PUBLIC_AVATAR_LITE_URL || AVATAR_URL.replace(/\.glb$/, '-lite.glb');
 
+// Vestuario del maniquí (pnpm avatar:build, prendas generadas por el
+// proyecto). Va aparte del avatar: si falta la URL (por ejemplo, en
+// producción antes de subirlo con pnpm avatar:upload), el Hangar muestra el
+// maniquí sin ropa y no ofrece el panel. En Blob cada archivo lleva su hash,
+// así que el lite necesita su propia variable; sin ella se usa el hero.
+const DEV = process.env.NODE_ENV !== 'production';
+export const OUTFIT_URL = process.env.NEXT_PUBLIC_OUTFIT_URL || (DEV ? '/avatar-local/outfit.glb' : '');
+export const OUTFIT_LITE_URL =
+  process.env.NEXT_PUBLIC_OUTFIT_LITE_URL || (process.env.NEXT_PUBLIC_OUTFIT_URL ? OUTFIT_URL : DEV ? '/avatar-local/outfit-lite.glb' : '');
+
 // El Hangar existe solo si hay avatar: en producción la copia local no se
 // publica, así que sin NEXT_PUBLIC_AVATAR_URL la página responde 404 y la
 // home no la enlaza. Next fija estas variables al compilar.

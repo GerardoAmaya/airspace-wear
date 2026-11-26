@@ -15,18 +15,22 @@ const intl = createMiddleware(routing);
 // página resuelve como siempre.
 const API_URL = process.env.API_URL ?? 'http://127.0.0.1:4000';
 const SLUGS_TTL_MS = 5 * 60 * 1000;
+// Si un slug no aparece y la lista tiene más de esto, se vuelve a pedir una
+// vez antes de responder 404: así un producto recién publicado no da 404
+// durante los minutos que dura la lista en memoria.
+const SLUGS_RECHECK_MS = 15 * 1000;
 const PRODUCT_PATH = /^\/(es|en)\/products\/([^/]+)\/?$/;
-let slugs: { value: Set<string>; expires: number } | null = null;
+let slugs: { value: Set<string>; expires: number; fetchedAt: number } | null = null;
 
-async function knownSlugs(): Promise<Set<string> | null> {
-  if (slugs && slugs.expires > Date.now()) return slugs.value;
+async function knownSlugs(force = false): Promise<Set<string> | null> {
+  if (!force && slugs && slugs.expires > Date.now()) return slugs.value;
   try {
     // Los slugs son los mismos en ambos idiomas: basta con la lista en español.
     const response = await fetch(`${API_URL}/v1/products?locale=${routing.defaultLocale}`, { headers: process.env.INTERNAL_API_KEY ? { 'x-internal-key': process.env.INTERNAL_API_KEY } : {}, signal: AbortSignal.timeout(2000) });
     if (!response.ok) return null;
     const body = (await response.json()) as { items?: Array<{ slug?: unknown }> };
     const value = new Set((body.items ?? []).flatMap((item) => (typeof item.slug === 'string' ? [item.slug] : [])));
-    slugs = { value, expires: Date.now() + SLUGS_TTL_MS };
+    slugs = { value, expires: Date.now() + SLUGS_TTL_MS, fetchedAt: Date.now() };
     return value;
   } catch {
     return null;
@@ -53,8 +57,10 @@ export default async function proxy(request: NextRequest) {
   }
   const match = PRODUCT_PATH.exec(pathname);
   if (match) {
-    const known = await knownSlugs();
-    if (known && !known.has(decodeURIComponent(match[2]!))) {
+    const slug = decodeURIComponent(match[2]!);
+    let known = await knownSlugs();
+    if (known && !known.has(slug) && slugs && Date.now() - slugs.fetchedAt > SLUGS_RECHECK_MS) known = await knownSlugs(true);
+    if (known && !known.has(slug)) {
       // Se reescribe (la URL no cambia) a una ruta que no existe dentro del
       // idioma: Next responde con not-found.tsx en ese idioma y estado 404 de
       // verdad. Reescribir a la misma ficha con { status: 404 } no basta: la
@@ -71,5 +77,6 @@ export const config = {
   // carpetas llevan la barra final para que /models.txt sí pase por aquí.
   // Las rutas con punto también pasan: ver FILE_LIKE arriba.
   // avatar-local/ es la copia del avatar para desarrollo (ignorada por git).
-  matcher: '/((?!api/|_next/|_vercel/|models/|vendor/|posters/|fx/|avatar-local/|robots\\.txt|icon\\.svg).*)',
+  // sitemap.xml queda fuera como robots.txt: si no, FILE_LIKE lo mandaba al 404.
+  matcher: '/((?!api/|_next/|_vercel/|models/|vendor/|posters/|fx/|avatar-local/|robots\\.txt|sitemap\\.xml|icon\\.svg).*)',
 };

@@ -30,6 +30,23 @@ const BASES = {
   'adidas-jabulani-2010': ['#f87171', 'rojo de sus paneles'],
   'adidas-teamgeist-2006': ['#fbbf24', 'dorado de Berlín'],
   'adidas-telstar-1970': ['#e5e7eb', 'blanco y negro: acento neutro'],
+  // Ampliación del catálogo (provisional): tonos tomados de las miniaturas
+  // de Sketchfab y de la descripción del par. Se revisan con los pósters.
+  // Los neutros (XT-6, On Cloud, Fresh Foam Roav, Dior Star, Ozelia, AJ1 Low Dior, Jordan 4 Black Cat) y los de verde
+  // neón (Structure Plus, Quest) usan el lima de la marca: no van aquí.
+  'nike-air-max-270': ['#ef4444', 'rojo del Swoosh y de la cámara de aire'],
+  'nike-air-max-pre-day': ['#c2652a', 'marrón óxido del Swoosh'],
+  'nike-react-presto': ['#8b5cf6', 'morado del lateral'],
+  'nike-defy-all-day': ['#dc2626', 'rojo del Swoosh'],
+  'vans-old-skool-blue': ['#3b82f6', 'azul del corte'],
+  'vans-rock-haters': ['#e879f9', 'reflejo holográfico'],
+  'adidas-lightstrike': ['#5b7bb8', 'azul marino del corte'],
+  'adidas-retro-court': ['#b794d4', 'lila de la gamuza'],
+  'adidas-orange-running': ['#fb7a55', 'naranja coral del tejido'],
+  'adidas-football-boot': ['#7dd3fc', 'celeste del corte'],
+  'hoka-mach-5': ['#3b82f6', 'azul del corte'],
+  'converse-chuck-taylor': ['#ef4444', 'rojo de la lona'],
+  'dior-b30': ['#be123c', 'vino de los paneles'],
 };
 
 const DARK_BACKGROUNDS = ['#0e0e10', '#1c1c21'];

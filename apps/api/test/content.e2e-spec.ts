@@ -6,9 +6,12 @@ import {
 import request from 'supertest';
 import {
   createTestApp,
+  prismaOf,
   PUBLIC_CACHE_CONTROL,
   type TestApp,
 } from './support/app.js';
+import { seededCatalog } from './support/catalog.js';
+import { AVATAR_CREDITS, STATIC_CREDITS } from '../prisma/seed/credits.js';
 
 // Créditos y estado de la API contra airspace_test. Solo lectura.
 describe('Contenidos y estado (integración)', () => {
@@ -25,22 +28,23 @@ describe('Contenidos y estado (integración)', () => {
   const get = (url: string) => request(app.getHttpServer()).get(url);
 
   describe('GET /v1/credits', () => {
-    it('lista 18 modelos y 9 fuentes y librerías', async () => {
+    it('lista un crédito por modelo listo, el avatar y 9 fuentes y librerías', async () => {
       const response = await get('/v1/credits').expect(200);
       expect(response.headers['cache-control']).toBe(PUBLIC_CACHE_CONTROL);
       const { items } = creditListSchema.parse(response.body);
-      expect(items).toHaveLength(27);
-      expect(items.filter((credit) => credit.kind === 'model')).toHaveLength(
-        18,
-      );
+      // Modelos que el seed cargó (los listos en el manifest al sembrar).
+      const { models: seeded } = await seededCatalog(prismaOf(app));
+      const models = seeded.size + AVATAR_CREDITS.length;
+      expect(items).toHaveLength(models + STATIC_CREDITS.length);
+      expect(items.filter((credit) => credit.kind === 'model')).toHaveLength(models);
       expect(items.filter((credit) => credit.kind !== 'model')).toHaveLength(9);
       expect(items.filter((credit) => credit.kind === 'font')).toHaveLength(3);
-      // Primero los modelos (sortOrder 0..17) y luego fuentes y librerías (100+).
+      // Primero los modelos y el avatar, luego fuentes y librerías (100+).
       const firstStatic = items.findIndex((credit) => credit.kind !== 'model');
-      expect(firstStatic).toBe(18);
+      expect(firstStatic).toBe(models);
     });
 
-    it('el crédito de la Samba es no comercial y compartir igual', async () => {
+    it('los modelos no comerciales (como la Samba) están marcados', async () => {
       const { items } = creditListSchema.parse(
         (await get('/v1/credits').expect(200)).body,
       );
@@ -50,17 +54,23 @@ describe('Contenidos y estado (integración)', () => {
         commercialUse: false,
         shareAlike: true,
       });
-      // El resto de los modelos sí permite uso comercial.
-      const others = items.filter(
-        (credit) =>
-          credit.kind === 'model' && credit.key !== 'model:adidas-samba',
-      );
-      expect(
-        others.every(
-          (credit) =>
-            credit.license.commercialUse && !credit.license.shareAlike,
-        ),
-      ).toBe(true);
+      // Los modelos CC BY-NC-SA conocidos son no comerciales; el resto de los
+      // modelos sí permite uso comercial y no pide compartir igual.
+      const NON_COMMERCIAL = new Set([
+        'model:adidas-samba',
+        'model:nike-defy-all-day',
+        'model:vans-rock-haters',
+        'model:new-balance-fresh-foam-roav',
+        'model:air-jordan-1-low-dior',
+      ]);
+      const models = items.filter((credit) => credit.kind === 'model');
+      for (const credit of models) {
+        if (NON_COMMERCIAL.has(credit.key)) {
+          expect(credit.license.commercialUse).toBe(false);
+        } else {
+          expect(credit.license.commercialUse && !credit.license.shareAlike).toBe(true);
+        }
+      }
     });
 
     it('changes solo trae códigos conocidos', async () => {
@@ -70,7 +80,8 @@ describe('Contenidos y estado (integración)', () => {
       const known = new Set<string>(CREDIT_CHANGES);
       for (const credit of items) {
         expect(credit.changes.every((change) => known.has(change))).toBe(true);
-        if (credit.kind === 'model')
+        // Los modelos 3D pasan por el proceso completo; el avatar no.
+        if (credit.key.startsWith('model:'))
           expect(credit.changes).toEqual(
             expect.arrayContaining([
               'reoriented_rescaled',
@@ -78,7 +89,7 @@ describe('Contenidos y estado (integración)', () => {
               'meshopt_compression',
             ]),
           );
-        else expect(credit.changes).toEqual([]);
+        else if (credit.kind !== 'model') expect(credit.changes).toEqual([]);
       }
     });
   });

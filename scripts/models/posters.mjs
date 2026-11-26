@@ -8,6 +8,9 @@
 // Uso:
 //   pnpm models:posters                       todos los modelos del manifest
 //   pnpm models:posters --only air-jordan-1   solo uno (repetible)
+//
+// La ropa (category 'apparel') se dibuja de frente, sin sombra y con la
+// cámara a una distancia según su tamaño (ver dev/poster.html).
 
 import { spawn } from 'node:child_process';
 import { mkdir, readFile } from 'node:fs/promises';
@@ -17,7 +20,9 @@ import { chromium } from 'playwright-core';
 import sharp from 'sharp';
 import { PATHS, ROOT_DIR } from './config.mjs';
 
-const { values: options } = parseArgs({ options: { only: { type: 'string' }, port: { type: 'string', default: '4181' } } });
+const { values: options } = parseArgs({
+  options: { only: { type: 'string', multiple: true }, port: { type: 'string', default: '4181' } },
+});
 
 const THEMES = ['dark', 'light'];
 const OUTPUT_DIR = path.join(ROOT_DIR, 'apps/web/public/posters');
@@ -28,8 +33,8 @@ const HEIGHT = 800;
 const QUALITY = 82;
 
 const manifest = JSON.parse(await readFile(PATHS.manifest, 'utf8'));
-const slugs = Object.keys(manifest.models).filter((slug) => !options.only || slug === options.only);
-if (slugs.length === 0) throw new Error(`No hay modelos que coincidan con --only ${options.only}`);
+const slugs = Object.keys(manifest.models).filter((slug) => !options.only || options.only.includes(slug));
+if (slugs.length === 0) throw new Error(`No hay modelos que coincidan con --only ${options.only.join(', ')}`);
 
 // Levanta el servidor del prototipo en un puerto propio y espera a que responda.
 const server = spawn(process.execPath, [path.join(ROOT_DIR, 'scripts/design/serve.mjs'), '--port', options.port], { stdio: 'ignore' });

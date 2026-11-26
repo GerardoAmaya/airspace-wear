@@ -1,6 +1,6 @@
 'use client';
 
-import type { Hotspot, Model3D } from '@airspace/contracts';
+import type { Category, Hotspot, Model3D } from '@airspace/contracts';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 import { type KeyboardEvent, type PointerEvent, useCallback, useEffect, useRef, useState, ViewTransition } from 'react';
@@ -28,7 +28,21 @@ const POSTER_AFTER = 4; // s de carga antes de mostrar el póster de respaldo
 
 // Visor 3D de la ficha: póster mientras carga, giro con arrastre o flechas,
 // y etiquetas sobre el zapato para el detalle activo.
-export function ProductViewer({ model, hotspots, name, slug, accent }: { model: Model3D; hotspots: Hotspot[]; name: string; slug: string; accent: ProductAccent }) {
+export function ProductViewer({
+  model,
+  category,
+  hotspots,
+  name,
+  slug,
+  accent,
+}: {
+  model: Model3D;
+  category: Category;
+  hotspots: Hotspot[];
+  name: string;
+  slug: string;
+  accent: ProductAccent;
+}) {
   const t = useTranslations('Product.viewer');
   const [frame, setFrame] = useState<HTMLDivElement | null>(null);
   const active = useStageActivity(frame);
@@ -130,6 +144,7 @@ export function ProductViewer({ model, hotspots, name, slug, accent }: { model: 
         {mounted && (
           <ProductScene
             model={model}
+            category={category}
             lite={lite}
             active={active}
             reducedMotion={reducedMotion}

@@ -1,5 +1,7 @@
-// Operaciones geométricas del pipeline: separar un zapato de un par y llevar
-// cada modelo a la pose canónica (punta a +X, suela en y = 0, escala real).
+// Operaciones geométricas del pipeline: separar un zapato de un par, quitar
+// piezas sobrantes (pisos, maniquíes, rótulos) y llevar cada modelo a su pose
+// canónica (zapatos: punta a +X; prendas: frente a +Z; siempre apoyado en
+// y = 0, centrado en X y Z y con su tamaño real).
 
 import { compactPrimitive } from '@gltf-transform/functions';
 import { MeshoptSimplifier } from 'meshoptimizer';
@@ -21,11 +23,47 @@ function toWorld(matrix, v) {
   ];
 }
 
+// Piezas conexas de una primitiva: a cada triángulo le asigna el número de
+// su pieza (unión de triángulos que comparten vértices).
+function triangleComponents(indices) {
+  const parent = new Map();
+  const find = (a) => {
+    while (parent.has(a) && parent.get(a) !== a) {
+      parent.set(a, parent.get(parent.get(a)) ?? parent.get(a));
+      a = parent.get(a);
+    }
+    return a;
+  };
+  const union = (a, b) => {
+    const [ra, rb] = [find(a), find(b)];
+    if (ra !== rb) parent.set(ra, rb);
+  };
+  for (let i = 0; i < indices.getCount(); i++) if (!parent.has(indices.getScalar(i))) parent.set(indices.getScalar(i), indices.getScalar(i));
+  for (let i = 0; i < indices.getCount(); i += 3) {
+    union(indices.getScalar(i), indices.getScalar(i + 1));
+    union(indices.getScalar(i), indices.getScalar(i + 2));
+  }
+  const components = [];
+  for (let i = 0; i < indices.getCount(); i += 3) components.push(find(indices.getScalar(i)));
+  return components;
+}
+
 // Conserva solo los triángulos cuyo centro (en mundo) cae del lado pedido de
 // un eje. Sirve para quedarse con un zapato cuando el archivo trae el par.
-export function keepTrianglesOnSide(document, { axis, side }) {
-  const axisIndex = AXIS_INDEX[axis];
+// Si el par está en diagonal, un eje no los separa: en vez de axis se da un
+// plano de corte con normal [x, y, z] (en mundo) y offset (n · p = offset).
+// Con byComponent se decide por pieza conexa (el centro de toda la pieza) y
+// no por triángulo: separa una camiseta de su short aunque el ruedo de la
+// camiseta baje más que la pretina del short (un corte por triángulo partiría
+// el ruedo).
+export function keepTrianglesOnSide(document, { axis, side, normal, offset = 0, byComponent = false }) {
   const keepPositive = side === 'positive';
+  const length = normal ? Math.hypot(...normal) : 1;
+  const direction = normal ? normal.map((value) => value / length) : null;
+  const project = (world) =>
+    direction
+      ? direction[0] * world[0] + direction[1] * world[1] + direction[2] * world[2] - offset
+      : world[AXIS_INDEX[axis]];
   defaultScene(document).traverse((node) => {
     const mesh = node.getMesh();
     if (!mesh) return;
@@ -35,14 +73,27 @@ export function keepTrianglesOnSide(document, { axis, side }) {
       const position = primitive.getAttribute('POSITION');
       if (!indices) throw new Error('keepTrianglesOnSide requiere primitivas indexadas');
       const vertex = [0, 0, 0];
-      const coordinate = (index) => toWorld(matrix, position.getElement(index, vertex))[axisIndex];
+      const coordinate = (index) => project(toWorld(matrix, position.getElement(index, vertex)));
+      const centers = [];
+      for (let i = 0; i < indices.getCount(); i += 3) {
+        centers.push((coordinate(indices.getScalar(i)) + coordinate(indices.getScalar(i + 1)) + coordinate(indices.getScalar(i + 2))) / 3);
+      }
+      // Por pieza: el centro de cada triángulo pasa a ser el promedio de su pieza.
+      if (byComponent) {
+        const components = triangleComponents(indices);
+        const sums = new Map();
+        components.forEach((component, triangle) => {
+          const [sum, count] = sums.get(component) ?? [0, 0];
+          sums.set(component, [sum + centers[triangle], count + 1]);
+        });
+        components.forEach((component, triangle) => {
+          const [sum, count] = sums.get(component);
+          centers[triangle] = sum / count;
+        });
+      }
       const kept = [];
       for (let i = 0; i < indices.getCount(); i += 3) {
-        const a = indices.getScalar(i);
-        const b = indices.getScalar(i + 1);
-        const c = indices.getScalar(i + 2);
-        const center = (coordinate(a) + coordinate(b) + coordinate(c)) / 3;
-        if (center > 0 === keepPositive) kept.push(a, b, c);
+        if (centers[i / 3] > 0 === keepPositive) kept.push(indices.getScalar(i), indices.getScalar(i + 1), indices.getScalar(i + 2));
       }
       if (!kept.length) {
         primitive.dispose();
@@ -263,8 +314,15 @@ function measureWorldBounds(scene) {
 }
 
 // Envuelve la escena en un nodo raíz y lo transforma hasta la pose canónica.
+// La escala sale de la medida real en un eje: sizeAxis 'x' (largo de un
+// zapato, diámetro de un balón, ancho de una gorra) o 'y' (alto de una
+// prenda). garment cambia los nombres de las medidas del manifest (ancho, alto
+// y fondo en vez de largo, ancho y alto).
 // Devuelve los datos aplicados para registrarlos en el manifest.
-export function normalizePose(document, { rotation = [0, 0, 0], lengthMeters, autoYaw = true }) {
+export function normalizePose(
+  document,
+  { rotation = [0, 0, 0], lengthMeters, sizeAxis = 'x', autoYaw = true, garment = false },
+) {
   const scene = defaultScene(document);
   const pivot = document.createNode('AirspaceRoot');
   for (const child of scene.listChildren()) {
@@ -281,9 +339,10 @@ export function normalizePose(document, { rotation = [0, 0, 0], lengthMeters, au
   const yawDegrees = autoYaw ? findYawCorrection(sampleWorldPositions(scene, 60_000)) : 0;
   pivot.setRotation(multiplyQuaternions(quaternionFromEuler([0, yawDegrees, 0]), baseRotation));
 
-  // 3. Escala a tamaño real según el largo en X, medido en los vértices.
+  // 3. Escala a tamaño real según la medida del eje pedido, en los vértices.
   let { min, max } = measureWorldBounds(scene);
-  const scale = lengthMeters / (max[0] - min[0]);
+  const axis = AXIS_INDEX[sizeAxis];
+  const scale = lengthMeters / (max[axis] - min[axis]);
   pivot.setScale([scale, scale, scale]);
 
   // 4. Centra en X y Z y apoya la suela en y = 0.
@@ -296,10 +355,128 @@ export function normalizePose(document, { rotation = [0, 0, 0], lengthMeters, au
     rotation,
     yawCorrection: yawDegrees,
     scale: Number(scale.toPrecision(6)),
-    dimensionsCm: {
-      length: toCentimeters(max[0] - min[0]),
-      width: toCentimeters(max[2] - min[2]),
-      height: toCentimeters(max[1] - min[1]),
-    },
+    dimensionsCm: garment
+      ? {
+          width: toCentimeters(max[0] - min[0]),
+          height: toCentimeters(max[1] - min[1]),
+          depth: toCentimeters(max[2] - min[2]),
+        }
+      : {
+          length: toCentimeters(max[0] - min[0]),
+          width: toCentimeters(max[2] - min[2]),
+          height: toCentimeters(max[1] - min[1]),
+        },
   };
+}
+
+// Producto de matrices 4x4 en orden de columnas (a * b).
+function multiplyMatrices(a, b) {
+  const out = new Array(16).fill(0);
+  for (let column = 0; column < 4; column++) {
+    for (let row = 0; row < 4; row++) {
+      for (let k = 0; k < 4; k++) out[column * 4 + row] += a[k * 4 + row] * b[column * 4 + k];
+    }
+  }
+  return out;
+}
+
+// Hornea las mallas con esqueleto (skin) en su pose actual: cada vértice
+// pasa a la posición en mundo que le dan sus huesos y la malla queda fija,
+// sin esqueleto ni animaciones. Las prendas exportadas sobre un cuerpo
+// (MetaHuman) vienen así: el visor las dibuja con los huesos, pero el
+// pipeline (pose, escala, simplificación) trabaja con posiciones fijas. El
+// ajuste al avatar del Hangar se hace después con su propio esqueleto.
+export function bakeSkins(document) {
+  const root = document.getRoot();
+  const scene = defaultScene(document);
+  let baked = 0;
+  for (const node of root.listNodes()) {
+    const skin = node.getSkin();
+    const mesh = node.getMesh();
+    if (!skin || !mesh) continue;
+    const joints = skin.listJoints();
+    const inverseBind = skin.getInverseBindMatrices();
+    const identity = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+    const jointMatrices = joints.map((joint, index) =>
+      multiplyMatrices(joint.getWorldMatrix(), inverseBind ? inverseBind.getElement(index, new Array(16)) : identity),
+    );
+    const bakedMesh = document.createMesh(mesh.getName());
+    for (const source of mesh.listPrimitives()) {
+      const primitive = source.clone();
+      const position = primitive.getAttribute('POSITION');
+      const normal = primitive.getAttribute('NORMAL');
+      const jointIds = primitive.getAttribute('JOINTS_0');
+      const weights = primitive.getAttribute('WEIGHTS_0');
+      if (jointIds && weights) {
+        const positions = new Float32Array(position.getCount() * 3);
+        const normals = normal ? new Float32Array(normal.getCount() * 3) : null;
+        const [p, n, j, w] = [[0, 0, 0], [0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]];
+        for (let vertex = 0; vertex < position.getCount(); vertex++) {
+          position.getElement(vertex, p);
+          jointIds.getElement(vertex, j);
+          weights.getElement(vertex, w);
+          const matrix = new Array(16).fill(0);
+          for (let k = 0; k < 4; k++) {
+            if (!w[k]) continue;
+            const joint = jointMatrices[j[k]];
+            for (let e = 0; e < 16; e++) matrix[e] += w[k] * joint[e];
+          }
+          positions.set(toWorld(matrix, p), vertex * 3);
+          if (normals) {
+            normal.getElement(vertex, n);
+            const x = matrix[0] * n[0] + matrix[4] * n[1] + matrix[8] * n[2];
+            const y = matrix[1] * n[0] + matrix[5] * n[1] + matrix[9] * n[2];
+            const z = matrix[2] * n[0] + matrix[6] * n[1] + matrix[10] * n[2];
+            const length = Math.hypot(x, y, z) || 1;
+            normals.set([x / length, y / length, z / length], vertex * 3);
+          }
+        }
+        primitive.setAttribute('POSITION', document.createAccessor().setType('VEC3').setArray(positions).setBuffer(position.getBuffer()));
+        if (normals) primitive.setAttribute('NORMAL', document.createAccessor().setType('VEC3').setArray(normals).setBuffer(normal.getBuffer()));
+        // Las tangentes quedarían giradas: el visor las recalcula si faltan.
+        primitive.setAttribute('TANGENT', null);
+        primitive.setAttribute('JOINTS_0', null).setAttribute('WEIGHTS_0', null);
+      }
+      bakedMesh.addPrimitive(primitive);
+    }
+    // La malla horneada ya está en coordenadas de mundo: cuelga de la escena
+    // con un nodo sin transformación.
+    const bakedNode = document.createNode(node.getName()).setMesh(bakedMesh);
+    scene.addChild(bakedNode);
+    node.setMesh(null).setSkin(null);
+    baked++;
+  }
+  if (!baked) return 0;
+  for (const animation of root.listAnimations()) animation.dispose();
+  for (const skin of root.listSkins()) skin.dispose();
+  return baked;
+}
+
+// Nombres con los que se puede elegir una pieza: el del nodo, el de su malla
+// y el del material de cada primitiva.
+function matchesAny(names, patterns) {
+  return patterns.some((pattern) =>
+    names.some((name) => name && (pattern instanceof RegExp ? pattern.test(name) : name === pattern)),
+  );
+}
+
+// Quita o conserva piezas del modelo por nombre de nodo, malla o material
+// (texto exacto o expresión regular). remove descarta las primitivas que
+// coinciden (pisos, maniquíes, perchas, rótulos); keep conserva solo las que
+// coinciden (separa un conjunto en prendas). Devuelve cuántas se quitaron.
+export function filterParts(document, { keep, remove }) {
+  let removed = 0;
+  defaultScene(document).traverse((node) => {
+    const mesh = node.getMesh();
+    if (!mesh) return;
+    for (const primitive of mesh.listPrimitives()) {
+      const names = [node.getName(), mesh.getName(), primitive.getMaterial()?.getName()];
+      const drop = (keep && !matchesAny(names, keep)) || (remove && matchesAny(names, remove));
+      if (!drop) continue;
+      mesh.removePrimitive(primitive);
+      primitive.dispose();
+      removed++;
+    }
+  });
+  return removed;
 }

@@ -1,4 +1,4 @@
-import { type Category, categorySchema, type Locale, slugSchema } from '@airspace/contracts';
+import { type Category, categorySchema, type Locale, slugSchema, type Subcategory, subcategorySchema } from '@airspace/contracts';
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Suspense } from 'react';
@@ -22,8 +22,9 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/catalog'
   return { title: t('metaTitle'), description: t('metaDescription'), alternates: localeAlternates(locale, '/catalog') };
 }
 
-// Catálogo con filtros por categoría y marca (en la URL, así se pueden
-// compartir y sobreviven a una recarga o al cambio de idioma).
+// Catálogo con filtros por categoría y marca, y por tipo de prenda dentro de
+// la ropa (en la URL, así se pueden compartir y sobreviven a una recarga o al
+// cambio de idioma).
 export default async function CatalogPage({ params, searchParams }: PageProps<'/[locale]/catalog'>) {
   const locale = pageLocale((await params).locale);
   setRequestLocale(locale);
@@ -47,18 +48,22 @@ async function CatalogResults({ locale, searchParams }: { locale: Locale; search
   // Parámetros inválidos se ignoran (se muestra todo) en lugar de fallar.
   const category = categorySchema.safeParse(query.category).data;
   const brand = slugSchema.safeParse(query.brand).data;
+  // El tipo de prenda solo aplica dentro de la ropa.
+  const subcategory = category === 'apparel' ? subcategorySchema.safeParse(query.subcategory).data : undefined;
 
   const [t, products, brands, categories] = await Promise.all([
     getTranslations('Catalog'),
-    getProducts({ locale, category, brand }),
+    getProducts({ locale, category, brand, subcategory }),
     getBrands(),
     getCategories(),
   ]);
 
-  const href = (next: { category?: Category; brand?: string }) => ({
+  const href = (next: { category?: Category; brand?: string; subcategory?: Subcategory }) => ({
     pathname: '/catalog' as const,
     query: Object.fromEntries(Object.entries(next).filter(([, value]) => value)),
   });
+
+  const subcategories = categories.items.find((item) => item.slug === 'apparel')?.subcategories.filter((item) => item.productCount > 0) ?? [];
 
   return (
     <>
@@ -88,15 +93,33 @@ async function CatalogResults({ locale, searchParams }: { locale: Locale; search
             ),
           )}
         </ul>
+        {/* Tipos de prenda: solo dentro de la ropa y solo los que tienen productos. */}
+        {category === 'apparel' && subcategories.length > 1 && (
+          <ul className={styles.chips} aria-label={t('subcategoryLabel')}>
+            <li>
+              <Link href={href({ category, brand })} className={styles.chip} aria-current={!subcategory ? 'true' : undefined}>
+                {t('allSubcategories')}
+              </Link>
+            </li>
+            {subcategories.map((item) => (
+              <li key={item.slug}>
+                <Link href={href({ category, brand, subcategory: item.slug })} className={styles.chip} aria-current={subcategory === item.slug ? 'true' : undefined}>
+                  {t(`subcategory.${item.slug}`)}
+                  <span className={styles.chipCount}>{item.productCount}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
         <ul className={styles.chips} aria-label={t('brandLabel')}>
           <li>
-            <Link href={href({ category })} className={styles.chip} aria-current={!brand ? 'true' : undefined}>
+            <Link href={href({ category, subcategory })} className={styles.chip} aria-current={!brand ? 'true' : undefined}>
               {t('allBrands')}
             </Link>
           </li>
           {brands.items.map((item) => (
             <li key={item.slug}>
-              <Link href={href({ category, brand: item.slug })} className={styles.chip} aria-current={brand === item.slug ? 'true' : undefined}>
+              <Link href={href({ category, brand: item.slug, subcategory })} className={styles.chip} aria-current={brand === item.slug ? 'true' : undefined}>
                 {item.name}
               </Link>
             </li>

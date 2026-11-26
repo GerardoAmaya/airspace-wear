@@ -77,7 +77,7 @@
     "freeReply": "Thanks for writing! In this demo my replies are prepared in advance, but on the real site your stylist uses AI and answers any question about the catalog, in your language. In the meantime, try one of the ideas below.",
     "errors": {
       "rateLimited": "You're asking a bit too fast. Wait a moment and try again.",
-      "refused": "I'd rather not answer that. Tell me what you're looking for in sneakers or balls and I'll help.",
+      "refused": "I'd rather not answer that. Tell me what you're looking for in sneakers, apparel or balls and I'll help.",
       "generic": "I couldn't answer right now. Please try again in a moment."
     }
   },

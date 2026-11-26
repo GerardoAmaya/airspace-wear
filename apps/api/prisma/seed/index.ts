@@ -13,8 +13,8 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../../src/generated/prisma/client.js';
 import { LOCAL_DATABASE_URL } from '../../src/config/env.js';
 import { loadWorkspaceEnv } from '../../src/config/load-env.js';
-import { hotspotViewSchema, LOCALES } from '@airspace/contracts';
-import { BRANDS, FEATURED, PRODUCTS, type SeedProduct } from './catalog.js';
+import { ALPHA_SIZES, hotspotViewSchema, LOCALES, ONE_SIZE_LABEL, SIZE_SYSTEMS_BY_CATEGORY } from '@airspace/contracts';
+import { BRANDS, FEATURED, isPublished, PRODUCTS, type SeedProduct } from './catalog.js';
 import { AVATAR_CREDITS, describeChanges, type ManifestModel, MIXAMO, STATIC_CREDITS } from './credits.js';
 import { HOTSPOTS } from './hotspots.js';
 
@@ -58,8 +58,27 @@ function stockFor(product: SeedProduct, label: string): number {
 
 function sizeLabels(product: SeedProduct): string[] {
   const { sizes } = product;
-  if (sizes.system === 'BALL') return sizes.labels;
+  if (sizes.system === 'BALL' || sizes.system === 'ALPHA') return sizes.labels;
+  if (sizes.system === 'ONE') return [ONE_SIZE_LABEL];
   return Array.from({ length: sizes.to - sizes.from + 1 }, (_, index) => String(sizes.from + index));
+}
+
+// Reglas de la ropa y de las tallas que el tipo no alcanza a expresar: el
+// sistema de tallas corresponde a la categoría, las letras van en orden y
+// sin repetir, y subcategoría y lugar en el avatar son solo de la ropa (la
+// base lo refuerza con CHECK).
+export function assertProductRules(product: SeedProduct): void {
+  const { slug, category, sizes } = product;
+  const systems: readonly string[] = SIZE_SYSTEMS_BY_CATEGORY[category];
+  if (!systems.includes(sizes.system)) throw new Error(`${slug}: la categoría ${category} no usa tallas ${sizes.system}`);
+  if (sizes.system === 'ALPHA') {
+    const ranks = sizes.labels.map((label) => ALPHA_SIZES.indexOf(label));
+    if (!ranks.length || ranks.some((rank, index) => rank < 0 || (index > 0 && rank <= ranks[index - 1]!))) {
+      throw new Error(`${slug}: tallas de letra fuera de orden o repetidas (${sizes.labels.join(', ')})`);
+    }
+  }
+  if (category === 'apparel' && !product.subcategory) throw new Error(`${slug}: la ropa necesita subcategory`);
+  if (category !== 'apparel' && (product.subcategory || product.avatarSlot)) throw new Error(`${slug}: subcategory y avatarSlot son solo de la ropa`);
 }
 
 export async function seed(prisma: PrismaClient, log: (line: string) => void = console.log): Promise<void> {
@@ -88,8 +107,15 @@ export async function seed(prisma: PrismaClient, log: (line: string) => void = c
 
   // Modelos 3D y sus créditos, desde el manifest
   const modelIds = new Map<string, number>();
+  // Un modelo a medio procesar (en el manifest pero sin variantes hero y
+  // lite, porque pnpm models sigue corriendo) se trata como pendiente.
+  const isReady = (model: ManifestModel) => {
+    const variants = model.variants as Partial<ManifestModel['variants']> | undefined;
+    return Boolean(variants?.hero && variants.lite);
+  };
+  const ready = Object.values(manifest.models).filter(isReady);
   order = 0;
-  for (const model of Object.values(manifest.models)) {
+  for (const model of ready) {
     const { source } = model;
     const creditData = {
       key: `model:${model.slug}`,
@@ -146,14 +172,21 @@ export async function seed(prisma: PrismaClient, log: (line: string) => void = c
   // Productos, en orden de vitrina (FEATURED primero, luego el resto).
   const featuredRank = (slug: string) => (FEATURED.includes(slug) ? FEATURED.indexOf(slug) : FEATURED.length);
   const ordered = [...PRODUCTS].sort((a, b) => featuredRank(a.slug) - featuredRank(b.slug));
+  // Un modelo que todavía no está en el manifest (recién agregado a
+  // scripts/models/config.mjs, sin pnpm models) no frena el seed: el producto
+  // queda sin publicar hasta tener su 3D (no se muestran tarjetas vacías) y
+  // se avisa. Al correr el seed de nuevo con el manifest al día, el producto
+  // toma su modelo y se publica.
+  const pendingModels: string[] = [];
   for (const [index, product] of ordered.entries()) {
     const brandId = brandIds.get(product.brand);
     if (!brandId) throw new Error(`Marca desconocida en ${product.slug}: ${product.brand}`);
     const modelId = product.model ? modelIds.get(product.model) : undefined;
-    if (product.model && !modelId) throw new Error(`Modelo ${product.model} no está en el manifest`);
+    if (product.model && !modelId) pendingModels.push(product.model);
     for (const locale of LOCALES) {
       if (!product.text[locale]) throw new Error(`${product.slug} no tiene textos en ${locale}`);
     }
+    assertProductRules(product);
     if (product.accent) assertAccent(product.slug, product.accent);
     for (const hotspot of HOTSPOTS[product.slug] ?? []) {
       hotspotViewSchema.parse(hotspot.view);
@@ -164,11 +197,13 @@ export async function seed(prisma: PrismaClient, log: (line: string) => void = c
       const base = {
         reference: product.reference,
         category: product.category,
+        subcategory: product.subcategory ?? null,
+        avatarSlot: product.avatarSlot ?? null,
         brandId,
         priceCents: product.priceCents,
         availability: product.availability,
         attributes: product.attributes,
-        published: true,
+        published: isPublished(product) && !(product.model && !modelId),
         sortOrder: index,
         modelId: modelId ?? null,
         accentDark: product.accent?.dark ?? null,
@@ -222,8 +257,11 @@ export async function seed(prisma: PrismaClient, log: (line: string) => void = c
     });
   }
 
+  if (pendingModels.length) log(`Aviso: ${pendingModels.length} productos quedan sin 3D porque su modelo no está en el manifest: ${pendingModels.join(', ')}.`);
+  const missingPosters = [...modelIds.keys()].filter((slug) => !posterUrl(slug, 'dark') || !posterUrl(slug, 'light'));
+  if (missingPosters.length) log(`Aviso: modelos sin póster (pnpm models:posters): ${missingPosters.join(', ')}.`);
   log(
-    `Seed listo: ${BRANDS.length} marcas, ${PRODUCTS.length} productos (es y en), ${modelIds.size} modelos 3D, ` +
+    `Seed listo: ${BRANDS.length} marcas, ${PRODUCTS.length} productos (es y en; ${PRODUCTS.filter(isPublished).length - pendingModels.length} publicados), ${modelIds.size} modelos 3D, ` +
       `${STATIC_CREDITS.length + modelIds.size} créditos${retired.length ? `, ${retired.length} retirados` : ''}.`,
   );
 }

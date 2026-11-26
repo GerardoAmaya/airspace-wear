@@ -15,6 +15,7 @@ export const HOME_HANGAR_SLUG = 'jordan-4-university-blue';
 export const HOME_ANCHORS = {
   hero: 'inicio',
   board: 'catalogo',
+  apparel: 'ropa',
   hangar: 'hangar',
   balls: 'balones',
   stylist: 'estilista',

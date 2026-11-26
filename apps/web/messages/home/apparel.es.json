@@ -1,0 +1,11 @@
+{
+  "HomeApparel": {
+    "store": "AIRSPACE Wear · Ropa",
+    "kicker": "Ropa · Temporada 26",
+    "title": "Ropa",
+    "count": "{padded} {count, plural, one {prenda} other {prendas}}",
+    "lead": "Camisetas, sudaderas y más para combinar con tus pares. Abre una para verla en 3D.",
+    "cta": "Ver toda la ropa",
+    "ctaCount": "{count, plural, one {# prenda} other {# prendas}}"
+  }
+}

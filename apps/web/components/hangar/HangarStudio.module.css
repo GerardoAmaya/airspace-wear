@@ -115,7 +115,8 @@
   grid-area: slot;
   position: relative;
   display: grid;
-  grid-template-rows: 1fr auto;
+  /* Plataforma, chips y (en pantallas medianas) el panel de vestuario plegado. */
+  grid-template-rows: 1fr auto auto;
   /* Plataforma, chips y selector caben en la primera pantalla (también a
      1280 x 720): el selector mide unos 10 rem. */
   height: clamp(420px, calc(100svh - var(--header-height) - 12rem), 860px);

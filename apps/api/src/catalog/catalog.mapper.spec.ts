@@ -7,7 +7,9 @@ function row() {
     id: 1,
     slug: 'air-jordan-1',
     reference: 'AS-001',
-    category: 'sneaker' as const,
+    category: 'sneaker' as 'sneaker' | 'cleat' | 'apparel' | 'ball',
+    subcategory: null as null | 'tshirt' | 'sweatshirt' | 'jacket' | 'pants' | 'shorts' | 'cap' | 'accessory',
+    avatarSlot: null as null | 'top' | 'bottom' | 'head' | 'eyes',
     brandId: 1,
     priceCents: 18000,
     currency: 'USD',
@@ -45,7 +47,7 @@ function row() {
       { system: 'EU', label: '38', stock: 0 },
       { system: 'EU', label: '39', stock: 2 },
       { system: 'EU', label: '40', stock: 9 },
-    ],
+    ] as { system: 'EU' | 'ALPHA' | 'ONE' | 'BALL'; label: string; stock: number }[],
     hotspots: [
       {
         id: 1,
@@ -105,6 +107,40 @@ describe('catalog mapper', () => {
     const data = row();
     data.translations = data.translations.filter((translation) => translation.locale === 'es');
     expect(toDetail(data, 'en').locale).toBe('es');
+  });
+
+  it('un taco (cleat) sin modelo todavía cumple el contrato', () => {
+    const data = row();
+    Object.assign(data, { category: 'cleat', model: null, modelId: null });
+    const card = toCard(data as never, 'es');
+    expect(card).toMatchObject({ category: 'cleat', model: null });
+    expect(productCardSchema.parse(card)).toEqual(card);
+  });
+
+  it('una prenda con tallas de letra expone subcategoría, lugar en el avatar y rango S a XL', () => {
+    const data = row();
+    Object.assign(data, { category: 'apparel', subcategory: 'sweatshirt', avatarSlot: 'top', model: null, modelId: null, hotspots: [] });
+    data.sizes = ['S', 'M', 'L', 'XL'].map((label, index) => ({ system: 'ALPHA' as const, label, stock: index }));
+    const card = toCard(data, 'en');
+    expect(card).toMatchObject({ category: 'apparel', subcategory: 'sweatshirt', avatarSlot: 'top', sizeRange: { system: 'ALPHA', min: 'S', max: 'XL' } });
+    expect(productCardSchema.parse(card)).toEqual(card);
+    const detail = toDetail(data, 'en');
+    expect(detail.sizes.map((size) => `${size.system}:${size.label}:${size.stock}`)).toEqual(['ALPHA:S:out', 'ALPHA:M:low', 'ALPHA:L:low', 'ALPHA:XL:in_stock']);
+    expect(detail.hotspots).toEqual([]);
+    expect(productDetailSchema.parse(detail)).toEqual(detail);
+  });
+
+  it('una prenda de talla única tiene un rango de una sola talla', () => {
+    const data = row();
+    Object.assign(data, { category: 'apparel', subcategory: 'cap', avatarSlot: 'head' });
+    data.sizes = [{ system: 'ONE', label: 'OS', stock: 5 }];
+    expect(toCard(data, 'es').sizeRange).toEqual({ system: 'ONE', min: 'OS', max: 'OS' });
+  });
+
+  it('el contrato rechaza un sistema de tallas desconocido', () => {
+    const card = toCard(row(), 'es');
+    expect(productCardSchema.safeParse({ ...card, sizeRange: { system: 'US', min: '7', max: '12' } }).success).toBe(false);
+    expect(productCardSchema.safeParse({ ...card, subcategory: 'socks' }).success).toBe(false);
   });
 
   it('un producto sin tallas no tiene rango', () => {
