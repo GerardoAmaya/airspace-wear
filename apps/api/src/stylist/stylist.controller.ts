@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
+import { RateLimit } from '../common/rate-limit.js';
 import { type StylistEvent, type StylistRequest, stylistRequestSchema, type StylistStatus } from '@airspace/contracts';
 import type { Request, Response } from 'express';
 import { StylistService } from './stylist.service.js';
@@ -17,7 +17,7 @@ export class StylistController {
   // POST /v1/stylist/chat: respuesta en streaming (text/event-stream). Límite
   // propio, más estricto que el general: 10 mensajes por minuto por IP.
   @Post('chat')
-  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @RateLimit({ limit: 10, ttlMs: 60_000 })
   async chat(@Body({ schema: stylistRequestSchema }) body: StylistRequest, @Req() request: Request, @Res() response: Response): Promise<void> {
     response.status(200);
     response.setHeader('Content-Type', 'text/event-stream; charset=utf-8');

@@ -1,5 +1,5 @@
 import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
-import { SkipThrottle } from '@nestjs/throttler';
+import { SkipRateLimit } from '../common/rate-limit.js';
 import type { HealthResponse } from '@airspace/contracts';
 import type { Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service.js';
@@ -7,7 +7,7 @@ import { PrismaService } from '../prisma/prisma.service.js';
 // Estado de la API y de la base. Responde 503 (con el mismo cuerpo) si la
 // base no contesta, para que un orquestador o la web lo detecten.
 @Controller('health')
-@SkipThrottle()
+@SkipRateLimit()
 export class HealthController {
   constructor(private readonly prisma: PrismaService) {}
 

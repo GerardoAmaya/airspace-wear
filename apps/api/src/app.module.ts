@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, APP_PIPE } from '@nestjs/core';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { CatalogModule } from './catalog/catalog.module.js';
 import { ApiExceptionFilter } from './common/api-exception.filter.js';
-import { shouldSkipThrottle } from './common/throttle-skip.js';
+import { RateLimitGuard } from './common/rate-limit.js';
 import { createValidationPipe } from './common/validation.js';
-import { APP_CONFIG, type AppConfig, ConfigModule } from './config/config.module.js';
+import { ConfigModule } from './config/config.module.js';
 import { ContentModule } from './content/content.module.js';
 import { HealthModule } from './health/health.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
@@ -17,15 +16,6 @@ import { StylistModule } from './stylist/stylist.module.js';
   imports: [
     ConfigModule,
     PrismaModule,
-    // 120 peticiones por minuto por IP; el estilista tiene su propio límite.
-    // El servidor de la web queda fuera (ver common/throttle-skip.ts).
-    ThrottlerModule.forRootAsync({
-      inject: [APP_CONFIG],
-      useFactory: (config: AppConfig) => ({
-        throttlers: [{ ttl: 60_000, limit: 120 }],
-        skipIf: (context) => shouldSkipThrottle(context, config),
-      }),
-    }),
     HealthModule,
     CatalogModule,
     ContentModule,
@@ -34,7 +24,9 @@ import { StylistModule } from './stylist/stylist.module.js';
   providers: [
     { provide: APP_PIPE, useFactory: createValidationPipe },
     { provide: APP_FILTER, useClass: ApiExceptionFilter },
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    // 120 peticiones por minuto por IP y ruta; el estilista tiene su propio
+    // límite y el servidor de la web queda fuera (common/rate-limit.ts).
+    { provide: APP_GUARD, useClass: RateLimitGuard },
   ],
 })
 export class AppModule {}
