@@ -84,8 +84,9 @@
 .close {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
+  margin-right: calc(var(--space-2) * -1);
   border: 0;
   border-radius: 50%;
   background: none;
@@ -109,19 +110,23 @@
 }
 
 .list {
+  /* Referencia para la línea que sale (Motion la saca del flujo con popLayout). */
+  position: relative;
   display: grid;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-/* Dos filas: nombre y precio; detalle y "Quitar". */
+/* Filas: marca; nombre y subtotal; detalle y precio por unidad; cantidad y "Quitar". */
 .item {
   display: grid;
   grid-template-columns: 1fr auto;
+  align-items: center;
   column-gap: var(--space-4);
   padding-block: var(--space-3);
   border-top: 1px solid var(--color-line);
+  background: var(--color-surface);
 }
 
 .brand {
@@ -148,8 +153,73 @@
   color: var(--color-text-muted);
 }
 
+.unit {
+  justify-self: end;
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  color: var(--color-text-muted);
+}
+
+/* Selector de cantidad: botones de 44 px (área táctil mínima). */
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  margin-top: var(--space-2);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+}
+
+.step {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: color var(--duration-ui) var(--ease-out);
+}
+
+.step:hover:not([aria-disabled='true']) {
+  color: var(--color-primary);
+}
+
+.step[aria-disabled='true'] {
+  color: var(--color-text-faint);
+  cursor: not-allowed;
+}
+
+.step svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* El número que sale y el que entra se recortan dentro de su caja. */
+.qty {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 2.5ch;
+  height: 28px;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.qtyValue {
+  display: block;
+}
+
 .remove {
   justify-self: end;
+  min-height: 44px;
+  margin-top: var(--space-2);
+  padding-inline: var(--space-2);
+  margin-right: calc(var(--space-2) * -1);
   border: 0;
   background: none;
   color: var(--color-text-muted);

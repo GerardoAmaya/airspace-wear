@@ -736,6 +736,7 @@
 
 .view3d {
   display: inline-flex;
+  text-decoration: none;
   align-items: center;
   gap: 6px;
   padding: 4px 0;

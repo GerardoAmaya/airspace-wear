@@ -1,22 +1,23 @@
-import type { Credit, Locale } from '@airspace/contracts';
+import type { Credit } from '@airspace/contracts';
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getCredits } from '@/lib/api';
 import { Reveal } from '@/components/motion/Reveal';
 import styles from '@/components/content/content.module.css';
 import { localeAlternates } from '@/lib/seo';
+import { pageLocale } from '@/i18n/locale';
 
 export async function generateMetadata({ params }: PageProps<'/[locale]/credits'>): Promise<Metadata> {
-  const { locale } = await params;
-  const t = await getTranslations({ locale: locale as Locale, namespace: 'Credits' });
+  const locale = pageLocale((await params).locale);
+  const t = await getTranslations({ locale: locale, namespace: 'Credits' });
   return { title: t('metaTitle'), description: t('metaDescription'), alternates: localeAlternates(locale, '/credits') };
 }
 
 // Créditos de terceros (modelos 3D, fuentes y librerías), leídos de la API,
 // que a su vez los toma del manifest de modelos. Ver CREDITS.md.
 export default async function CreditsPage({ params }: PageProps<'/[locale]/credits'>) {
-  const { locale } = await params;
-  setRequestLocale(locale as Locale);
+  const locale = pageLocale((await params).locale);
+  setRequestLocale(locale);
   const [t, credits] = await Promise.all([getTranslations('Credits'), getCredits()]);
   const groups = (['model', 'font', 'library'] as const).map((kind) => ({ kind, items: credits.items.filter((item) => item.kind === kind) }));
   const restricted = credits.items.filter((item) => item.kind === 'model' && (!item.license.commercialUse || item.license.shareAlike));

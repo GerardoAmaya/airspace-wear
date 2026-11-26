@@ -1,14 +1,14 @@
-import type { Locale } from '@airspace/contracts';
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { Reveal } from '@/components/motion/Reveal';
 import styles from '@/components/content/content.module.css';
 import { localeAlternates } from '@/lib/seo';
+import { pageLocale } from '@/i18n/locale';
 
 export async function generateMetadata({ params }: PageProps<'/[locale]/legal'>): Promise<Metadata> {
-  const { locale } = await params;
-  const t = await getTranslations({ locale: locale as Locale, namespace: 'Legal' });
+  const locale = pageLocale((await params).locale);
+  const t = await getTranslations({ locale: locale, namespace: 'Legal' });
   return { title: t('metaTitle'), description: t('metaDescription'), alternates: localeAlternates(locale, '/legal') };
 }
 
@@ -16,8 +16,8 @@ const SECTIONS = ['affiliation', 'prices', 'models', 'ai', 'data'] as const;
 
 // Aviso legal: no afiliación, precios ilustrativos, licencias, IA y datos.
 export default async function LegalPage({ params }: PageProps<'/[locale]/legal'>) {
-  const { locale } = await params;
-  setRequestLocale(locale as Locale);
+  const locale = pageLocale((await params).locale);
+  setRequestLocale(locale);
   const t = await getTranslations('Legal');
   return (
     <div className={styles.page}>

@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Suspense } from 'react';
 import { ProductCard } from '@/components/catalog/ProductCard';
 import { Reveal } from '@/components/motion/Reveal';
+import { pageLocale } from '@/i18n/locale';
 import { Link } from '@/i18n/navigation';
 import { getBrands, getCategories, getProducts } from '@/lib/api';
 import { localeAlternates } from '@/lib/seo';
@@ -16,16 +17,16 @@ import styles from './catalog.module.css';
 export const instant = false;
 
 export async function generateMetadata({ params }: PageProps<'/[locale]/catalog'>): Promise<Metadata> {
-  const { locale } = await params;
-  const t = await getTranslations({ locale: locale as Locale, namespace: 'Catalog' });
+  const locale = pageLocale((await params).locale);
+  const t = await getTranslations({ locale: locale, namespace: 'Catalog' });
   return { title: t('metaTitle'), description: t('metaDescription'), alternates: localeAlternates(locale, '/catalog') };
 }
 
 // Catálogo con filtros por categoría y marca (en la URL, así se pueden
 // compartir y sobreviven a una recarga o al cambio de idioma).
 export default async function CatalogPage({ params, searchParams }: PageProps<'/[locale]/catalog'>) {
-  const { locale } = await params;
-  setRequestLocale(locale as Locale);
+  const locale = pageLocale((await params).locale);
+  setRequestLocale(locale);
   const t = await getTranslations('Catalog');
   return (
     <div className={styles.page}>
@@ -35,7 +36,7 @@ export default async function CatalogPage({ params, searchParams }: PageProps<'/
         <p className={styles.lead}>{t('lead')}</p>
       </Reveal>
       <Suspense fallback={<p className={`${styles.status} ${styles.pending}`}>{t('loading')}</p>}>
-        <CatalogResults locale={locale as Locale} searchParams={searchParams} />
+        <CatalogResults locale={locale} searchParams={searchParams} />
       </Suspense>
     </div>
   );

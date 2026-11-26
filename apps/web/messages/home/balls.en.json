@@ -35,7 +35,8 @@
     "picker": {
       "label": "Choose your ball",
       "item": "{year} {host} {shortName}: {name}, {edition}",
-      "hint": "Or pick one from the showcase"
+      "hintMouse": "Or drag the belt",
+      "hintTouch": "Or swipe the belt to choose"
     },
     "spot": {
       "view3d": "3D view",

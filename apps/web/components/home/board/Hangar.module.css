@@ -5,15 +5,35 @@
  */
 
 .hangar {
-  --dep-scan-tint: var(--color-primary-fill);
   position: relative;
   overflow: clip;
   background: var(--color-background);
 }
 
-/* Sobre crema la estela lima teñiría el zapato: se usa la tinta oliva, más tenue. */
-:global(:root[data-theme='light']) .hangar {
-  --dep-scan-tint: color-mix(in srgb, var(--color-primary) 45%, transparent);
+/* Colores de la plataforma registrados como <color> para que el cambio de
+   par se vea como una transición corta (un var() sin registrar salta). */
+@property --hangar-ink {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+
+@property --hangar-fill {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+
+@property --hangar-glow {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+
+@property --hangar-glow-soft {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
 }
 
 /* ---------- Entradas (estado inicial en CSS, solo opacity y transform) ---------- */
@@ -163,9 +183,38 @@
 /* ---------- Plataforma ---------- */
 
 .slot {
+  /* Acento del par en la plataforma (lib/accent.ts pone data-accent). Tinta
+     para líneas y textos sobre el fondo; sin acento, el lima de la marca
+     (tinta y relleno, como antes). El halo sin acento queda neutro. */
+  --hangar-ink: var(--accent-ink, var(--color-primary));
+  --hangar-fill: var(--accent-ink, var(--color-primary-fill));
+  --hangar-glow: color-mix(in srgb, var(--color-text) 13%, transparent);
+  --hangar-glow-soft: color-mix(in srgb, var(--color-text) 5%, transparent);
+  --dep-scan-tint: var(--hangar-fill);
   position: relative;
   align-self: stretch;
   min-height: min(72svh, 760px);
+  transition:
+    --hangar-ink var(--duration-ui) var(--ease-out),
+    --hangar-fill var(--duration-ui) var(--ease-out),
+    --hangar-glow var(--duration-ui) var(--ease-out),
+    --hangar-glow-soft var(--duration-ui) var(--ease-out);
+}
+
+.slot[data-accent] {
+  --hangar-glow: color-mix(in srgb, var(--accent-ink) 20%, transparent);
+  --hangar-glow-soft: color-mix(in srgb, var(--accent-ink) 6%, transparent);
+}
+
+/* Sobre crema la estela con el color pleno teñiría el piso: tinta más tenue. */
+:global(:root[data-theme='light']) .slot {
+  --dep-scan-tint: color-mix(in srgb, var(--hangar-ink) 45%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slot {
+    transition: none;
+  }
 }
 
 /* Base del canvas en el hangar: se arrastra (o se gira con flechas). */
@@ -194,13 +243,14 @@
   border-radius: var(--radius-md);
 }
 
-.halo {
+.stage .halo {
   position: absolute;
   top: 46%;
   left: 50%;
   width: min(82%, 640px);
   aspect-ratio: 1;
   border-radius: 50%;
+  background: radial-gradient(closest-side, var(--hangar-glow), var(--hangar-glow-soft) 55%, transparent);
   transform: translate(-50%, -50%);
 }
 
@@ -296,8 +346,9 @@
   opacity: 1;
 }
 
-/* Escáner: una línea que sube por el zapato con una estela suave. Solo con
-   el zapato ya posado en la plataforma. */
+/* Escáner: una línea que sube por detrás del zapato con una estela suave
+   (va antes del canvas en el DOM: nunca tiñe el modelo). Solo con el zapato
+   ya posado en la plataforma. */
 .scan {
   overflow: hidden;
   opacity: 0;
@@ -313,7 +364,7 @@
 .beam {
   position: absolute;
   inset: 0;
-  border-top: 1px solid var(--color-primary);
+  border-top: 1px solid var(--hangar-ink);
   background: linear-gradient(
     to bottom,
     color-mix(in srgb, var(--dep-scan-tint) 16%, transparent),
@@ -370,7 +421,7 @@
   font-size: var(--text-xl);
   font-weight: 500;
   white-space: nowrap;
-  color: var(--color-primary);
+  color: var(--hangar-ink);
 }
 
 .progress {
@@ -383,7 +434,7 @@
 .progress > span {
   display: block;
   height: 100%;
-  background: var(--color-primary-fill);
+  background: var(--hangar-fill);
   transform: scaleX(0);
   transform-origin: left center;
 }
@@ -415,7 +466,7 @@
 }
 
 .ringEdge {
-  stroke: var(--color-primary);
+  stroke: var(--hangar-ink);
   stroke-width: 2.4;
 }
 
@@ -424,7 +475,7 @@
 }
 
 .discStop {
-  stop-color: var(--color-primary-fill);
+  stop-color: var(--hangar-fill);
   stop-opacity: 0;
 }
 
@@ -434,7 +485,7 @@
 
 .arc {
   fill: none;
-  stroke: var(--color-primary);
+  stroke: var(--hangar-ink);
   stroke-width: 5;
 }
 
@@ -444,7 +495,7 @@
 }
 
 .tickMajor {
-  stroke: var(--color-primary);
+  stroke: var(--hangar-ink);
   stroke-width: 3;
 }
 
@@ -457,7 +508,7 @@
 }
 
 .index {
-  fill: var(--color-primary);
+  fill: var(--hangar-ink);
 }
 
 .cross {

@@ -12,6 +12,21 @@ import styles from './ConveyorBelt.module.css';
 // pósters del tema (fotos del mismo estudio que el foco 3D), no lienzos.
 // Es decorativa para lectores de pantalla (aria-hidden): el selector ofrece
 // lo mismo con teclado. Un clic en un balón lo elige.
+//
+// Arrastre horizontal (dedo o mouse) como un carrusel: la banda sigue al
+// puntero, al soltar sigue por inercia y encaja el balón más cercano en el
+// foco, que pasa a ser el elegido (el mismo camino que un clic). Un gesto
+// vertical desplaza la página (touch-action: pan-y y bloqueo de eje). La
+// marcha propia espera mientras se arrastra y vuelve unos segundos después.
+// Con movimiento reducido el arrastre sigue (lo inicia la persona), pero
+// encaja sin inercia y la banda no vuelve a andar sola.
+
+// Px de movimiento antes de decidir el eje (por debajo es un toque).
+const AXIS_LOCK_PX = 8;
+// Segundos quieta tras encajar antes de que vuelva la marcha propia.
+const RESUME_DELAY_S = 2.6;
+// Ventana para medir la velocidad al soltar (ms).
+const VELOCITY_WINDOW_MS = 90;
 
 // Copias de cada balón: con pocos balones se repiten más para llenar la banda.
 const copiesFor = (count: number) => Math.max(2, Math.ceil(6 / count));
@@ -60,6 +75,18 @@ export function ConveyorBelt({ balls, selection, live, reducedMotion, claimTarge
   const pieceNodes = useRef<(HTMLDivElement | null)[]>([]);
   const engine = useRef<BeltEngine | null>(null);
   const shownSelection = useRef<Selection | null>(null);
+  // Gesto en curso (refs: cambian con cada evento del puntero).
+  const gesture = useRef<{
+    id: number;
+    startX: number;
+    startY: number;
+    lastX: number;
+    axis: 'none' | 'x' | 'y';
+    caught: boolean;
+    samples: { time: number; offset: number }[];
+    travel: number;
+  } | null>(null);
+  const suppressClick = useRef(false);
 
   // Mide la banda y el punto del foco (solo al cambiar de tamaño).
   const measure = () => {
@@ -155,7 +182,107 @@ export function ConveyorBelt({ balls, selection, live, reducedMotion, claimTarge
     return hit ? Number(hit.dataset.hit) : -1;
   };
 
+  // ---------- Arrastre ----------
+
+  // Al encajar: la pieza del foco pasa a ser la elegida (mismo camino que
+  // un clic). Si es otra copia del balón ya elegido, solo cambia la pieza.
+  const settle = (piece: number) => {
+    const belt = engine.current;
+    if (!belt || piece < 0) return;
+    const ball = items[piece].ball;
+    if (ball === selection.index) belt.claim(piece, !reducedMotion && live);
+    else onPick(ball, piece);
+    belt.resume(RESUME_DELAY_S);
+  };
+
+  const startDrag = (event: PointerEvent<HTMLDivElement>) => {
+    const belt = engine.current;
+    const current = gesture.current;
+    if (!belt || !current) return;
+    current.axis = 'x';
+    root.current?.setAttribute('data-dragging', '');
+    // Captura solo al confirmar el arrastre: un toque sigue siendo un clic.
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      // Puntero ya liberado: el arrastre sigue con los eventos que lleguen.
+    }
+    if (!current.caught) belt.grab();
+  };
+
+  const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (gesture.current || (event.pointerType === 'mouse' && event.button !== 0)) return;
+    const belt = engine.current;
+    if (!belt) return;
+    // Un gesto nuevo: lo que quedara del anterior (un arrastre sin clic final) no cuenta.
+    suppressClick.current = false;
+    // Tocar la banda mientras sigue por inercia la detiene (como un carrusel).
+    const caught = belt.isGliding();
+    if (caught) belt.grab();
+    gesture.current = {
+      id: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      lastX: event.clientX,
+      axis: 'none',
+      caught,
+      samples: [{ time: event.timeStamp, offset: 0 }],
+      travel: 0,
+    };
+  };
+
+  const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    const current = gesture.current;
+    const belt = engine.current;
+    if (!current || !belt || event.pointerId !== current.id || current.axis === 'y') return;
+    if (current.axis === 'none') {
+      const dx = event.clientX - current.startX;
+      const dy = event.clientY - current.startY;
+      if (Math.abs(dx) < AXIS_LOCK_PX && Math.abs(dy) < AXIS_LOCK_PX) return;
+      if (Math.abs(dy) > Math.abs(dx)) {
+        // Vertical: es de la página (con touch-action: pan-y el navegador desplaza).
+        current.axis = 'y';
+        return;
+      }
+      startDrag(event);
+    }
+    const step = event.clientX - current.lastX;
+    current.lastX = event.clientX;
+    current.travel += step;
+    belt.drag(step);
+    current.samples.push({ time: event.timeStamp, offset: current.travel });
+    while (current.samples.length > 2 && event.timeStamp - current.samples[0].time > VELOCITY_WINDOW_MS) current.samples.shift();
+  };
+
+  const endGesture = (event: PointerEvent<HTMLDivElement>) => {
+    const current = gesture.current;
+    const belt = engine.current;
+    if (!current || event.pointerId !== current.id) return;
+    gesture.current = null;
+    root.current?.removeAttribute('data-dragging');
+    if (!belt) return;
+    if (current.axis === 'x') {
+      // Velocidad al soltar: del avance en la última ventana corta. Si el
+      // puntero llevaba un rato quieto, no hay inercia.
+      const first = current.samples[0];
+      const elapsed = event.timeStamp - first.time;
+      const idle = event.timeStamp - current.samples[current.samples.length - 1].time > VELOCITY_WINDOW_MS;
+      const velocity = idle || elapsed <= 0 ? 0 : ((current.travel - first.offset) / elapsed) * 1000;
+      suppressClick.current = true;
+      belt.glide(velocity, settle);
+    } else if (current.caught) {
+      // Detuvo la inercia con un toque: encaja desde donde quedó.
+      suppressClick.current = true;
+      belt.glide(0, settle);
+    }
+  };
+
   const onClick = (event: MouseEvent<HTMLDivElement>) => {
+    // El clic que cierra un arrastre no elige: ya eligió el encaje.
+    if (suppressClick.current) {
+      suppressClick.current = false;
+      return;
+    }
     const piece = pieceFrom(event);
     const belt = engine.current;
     if (piece < 0 || !belt) return;
@@ -164,7 +291,7 @@ export function ConveyorBelt({ balls, selection, live, reducedMotion, claimTarge
   };
 
   const onPointerOver = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.pointerType !== 'mouse') return;
+    if (event.pointerType !== 'mouse' || gesture.current) return;
     const piece = pieceFrom(event);
     if (piece < 0) return;
     engine.current?.nudge(piece, 45);
@@ -173,7 +300,18 @@ export function ConveyorBelt({ balls, selection, live, reducedMotion, claimTarge
 
   return (
     // Decorativa: el selector es el control accesible (mismo efecto con teclado).
-    <div ref={root} className={styles.belt} aria-hidden="true" data-reduced={reducedMotion || undefined} onClick={onClick} onPointerOver={onPointerOver}>
+    <div
+      ref={root}
+      className={styles.belt}
+      aria-hidden="true"
+      data-reduced={reducedMotion || undefined}
+      onClick={onClick}
+      onPointerOver={onPointerOver}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={endGesture}
+      onPointerCancel={endGesture}
+    >
       <div className={styles.back} />
       <div className={`${styles.plane} ${styles.base}`} />
       <div ref={slats} className={`${styles.plane} ${styles.slats}`} />

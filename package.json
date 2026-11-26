@@ -29,6 +29,8 @@
     "models:credits": "node scripts/models/credits.mjs",
     "models:posters": "node scripts/models/posters.mjs",
     "models:preview": "node scripts/models/preview.mjs",
+    "avatar:build": "node --env-file-if-exists=.env scripts/avatar/build.mjs",
+    "avatar:upload": "node --env-file=.env scripts/avatar/upload.mjs",
     "design:preview": "node scripts/design/serve.mjs"
   },
   "devDependencies": {
@@ -36,6 +38,7 @@
     "@gltf-transform/core": "4.5.1",
     "@gltf-transform/extensions": "4.5.1",
     "@gltf-transform/functions": "4.5.1",
+    "@vercel/blob": "2.9.0",
     "draco3dgltf": "1.5.9",
     "gltf-validator": "2.0.0-dev.3.10",
     "meshoptimizer": "1.3.0",

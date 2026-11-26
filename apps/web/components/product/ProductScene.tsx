@@ -19,6 +19,9 @@ import { fitBox, modelBox, POSTER_POSE, posterBoxOnCanvas } from '@/lib/three/po
 export interface SceneControls {
   // Giro pedido por arrastre o teclado (radianes); la escena lo alcanza suave.
   dragYaw: number;
+  // Inclinación pedida por arrastre vertical o teclado (radianes, sobre el eje
+  // horizontal de la pantalla): negativa trae la suela hacia la cámara.
+  tilt: number;
   // Momento del último gesto: el giro libre se pausa unos segundos después.
   lastInteraction: number;
 }
@@ -52,6 +55,10 @@ interface SceneProps {
 // Entrada normal (sin póster): el zapato llega girando y acercándose con una
 // curva de salida, ya en movimiento en el primer cuadro visible, mientras el
 // lienzo aparece con un fundido (--duration-reveal).
+// Geometría de las etiquetas (igual que ProductViewer.module.css): separación
+// del punto, desfase vertical y margen mínimo con el borde del visor (px).
+const LABEL = { gap: 18, top: -12, margin: 8 };
+
 const ENTER = { turn: 0.9, zoom: 0.9, duration: 2.4, ease: 'power3.out' };
 
 export default function ProductScene(props: SceneProps) {
@@ -118,8 +125,13 @@ function Rig({ model, lite, reducedMotion, hotspots, activeKey, controls, marker
   const withPoster = useRef(false);
   const focusPoint = useRef(new Vector3(0, height / 2, 0));
   const drag = useRef(0);
+  const tilt = useRef(0);
+  const tiltGroup = useRef<Group>(null);
   const target = useRef(new Vector3());
   const scratch = useRef(new Vector3());
+  // Tamaño de cada etiqueta (se mide una vez, no por cuadro) y último ajuste
+  // escrito, para tocar el DOM solo cuando cambia.
+  const labels = useRef(new Map<HTMLElement, { width: number; height: number; side: string; shift: string }>());
 
   // Materiales compilados antes de mostrar; el póster se mide en paralelo.
   useEffect(() => {
@@ -144,7 +156,10 @@ function Rig({ model, lite, reducedMotion, hotspots, activeKey, controls, marker
     if (hotspot) focusPoint.current.set(...hotspot.position);
     else focusPoint.current.set(0, height / 2, 0);
     // Elegir un detalle cancela el giro manual: la vista lo muestra de frente.
-    if (hotspot) controls.current.dragYaw = drag.current = 0;
+    // También la inclinación: el detalle (por ejemplo la suela) trae su pose.
+    if (hotspot) controls.current.dragYaw = drag.current = controls.current.tilt = 0;
+    // Con movimiento reducido la inclinación vuelve al instante.
+    if (hotspot && reducedMotion) tilt.current = 0;
     targetView.current = next;
     // Antes de revelarse, la vista queda en la del póster (settle la mueve).
     if (entryState.current !== 'settled') return;
@@ -163,6 +178,32 @@ function Rig({ model, lite, reducedMotion, hotspots, activeKey, controls, marker
       tween.kill();
     };
   }, [activeKey, hotspots, height, reducedMotion, controls]);
+
+  // Al cambiar de detalle se vuelve a medir (fuentes o idioma pudieron cambiar).
+  useEffect(() => {
+    labels.current.clear();
+  }, [activeKey]);
+
+  // La etiqueta queda dentro del visor: si no cabe de su lado se pasa al
+  // otro; si no cabe de ninguno (pantallas angostas) se corre hasta el borde.
+  const placeLabel = (element: HTMLElement, preferred: 'left' | 'right', x: number, y: number) => {
+    const label = element.lastElementChild as HTMLElement | null;
+    if (!label) return;
+    let info = labels.current.get(element);
+    if (!info || !info.width) {
+      info = { width: label.offsetWidth, height: label.offsetHeight, side: preferred, shift: '' };
+      labels.current.set(element, info);
+    }
+    const room = { right: size.width - LABEL.margin - (x + LABEL.gap), left: x - LABEL.gap - LABEL.margin };
+    const other = preferred === 'right' ? 'left' : 'right';
+    const side = room[preferred] >= info.width || room[preferred] >= room[other] ? preferred : other;
+    const dx = side === 'right' ? Math.min(0, room.right - info.width) : Math.max(0, info.width - room.left);
+    const top = y + LABEL.top;
+    const dy = top < LABEL.margin ? LABEL.margin - top : Math.min(0, size.height - LABEL.margin - (top + info.height));
+    const shift = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)`;
+    if (info.side !== side || element.dataset.side !== side) element.dataset.side = info.side = side;
+    if (info.shift !== shift) label.style.transform = info.shift = shift;
+  };
 
   // Distancia base: el zapato (0.30 m) y su alto entran con aire en el cuadro.
   const baseDistance = useMemo(() => {
@@ -209,16 +250,24 @@ function Rig({ model, lite, reducedMotion, hotspots, activeKey, controls, marker
     const control = controls.current;
     // Giro libre lento en la vista general, salvo con movimiento reducido o
     // justo después de un gesto.
-    const idle = !activeKey && !reducedMotion && performance.now() - control.lastInteraction > 4000;
+    // Con el zapato inclinado no hay giro libre: queda donde lo dejó el usuario.
+    const idle = !activeKey && !reducedMotion && Math.abs(control.tilt) < 0.01 && performance.now() - control.lastInteraction > 4000;
     if (idle) control.dragYaw += delta * 0.18 * entry.current.run;
     drag.current = MathUtils.damp(drag.current, control.dragYaw, 8, delta);
+    tilt.current = MathUtils.damp(tilt.current, control.tilt, 8, delta);
+    // La inclinación va por fuera del giro: siempre sobre el eje horizontal
+    // de la pantalla (la cámara mira por -Z), como un visor de órbita.
+    if (tiltGroup.current) tiltGroup.current.rotation.x = tilt.current;
 
     const yaw = baseYaw + yawSign * current.yaw + drag.current;
     pivot.current?.rotation.set(current.bank * bankSign, yaw, 0, 'YXZ');
     if (shadow.current) {
       shadow.current.rotation.y = yaw;
       const material = (shadow.current.children[0] as unknown as { material?: { opacity: number } })?.material;
-      if (material) material.opacity = preset.shadow * current.shadow * Math.max(0, 1 - Math.abs(current.bank) * 1.2);
+      // La sombra de contacto se apaga al inclinar (balanceo del detalle o
+      // inclinación del usuario): un zapato volteado no apoya en el piso.
+      const lift = Math.max(Math.abs(current.bank) * 1.2, Math.abs(tilt.current) * 1.8);
+      if (material) material.opacity = preset.shadow * current.shadow * Math.max(0, 1 - lift);
     }
 
     // Cámara: mira a un punto entre el centro del zapato y el detalle activo.
@@ -275,14 +324,17 @@ function Rig({ model, lite, reducedMotion, hotspots, activeKey, controls, marker
         const x = ((point.x + 1) / 2) * size.width;
         const y = ((1 - point.y) / 2) * size.height;
         element.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+        placeLabel(element, hotspot.view.slot.side, x, y);
       }
     }
   });
 
   return (
     <>
-      <group ref={pivot} position={[0, height / 2, 0]}>
-        <primitive object={object} position={[0, -height / 2, 0]} />
+      <group ref={tiltGroup} position={[0, height / 2, 0]}>
+        <group ref={pivot}>
+          <primitive object={object} position={[0, -height / 2, 0]} />
+        </group>
       </group>
       <group ref={shadow} position={[0, 0.001, 0]}>
         <Shadow scale={[0.42, 0.2, 1]} rotation-x={-Math.PI / 2} color="black" colorStop={0} opacity={preset.shadow} fog={false} />

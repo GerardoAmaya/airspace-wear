@@ -4,9 +4,9 @@ import type { Locale } from '@airspace/contracts';
 import { useFormatter, useLocale, useTranslations } from 'next-intl';
 import { type FormEvent, Fragment, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { ThemedPoster } from '@/components/catalog/ThemedPoster';
+import { Link } from '@/i18n/navigation';
 import { HOME_ANCHORS } from '@/lib/home';
 import { gsap, ScrollTrigger, useGSAP } from '@/lib/motion/gsap';
-import { scrollToElement } from '@/lib/motion/scroll';
 import { DURATION, EASE } from '@/lib/motion/tokens';
 import type { CatalogEntry } from './api-engine';
 import { createScriptedEngine, type RecommendedProduct, type StylistEngine, type StylistScript } from './engine';
@@ -22,7 +22,6 @@ import { countTo, fadeIn, LETTERS, revealLines, scramble } from './hud-motion';
 // movimiento reducido todo aparece de inmediato.
 
 const WAVE_BARS = 34;
-const pad = (value: number) => String(value).padStart(2, '0');
 const prefersReduced = () => !document.documentElement.classList.contains('motion-ok') || matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // Motor que se crea la primera vez que se le pregunta (import diferido).
@@ -280,6 +279,8 @@ export function StylistSection({
 
   // ---------- Estado de la consola (escrito en el DOM, sin re-render) ----------
 
+  // Números de dos cifras (01, 02...) con el formateador del idioma, no a mano.
+  const pad = (value: number) => format.number(value, { minimumIntegerDigits: 2, useGrouping: false });
   const clock = () => format.dateTime(new Date(), { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone });
 
   const setMode = (mode: Mode) => {
@@ -624,13 +625,6 @@ export function StylistSection({
     ask(question, false);
   };
 
-  // "Ver en 3D": avisa al catálogo qué par mostrar y desplaza hasta allí.
-  const viewIn3d = (slug: string) => {
-    window.dispatchEvent(new CustomEvent('airspace:select-product', { detail: { slug } }));
-    const target = document.getElementById(HOME_ANCHORS.board);
-    if (target) scrollToElement(target);
-  };
-
   // ---------- Marcado ----------
 
   const renderAnswer = (answer: string) =>
@@ -779,7 +773,7 @@ export function StylistSection({
                     {turn.phase === 'done' && turn.products.length ? (
                       <div key={`r${turn.key}`} ref={recsRef} className={styles.recs} role="list" aria-label={t('card.listLabel')}>
                         {turn.products.map((product, index) => (
-                          <RecommendationCard key={product.slug} product={product} index={index} onView={viewIn3d} />
+                          <RecommendationCard key={product.slug} product={product} index={index} />
                         ))}
                       </div>
                     ) : null}
@@ -836,7 +830,8 @@ export function StylistSection({
   );
 }
 
-function RecommendationCard({ product, index, onView }: { product: RecommendedProduct; index: number; onView: (slug: string) => void }) {
+// "Ver en 3D" abre la ficha del producto (giro, detalles, suela y AR).
+function RecommendationCard({ product, index }: { product: RecommendedProduct; index: number }) {
   const t = useTranslations('HomeStylist');
   return (
     <article className={styles.card} role="listitem">
@@ -870,10 +865,10 @@ function RecommendationCard({ product, index, onView }: { product: RecommendedPr
       </ul>
       <footer className={styles.cardFoot}>
         <span className={styles.price}>{product.price}</span>
-        <button type="button" className={styles.view3d} aria-label={t('card.view3dLabel', { name: product.name })} onClick={() => onView(product.slug)}>
+        <Link href={`/products/${product.slug}`} className={styles.view3d} aria-label={t('card.view3dLabel', { name: product.name })}>
           {t('card.view3d')}
           <ArrowIcon />
-        </button>
+        </Link>
       </footer>
     </article>
   );

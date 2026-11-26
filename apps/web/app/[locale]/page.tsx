@@ -1,10 +1,10 @@
-import type { Locale } from '@airspace/contracts';
 import { setRequestLocale } from 'next-intl/server';
 import { HomeBalls } from '@/components/home/balls/HomeBalls';
 import { HomeBoard } from '@/components/home/board/HomeBoard';
 import { HomeHero } from '@/components/home/hero/HomeHero';
 import { HomeClub } from '@/components/home/stylist/HomeClub';
 import { HomeStylist } from '@/components/home/stylist/HomeStylist';
+import { pageLocale } from '@/i18n/locale';
 
 // La validación de navegación instantánea (solo en desarrollo) no logra
 // simular esta página completa y lo informa sin errores reales. Ambos idiomas
@@ -17,7 +17,7 @@ export const instant = false;
 // y monta sus partes interactivas en el cliente.
 export default async function HomePage({ params }: PageProps<'/[locale]'>) {
   const { locale: raw } = await params;
-  const locale = raw as Locale;
+  const locale = pageLocale(raw);
   setRequestLocale(locale);
   return (
     <>

@@ -27,6 +27,14 @@
   overflow-y: visible;
   user-select: none;
   -webkit-user-select: none;
+  /* Arrastre horizontal propio; un gesto vertical sigue desplazando la página. */
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.belt[data-dragging],
+.belt[data-dragging] .hit {
+  cursor: grabbing;
 }
 
 /* Día: aluminio claro, etiquetas blancas con borde. */

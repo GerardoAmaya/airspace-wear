@@ -162,12 +162,23 @@
   color: var(--color-text);
 }
 
+/* En pantallas táctiles el visor captura todo el gesto (touch-action: none):
+   nunca ocupa más de tres cuartos de la ventana, así siempre queda página
+   fuera de él desde donde desplazarse. */
+@media (pointer: coarse) {
+  .viewer {
+    max-height: 75svh;
+  }
+}
+
 /* Área de arrastre: toda la vista; cursor de agarre y foco visible. */
 .grip {
   position: absolute;
   inset: 0;
   cursor: grab;
-  touch-action: pan-y;
+  /* El visor captura los dos ejes: horizontal gira y vertical inclina. Fuera
+     del visor el scroll de la página sigue nativo. */
+  touch-action: none;
 }
 
 .grip:active {

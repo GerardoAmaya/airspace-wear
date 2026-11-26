@@ -103,3 +103,9 @@
   color: var(--color-text-muted);
   cursor: not-allowed;
 }
+
+/* Aviso visible cuando la línea ya tiene la cantidad máxima. */
+.note {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}

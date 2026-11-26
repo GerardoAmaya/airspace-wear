@@ -1,52 +1,15 @@
 {
   "HomeBoard": {
-    "sectionLabel": "Catalog",
     "store": "AIRSPACE Wear · Store",
     "kicker": "Sneakers · Season 26",
-    "sizeRange": "Sizes {system} {min}-{max}",
-    "title": "Catalog",
-    "lead": "{count, plural, one {# pair ready} other {# pairs ready}} to wear. Pick a pair and see it in 3D.",
-    "filtersLabel": "Filter by brand",
-    "allBrands": "All",
-    "chipCount": "{count, plural, one {# pair} other {# pairs}}",
-    "countAll": "{padded} {count, plural, one {pair} other {pairs}} · {brands, plural, one {# brand} other {# brands}}",
-    "countBrand": "{padded} {count, plural, one {pair} other {pairs}} · {brand}",
-    "columns": {
-      "ref": "Ref.",
-      "name": "Model",
-      "brand": "Brand",
-      "sizes": "EU sizes",
-      "price": "Price",
-      "stock": "Availability"
-    },
-    "rowsLabel": "Catalog models",
-    "rowLabel": "Ref. {reference}, {name} by {brand}, sizes {sizes}, {price}, {availability}",
+    "title": "Featured",
+    "count": "{padded} {count, plural, one {pair} other {pairs}}",
+    "lead": "The most wanted pairs of the season. Open one to see it in 3D.",
+    "cta": "See the full catalog",
+    "ctaCount": "{count, plural, one {# product} other {# products}}",
     "preview": {
-      "label": "3D view",
-      "reference": "Ref. {reference}",
-      "loading": "Loading 3D model...",
-      "error": "3D model unavailable",
       "dragHint": "Drag to rotate",
-      "touchHint": "Swipe to rotate",
-      "posterAlt": "{name}, side view"
-    },
-    "details": {
-      "route": "Ref. {reference} · Sizes {sizes}",
-      "price": "Price",
-      "tagsLabel": "Tags",
-      "sizeLabel": "EU size",
-      "sizePlaceholder": "Size",
-      "sizeLow": "{size} (few left)",
-      "sizeOut": "{size} (sold out)",
-      "addToCart": "Add to cart",
-      "added": "Added to cart",
-      "pickSize": "Pick a size",
-      "soldOut": "Sold out",
-      "addedStatus": "{name}, size {size}: added to cart. {count, plural, one {You have # item.} other {You have # items.}}",
-      "selection": "{name}, {price}, {availability}.",
-      "loadingModel": "Loading the 3D model of the {name}...",
-      "modelReady": "3D model of the {name} ready.",
-      "modelError": "The 3D model could not be loaded."
+      "touchHint": "Swipe to rotate"
     },
     "hangar": {
       "sectionLabel": "Hangar 360°",

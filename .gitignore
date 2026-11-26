@@ -11,6 +11,8 @@ node_modules/
 
 # Avatar de Mixamo: la licencia no permite redistribuir los archivos tal cual
 /assets/avatar/raw/
+# Avatar convertido y optimizado: se publica en Vercel Blob (pnpm avatar:upload)
+/assets/avatar/out/
 
 # Builds, caché y código generado
 next-env.d.ts

@@ -1,8 +1,8 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 import { useSyncExternalStore } from 'react';
-import { useCartStore } from './cart-store';
+import { selectItemCount, useCartStore } from './cart-store';
 import styles from './Cart.module.css';
 
 // El conteo depende del localStorage: en el servidor y en la hidratación se
@@ -10,10 +10,12 @@ import styles from './Cart.module.css';
 const subscribeNoop = () => () => {};
 const useHydrated = () => useSyncExternalStore(subscribeNoop, () => true, () => false);
 
+// El número es el total de unidades (la suma de las cantidades), no de líneas.
 export function CartButton() {
   const t = useTranslations('Cart');
+  const format = useFormatter();
   const hydrated = useHydrated();
-  const count = useCartStore((state) => (hydrated ? state.items.length : 0));
+  const count = useCartStore((state) => (hydrated ? selectItemCount(state) : 0));
   const open = useCartStore((state) => state.open);
   const setOpen = useCartStore((state) => state.setOpen);
 
@@ -38,7 +40,7 @@ export function CartButton() {
           texto visible coincide con el nombre accesible (WCAG 2.5.3). */}
       {' '}
       <span className={styles.count} aria-hidden="true">
-        {count}
+        {format.number(count)}
       </span>
     </button>
   );

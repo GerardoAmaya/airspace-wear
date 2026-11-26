@@ -9,6 +9,7 @@ import { accentProps, type ProductAccent } from '@/lib/accent';
 import { useMotionStore } from '@/lib/motion/store';
 import { useStageActivity } from '@/lib/three/director';
 import { useInView } from '@/lib/in-view';
+import { MathUtils } from 'three';
 import type { SceneControls } from './ProductScene';
 import styles from './ProductViewer.module.css';
 import { useTour } from './tour-store';
@@ -17,6 +18,12 @@ import { useTour } from './tour-store';
 const ProductScene = dynamic(() => import('./ProductScene'), { ssr: false });
 
 const STEP = Math.PI / 12; // 15° por tecla
+// Inclinación vertical (radianes, eje horizontal de la pantalla): negativa
+// acerca la suela a la cámara (hasta unos 85°), positiva muestra un poco el
+// empeine (unos 20°). Se queda donde la deja el usuario.
+const TILT_SOLE = -MathUtils.degToRad(85);
+const TILT_TOP = MathUtils.degToRad(20);
+const DRAG_SPEED = 0.012; // radianes por píxel de arrastre
 const POSTER_AFTER = 4; // s de carga antes de mostrar el póster de respaldo
 
 // Visor 3D de la ficha: póster mientras carga, giro con arrastre o flechas,
@@ -53,21 +60,44 @@ export function ProductViewer({ model, hotspots, name, slug, accent }: { model: 
   // El póster flota mientras espera al 3D, solo con el visor a la vista.
   const live = useInView(frame);
 
-  const controls = useRef<SceneControls>({ dragYaw: 0, lastInteraction: 0 });
+  const controls = useRef<SceneControls>({ dragYaw: 0, tilt: 0, lastInteraction: 0 });
   const markers = useRef(new Map<string, HTMLElement>());
-  const dragStart = useRef<{ x: number; yaw: number } | null>(null);
+  const dragStart = useRef<{ x: number; y: number; yaw: number; tilt: number } | null>(null);
   // Grados mostrados a lectores de pantalla: se actualizan al terminar el gesto.
   const [turn, setTurn] = useState(0);
-  const syncTurn = () => setTurn(((Math.round((controls.current.dragYaw * 180) / Math.PI) % 360) + 360) % 360);
+  const [tilt, setTilt] = useState(0);
+  const syncTurn = () => {
+    setTurn(((Math.round((controls.current.dragYaw * 180) / Math.PI) % 360) + 360) % 360);
+    // Positivo hacia la suela, que es lo que el usuario busca al inclinar.
+    setTilt(Math.round((-controls.current.tilt * 180) / Math.PI));
+  };
+  const setTiltValue = (value: number) => {
+    controls.current.tilt = MathUtils.clamp(value, TILT_SOLE, TILT_TOP);
+  };
+  // Al elegir un detalle la escena vuelve giro e inclinación a cero: el valor
+  // para lectores de pantalla también (ajuste durante el render, sin efecto).
+  const [shownKey, setShownKey] = useState(activeKey);
+  if (shownKey !== activeKey) {
+    setShownKey(activeKey);
+    if (activeKey) {
+      setTurn(0);
+      setTilt(0);
+    }
+  }
 
+  // Arrastre libre en los dos ejes: horizontal gira, vertical inclina (hacia
+  // arriba trae la suela). touch-action: none en el área de arrastre hace que
+  // un deslizamiento vertical sobre el visor no desplace la página.
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     event.currentTarget.setPointerCapture(event.pointerId);
-    dragStart.current = { x: event.clientX, yaw: controls.current.dragYaw };
+    dragStart.current = { x: event.clientX, y: event.clientY, yaw: controls.current.dragYaw, tilt: controls.current.tilt };
     controls.current.lastInteraction = performance.now();
   };
   const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (!dragStart.current) return;
-    controls.current.dragYaw = dragStart.current.yaw + (event.clientX - dragStart.current.x) * 0.012;
+    const start = dragStart.current;
+    if (!start) return;
+    controls.current.dragYaw = start.yaw + (event.clientX - start.x) * DRAG_SPEED;
+    setTiltValue(start.tilt + (event.clientY - start.y) * DRAG_SPEED);
     controls.current.lastInteraction = performance.now();
   };
   const onPointerUp = () => {
@@ -76,7 +106,9 @@ export function ProductViewer({ model, hotspots, name, slug, accent }: { model: 
   };
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     const delta = event.key === 'ArrowRight' ? STEP : event.key === 'ArrowLeft' ? -STEP : null;
-    if (event.key === 'Home') controls.current.dragYaw = 0;
+    const tiltDelta = event.key === 'ArrowUp' ? -STEP : event.key === 'ArrowDown' ? STEP : null;
+    if (event.key === 'Home') controls.current.dragYaw = controls.current.tilt = 0;
+    else if (tiltDelta !== null) setTiltValue(controls.current.tilt + tiltDelta);
     else if (delta === null) return;
     else controls.current.dragYaw += delta;
     event.preventDefault();
@@ -144,7 +176,7 @@ export function ProductViewer({ model, hotspots, name, slug, accent }: { model: 
         aria-valuemin={0}
         aria-valuemax={359}
         aria-valuenow={turn}
-        aria-valuetext={t('turnValue', { degrees: turn })}
+        aria-valuetext={t('turnValue', { degrees: turn, tilt })}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}

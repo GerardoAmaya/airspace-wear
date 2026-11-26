@@ -33,8 +33,25 @@ async function knownSlugs(): Promise<Set<string> | null> {
   }
 }
 
+// Rutas con punto fuera de un idioma (/x.txt, /wp-login.php, /.env): antes
+// el matcher las dejaba pasar sin proxy, Next las tomaba como /[locale] con
+// "x.txt" de idioma y la home fallaba con un 500. Ahora responden con el 404
+// del sitio en el idioma guardado (cookie de next-intl) o el predeterminado,
+// sin redirigir: un archivo que no existe no tiene versión en otro idioma.
+const LOCALE_PREFIX = new RegExp(`^/(${routing.locales.join('|')})(/|$)`);
+const FILE_LIKE = /\.[^/]*$/;
+
+function notFoundLocale(request: NextRequest): string {
+  const saved = request.cookies.get('NEXT_LOCALE')?.value;
+  return routing.locales.find((locale) => locale === saved) ?? routing.defaultLocale;
+}
+
 export default async function proxy(request: NextRequest) {
-  const match = PRODUCT_PATH.exec(request.nextUrl.pathname);
+  const { pathname } = request.nextUrl;
+  if (FILE_LIKE.test(pathname) && !LOCALE_PREFIX.test(pathname)) {
+    return NextResponse.rewrite(new URL(`/${notFoundLocale(request)}/not-found`, request.url));
+  }
+  const match = PRODUCT_PATH.exec(pathname);
   if (match) {
     const known = await knownSlugs();
     if (known && !known.has(decodeURIComponent(match[2]!))) {
@@ -49,6 +66,9 @@ export default async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Todo menos archivos estáticos (modelos, decodificador, pósters) e internos.
-  matcher: '/((?!api|_next|_vercel|models|vendor|posters|.*\\..*).*)',
+  // Todo menos las carpetas de archivos estáticos (modelos, decodificador,
+  // pósters), las rutas internas y los archivos de metadatos de app/. Las
+  // carpetas llevan la barra final para que /models.txt sí pase por aquí.
+  // Las rutas con punto también pasan: ver FILE_LIKE arriba.
+  matcher: '/((?!api/|_next/|_vercel/|models/|vendor/|posters/|robots\\.txt|icon\\.svg).*)',
 };

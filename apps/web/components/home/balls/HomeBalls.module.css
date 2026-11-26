@@ -768,6 +768,21 @@
   color: var(--color-primary);
 }
 
+/* Texto de la pista según el puntero: el mouse arrastra la banda, el dedo desliza. */
+.hintTouch {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .hintMouse {
+    display: none;
+  }
+
+  .hintTouch {
+    display: inline;
+  }
+}
+
 /* Fila del selector: año, país sede, modelo y punto de estado. */
 .pick {
   display: grid;

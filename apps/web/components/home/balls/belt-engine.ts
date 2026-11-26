@@ -13,6 +13,11 @@ import { DURATION, EASE } from '@/lib/motion/tokens';
 //   variable de giro de los rodillos. Ninguna lectura de layout por cuadro.
 // - El movimiento es por tiempo: la sección llama a frame() solo mientras la
 //   banda se ve. setDrive() la frena y la vuelve a arrancar.
+// - Arrastre: grab() la toma (la marcha propia queda en espera), drag() la
+//   mueve bajo el dedo y glide() la deja seguir por inercia hasta encajar una
+//   pieza en el foco. resume() devuelve la marcha propia pasado un tiempo.
+// - La velocidad (lecturas y balanceo de etiquetas) se mide del avance real
+//   de la banda, así que vale igual con marcha propia que con arrastre.
 
 const BALL_M = 0.22; // diámetro real del balón (m)
 const TILT_DEG = 64; // inclinación del plano
@@ -72,9 +77,14 @@ export function createBeltEngine(elements: BeltElements, balls: number[], reduce
 
   const geometry = { width: 0, height: 0, D: 100, lipY: 0, ballCY: 0, sMid: 1, spacing: 300, loop: 1800, margin: 150, pitch: 40, perspective: 1000, cruise: 40, claimX: 0 };
   const drive = { factor: reducedMotion ? 0 : 1 };
+  // Espera de la marcha propia mientras se arrastra (0 = en espera).
+  const hold = { factor: 1 };
   const state = { speed: 0, metersPerSecond: 0 };
-  let offset = 0; // px de pantalla a la altura de las piezas
+  // px de pantalla a la altura de las piezas (objeto: lo anima la inercia).
+  const track = { offset: 0 };
+  let lastOffset = 0;
   let lastSpeed = 0;
+  let gliding = false;
   let shownSlats = '';
   let shownRoll = '';
   let claimed = -1;
@@ -168,7 +178,8 @@ export function createBeltEngine(elements: BeltElements, balls: number[], reduce
   const offsetFor = (index: number, x: number) => x + geometry.margin - index * geometry.spacing;
 
   function setOffset(value: number) {
-    offset = value;
+    track.offset = value;
+    lastOffset = value;
     place();
   }
 
@@ -180,9 +191,10 @@ export function createBeltEngine(elements: BeltElements, balls: number[], reduce
 
   // ---------- Cuadro ----------
 
-  const positionOf = (piece: Piece) => mod(piece.index * geometry.spacing + offset, geometry.loop) - geometry.margin;
+  const positionAt = (piece: Piece, at: number) => mod(piece.index * geometry.spacing + at, geometry.loop) - geometry.margin;
 
   function place() {
+    const offset = track.offset;
     const planeOffset = offset / geometry.sMid;
     const slatX = mod(planeOffset, geometry.pitch) - geometry.pitch;
     const slatTransform = `perspective(${geometry.perspective}px) rotateX(${TILT_DEG}deg) translate3d(${slatX.toFixed(2)}px, 0, 0)`;
@@ -198,7 +210,7 @@ export function createBeltEngine(elements: BeltElements, balls: number[], reduce
       rollers.style.setProperty('--belt-roll', roll);
     }
     for (const piece of pieces) {
-      const x = positionOf(piece);
+      const x = positionAt(piece, offset);
       piece.x = x;
       const rounded = Math.round(x * 10) / 10;
       if (rounded !== piece.shownX) {
@@ -210,19 +222,26 @@ export function createBeltEngine(elements: BeltElements, balls: number[], reduce
 
   function frame(time: number, deltaMs: number) {
     const dt = Math.min(0.05, Math.max(0.001, (deltaMs || 16) / 1000));
-    const speed = geometry.cruise * drive.factor;
-    offset += speed * dt;
+    const motor = geometry.cruise * drive.factor * hold.factor;
+    track.offset += motor * dt;
+    // Velocidad real (marcha propia, arrastre o inercia), suavizada: los
+    // eventos del puntero no llegan al mismo ritmo que los cuadros.
+    const measured = (track.offset - lastOffset) / dt;
+    lastOffset = track.offset;
+    const speed = state.speed + (measured - state.speed) * Math.min(1, dt * 14);
     state.speed = speed;
-    state.metersPerSecond = speed / (geometry.D / BALL_M);
+    state.metersPerSecond = Math.abs(speed) / (geometry.D / BALL_M);
     place();
     // Etiquetas: péndulos amortiguados. El equilibrio se inclina con la
-    // velocidad y la aceleración las hace oscilar al frenar o arrancar.
-    const accel = (speed - lastSpeed) / dt;
+    // velocidad y la aceleración las hace oscilar al frenar o arrancar
+    // (acotadas: un arrastre rápido no las deja girando sin fin).
+    const accel = clamp((speed - lastSpeed) / dt, -300, 300);
     lastSpeed = speed;
+    const motion = drive.factor * hold.factor;
     for (const piece of pieces) {
       const k = piece.stiffness;
-      const rattle = Math.sin(time * 2.1 + piece.index * 1.7) * 0.9 * drive.factor;
-      const lean = -speed * 0.1 + rattle;
+      const rattle = Math.sin(time * 2.1 + piece.index * 1.7) * 0.9 * motion;
+      const lean = clamp(-speed * 0.1, -18, 18) + rattle;
       const force = -k * (piece.angle - lean) - 2 * Math.sqrt(k) * 0.16 * piece.spin - accel * 0.5;
       piece.spin += force * dt;
       piece.angle = clamp(piece.angle + piece.spin * dt, -24, 24);
@@ -252,6 +271,75 @@ export function createBeltEngine(elements: BeltElements, balls: number[], reduce
       }
     }
     return best;
+  }
+
+  // ---------- Arrastre ----------
+
+  // Toma la banda: corta la inercia en curso y deja la marcha propia en espera.
+  function grab() {
+    gsap.killTweensOf(track);
+    gsap.killTweensOf(hold);
+    gliding = false;
+    hold.factor = 0;
+  }
+
+  // Mueve la banda dx px de pantalla (las piezas siguen al puntero 1:1).
+  function drag(dx: number) {
+    track.offset += dx;
+    place();
+  }
+
+  // Desplazamiento final más cercano a `projected` con una pieza en el foco.
+  function snapFrom(projected: number) {
+    let best = -1;
+    let bestDelta = Infinity;
+    for (const piece of pieces) {
+      const delta = geometry.claimX - positionAt(piece, projected);
+      if (Math.abs(delta) < Math.abs(bestDelta)) {
+        bestDelta = delta;
+        best = piece.index;
+      }
+    }
+    return { offset: projected + bestDelta, piece: best };
+  }
+
+  // Suelta la banda con velocidad `velocity` (px/s): sigue por inercia y
+  // frena hasta encajar la pieza más cercana en el foco. Sin inercia (o con
+  // movimiento reducido) encaja al instante desde donde quedó.
+  function glide(velocity: number, onSettle: (piece: number) => void) {
+    gsap.killTweensOf(track);
+    const inertia = !reducedMotion && Math.abs(velocity) > 60;
+    // Proyección: la distancia que recorrería frenando de forma pareja.
+    const reach = clamp(velocity * 0.32, -geometry.spacing * 3, geometry.spacing * 3);
+    const target = snapFrom(track.offset + (inertia ? reach : 0));
+    const distance = target.offset - track.offset;
+    if (reducedMotion || Math.abs(distance) < 0.5) {
+      setOffset(target.offset);
+      gliding = false;
+      onSettle(target.piece);
+      return;
+    }
+    // power3.out arranca a 3 veces su velocidad media: con esta duración la
+    // banda sale del dedo a la misma velocidad que traía.
+    const duration = inertia ? clamp((3 * Math.abs(distance)) / Math.abs(velocity), 0.45, 1.3) : 0.45;
+    gliding = true;
+    gsap.to(track, {
+      offset: target.offset,
+      duration,
+      ease: inertia ? 'power3.out' : 'power2.out',
+      onUpdate: place,
+      onComplete: () => {
+        gliding = false;
+        onSettle(target.piece);
+      },
+    });
+  }
+
+  // La marcha propia vuelve pasados `delay` segundos (con una rampa suave).
+  function resume(delay: number) {
+    gsap.killTweensOf(hold);
+    if (reducedMotion) return;
+    gsap.to(hold, { factor: 1, duration: 1.8, delay, ease: 'power2.inOut' });
   }
 
   // ---------- Pieza en el foco ----------
@@ -293,7 +381,7 @@ export function createBeltEngine(elements: BeltElements, balls: number[], reduce
   }
 
   function destroy() {
-    gsap.killTweensOf(drive);
+    gsap.killTweensOf([drive, hold, track]);
     for (const piece of pieces) gsap.killTweensOf([piece.sprite, piece.shadow, piece.ghost]);
   }
 
@@ -311,6 +399,11 @@ export function createBeltEngine(elements: BeltElements, balls: number[], reduce
     nearest,
     claim,
     destroy,
+    grab,
+    drag,
+    glide,
+    resume,
+    isGliding: () => gliding,
     pieceBall: (index: number) => pieces[index]?.ball ?? -1,
     isClaimed: (index: number) => index === claimed,
   };

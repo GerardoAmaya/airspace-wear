@@ -35,7 +35,8 @@
     "picker": {
       "label": "Elige tu balón",
       "item": "{year} {host} {shortName}: {name}, {edition}",
-      "hint": "O elige uno en la vitrina"
+      "hintMouse": "O arrastra la vitrina",
+      "hintTouch": "O desliza la vitrina para elegir"
     },
     "spot": {
       "view3d": "Vista 3D",

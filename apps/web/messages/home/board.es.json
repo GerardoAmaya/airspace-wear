@@ -1,52 +1,15 @@
 {
   "HomeBoard": {
-    "sectionLabel": "Catálogo",
     "store": "AIRSPACE Wear · Tienda",
     "kicker": "Sneakers · Temporada 26",
-    "sizeRange": "Tallas {system} {min}-{max}",
-    "title": "Catálogo",
-    "lead": "{count, plural, one {# par listo} other {# pares listos}} para estrenar. Elige un par y míralo en 3D.",
-    "filtersLabel": "Filtrar por marca",
-    "allBrands": "Todas",
-    "chipCount": "{count, plural, one {# par} other {# pares}}",
-    "countAll": "{padded} {count, plural, one {par} other {pares}} · {brands, plural, one {# marca} other {# marcas}}",
-    "countBrand": "{padded} {count, plural, one {par} other {pares}} · {brand}",
-    "columns": {
-      "ref": "Ref.",
-      "name": "Modelo",
-      "brand": "Marca",
-      "sizes": "Tallas EU",
-      "price": "Precio",
-      "stock": "Disponibilidad"
-    },
-    "rowsLabel": "Modelos del catálogo",
-    "rowLabel": "Ref. {reference}, {name} de {brand}, tallas {sizes}, {price}, {availability}",
+    "title": "Destacados",
+    "count": "{padded} {count, plural, one {par} other {pares}}",
+    "lead": "Los pares más buscados de la temporada. Abre uno para verlo en 3D.",
+    "cta": "Ver catálogo completo",
+    "ctaCount": "{count, plural, one {# producto} other {# productos}}",
     "preview": {
-      "label": "Vista 3D",
-      "reference": "Ref. {reference}",
-      "loading": "Cargando modelo 3D...",
-      "error": "Modelo 3D no disponible",
       "dragHint": "Arrastra para girar",
-      "touchHint": "Desliza para girar",
-      "posterAlt": "{name}, vista de perfil"
-    },
-    "details": {
-      "route": "Ref. {reference} · Tallas {sizes}",
-      "price": "Precio",
-      "tagsLabel": "Etiquetas",
-      "sizeLabel": "Talla EU",
-      "sizePlaceholder": "Talla",
-      "sizeLow": "{size} (pocas unidades)",
-      "sizeOut": "{size} (agotada)",
-      "addToCart": "Agregar al carrito",
-      "added": "Agregado al carrito",
-      "pickSize": "Elige una talla",
-      "soldOut": "Agotado",
-      "addedStatus": "{name}, talla {size}: agregado al carrito. {count, plural, one {Tienes # artículo.} other {Tienes # artículos.}}",
-      "selection": "{name}, {price}, {availability}.",
-      "loadingModel": "Cargando modelo 3D de {name}...",
-      "modelReady": "Modelo 3D de {name} listo.",
-      "modelError": "No se pudo cargar el modelo 3D."
+      "touchHint": "Desliza para girar"
     },
     "hangar": {
       "sectionLabel": "Hangar 360°",

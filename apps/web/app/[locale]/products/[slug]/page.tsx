@@ -1,4 +1,3 @@
-import type { Locale } from '@airspace/contracts';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
@@ -8,6 +7,7 @@ import { ArButton } from '@/components/product/ArButton';
 import { MediaSkeleton } from '@/components/product/MediaSkeleton';
 import { ProductTour } from '@/components/product/ProductTour';
 import { ProductViewer } from '@/components/product/ProductViewer';
+import { pageLocale } from '@/i18n/locale';
 import { Link } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 import { ThemedPoster } from '@/components/catalog/ThemedPoster';
@@ -30,8 +30,9 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps<'/[locale]/products/[slug]'>): Promise<Metadata> {
-  const { locale, slug } = await params;
-  const product = await getProduct(slug, locale as Locale);
+  const { locale: raw, slug } = await params;
+  const locale = pageLocale(raw);
+  const product = await getProduct(slug, locale);
   if (!product) return {};
   return { title: product.name, description: product.tagline, alternates: localeAlternates(locale, `/products/${slug}`) };
 }
@@ -46,8 +47,9 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/products
 // prerenderizados la comprobación se resuelve en el build y la navegación
 // sigue siendo instantánea.
 export default async function ProductPage({ params }: PageProps<'/[locale]/products/[slug]'>) {
-  const { locale, slug } = await params;
-  const { items } = await getProducts({ locale: locale as Locale });
+  const { locale: raw, slug } = await params;
+  const locale = pageLocale(raw);
+  const { items } = await getProducts({ locale: locale });
   if (!items.some((item) => item.slug === slug)) notFound();
   return (
     <Suspense fallback={<ProductSkeleton />}>
@@ -76,7 +78,7 @@ function ProductSkeleton() {
 
 async function ProductContent({ params }: { params: PageProps<'/[locale]/products/[slug]'>['params'] }) {
   const { locale: rawLocale, slug } = await params;
-  const locale = rawLocale as Locale;
+  const locale = pageLocale(rawLocale);
   setRequestLocale(locale);
   const product = await getProduct(slug, locale);
   if (!product) notFound();

@@ -76,4 +76,12 @@ test('product hotspots are reachable and operable with the keyboard', async ({ p
   await expect(slider).not.toHaveAttribute('aria-valuenow', '0');
   await page.keyboard.press('Home');
   await expect(slider).toHaveAttribute('aria-valuenow', '0');
+
+  // Flechas arriba y abajo inclinan el zapato (la suela hacia la cámara) y
+  // Home lo deja derecho otra vez.
+  const flat = await slider.getAttribute('aria-valuetext');
+  await page.keyboard.press('ArrowUp');
+  await expect(slider).not.toHaveAttribute('aria-valuetext', flat ?? '');
+  await page.keyboard.press('Home');
+  await expect(slider).toHaveAttribute('aria-valuetext', flat ?? '');
 });

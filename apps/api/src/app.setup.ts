@@ -26,7 +26,8 @@ export function configureApp(app: INestApplication, config: Pick<AppConfig, 'web
   if (config.trustProxy) (app as NestExpressApplication).set('trust proxy', config.trustProxy);
   app.use(helmet());
   // Solo la web puede llamar a la API desde el navegador.
-  app.enableCors({ origin: config.webOrigins });
+  // Solo los métodos que la API usa (catálogo y contenidos GET, estilista POST).
+  app.enableCors({ origin: config.webOrigins, methods: ['GET', 'HEAD', 'POST'] });
   // Rutas versionadas (/v1/...), salvo el chequeo de estado.
   app.setGlobalPrefix('v1', { exclude: ['health'] });
   app.enableShutdownHooks();

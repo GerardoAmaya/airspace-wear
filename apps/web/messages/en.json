@@ -50,7 +50,14 @@
     "empty": "You haven't added anything yet. Pick a pair or a ball from the catalog.",
     "remove": "Remove",
     "removeLabel": " {name}",
+    "removed": "{name} removed from cart",
     "lineDetail": "{detail} · Size {size}",
+    "unitPrice": "{price} each",
+    "quantityGroup": "Quantity of {name}",
+    "decrease": "Remove one {name}",
+    "increase": "Add one more {name}",
+    "quantityStatus": "{name}: {count, plural, one {# unit} other {# units}}",
+    "maxReached": "Maximum {max, number} units of {name}",
     "total": "Total",
     "note": "Checkout arrives in a future version. Your cart is saved in this browser.",
     "clear": "Empty cart"
@@ -97,6 +104,7 @@
     "addToCart": "Add to cart",
     "added": "Added to cart",
     "addedAnnouncement": "Product added to cart",
+    "maxInCart": "You already have the maximum ({max, number}) in your cart",
     "soldOut": "Sold out",
     "stock": {
       "low": "Few left",
@@ -118,7 +126,7 @@
     "viewer": {
       "posterAlt": "{name}, side view",
       "sliderLabel": "Rotate the {name}: drag or use the arrow keys",
-      "turnValue": "Rotation {degrees}°",
+      "turnValue": "Rotation {degrees}°, tilt {tilt}°",
       "dragHint": "Drag to rotate",
       "loading": "Loading 3D model",
       "detailsTitle": "3D details",

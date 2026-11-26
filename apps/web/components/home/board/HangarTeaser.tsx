@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 import { type KeyboardEvent, type RefObject, useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { ThemedPoster } from '@/components/catalog/ThemedPoster';
+import { accentProps } from '@/lib/accent';
 import { HOME_ANCHORS } from '@/lib/home';
 import { gsap, ScrollTrigger, useGSAP } from '@/lib/motion/gsap';
 import { SplitText } from '@/lib/motion/split-text';
@@ -294,7 +295,9 @@ export function HangarTeaser({ product, spin, lite, reducedMotion }: { product: 
           </div>
         </div>
 
-        <div className={styles.slot}>
+        {/* El acento del par en la plataforma tiñe anillos, arco, escáner,
+            halo y la lectura ROT (Hangar.module.css); sin acento, lima. */}
+        <div className={styles.slot} {...accentProps(product.accent)}>
           <div
             ref={setStage}
             className={styles.stage}
@@ -356,6 +359,11 @@ export function HangarTeaser({ product, spin, lite, reducedMotion }: { product: 
                 <path className={styles.cross} d="M-24 0H24M0 -24V24" />
               </svg>
             </div>
+            {/* Escáner detrás del lienzo (orden del DOM): pasa por detrás del
+                zapato y nunca lo tiñe. Encima del canvas lavaba el talón. */}
+            <div ref={scan} className={styles.scan} aria-hidden="true">
+              <span ref={beam} className={styles.beam} />
+            </div>
             {model?.poster && (
               <div className={styles.poster} aria-hidden="true">
                 <ThemedPoster poster={model.poster} alt={t('posterAlt', { name: product.name })} />
@@ -376,9 +384,6 @@ export function HangarTeaser({ product, spin, lite, reducedMotion }: { product: 
                   onFrame={onFrame}
                 />
               )}
-            </div>
-            <div ref={scan} className={styles.scan} aria-hidden="true">
-              <span ref={beam} className={styles.beam} />
             </div>
             <span className={`${ui.hudLabel} ${styles.wait}`} aria-hidden="true">
               {t('waiting')}

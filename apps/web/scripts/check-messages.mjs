@@ -20,7 +20,7 @@ for (const file of files) {
   for (const [name, map] of [[file, es], [enFile, en]]) {
     for (const [key, value] of map) {
       if (value === '') problems.push(`${name}: ${key} está vacío`);
-      if (String(value).includes('—')) problems.push(`${name}: ${key} tiene raya larga`);
+      if (String(value).includes('\u2014')) problems.push(`${name}: ${key} tiene raya larga`);
     }
   }
 }

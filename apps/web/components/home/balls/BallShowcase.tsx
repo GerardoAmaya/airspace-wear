@@ -3,7 +3,7 @@
 import type { Locale } from '@airspace/contracts';
 import { useFormatter, useTranslations } from 'next-intl';
 import { type KeyboardEvent, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { useCartStore } from '@/components/cart/cart-store';
+import { MAX_QUANTITY, useCartStore } from '@/components/cart/cart-store';
 import { gsap, ScrollTrigger, useGSAP } from '@/lib/motion/gsap';
 import { SplitText } from '@/lib/motion/split-text';
 import { useMotionStore } from '@/lib/motion/store';
@@ -29,10 +29,10 @@ import styles from './HomeBalls.module.css';
 // - Una recarga vuelve al mismo balón (sessionStorage).
 
 const STORAGE_KEY = 'airspace-balls:selected';
-const pad = (value: number) => String(value).padStart(2, '0');
 
 export function BallShowcase({ balls, locale }: { balls: Ball[]; locale: Locale }) {
   const t = useTranslations('HomeBalls');
+  const tProduct = useTranslations('Product');
   const format = useFormatter();
   const reducedMotion = useMotionStore((state) => state.reducedMotion);
   const addToCart = useCartStore((state) => state.add);
@@ -244,7 +244,11 @@ export function BallShowcase({ balls, locale }: { balls: Ball[]; locale: Locale 
   }, [added]);
 
   const onAdd = () => {
-    addToCart({ slug: ball.slug, size: ball.size || undefined });
+    // add() devuelve false si la línea ya tiene el máximo de unidades.
+    if (addToCart({ slug: ball.slug, size: ball.size || undefined }) === false) {
+      setAnnouncement(tProduct('maxInCart', { max: MAX_QUANTITY }));
+      return;
+    }
     setAdded(true);
     setAnnouncement(t('announce.added', { name: ball.name }));
   };
@@ -315,7 +319,7 @@ export function BallShowcase({ balls, locale }: { balls: Ball[]; locale: Locale 
         <div className={styles.details}>
           <div className={styles.detailsTop} data-enter="">
             <p className={styles.hud} data-swap="">
-              {t('details.piece', { index: pad(selection.index + 1), total: pad(balls.length) })}
+              {t('details.piece', { index: format.number(selection.index + 1, { minimumIntegerDigits: 2, useGrouping: false }), total: format.number(balls.length, { minimumIntegerDigits: 2, useGrouping: false }) })}
             </p>
             <span className={styles.chip} data-swap="">
               {hostYear(ball)}
@@ -429,7 +433,8 @@ export function BallShowcase({ balls, locale }: { balls: Ball[]; locale: Locale 
               <svg viewBox="0 0 16 16" aria-hidden="true">
                 <path d="M8 3v9.5M4 8.5l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              {t('picker.hint')}
+              <span className={styles.hintMouse}>{t('picker.hintMouse')}</span>
+              <span className={styles.hintTouch}>{t('picker.hintTouch')}</span>
             </p>
           </div>
         </aside>

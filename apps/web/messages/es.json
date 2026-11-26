@@ -50,7 +50,14 @@
     "empty": "Todavía no agregas nada. Elige un par o un balón del catálogo.",
     "remove": "Quitar",
     "removeLabel": " {name}",
+    "removed": "{name} quitado del carrito",
     "lineDetail": "{detail} · Talla {size}",
+    "unitPrice": "{price} c/u",
+    "quantityGroup": "Cantidad de {name}",
+    "decrease": "Quitar una unidad de {name}",
+    "increase": "Agregar una unidad de {name}",
+    "quantityStatus": "{name}: {count, plural, one {# unidad} other {# unidades}}",
+    "maxReached": "Máximo {max, number} unidades de {name}",
     "total": "Total",
     "note": "El pago llega con una próxima versión. El carrito se guarda en este navegador.",
     "clear": "Vaciar carrito"
@@ -97,6 +104,7 @@
     "addToCart": "Agregar al carrito",
     "added": "Agregado al carrito",
     "addedAnnouncement": "Producto agregado al carrito",
+    "maxInCart": "Ya tienes el máximo ({max, number}) en el carrito",
     "soldOut": "Agotado",
     "stock": {
       "low": "Pocas unidades",
@@ -118,7 +126,7 @@
     "viewer": {
       "posterAlt": "{name}, vista de perfil",
       "sliderLabel": "Gira el {name}: arrastra o usa las flechas",
-      "turnValue": "Giro {degrees}°",
+      "turnValue": "Giro {degrees}°, inclinación {tilt}°",
       "dragHint": "Arrastra para girar",
       "loading": "Cargando modelo 3D",
       "detailsTitle": "Detalles en 3D",

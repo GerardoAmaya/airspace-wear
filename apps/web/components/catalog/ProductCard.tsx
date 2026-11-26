@@ -9,7 +9,9 @@ import { ThemedPoster } from './ThemedPoster';
 
 // Tarjeta del catálogo: póster (o marco vacío mientras no haya), referencia,
 // nombre, detalle, precio, disponibilidad y tallas. Todo el bloque es el enlace.
-export function ProductCard({ product }: { product: ProductCardData }) {
+// headingLevel: h2 en /catalog (bajo el h1 de la página); h3 en secciones con
+// su propio h2, como "Destacados" de la home.
+export function ProductCard({ product, headingLevel: Heading = 'h2' }: { product: ProductCardData; headingLevel?: 'h2' | 'h3' }) {
   const t = useTranslations('Catalog');
   const availability = useTranslations('Availability');
   const locale = useLocale();
@@ -42,7 +44,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
         </div>
         <div className={styles.body}>
           <p className={styles.brand}>{product.brand.name}</p>
-          <h2 className={styles.name}>{product.name}</h2>
+          <Heading className={styles.name}>{product.name}</Heading>
           {detail && <p className={styles.detail}>{detail}</p>}
           <div className={styles.meta}>
             <span className={styles.price}>{formatPrice(product.price, locale)}</span>

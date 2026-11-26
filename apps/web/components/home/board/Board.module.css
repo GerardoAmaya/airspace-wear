@@ -57,6 +57,9 @@
   grid-template-areas:
     'head band'
     'list band';
+  /* Con seis filas la vista 3D es más alta que el tablero: el espacio que
+     sobra queda bajo el tablero, no sobre el título. */
+  grid-template-rows: auto 1fr;
   align-content: start;
   column-gap: clamp(2rem, 4vw, 4.5rem);
   row-gap: clamp(1.25rem, 3.5vh, 2.5rem);
@@ -144,6 +147,13 @@
   user-select: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Escritorio: la vista 3D mantiene su alto aunque el tablero sea corto. */
+@media (min-width: 1101px) {
+  .slot {
+    min-height: clamp(260px, 44vh, 420px);
+  }
 }
 
 .slot[data-dragging] {
@@ -933,6 +943,62 @@
   }
 }
 
+/* Línea compacta de una fila (solo en móvil, ver abajo). */
+.line {
+  display: none;
+}
+
+/* Punto de estado de la línea compacta: "Nuevo" en lima, "Últimos pares" en
+   naranja. El texto completo va en el nombre oculto de la fila. */
+.lineDot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.lineDot[data-tone='primary'] {
+  color: var(--color-primary);
+}
+
+.lineDot[data-tone='alert'] {
+  color: var(--color-secondary);
+}
+
+.list[data-pulse] .lineDot[data-tone='alert'] {
+  animation: dep-blink 1.2s var(--ease-in-out) 3;
+}
+
+/* Enlace al catálogo completo, al pie del tablero. */
+.more {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  min-height: 44px;
+  margin-top: var(--space-2);
+  padding: var(--space-3) 1.1em 0;
+  border-top: 1px solid var(--color-line-strong);
+  color: var(--color-primary);
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: var(--text-hud);
+  font-weight: 500;
+  letter-spacing: var(--tracking-hud);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.more svg {
+  flex: none;
+  transition: transform var(--duration-ui) var(--ease-out);
+}
+
+.more:hover svg {
+  transform: translateX(3px);
+}
+
 /* Sonda para medir el avance real de la mono (ch / em). Fija y fuera de
    pantalla a la izquierda: no ensancha la página en móviles. */
 .probe {
@@ -962,6 +1028,7 @@
 @media (min-width: 861px) and (max-width: 1100px) {
   .board {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
     grid-template-areas:
       'head'
       'band'
@@ -1140,24 +1207,93 @@
     display: none;
   }
 
+  /* Filas compactas: una línea de texto por par, separadas por una regla.
+     Solo la fila elegida es una tarjeta con paletas. */
   .rows {
     display: grid;
-    gap: var(--space-3);
-    padding-top: var(--space-4);
+    padding-top: var(--space-2);
   }
 
   .item + .item::before {
+    right: 0;
+    left: 0;
+  }
+
+  /* Sin regla junto a la tarjeta elegida (ya tiene borde). */
+  .item:has(.row[aria-pressed='true'])::before,
+  .item:has(.row[aria-pressed='true']) + .item::before {
     display: none;
   }
 
-  .row {
+  .row[aria-pressed='true'] {
+    margin-block: var(--space-2);
     border: 1px solid var(--color-line);
     border-radius: var(--radius-md);
     background: color-mix(in srgb, var(--color-surface) 55%, transparent);
   }
 
+  .row:not([aria-pressed='true']) .cells {
+    display: none;
+  }
+
+  .row:not([aria-pressed='true']) .line {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 48px;
+    padding: var(--space-2) var(--space-1);
+  }
+
+  .lineRef,
+  .linePrice {
+    font-family: var(--font-mono);
+    font-stretch: var(--font-stretch-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  .lineRef {
+    color: var(--color-text-faint);
+  }
+
+  .linePrice {
+    color: var(--color-text);
+  }
+
+  .lineName {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 0;
+    font-family: var(--font-body);
+    font-stretch: var(--font-stretch-body);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .lineNameText {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .row:not(:disabled):hover .lineName,
+  .row:focus-visible .lineName {
+    color: var(--color-text);
+  }
+
   .rowHighlight {
     border-radius: var(--radius-md);
+  }
+
+  .more {
+    justify-content: flex-start;
+    margin-top: var(--space-1);
+    padding-inline: var(--space-1);
   }
 
   /* Tarjeta: referencia y precio, modelo grande, disponibilidad y tallas. */
