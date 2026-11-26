@@ -15,7 +15,7 @@ Multi-brand sneaker, apparel and soccer ball e-commerce. Portfolio project, not 
 
 - Apple-style scroll 3D product pages.
 - AR view with model-viewer.
-- 360° animated avatar: a Mixamo character wearing the selected sneaker. Only the sneakers change on the avatar.
+- 360° animated avatar: a Mixamo character wearing the selected sneaker and a default outfit. The sneakers and the catalog apparel marked as avatar-compatible change on the avatar (plan: docs/plan-paso-4.md).
 - AI stylist that recommends products from the catalog.
 
 ## Stack
