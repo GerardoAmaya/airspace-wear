@@ -16,6 +16,7 @@ import { useStageActivity } from '@/lib/three/director';
 import {
   computePoses,
   DEFAULT_SHOE,
+  FOV,
   gripRect,
   heroBox,
   type Layout,
@@ -29,6 +30,7 @@ import {
 } from './geometry';
 import { HeroReticle, TAPE_PX_PER_DEG } from './HeroReticle';
 import styles from './HomeHero.module.css';
+import { SMOKE_LIFE } from './HeroSmoke';
 import type { HeroRig } from './rig';
 
 // El lienzo 3D solo existe en el cliente y se descarga aparte.
@@ -70,6 +72,41 @@ const SHOE_INTRO = { turns: 1, pitch: -0.09, bank: -0.06, duration: 2.2 };
 // Caja del zapato dentro del póster (fracciones de la imagen de 1200 x 800),
 // medida sobre los pósters generados: sirve para calzarlo sobre el 3D.
 const POSTER_BOX = { left: 0.176, top: 0.155, width: 0.677, aspect: 800 / 1200 };
+// Primera entrada con humo ("aterrizaje"), una vez por sesión (ver
+// planEntrance): el zapato llega volando en arco, girando, desde fuera de
+// cuadro (arriba a la derecha en escritorio; desde la derecha, a la altura
+// de la portada, en móvil, sin pasar bajo el encabezado), toca el piso,
+// levanta una bocanada de polvo alrededor de la suela y se asienta. Solo en
+// el camino normal (sin póster), en la portada, con movimiento y sin modo
+// liviano.
+const ENTRANCE = {
+  storageKey: 'airspace-hero-entrance',
+  // Vuelo hasta el piso (s) y vueltas en el aire.
+  flight: 1.15,
+  turns: 1,
+  // Punto de partida: desvío en fracciones del cuadro, cabeceo y alabeo
+  // (rad). En móvil entra casi de costado y con poco cabeceo, para que el
+  // zapato no suba hasta el encabezado.
+  from: {
+    desktop: { x: 0.62, y: 0.42, pitch: 0.55, bank: -0.45 },
+    mobile: { x: 1.05, y: 0.035, pitch: 0.2, bank: -0.3 },
+  },
+  // Acercamiento a la cámara al partir (m).
+  z: 0.14,
+};
+const TAN_HALF_FOV = Math.tan((FOV * Math.PI) / 360);
+
+// Decide si toca la entrada con humo. Sin ella, la entrada normal.
+function planEntrance(reduced: boolean): boolean {
+  if (reduced || document.documentElement.classList.contains('lite') || window.location.hash) return false;
+  try {
+    return !sessionStorage.getItem(ENTRANCE.storageKey);
+  } catch {
+    // Sin almacenamiento: se trata como primera visita.
+    return true;
+  }
+}
+
 const YAW_PER_PX = 0.009;
 const TILT_PER_PX = 0.004;
 const MAX_TILT = (12 * Math.PI) / 180;
@@ -102,6 +139,9 @@ export function HeroClient({ content }: { content: HeroContent }) {
   if (active && !mounted) setMounted(true);
   const lite = useMotionStore((state) => state.lite);
   const [ready, setReady] = useState(false);
+  // Entrada con humo planeada o en curso (monta las partículas en la
+  // escena); false cuando no toca o ya terminó.
+  const [entrance, setEntrance] = useState(false);
   const [introDone, setIntroDone] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -112,6 +152,8 @@ export function HeroClient({ content }: { content: HeroContent }) {
   const rig = useRef<HeroRig>({
     pose: zeroPose(),
     intro: zeroIntro(),
+    smoke: { time: -1 },
+    follow: 1,
     spin: { yaw: 0, tilt: 0 },
     pointer: { x: 0, y: 0, targetX: 0, targetY: 0 },
     turn: 0,
@@ -176,6 +218,9 @@ export function HeroClient({ content }: { content: HeroContent }) {
       // justo antes de mostrar el 3D. Un efecto que se vuelve a ejecutar (Fast
       // Refresh) no puede dejarlo fuera de cuadro esperando una señal que ya pasó.
       state.intro = zeroIntro();
+      state.smoke = { time: -1 };
+      state.follow = 1;
+      stage.removeAttribute('data-entrance');
       state.spin.yaw = 0;
       state.spin.tilt = 0;
       // Estado DOM que no maneja React: se reinicia por si el efecto corre de nuevo.
@@ -204,6 +249,13 @@ export function HeroClient({ content }: { content: HeroContent }) {
       let aboveAlign = true;
       // El 3D ya se mostró (puede venir de una ejecución anterior del efecto).
       let shown = stage.hasAttribute('data-shown');
+      // Entrada con humo: se decide una vez, con el 3D todavía sin mostrar.
+      const entrancePlan = !shown && planEntrance(reduced);
+      setEntrance(entrancePlan);
+      let entranceTimeline: gsap.core.Timeline | null = null;
+      // Centro y escala del halo en la pose de portada (sin flotación): ahí
+      // esperan halo y retícula mientras el zapato llega volando.
+      const rest = { x: 0, y: 0, scale: 1 };
       const reticleBox = { width: 0, height: 0, tape: 0 };
       const anchors = hotspots.map(() => ({ x: 0, y: 0, side: 1 }));
       const leaderDraw = hotspots.map(() => ({ value: 0 }));
@@ -248,6 +300,9 @@ export function HeroClient({ content }: { content: HeroContent }) {
       function placeStatic(box: ReturnType<typeof heroBox>) {
         const hero = poses.hero;
         const distance = Math.hypot(hero.cx - hero.x, hero.cy - hero.y, hero.cz - hero.z);
+        rest.x = box.centerX;
+        rest.y = box.centerY;
+        rest.scale = 1 / distance;
         halo!.style.transform = `translate3d(${box.centerX.toFixed(1)}px, ${box.centerY.toFixed(1)}px, 0) scale(${(1 / distance).toFixed(4)})`;
         halo!.dataset.placed = '';
         reticle!.style.transform = `translate3d(${(box.centerX - reticleBox.width / 2).toFixed(1)}px, ${(box.centerY - reticleBox.height / 2).toFixed(1)}px, 0)`;
@@ -343,11 +398,20 @@ export function HeroClient({ content }: { content: HeroContent }) {
 
       state.onFrame = (project, distance) => {
         const center = project([0, dims.height / 2, 0]);
-        const cx = center.x;
-        const cy = center.y;
+        let cx = center.x;
+        let cy = center.y;
         // Nunca se escriben transformaciones no finitas (NaN deja la escena vacía).
         if (!Number.isFinite(cx) || !Number.isFinite(cy) || !Number.isFinite(distance) || distance <= 0) return;
-        halo!.style.transform = `translate3d(${cx.toFixed(1)}px, ${cy.toFixed(1)}px, 0) scale(${(state.pose.scale / distance).toFixed(4)})`;
+        let haloScale = state.pose.scale / distance;
+        // Durante el vuelo de la entrada, halo y retícula esperan en la
+        // portada y se suman al zapato cuando aterriza.
+        const follow = Math.min(1, Math.max(0, state.follow));
+        if (follow < 1) {
+          cx = rest.x + (cx - rest.x) * follow;
+          cy = rest.y + (cy - rest.y) * follow;
+          haloScale = rest.scale + (haloScale - rest.scale) * follow;
+        }
+        halo!.style.transform = `translate3d(${cx.toFixed(1)}px, ${cy.toFixed(1)}px, 0) scale(${haloScale.toFixed(4)})`;
         if (reticleOn) {
           reticle!.style.transform = `translate3d(${(cx - reticleBox.width / 2).toFixed(1)}px, ${(cy - reticleBox.height / 2).toFixed(1)}px, 0)`;
           tapeStrip!.style.transform = `translate3d(${(reticleBox.tape / 2 - (state.turn + 60) * TAPE_PX_PER_DEG).toFixed(1)}px, 0, 0)`;
@@ -784,6 +848,11 @@ export function HeroClient({ content }: { content: HeroContent }) {
         });
       };
       document.addEventListener('visibilitychange', onVisibility);
+      // Con entrada planeada, el zapato espera en su punto de partida.
+      if (entrancePlan) {
+        Object.assign(state.intro, entranceStart());
+        state.follow = 0;
+      }
 
       // Bucles CSS (barrido de luz, rombo, pulsos) solo con la sección a la vista.
       let heroOnScreen = true;
@@ -903,6 +972,7 @@ export function HeroClient({ content }: { content: HeroContent }) {
         if (shown || !sceneDims.current || settling) return;
         shown = true;
         posterTimer?.kill();
+        state.follow = 1;
         const atHero = !reduced && mode === 'hero' && window.scrollY < window.innerHeight * 0.5;
         const posterShown = stage!.hasAttribute('data-poster') && !stage!.hasAttribute('data-poster-off');
         if (atHero && posterShown) {
@@ -910,13 +980,81 @@ export function HeroClient({ content }: { content: HeroContent }) {
           // el lienzo empieza a verse (tras apagarse el póster, ver CSS).
           Object.assign(state.intro, { ...zeroIntro(), yaw: -orientation.yawSign * TAU * SHOE_INTRO.turns, pitch: SHOE_INTRO.pitch, bank: SHOE_INTRO.bank });
           gsap.to(state.intro, { ...zeroIntro(), duration: SHOE_INTRO.duration, delay: DURATION.ui, ease: EASE.inOut.gsap });
+        } else if (atHero && entrancePlan) {
+          playEntrance();
         } else if (atHero) {
           // Camino normal: entra ya girando, a la vez que el fundido del lienzo.
           Object.assign(state.intro, { ...zeroIntro(), yaw: -orientation.yawSign * TAU * SHOE_ENTER.turns, y: SHOE_ENTER.y });
           gsap.to(state.intro, { ...zeroIntro(), duration: SHOE_ENTER.duration, ease: SHOE_ENTER.ease });
+        } else {
+          // Fuera de la portada: directo en su pose (por si esperaba una entrada).
+          Object.assign(state.intro, zeroIntro());
         }
+        // Sin entrada con humo, las partículas se desmontan sin haberse usado.
+        if (!entranceTimeline) setEntrance(false);
         stage!.setAttribute('data-shown', '');
         requestRender();
+      }
+
+      // Punto de partida de la entrada con humo. Se aplica también mientras
+      // carga el modelo: los cuadros de "listo" ya dibujan el zapato fuera de
+      // cuadro, así que el primer cuadro visible nunca es un zapato quieto en
+      // su pose.
+      function entranceStart() {
+        const hero = poses.hero;
+        const depth = hero ? Math.hypot(hero.cx - hero.x, hero.cy - hero.y, hero.cz - hero.z) : 1;
+        const viewHeight = 2 * depth * TAN_HALF_FOV;
+        const from = layout.mobile ? ENTRANCE.from.mobile : ENTRANCE.from.desktop;
+        return {
+          ...zeroIntro(),
+          x: from.x * viewHeight * layout.aspect,
+          y: from.y * viewHeight,
+          z: ENTRANCE.z,
+          yaw: -orientation.yawSign * TAU * ENTRANCE.turns,
+          pitch: from.pitch,
+          bank: from.bank,
+        };
+      }
+
+      // Entrada con humo (ver ENTRANCE). Todo por tiempo en una línea de
+      // GSAP sobre el rig: si la pestaña se oculta a mitad, al volver la
+      // línea salta a su final (lagSmoothing(0)) y onComplete deja la escena
+      // en su pose, sin humo. Las partículas se desmontan al terminar.
+      function playEntrance() {
+        try {
+          sessionStorage.setItem(ENTRANCE.storageKey, '1');
+        } catch {
+          // Sin almacenamiento: se volverá a ver en la próxima carga.
+        }
+        // El lienzo se ve sin fundido: el zapato arranca fuera de cuadro, así
+        // que el primer cuadro visible ya se mueve.
+        stage!.setAttribute('data-entrance', '');
+        const finish = () => {
+          entranceTimeline = null;
+          Object.assign(state.intro, zeroIntro());
+          state.smoke.time = -1;
+          state.follow = 1;
+          stage!.removeAttribute('data-entrance');
+          setEntrance(false);
+          requestRender();
+        };
+        const timeline = gsap.timeline({ onComplete: finish });
+        Object.assign(state.intro, entranceStart());
+        const flight = ENTRANCE.flight;
+        state.follow = 0;
+        // Arco: avanza rápido hacia la izquierda y cae cada vez más rápido.
+        timeline
+          .to(state.intro, { x: 0, duration: flight, ease: 'power2.out' }, 0)
+          .to(state.intro, { z: 0, duration: flight, ease: 'power1.out' }, 0)
+          .to(state.intro, { y: 0, duration: flight, ease: 'power2.in' }, 0)
+          .to(state.intro, { yaw: 0, duration: 2.1, ease: 'power3.out' }, 0)
+          .to(state.intro, { pitch: 0, bank: 0, duration: 1.5, ease: 'power2.out' }, 0)
+          // Toque: un rebote corto y se asienta.
+          .to(state.intro, { y: 0.008, duration: 0.16, ease: 'power2.out' }, flight)
+          .to(state.intro, { y: 0, duration: 0.4, ease: 'power2.inOut' }, flight + 0.16)
+          .fromTo(state.smoke, { time: 0 }, { time: SMOKE_LIFE, duration: SMOKE_LIFE, ease: 'none' }, flight - 0.05)
+          .to(state, { follow: 1, duration: 0.7, ease: EASE.inOut.gsap }, flight - 0.3);
+        entranceTimeline = timeline;
       }
 
       // Respaldo (accesibilidad y modelo lento o con error): si el 3D no llegó
@@ -985,6 +1123,7 @@ export function HeroClient({ content }: { content: HeroContent }) {
 
       return () => {
         killed = true;
+        entranceTimeline?.kill();
         state.onFrame = null;
         api.current = null;
         stopMotion();
@@ -1171,7 +1310,9 @@ export function HeroClient({ content }: { content: HeroContent }) {
           </div>
         )}
         <div className={styles.canvas}>
-          {mounted && <HeroScene model={model} lite={lite} active={active} reducedMotion={reducedMotion} baseYaw={orientation.baseYaw} rig={rig} onReady={onSceneReady} />}
+          {mounted && (
+            <HeroScene model={model} lite={lite} active={active} reducedMotion={reducedMotion} baseYaw={orientation.baseYaw} rig={rig} onReady={onSceneReady} entrance={entrance} />
+          )}
         </div>
         <HeroReticle target={t('reticle.target', { reference: content.reference })} lock={t('reticle.lock')} loading={ready ? null : t('loading')} />
         <svg className={styles.lines} aria-hidden="true" data-part="lines">

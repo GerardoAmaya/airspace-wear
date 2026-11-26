@@ -13,6 +13,14 @@
   /* Acento de la retícula y del titular: el del producto en portada (de la
      API, tinta AA del tema activo) o el lima de la marca si no tiene. */
   --hero-accent: var(--accent-ink, var(--color-primary));
+  /* Humo de la primera entrada (HeroSmoke lo lee): claro en oscuro, con un
+     toque del acento del producto. */
+  --hero-smoke: color-mix(in srgb, var(--hero-accent) 16%, var(--color-text));
+}
+
+/* En claro, gris suave (texto mezclado con el fondo), con el acento apenas. */
+:global(:root[data-theme='light']) .hero {
+  --hero-smoke: color-mix(in srgb, var(--hero-accent) 12%, color-mix(in srgb, var(--color-text) 32%, var(--color-background)));
 }
 
 /* ---------- Piezas HUD compartidas ---------- */
@@ -297,6 +305,13 @@
 
 .stage[data-shown][data-poster] .canvas {
   transition: opacity var(--duration-ui) var(--ease-out) var(--duration-ui);
+}
+
+/* Entrada con humo: el lienzo se ve de inmediato (el zapato arranca fuera
+   de cuadro y el humo en cero), así no hay fundido sobre el vuelo. */
+.stage[data-shown][data-entrance] .canvas {
+  opacity: 1;
+  transition: none;
 }
 
 /* Área de arrastre sobre el zapato: la única parte de la escena que recibe

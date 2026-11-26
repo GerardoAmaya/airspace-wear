@@ -9,6 +9,11 @@ export interface HeroRig {
   pose: Pose;
   // Desvío de la entrada inicial: el zapato "aterriza" desde aquí hasta 0.
   intro: { x: number; y: number; z: number; yaw: number; pitch: number; bank: number };
+  // Humo de la primera entrada: segundos desde que empezó (negativo: apagado).
+  smoke: { time: number };
+  // Halo y retícula: 1 siguen al zapato; 0 se quedan en la pose de portada
+  // (mientras el zapato llega volando).
+  follow: number;
   // Giro manual (arrastre o teclado), sumado a la pose.
   spin: { yaw: number; tilt: number };
   // Paralaje del puntero: objetivo y valor suavizado.

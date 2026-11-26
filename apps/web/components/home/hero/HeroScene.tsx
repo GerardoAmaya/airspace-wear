@@ -4,11 +4,12 @@ import type { Model3D } from '@airspace/contracts';
 import { Shadow, useGLTF } from '@react-three/drei';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { type RefObject, Suspense, useEffect, useMemo, useRef } from 'react';
-import { Box3, type Group, type Mesh, type MeshBasicMaterial, NeutralToneMapping, type PlaneGeometry, Vector3 } from 'three';
+import { Box3, type Group, Mesh, type MeshBasicMaterial, NeutralToneMapping, type PlaneGeometry, Texture, Vector3 } from 'three';
 import { StudioEnvironment } from '@/components/three/kit/StudioEnvironment';
 import { LIGHT_PRESETS, StudioLights } from '@/components/three/kit/StudioLights';
 import { useThemeStore } from '@/lib/theme';
 import { FOV, type ShoeDims, type Vec3 } from './geometry';
+import { HeroSmoke } from './HeroSmoke';
 import type { HeroRig, OnSceneReady } from './rig';
 
 // Escena 3D de la portada. No decide nada: en cada cuadro compone la pose
@@ -24,6 +25,9 @@ interface SceneProps {
   baseYaw: number;
   rig: RefObject<HeroRig>;
   onReady: OnSceneReady;
+  // Primera entrada con humo: mientras sea true las partículas están en la
+  // escena desde el inicio, así se compilan con el resto antes de mostrar nada.
+  entrance: boolean;
 }
 
 export default function HeroScene(props: SceneProps) {
@@ -46,7 +50,7 @@ export default function HeroScene(props: SceneProps) {
   );
 }
 
-function Sneaker({ model, lite, baseYaw, rig, onReady }: SceneProps) {
+function Sneaker({ model, lite, baseYaw, rig, onReady, entrance }: SceneProps) {
   const { scene } = useGLTF(lite ? model.liteUrl : model.heroUrl);
   // Copia propia: el mismo GLB puede estar en otro lienzo (catálogo).
   const object = useMemo(() => scene.clone(true), [scene]);
@@ -77,11 +81,19 @@ function Sneaker({ model, lite, baseYaw, rig, onReady }: SceneProps) {
     // Compila los materiales por adelantado (mismo trabajo, antes de mostrar).
     const { gl, scene: root, camera } = get();
     gl.compile(root, camera);
+    // Texturas a la GPU ya (no en el primer cuadro en que el zapato entra en
+    // cuadro, que en la entrada con humo ocurre a mitad del vuelo).
+    object.traverse((node) => {
+      if (!(node instanceof Mesh)) return;
+      for (const material of Array.isArray(node.material) ? node.material : [node.material]) {
+        for (const value of Object.values(material)) if (value instanceof Texture) gl.initTexture(value);
+      }
+    });
     invalidate();
     return () => {
       current.invalidate = null;
     };
-  }, [rig, invalidate, get]);
+  }, [rig, invalidate, get, object]);
 
   // Si la escena se vuelve a montar con el modelo en caché, avisa otra vez.
   useEffect(() => {
@@ -172,6 +184,7 @@ function Sneaker({ model, lite, baseYaw, rig, onReady }: SceneProps) {
       <group ref={shadowGroup}>
         <Shadow ref={shadowMesh} scale={[0.42, 0.2, 1]} rotation-x={-Math.PI / 2} color="black" colorStop={0} opacity={0} fog={false} />
       </group>
+      {entrance && <HeroSmoke dims={dims} rig={rig} />}
     </>
   );
 }
