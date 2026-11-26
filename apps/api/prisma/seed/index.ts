@@ -39,7 +39,9 @@ function assertAccent(slug: string, accent: { dark: string; light: string }): vo
     }
   }
 }
-const MANIFEST_PATH = path.resolve(import.meta.dirname, '../../../../assets/models/manifest.json');
+// SEED_MANIFEST_PATH permite sembrar con otro manifest (por ejemplo, solo
+// con los modelos ya publicados en producción mientras otros se procesan).
+const MANIFEST_PATH = process.env.SEED_MANIFEST_PATH ?? path.resolve(import.meta.dirname, '../../../../assets/models/manifest.json');
 const POSTERS_DIR = path.resolve(import.meta.dirname, '../../../web/public/posters');
 
 // URL pública de un póster, solo si el archivo existe (pnpm models:posters).
