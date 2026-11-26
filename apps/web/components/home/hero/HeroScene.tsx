@@ -184,7 +184,7 @@ function Sneaker({ model, lite, baseYaw, rig, onReady, entrance }: SceneProps) {
       <group ref={shadowGroup}>
         <Shadow ref={shadowMesh} scale={[0.42, 0.2, 1]} rotation-x={-Math.PI / 2} color="black" colorStop={0} opacity={0} fog={false} />
       </group>
-      {entrance && <HeroSmoke dims={dims} rig={rig} />}
+      {entrance && <HeroSmoke dims={dims} rig={rig} lite={lite} />}
     </>
   );
 }

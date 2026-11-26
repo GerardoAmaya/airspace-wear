@@ -67,8 +67,9 @@ export default async function proxy(request: NextRequest) {
 
 export const config = {
   // Todo menos las carpetas de archivos estáticos (modelos, decodificador,
-  // pósters), las rutas internas y los archivos de metadatos de app/. Las
+  // pósters, efectos como el atlas del humo), las rutas internas y los archivos de metadatos de app/. Las
   // carpetas llevan la barra final para que /models.txt sí pase por aquí.
   // Las rutas con punto también pasan: ver FILE_LIKE arriba.
-  matcher: '/((?!api/|_next/|_vercel/|models/|vendor/|posters/|robots\\.txt|icon\\.svg).*)',
+  // avatar-local/ es la copia del avatar para desarrollo (ignorada por git).
+  matcher: '/((?!api/|_next/|_vercel/|models/|vendor/|posters/|fx/|avatar-local/|robots\\.txt|icon\\.svg).*)',
 };

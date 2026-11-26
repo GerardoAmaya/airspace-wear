@@ -117,6 +117,7 @@ Rules:
 ## 3D models
 
 - Pipeline: `pnpm models` runs download, optimize and credits. Settings live in `scripts/models/config.mjs`.
+- Hero smoke: the flipbook atlas in `apps/web/public/fx/` (`smoke-atlas.webp` and `smoke-atlas-lite.webp`, own generated work) is generated with `pnpm fx:smoke` (`scripts/fx/smoke-atlas.mjs`).
 - Posters: `pnpm models:posters` renders one transparent WebP per model and theme (`apps/web/public/posters/<slug>-dark.webp` and `-light.webp`) with the prototype's stage and light presets. Re-run it after optimizing a model, then `pnpm db:seed` so the API serves the poster URLs.
 - Each model produces two files in `apps/web/public/models/`, in kebab case:
   - `<slug>.glb` (hero): under 100k triangles and 1.1 MB, textures up to 2048 px (per-model `variantOverrides` in `scripts/models/config.mjs` can lower sizes and quality per texture or material).

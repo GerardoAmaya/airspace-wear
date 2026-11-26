@@ -31,7 +31,8 @@
     "models:preview": "node scripts/models/preview.mjs",
     "avatar:build": "node --env-file-if-exists=.env scripts/avatar/build.mjs",
     "avatar:upload": "node --env-file=.env scripts/avatar/upload.mjs",
-    "design:preview": "node scripts/design/serve.mjs"
+    "design:preview": "node scripts/design/serve.mjs",
+    "fx:smoke": "node scripts/fx/smoke-atlas.mjs"
   },
   "devDependencies": {
     "@gltf-transform/cli": "4.5.1",

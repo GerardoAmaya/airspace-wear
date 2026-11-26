@@ -14,6 +14,10 @@ export const LIGHT_PRESETS: Record<Theme, { environment: number; exposure: numbe
   light: { environment: 0.85, exposure: 1, key: 1.5, fill: 0.3, rim: 0.45, kicker: 0.9, shadow: 0.7 },
 };
 
+// Posición de la luz principal (la dirección desde la que ilumina). El humo
+// de la portada la lee para iluminar sus bocanadas del mismo lado.
+export const KEY_LIGHT_POSITION: [number, number, number] = [0.6, 1.2, 1];
+
 // Color de marca desde los tokens (nunca un hex en el componente).
 const tokenColor = (name: string) => new Color(getComputedStyle(document.documentElement).getPropertyValue(name).trim() || 'white');
 
@@ -34,7 +38,7 @@ export function StudioLights() {
 
   return (
     <>
-      <directionalLight position={[0.6, 1.2, 1]} intensity={preset.key} />
+      <directionalLight position={KEY_LIGHT_POSITION} intensity={preset.key} />
       <directionalLight position={[-1, 0.3, 0.8]} intensity={preset.fill} />
       <directionalLight position={[-0.8, 0.6, -1.2]} intensity={preset.rim} color={rimColor} />
       <directionalLight position={[0.9, 1, -1]} intensity={preset.kicker} />

@@ -30,7 +30,7 @@ import {
 } from './geometry';
 import { HeroReticle, TAPE_PX_PER_DEG } from './HeroReticle';
 import styles from './HomeHero.module.css';
-import { SMOKE_LIFE } from './HeroSmoke';
+import { SMOKE_ATLAS, SMOKE_LIFE } from './HeroSmoke';
 import type { HeroRig } from './rig';
 
 // El lienzo 3D solo existe en el cliente y se descarga aparte.
@@ -252,6 +252,8 @@ export function HeroClient({ content }: { content: HeroContent }) {
       // Entrada con humo: se decide una vez, con el 3D todavía sin mostrar.
       const entrancePlan = !shown && planEntrance(reduced);
       setEntrance(entrancePlan);
+      // El atlas del humo se descarga junto con el modelo (solo red).
+      if (entrancePlan) void fetch(SMOKE_ATLAS.hero).catch(() => {});
       let entranceTimeline: gsap.core.Timeline | null = null;
       // Centro y escala del halo en la pose de portada (sin flotación): ahí
       // esperan halo y retícula mientras el zapato llega volando.
