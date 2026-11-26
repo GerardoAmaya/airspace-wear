@@ -448,7 +448,6 @@ export function BoardSection({ products, locale }: { products: BoardProduct[]; l
                       type="button"
                       className={styles.row}
                       aria-pressed={slug === selected}
-                      aria-label={row.label}
                       disabled={dimmed}
                       onClick={() => select(slug)}
                       onFocus={() => prefetchAround(slug)}
@@ -457,6 +456,11 @@ export function BoardSection({ products, locale }: { products: BoardProduct[]; l
                       }}
                     >
                       <span className={styles.rowHighlight} aria-hidden="true" />
+                      {/* Nombre de la fila. Lo visible es un tablero de fichas de
+                          una letra (oculto al lector), así que el nombre va como
+                          texto oculto a la vista y no en aria-label: contiene
+                          completas todas las palabras que se ven (WCAG 2.5.3). */}
+                      <span className="visually-hidden">{row.label}</span>
                       <RowCells fitted={row.fitted} tone={row.tone} />
                     </button>
                   </li>

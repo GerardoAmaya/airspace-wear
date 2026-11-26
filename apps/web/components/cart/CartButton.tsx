@@ -34,6 +34,9 @@ export function CartButton() {
       <span className={styles.buttonLabel} aria-hidden="true">
         {t('title')}
       </span>
+      {/* Espacios entre las partes visibles (en flex no se pintan): así el
+          texto visible coincide con el nombre accesible (WCAG 2.5.3). */}
+      {' '}
       <span className={styles.count} aria-hidden="true">
         {count}
       </span>

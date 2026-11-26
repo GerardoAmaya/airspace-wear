@@ -1,5 +1,8 @@
 import type { StylistEvent } from '@airspace/contracts';
 import { test as base, expect, type Page, type Route } from '@playwright/test';
+import { createTranslator } from 'next-intl';
+import enMessages from '../messages/en.json' with { type: 'json' };
+import esMessages from '../messages/es.json' with { type: 'json' };
 
 // Base de todas las pruebas E2E:
 // - El estilista nunca llega a la API real (no se gasta dinero en Anthropic):
@@ -80,8 +83,15 @@ export const test = base.extend<Fixtures>({
 export { expect };
 
 // Mensajes de la web en cada idioma (las pruebas no escriben textos de UI a mano).
-export { default as es } from '../messages/es.json' with { type: 'json' };
-export { default as en } from '../messages/en.json' with { type: 'json' };
+export const es = esMessages;
+export const en = enMessages;
+
+// Formatea un mensaje con su ICU (plurales, variables) igual que la web.
+const translators = { es: createTranslator({ locale: 'es', messages: esMessages }), en: createTranslator({ locale: 'en', messages: enMessages }) };
+export function translate(locale: 'es' | 'en', key: string, values?: Record<string, string | number>): string {
+  return (translators[locale] as unknown as (key: string, values?: Record<string, string | number>) => string)(key, values);
+}
+
 export { default as stylistEs } from '../messages/home/stylist.es.json' with { type: 'json' };
 export { default as stylistEn } from '../messages/home/stylist.en.json' with { type: 'json' };
 
@@ -89,5 +99,8 @@ export { default as stylistEn } from '../messages/home/stylist.en.json' with { t
 // estado real solo en el cliente) y a que las fuentes estén listas.
 export async function waitForApp(page: Page) {
   await page.waitForFunction(() => document.readyState === 'complete');
+  // ReactLenis (MotionRoot, en el layout) pone la clase "lenis" en <html> al
+  // montarse: señal de que React ya hidrató y los controles responden.
+  await page.waitForFunction(() => document.documentElement.classList.contains('lenis'));
   await page.evaluate(() => document.fonts.ready.then(() => undefined));
 }

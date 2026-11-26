@@ -82,6 +82,7 @@ services:
       STYLIST_MODEL: ${STYLIST_MODEL:-claude-opus-5-5}
       STYLIST_DAILY_BUDGET_USD: ${STYLIST_DAILY_BUDGET_USD:-2}
       TRUST_PROXY: ${TRUST_PROXY:-0}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-}
     ports:
       - '127.0.0.1:4001:4000'
     depends_on:
@@ -110,6 +111,7 @@ services:
     environment:
       API_URL: http://api:4000
       REVALIDATE_SECRET: ${REVALIDATE_SECRET:-}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-}
     ports:
       - '127.0.0.1:3001:3000'
     depends_on:

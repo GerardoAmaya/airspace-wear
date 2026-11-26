@@ -22,7 +22,7 @@ async function knownSlugs(): Promise<Set<string> | null> {
   if (slugs && slugs.expires > Date.now()) return slugs.value;
   try {
     // Los slugs son los mismos en ambos idiomas: basta con la lista en español.
-    const response = await fetch(`${API_URL}/v1/products?locale=${routing.defaultLocale}`, { signal: AbortSignal.timeout(2000) });
+    const response = await fetch(`${API_URL}/v1/products?locale=${routing.defaultLocale}`, { headers: process.env.INTERNAL_API_KEY ? { 'x-internal-key': process.env.INTERNAL_API_KEY } : {}, signal: AbortSignal.timeout(2000) });
     if (!response.ok) return null;
     const body = (await response.json()) as { items?: Array<{ slug?: unknown }> };
     const value = new Set((body.items ?? []).flatMap((item) => (typeof item.slug === 'string' ? [item.slug] : [])));

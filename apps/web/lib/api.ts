@@ -35,8 +35,12 @@ export class ApiError extends Error {
   }
 }
 
+// El servidor de la web se identifica con una clave compartida para que el
+// límite de peticiones de la API no lo frene al regenerar páginas.
+const INTERNAL_HEADERS: Record<string, string> = process.env.INTERNAL_API_KEY ? { 'x-internal-key': process.env.INTERNAL_API_KEY } : {};
+
 async function request<T>(path: string, schema: { parse(value: unknown): T }): Promise<T> {
-  const response = await fetch(`${API_URL}${path}`, { signal: AbortSignal.timeout(5000) });
+  const response = await fetch(`${API_URL}${path}`, { headers: INTERNAL_HEADERS, signal: AbortSignal.timeout(5000) });
   const body: unknown = await response.json().catch(() => null);
   if (!response.ok) {
     const code = typeof body === 'object' && body && 'code' in body ? String(body.code) : 'internal_error';

@@ -1,4 +1,7 @@
-import { es, expect, test, waitForApp } from './fixtures';
+import { es, expect, test, translate, waitForApp } from './fixtures';
+
+// Nombre accesible del botón del carrito, con el mensaje real de cada idioma.
+const cartLabel = (locale: 'es' | 'en', count: number) => translate(locale, 'Cart.buttonLabel', { count });
 
 // Carrito local: agregar, abrir el panel, cambiar la cantidad, quitar y que
 // sobreviva a la recarga. El carrito no tiene un selector de cantidad: cada
@@ -15,7 +18,7 @@ test('add, open the drawer, change quantity, remove and persist', async ({ page 
   const name = (await page.getByRole('heading', { level: 1 }).textContent())?.trim() ?? '';
   const cartButton = page.locator('[aria-controls="cart-panel"]');
   await expect(cartButton).toHaveAttribute('aria-expanded', 'false');
-  await expect(cartButton).toHaveAccessibleName(/vacío/);
+  await expect(cartButton).toHaveAccessibleName(cartLabel('es', 0));
 
   // Sin talla no se puede agregar.
   const pick = page.getByRole('button', { name: es.Product.pickSizeFirst });
@@ -24,19 +27,19 @@ test('add, open the drawer, change quantity, remove and persist', async ({ page 
   const add = page.getByRole('button', { name: es.Product.addToCart });
   await add.click();
   await expect(page.getByRole('button', { name: es.Product.added })).toBeVisible();
-  await expect(cartButton).toHaveAccessibleName(/1 producto/);
+  await expect(cartButton).toHaveAccessibleName(cartLabel('es', 1));
 
   // Otra unidad del mismo par (talla 43): la cantidad sube a 2.
   await page.getByRole('group', { name: es.Product.chooseSize }).getByRole('radio', { name: '43', exact: true }).check();
   await page.getByRole('button', { name: es.Product.addToCart }).click();
-  await expect(cartButton).toHaveAccessibleName(/2 productos/);
+  await expect(cartButton).toHaveAccessibleName(cartLabel('es', 2));
 
   // Un balón desde su ficha (sin talla que elegir).
   await page.goto(`/es/products/${BALL}`);
   await waitForApp(page);
   const ballName = (await page.getByRole('heading', { level: 1 }).textContent())?.trim() ?? '';
   await page.getByRole('button', { name: es.Product.addToCart }).click();
-  await expect(cartButton).toHaveAccessibleName(/3 productos/);
+  await expect(cartButton).toHaveAccessibleName(cartLabel('es', 3));
 
   // Abre el panel: tres líneas y el foco en "Cerrar".
   await cartButton.click();
@@ -54,7 +57,7 @@ test('add, open the drawer, change quantity, remove and persist', async ({ page 
   // Quita una unidad del par: quedan dos líneas y el total baja.
   await lines.filter({ hasText: 'Talla 43' }).getByRole('button', { name: new RegExp(es.Cart.remove) }).click();
   await expect(lines).toHaveCount(2);
-  await expect(cartButton).toHaveAccessibleName(/2 productos/);
+  await expect(cartButton).toHaveAccessibleName(cartLabel('es', 2));
   await expect(drawer.getByText(es.Cart.total).locator('..')).not.toHaveText(totalBefore ?? '');
 
   // Escape cierra y el foco vuelve al botón del carrito.
@@ -65,7 +68,7 @@ test('add, open the drawer, change quantity, remove and persist', async ({ page 
   // Persiste tras recargar (localStorage), con el panel cerrado.
   await page.reload();
   await waitForApp(page);
-  await expect(cartButton).toHaveAccessibleName(/2 productos/);
+  await expect(cartButton).toHaveAccessibleName(cartLabel('es', 2));
   await expect(page.getByRole('dialog', { name: es.Cart.title })).toBeHidden();
   await cartButton.click();
   await expect(drawer.getByRole('listitem')).toHaveCount(2);
@@ -74,7 +77,7 @@ test('add, open the drawer, change quantity, remove and persist', async ({ page 
   // También en el otro idioma (los nombres y precios salen del catálogo en inglés).
   await page.goto(`/en/products/${SNEAKER}`);
   await waitForApp(page);
-  await expect(cartButton).toHaveAccessibleName(/2 items/);
+  await expect(cartButton).toHaveAccessibleName(cartLabel('en', 2));
 
   // Vaciar deja el carrito en cero, también tras recargar.
   await page.goto(`/es/products/${SNEAKER}`);
@@ -82,8 +85,8 @@ test('add, open the drawer, change quantity, remove and persist', async ({ page 
   await cartButton.click();
   await drawer.getByRole('button', { name: es.Cart.clear }).click();
   await expect(drawer).toContainText(es.Cart.empty);
-  await expect(cartButton).toHaveAccessibleName(/vacío/);
+  await expect(cartButton).toHaveAccessibleName(cartLabel('es', 0));
   await page.reload();
   await waitForApp(page);
-  await expect(cartButton).toHaveAccessibleName(/vacío/);
+  await expect(cartButton).toHaveAccessibleName(cartLabel('es', 0));
 });

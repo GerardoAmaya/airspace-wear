@@ -9,6 +9,7 @@ describe('parseEnv', () => {
       trustProxy: 0,
       webOrigins: ['http://localhost:3000', 'http://127.0.0.1:3000'],
       databaseUrl: LOCAL_DATABASE_URL,
+      internalApiKey: null,
       stylist: { enabled: false, model: 'claude-opus-5-5', dailyBudgetUsd: 2 },
     });
   });

@@ -222,6 +222,7 @@ interface Runtime {
   ctx: gsap.Context | null;
   wave: ReturnType<typeof createWave> | null;
   engine: StylistEngine | null;
+  scripted: StylistEngine | null;
   statusTween: gsap.core.Tween | null;
   stampTween: gsap.core.Tween | null;
   intro: gsap.core.Timeline | null;
@@ -266,7 +267,7 @@ export function StylistSection({
   const thinkingRef = useRef<HTMLSpanElement>(null);
   const recsRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const runtime = useRef<Runtime>({ count: 1, interacted: false, abort: null, ctx: null, wave: null, engine: null, statusTween: null, stampTween: null, intro: null });
+  const runtime = useRef<Runtime>({ count: 1, interacted: false, abort: null, ctx: null, wave: null, engine: null, scripted: null, statusTween: null, stampTween: null, intro: null });
 
   // Primer intercambio ya resuelto en el HTML: legible sin JS y con
   // movimiento reducido. Con movimiento, la entrada lo vuelve a reproducir.
@@ -328,6 +329,12 @@ export function StylistSection({
       });
     }));
 
+  // Las ideas sugeridas (y la demostración automática) responden con el guion:
+  // así una visita sin preguntas propias no gasta en la IA. Solo lo que el
+  // visitante escribe va a la IA real.
+  const scripted = () => (runtime.current.scripted ??= createScriptedEngine(script, { latencyMs: prefersReduced() ? 0 : 700 }));
+  const engineFor = (fromIdea: boolean) => (fromIdea ? scripted() : engine());
+
   // ---------- Una consulta ----------
 
   const ask = (question: string, typed: boolean) => {
@@ -347,7 +354,7 @@ export function StylistSection({
       void (async () => {
         let answer = '';
         const products: RecommendedProduct[] = [];
-        for await (const event of engine().ask(question, { locale, signal: controller.signal })) {
+        for await (const event of engineFor(typed).ask(question, { locale, signal: controller.signal })) {
           if (event.type === 'text') answer += event.text;
           else if (event.type === 'products') products.push(...event.products);
         }
@@ -448,7 +455,7 @@ export function StylistSection({
     };
     void (async () => {
       try {
-        for await (const event of engine().ask(current.question, { locale, signal })) {
+        for await (const event of engineFor(current.typed).ask(current.question, { locale, signal })) {
           if (signal.aborted) return;
           if (event.type === 'text') typer.push(event.text);
           else if (event.type === 'products') products.push(...event.products);

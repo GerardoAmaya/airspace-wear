@@ -410,12 +410,14 @@ export function BallShowcase({ balls, locale }: { balls: Ball[]; locale: Locale 
                   onPointerEnter={() => prefetch(item)}
                   onFocus={() => prefetch(item)}
                 >
+                  {/* Espacios entre las partes (en grid no se pintan): el texto
+                      visible queda igual al inicio del nombre (WCAG 2.5.3). */}
                   <span className={styles.pickYear} aria-hidden="true">
                     {item.year}
-                  </span>
+                  </span>{' '}
                   <span className={styles.pickHost} aria-hidden="true">
                     {item.host}
-                  </span>
+                  </span>{' '}
                   <span className={styles.pickName} aria-hidden="true">
                     {item.shortName}
                   </span>

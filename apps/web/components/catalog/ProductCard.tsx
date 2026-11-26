@@ -38,7 +38,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
           </ViewTransition>
           <span className={styles.reference}>{t('reference', { reference: product.reference })}</span>
           {product.model && <span className={styles.badge}>{t('has3d')}</span>}
-          {product.model && <PrefetchModel url={product.model.heroUrl} />}
+          {product.model && <PrefetchModel url={product.model.heroUrl} liteUrl={product.model.liteUrl} />}
         </div>
         <div className={styles.body}>
           <p className={styles.brand}>{product.brand.name}</p>

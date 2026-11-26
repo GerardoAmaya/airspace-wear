@@ -15,7 +15,7 @@ test('catalog card opens its product page and the breadcrumb goes back', async (
   expect(await cards.count()).toBeGreaterThan(1);
 
   const card = cards.filter({ has: page.locator(`a[href$="/products/${HOTSPOT_PRODUCT}"]`) });
-  const name = (await card.getByRole('heading', { level: 3 }).textContent())?.trim() ?? '';
+  const name = (await card.getByRole('heading').textContent())?.trim() ?? '';
   expect(name).not.toBe('');
   await card.getByRole('link').click();
 

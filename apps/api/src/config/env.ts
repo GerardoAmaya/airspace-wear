@@ -34,6 +34,10 @@ const envSchema = z
     STYLIST_ENABLED: z.enum(['true', 'false']).default('true'),
     STYLIST_MODEL: z.string().min(1).default('claude-opus-5-5'),
     STYLIST_DAILY_BUDGET_USD: z.coerce.number().nonnegative().default(2),
+    // Clave compartida con el servidor de la web para saltar el límite de
+    // peticiones (cabecera x-internal-key). Opcional; mínimo 24 caracteres.
+    // Vacía equivale a no configurada (docker-compose pasa "" si falta).
+    INTERNAL_API_KEY: z.union([z.literal(''), z.string().min(24)]).optional(),
   })
   .transform((env, context) => {
     if (!env.DATABASE_URL && env.NODE_ENV === 'production') {
@@ -47,6 +51,7 @@ const envSchema = z
       trustProxy: env.TRUST_PROXY,
       webOrigins: env.WEB_ORIGIN,
       databaseUrl: env.DATABASE_URL ?? LOCAL_DATABASE_URL,
+      internalApiKey: env.INTERNAL_API_KEY || null,
       stylist: {
         enabled: env.STYLIST_ENABLED === 'true' && Boolean(env.ANTHROPIC_API_KEY),
         model: env.STYLIST_MODEL,
