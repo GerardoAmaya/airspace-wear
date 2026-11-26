@@ -14,6 +14,12 @@ describe('parseEnv', () => {
     });
   });
 
+  it('en Vercel usa el PORT asignado y escucha en todas las interfaces', () => {
+    const config = parseEnv({ PORT: '8080', VERCEL: '1' });
+    expect(config.port).toBe(8080);
+    expect(config.host).toBe('0.0.0.0');
+  });
+
   it('exige DATABASE_URL en producción sin mostrar valores', () => {
     expect(() => parseEnv({ NODE_ENV: 'production', WEB_ORIGIN: 'https://example.com' })).toThrow(/DATABASE_URL/);
   });

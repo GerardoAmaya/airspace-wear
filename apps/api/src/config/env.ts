@@ -7,9 +7,12 @@ export const LOCAL_DATABASE_URL = 'postgresql://airspace:airspace@127.0.0.1:5434
 const envSchema = z
   .object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-    API_PORT: z.coerce.number().int().positive().default(4000),
-    // 127.0.0.1 en desarrollo; 0.0.0.0 dentro de un contenedor.
-    API_HOST: z.string().min(1).default('127.0.0.1'),
+    // Puerto propio; si falta, el que asigne la plataforma (PORT) o 4000.
+    API_PORT: z.coerce.number().int().positive().optional(),
+    PORT: z.coerce.number().int().positive().optional(),
+    // 127.0.0.1 en desarrollo; 0.0.0.0 dentro de un contenedor y en Vercel.
+    API_HOST: z.string().min(1).optional(),
+    VERCEL: z.string().optional(),
     // Detrás de un proxy (Railway, Docker con balanceador): número de saltos
     // de confianza, para que el límite de peticiones use la IP real.
     TRUST_PROXY: z.coerce.number().int().min(0).default(0),
@@ -46,8 +49,8 @@ const envSchema = z
     }
     return {
       nodeEnv: env.NODE_ENV,
-      port: env.API_PORT,
-      host: env.API_HOST,
+      port: env.API_PORT ?? env.PORT ?? 4000,
+      host: env.API_HOST ?? (env.VERCEL ? '0.0.0.0' : '127.0.0.1'),
       trustProxy: env.TRUST_PROXY,
       webOrigins: env.WEB_ORIGIN,
       databaseUrl: env.DATABASE_URL ?? LOCAL_DATABASE_URL,
