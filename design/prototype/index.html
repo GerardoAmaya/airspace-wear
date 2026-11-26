@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>AIRSPACE Wear · Prototipo</title>
+    <meta name="description" content="Prototipo de diseño y movimiento de AIRSPACE Wear." />
+    <meta name="theme-color" content="#0E0E10" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230E0E10'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23C6FF3D' stroke-width='2'/%3E%3Cpath d='M16 16 L23 9' stroke='%23C6FF3D' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E"
+    />
+
+    <script>
+      // Tema antes de pintar, para evitar el parpadeo: ?theme= en la URL,
+      // luego la elección guardada, luego la preferencia del sistema.
+      (function () {
+        var fromUrl = new URLSearchParams(location.search).get('theme');
+        var saved = null;
+        try {
+          saved = localStorage.getItem('airspace-theme');
+        } catch (error) {}
+        var system = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        var theme = fromUrl === 'light' || fromUrl === 'dark' ? fromUrl : saved || system;
+        document.documentElement.setAttribute('data-theme', theme);
+        // La posición del scroll al recargar la restaura main.js cuando todas
+        // las secciones están montadas: el navegador lo haría demasiado pronto,
+        // con la página aún corta, y caería en otro lugar.
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+        // Enlace profundo (#catalogo): se guarda y se quita de la URL antes de
+        // que el navegador salte, porque las secciones aún están vacías y
+        // caería en otro lugar. main.js salta al destino cuando todo está
+        // montado y devuelve el ancla a la URL.
+        if (location.hash.length > 1) {
+          document.documentElement.setAttribute('data-deep-link', location.hash.slice(1));
+          history.replaceState(history.state, '', location.pathname + location.search);
+        }
+      })();
+
+      // Modo liviano: marca los equipos modestos antes de pintar (ver CLAUDE.md).
+      (function () {
+        var navigatorInfo = navigator, connection = navigatorInfo.connection || {};
+        var lowEnd =
+          (navigatorInfo.hardwareConcurrency && navigatorInfo.hardwareConcurrency <= 4) ||
+          (navigatorInfo.deviceMemory && navigatorInfo.deviceMemory <= 4) ||
+          connection.saveData ||
+          /(^|-)2g|3g/.test(connection.effectiveType || '');
+        if (lowEnd) document.documentElement.classList.add('lite');
+      })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Hubot+Sans:wdth,wght@75..125,200..900&family=Mona+Sans:wdth,wght@75..125,200..900&family=Martian+Mono:wdth,wght@75..112.5,100..800&display=swap"
+    />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lenis@1.3.28/dist/lenis.css" />
+    <link rel="stylesheet" href="./core/tokens.css" />
+    <link rel="stylesheet" href="./core/base.css" />
+    <link rel="stylesheet" href="./sections/flight/flight.css" />
+    <link rel="stylesheet" href="./sections/departures/departures.css" />
+    <link rel="stylesheet" href="./sections/baggage/baggage.css" />
+    <link rel="stylesheet" href="./sections/tower/tower.css" />
+    <link rel="stylesheet" href="./sections/boarding/boarding.css" />
+
+    <!-- GSAP (todos sus plugins son gratuitos desde 3.13) y Lenis como globales. -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.1/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.1/dist/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.1/dist/SplitText.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.1/dist/ScrambleTextPlugin.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.1/dist/DrawSVGPlugin.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.28/dist/lenis.min.js"></script>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#catalogo">Saltar al catálogo</a>
+
+    <header class="site-header" data-site-header>
+      <a class="logo" href="#inicio" aria-label="AIRSPACE Wear, inicio">AIRSPACE<span class="logo__wear">Wear</span></a>
+      <nav class="site-nav" id="site-nav" aria-label="Principal">
+        <a href="#catalogo">Catálogo</a>
+        <a href="#hangar">Hangar 360°</a>
+        <a href="#balones">Balones</a>
+        <a href="#estilista">Estilista IA</a>
+        <div class="lang-switch lang-switch--menu" role="group" aria-label="Idioma">
+          <button type="button" aria-pressed="true" lang="es" data-lang="es">ES</button>
+          <button type="button" aria-pressed="false" lang="en" data-lang="en">EN</button>
+        </div>
+      </nav>
+      <div class="header-tools">
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Cambiar a modo claro">
+          <svg class="theme-toggle__moon" viewBox="0 0 16 16" aria-hidden="true">
+            <path fill="currentColor" d="M10.6 1.4a6.6 6.6 0 1 0 4 10.9A5.6 5.6 0 0 1 10.6 1.4Z" />
+          </svg>
+          <svg class="theme-toggle__sun" viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="8" r="3.2" fill="currentColor" />
+            <path stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3 3l1.1 1.1M11.9 11.9 13 13M3 13l1.1-1.1M11.9 4.1 13 3" />
+          </svg>
+          <span class="theme-toggle__label" aria-hidden="true">Noche</span>
+        </button>
+        <div class="lang-switch lang-switch--bar" role="group" aria-label="Idioma">
+          <button type="button" aria-pressed="true" lang="es" data-lang="es">ES</button>
+          <button type="button" aria-pressed="false" lang="en" data-lang="en">EN</button>
+        </div>
+        <button class="cart-button" type="button" aria-expanded="false" aria-controls="cart-panel" data-cart-toggle>
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" d="M3 5.5h10l-.8 8.5H3.8L3 5.5Z" />
+            <path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="M5.6 5.5V4.4a2.4 2.4 0 0 1 4.8 0v1.1" />
+          </svg>
+          <span class="cart-button__label">Carrito</span>
+          <span class="cart-button__count mono" data-cart-count aria-hidden="true">0</span>
+          <span class="visually-hidden" data-cart-count-label>, 0 productos</span>
+        </button>
+        <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Abrir menú" data-menu-toggle>
+          <span class="menu-button__bars" aria-hidden="true"><span></span><span></span></span>
+        </button>
+      </div>
+      <p class="header-note" role="status" data-header-note></p>
+    </header>
+
+    <div class="cart-panel" id="cart-panel" role="dialog" aria-modal="false" aria-labelledby="cart-title" hidden data-cart-panel>
+      <div class="cart-panel__head">
+        <h2 class="cart-panel__title" id="cart-title">Tu carrito</h2>
+        <button class="cart-panel__close" type="button" aria-label="Cerrar carrito" data-cart-close>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="m4 4 8 8M12 4l-8 8" /></svg>
+        </button>
+      </div>
+      <ul class="cart-panel__list" data-cart-list></ul>
+      <p class="cart-panel__empty" data-cart-empty>Todavía no agregas nada. Elige un par en el catálogo o un balón en la vitrina.</p>
+      <div class="cart-panel__foot" data-cart-foot>
+        <p class="cart-panel__total"><span class="hud-label">Total</span><span class="mono" data-cart-total></span></p>
+        <p class="cart-panel__note">El pago llega con el sitio final. Este prototipo guarda el carrito solo durante tu visita.</p>
+        <button class="btn btn--ghost cart-panel__clear" type="button" data-cart-clear>Vaciar carrito</button>
+      </div>
+    </div>
+
+    <main>
+      <section id="inicio" data-section="flight" aria-label="Inicio"></section>
+      <section id="catalogo" data-section="departures" aria-label="Catálogo"></section>
+      <section id="balones" data-section="baggage" aria-label="Balones"></section>
+      <section id="estilista" data-section="tower" aria-label="Estilista IA"></section>
+    </main>
+    <footer id="club" data-section="boarding"></footer>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

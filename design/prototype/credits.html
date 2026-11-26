@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Créditos · AIRSPACE Wear</title>
+    <meta name="description" content="Modelos 3D, fuentes y librerías de terceros que usa AIRSPACE Wear, con su autor y licencia." />
+    <meta name="theme-color" content="#0E0E10" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230E0E10'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23C6FF3D' stroke-width='2'/%3E%3Cpath d='M16 16 L23 9' stroke='%23C6FF3D' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E"
+    />
+
+    <script>
+      // Tema antes de pintar, igual que en index.html: ?theme= en la URL,
+      // luego la elección guardada, luego la preferencia del sistema.
+      (function () {
+        var fromUrl = new URLSearchParams(location.search).get('theme');
+        var saved = null;
+        try {
+          saved = localStorage.getItem('airspace-theme');
+        } catch (error) {}
+        var system = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        var theme = fromUrl === 'light' || fromUrl === 'dark' ? fromUrl : saved || system;
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Hubot+Sans:wdth,wght@75..125,200..900&family=Mona+Sans:wdth,wght@75..125,200..900&family=Martian+Mono:wdth,wght@75..112.5,100..800&display=swap"
+    />
+    <link rel="stylesheet" href="/core/tokens.css" />
+    <link rel="stylesheet" href="/core/base.css" />
+    <link rel="stylesheet" href="/credits/credits.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#credits-main">Saltar al contenido</a>
+
+    <header class="site-header credits-header">
+      <a class="logo" href="/" aria-label="AIRSPACE Wear, volver a la tienda">AIRSPACE<span class="logo__wear">Wear</span></a>
+      <div class="header-tools">
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Cambiar a modo claro">
+          <svg class="theme-toggle__moon" viewBox="0 0 16 16" aria-hidden="true">
+            <path fill="currentColor" d="M10.6 1.4a6.6 6.6 0 1 0 4 10.9A5.6 5.6 0 0 1 10.6 1.4Z" />
+          </svg>
+          <svg class="theme-toggle__sun" viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="8" r="3.2" fill="currentColor" />
+            <path stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3 3l1.1 1.1M11.9 11.9 13 13M3 13l1.1-1.1M11.9 4.1 13 3" />
+          </svg>
+          <span class="theme-toggle__label" aria-hidden="true">Noche</span>
+        </button>
+        <a class="credits-back" href="/">Volver a la tienda</a>
+      </div>
+    </header>
+
+    <main class="container credits" id="credits-main" tabindex="-1">
+      <header class="credits-hero">
+        <p class="hud-label hud-label--primary credits-kicker"><span class="status-dot" aria-hidden="true"></span>Créditos</p>
+        <h1 class="heading credits-title">Hecho con trabajo de muchos</h1>
+        <p class="lead credits-lead">
+          AIRSPACE Wear es un proyecto de portafolio. Aquí están los modelos 3D, las fuentes y las librerías de terceros
+          que usa, con su autor, su licencia y los cambios que les hicimos.
+        </p>
+      </header>
+
+      <section class="credits-section hud-frame" aria-labelledby="credits-models-title" data-frame>
+        <div class="credits-section__head">
+          <h2 class="credits-section__title" id="credits-models-title">Modelos 3D</h2>
+          <p class="hud-label" data-model-count>Cargando lista</p>
+        </div>
+        <div class="credits-columns" aria-hidden="true">
+          <span>Producto</span><span>Modelo original</span><span>Autor</span><span>Licencia</span><span>Cambios</span>
+        </div>
+        <ul class="credits-list" data-models role="list"></ul>
+        <p class="credits-note" data-models-note>
+          Todos los modelos vienen de Sketchfab y se optimizaron para la web con el proceso de este repositorio. Cada uno se
+          publica en dos versiones: una completa y otra liviana para equipos modestos.
+        </p>
+      </section>
+
+      <section class="credits-section hud-frame" aria-labelledby="credits-fonts-title" data-frame>
+        <div class="credits-section__head">
+          <h2 class="credits-section__title" id="credits-fonts-title">Fuentes</h2>
+          <p class="hud-label">Vía Google Fonts</p>
+        </div>
+        <ul class="credits-list credits-list--simple" role="list" data-fonts></ul>
+      </section>
+
+      <section class="credits-section hud-frame" aria-labelledby="credits-libraries-title" data-frame>
+        <div class="credits-section__head">
+          <h2 class="credits-section__title" id="credits-libraries-title">Librerías</h2>
+          <p class="hud-label">Código abierto y licencias libres</p>
+        </div>
+        <ul class="credits-list credits-list--simple" role="list" data-libraries></ul>
+      </section>
+
+      <footer class="credits-footer">
+        <p class="credits-disclaimer">Proyecto de portafolio. Sin afiliación con ninguna marca mostrada.</p>
+        <p class="credits-small">
+          Los nombres, logos y diseños de los productos pertenecen a sus dueños y aparecen solo para ilustrar el proyecto.
+        </p>
+        <a class="btn btn--ghost" href="/">Volver a la tienda</a>
+      </footer>
+    </main>
+
+    <script type="module" src="/credits/credits.js"></script>
+  </body>
+</html>

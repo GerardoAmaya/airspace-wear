@@ -1,0 +1,118 @@
+{
+  "HomeStylist": {
+    "kicker": "Estilista IA",
+    "title": "Habla con tu estilista",
+    "lead": "Nuestro estilista con IA conoce cada par del catálogo. Cuéntale a dónde vas o qué buscas y te recomienda el modelo ideal, con razones claras y en tu idioma.",
+    "readouts": {
+      "catalog": "Catálogo",
+      "catalogUnit": "modelos",
+      "languages": "Idiomas",
+      "languagesValue": "ES <unit>y</unit> EN",
+      "response": "Respuesta",
+      "responseValue": "En segundos"
+    },
+    "console": {
+      "name": "Estilista IA",
+      "online": "En línea",
+      "modeYou": "Tú",
+      "modeAi": "IA",
+      "language": "Responde en tu idioma",
+      "statusLabel": "Estado",
+      "stamp": "Consulta {number}",
+      "logLabel": "Conversación con tu estilista"
+    },
+    "status": {
+      "idle": "Disponible",
+      "listening": "Escuchando",
+      "reading": "Leyendo",
+      "replying": "Respondiendo"
+    },
+    "message": {
+      "you": "Tú",
+      "stylist": "Estilista",
+      "sent": "Enviado"
+    },
+    "card": {
+      "listLabel": "Recomendaciones del estilista",
+      "recommendation": "Recomendación {index}",
+      "match": "Coincide <value>{percent}</value>%",
+      "tags": "Etiquetas",
+      "view3d": "Ver en 3D",
+      "view3dLabel": "Ver en 3D: {name}"
+    },
+    "controls": {
+      "suggestions": "Prueba con",
+      "inputLabel": "Escribe tu mensaje para el estilista",
+      "placeholder": "Pregúntale por un estilo, una ocasión o una talla",
+      "placeholderShort": "Escribe tu mensaje",
+      "send": "Enviar mensaje"
+    },
+    "announce": {
+      "reply": "Estilista: {text}",
+      "products": "Recomendaciones: {list}."
+    },
+    "scenarios": {
+      "comfort": {
+        "chip": "Busco comodidad para todo el día",
+        "question": "Necesito algo cómodo para caminar todo el día por la ciudad.",
+        "answer": "¡Claro! Para caminar todo el día te recomiendo dos pares: las {p1}, con amortiguación ENCAP y gamuza que abraza el pie, y las {p2}, ligeras (solo 280 g) y con Zoom Air para moverte sin pensar en tus pies.",
+        "reason1": "Amortiguación ENCAP que aguanta de la mañana a la noche.",
+        "reason2": "Solo 280 g y espuma con Zoom Air para caminar ligero."
+      },
+      "concert": {
+        "chip": "Busco destacar en un concierto",
+        "question": "Voy a un concierto este sábado y quiero destacar.",
+        "answer": "¡Buen plan! Para que te vean desde la última fila: las {p1}, con letras AIR gigantes y amortiguación visible, y las {p2}, de gamuza lila con salpicado negro, que nunca pasan desapercibidas.",
+        "reason1": "Letras AIR que se leen desde el escenario.",
+        "reason2": "Gamuza lila: el Jordan 4 en su versión más llamativa."
+      },
+      "basic": {
+        "chip": "Busco un básico fácil de combinar",
+        "question": "Busco un básico que combine con todo mi clóset.",
+        "answer": "Tengo justo lo que buscas: las {p1}, negras con tres franjas blancas y suela de goma, van con jeans, joggers o pantalón de vestir. Si prefieres un toque de color, las {p2} de gamuza verde son tu segunda opción.",
+        "reason1": "Perfil bajo y minimalista: de los jeans al pantalón de vestir.",
+        "reason2": "Un clásico de 1966 con un toque de color."
+      }
+    },
+    "freeReply": "¡Gracias por escribir! En esta demo mis respuestas vienen preparadas, pero en el sitio real tu estilista usa IA y responde cualquier pregunta sobre el catálogo, en tu idioma. Mientras tanto, prueba una de las ideas de abajo.",
+    "errors": {
+      "rateLimited": "Estás preguntando muy rápido. Espera un momento y vuelve a intentarlo.",
+      "refused": "Prefiero no responder eso. Cuéntame qué buscas en tenis o balones y te ayudo.",
+      "generic": "No pude responder ahora. Intenta de nuevo en un momento."
+    }
+  },
+  "HomeClub": {
+    "kicker": "Acceso anticipado",
+    "title": "Únete al club",
+    "lead": "Crea tu cuenta para guardar tus pares favoritos, seguir tus pedidos y enterarte primero de cada lanzamiento.",
+    "cardTitle": "Tarjeta de miembro",
+    "clubLabel": "Club de miembros",
+    "clubName": "AIRSPACE CLUB",
+    "perk": "Lanzamientos antes que nadie",
+    "seasonLabel": "Temporada",
+    "season": "26",
+    "fields": {
+      "member": "Miembro",
+      "memberValue": "Invitado",
+      "since": "Desde",
+      "sinceFallback": "Hoy",
+      "size": "Talla favorita",
+      "sizeValue": "Por elegir"
+    },
+    "stub": {
+      "title": "Escanea al pagar",
+      "number": "Nº de miembro",
+      "numberValue": "AS-2026",
+      "note": "Válida en tienda y en línea",
+      "code": "AS2026 CLUB T26"
+    },
+    "actions": {
+      "signup": "Crear cuenta",
+      "waitlist": "Unirme a la lista",
+      "waitlistJoined": "Te avisaremos",
+      "signupNote": "Próximamente: el registro abre con el sitio real. Por ahora, sigue explorando.",
+      "waitlistNote": "Listo: te avisaremos de cada lanzamiento. Es una demo y no guardamos ningún dato.",
+      "waitlistLeft": "Saliste de la lista."
+    }
+  }
+}

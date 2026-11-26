@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Póster · AIRSPACE Wear</title>
+    <!-- Página de apoyo para scripts/models/posters.mjs: dibuja un modelo con
+         fondo transparente, la iluminación del tema pedido y vista de tres
+         cuartos desde su lado externo. Uso: /dev/poster.html?slug=air-jordan-1&theme=light -->
+    <script>
+      document.documentElement.setAttribute('data-theme', new URLSearchParams(location.search).get('theme') || 'dark');
+    </script>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="../core/tokens.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: transparent;
+      }
+      canvas {
+        display: block;
+        width: 1200px;
+        height: 900px;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.1/dist/gsap.min.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <canvas></canvas>
+    <script type="module">
+      import { createStage } from '../core/stage.js';
+      const params = new URLSearchParams(location.search);
+      const slug = params.get('slug');
+      const { models } = await (await fetch('/data/manifest.json')).json();
+      const model = models[slug];
+      const isBall = !model?.pose?.foot;
+      const stage = createStage(document.querySelector('canvas'), { models: [slug], cameraZ: isBall ? 0.62 : 0.9 });
+      await stage.ready;
+      // Tres cuartos desde el lado externo: con el lado externo hacia +z basta
+      // un giro leve; si mira a -z, se gira media vuelta.
+      const facingMinusZ = model?.pose?.lateralSideFacing === '-z';
+      stage.sneaker.rotation.y = isBall ? 0.35 : facingMinusZ ? Math.PI + 0.5 : -0.5;
+      stage.setRendering?.(true);
+      // Unos cuadros para que carguen texturas y la sombra.
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      window.__posterReady = true;
+    </script>
+  </body>
+</html>

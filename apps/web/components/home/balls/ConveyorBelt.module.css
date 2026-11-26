@@ -1,0 +1,433 @@
+/*
+ * Banda transportadora de la sección Balones (portada de
+ * design/prototype/sections/baggage/baggage.css). Solo se animan transform y
+ * opacity; los colores salen de los tokens. belt-engine.ts escribe la
+ * geometría como variables --belt-* al cambiar de tamaño.
+ */
+
+.belt {
+  /* Noche: metal oscuro con aristas claras. */
+  --belt-far: color-mix(in srgb, var(--color-text) 2%, var(--color-background));
+  --belt-near: color-mix(in srgb, var(--color-text) 9%, var(--color-background));
+  --belt-seam: color-mix(in srgb, var(--color-background) 90%, transparent);
+  --belt-slat-hi: color-mix(in srgb, var(--color-text) 14%, transparent);
+  --belt-slat-shade: color-mix(in srgb, var(--color-text) 4%, transparent);
+  --belt-skirt-top: color-mix(in srgb, var(--color-text) 7%, var(--color-surface));
+  --belt-skirt-bottom: var(--color-background);
+  --belt-edge: color-mix(in srgb, var(--color-text) 34%, transparent);
+  --belt-shadow: color-mix(in srgb, var(--color-background) 70%, transparent);
+  --belt-tag-bg: var(--color-text);
+  --belt-tag-ink: var(--color-background);
+  --belt-tag-edge: transparent;
+  --belt-pool-ink: color-mix(in srgb, var(--color-text) 10%, transparent);
+
+  position: relative;
+  height: 100%;
+  overflow-x: clip;
+  overflow-y: visible;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Día: aluminio claro, etiquetas blancas con borde. */
+:global(:root[data-theme='light']) .belt {
+  --belt-far: color-mix(in srgb, var(--color-text) 3%, var(--color-background));
+  --belt-near: color-mix(in srgb, var(--color-text) 9%, var(--color-surface));
+  --belt-seam: color-mix(in srgb, var(--color-text) 20%, transparent);
+  --belt-slat-hi: color-mix(in srgb, var(--color-surface-raised) 95%, transparent);
+  --belt-slat-shade: color-mix(in srgb, var(--color-text) 3%, transparent);
+  --belt-skirt-top: var(--color-surface-raised);
+  --belt-skirt-bottom: color-mix(in srgb, var(--color-text) 6%, var(--color-background));
+  --belt-edge: color-mix(in srgb, var(--color-text) 30%, transparent);
+  --belt-shadow: color-mix(in srgb, var(--color-text) 30%, transparent);
+  --belt-tag-bg: var(--color-surface-raised);
+  --belt-tag-ink: var(--color-text);
+  --belt-tag-edge: var(--color-line-strong);
+  --belt-pool-ink: color-mix(in srgb, var(--color-surface-raised) 90%, transparent);
+}
+
+/* Riel trasero: el borde lejano de la banda. */
+.back {
+  position: absolute;
+  top: calc(var(--belt-back-y, 40px) - 2px);
+  right: 0;
+  left: 0;
+  height: 2px;
+  background: var(--belt-edge);
+  opacity: 0.6;
+}
+
+/* Planos en perspectiva: comparten origen (centro del borde frontal). */
+.plane {
+  position: absolute;
+  top: calc(var(--belt-lip-y, 200px) - var(--belt-plane-h, 200px));
+  left: calc(50% - var(--belt-plane-w, 2000px) / 2);
+  width: var(--belt-plane-w, 2000px);
+  height: var(--belt-plane-h, 200px);
+  transform-origin: 50% 100%;
+  transform: perspective(var(--belt-persp, 1000px)) rotateX(var(--belt-tilt, 64deg));
+  pointer-events: none;
+}
+
+.base {
+  background: linear-gradient(to bottom, var(--belt-far), var(--belt-near));
+}
+
+/* Tablillas: aristas y juntas; el motor las traslada dentro del plano. */
+.slats {
+  left: calc(50% - var(--belt-plane-w, 2000px) / 2 - var(--belt-pitch, 40px));
+  width: calc(var(--belt-plane-w, 2000px) + 2 * var(--belt-pitch, 40px));
+  background: repeating-linear-gradient(
+    90deg,
+    var(--belt-slat-shade) 0,
+    transparent calc(var(--belt-pitch, 40px) - 4px),
+    var(--belt-seam) calc(var(--belt-pitch, 40px) - 4px),
+    var(--belt-seam) calc(var(--belt-pitch, 40px) - 1.5px),
+    var(--belt-slat-hi) calc(var(--belt-pitch, 40px) - 1.5px),
+    var(--belt-slat-hi) var(--belt-pitch, 40px)
+  );
+  -webkit-mask-image: linear-gradient(to bottom, transparent, var(--color-background) 30%);
+  mask-image: linear-gradient(to bottom, transparent, var(--color-background) 30%);
+  will-change: transform;
+}
+
+/* Charco de luz del foco sobre la banda, bajo el visor 3D. */
+.pool {
+  position: absolute;
+  bottom: 6%;
+  left: calc(50% - var(--belt-d, 100px) * 2);
+  width: calc(var(--belt-d, 100px) * 4);
+  height: 86%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--belt-pool-ink), transparent);
+}
+
+/* Borde frontal redondeado y faldón con los rodillos. */
+.lip {
+  position: absolute;
+  top: calc(var(--belt-lip-y, 200px) - 2px);
+  right: 0;
+  left: 0;
+  height: 7px;
+  background: linear-gradient(to bottom, var(--belt-edge), var(--belt-skirt-top) 45%, var(--belt-skirt-bottom));
+}
+
+.skirt {
+  position: absolute;
+  top: calc(var(--belt-lip-y, 200px) + 5px);
+  right: 0;
+  left: 0;
+  height: var(--belt-skirt-h, 40px);
+  border-bottom: 1px solid var(--color-line);
+  background: linear-gradient(to bottom, var(--belt-skirt-top), var(--belt-skirt-bottom));
+}
+
+.rollers {
+  position: absolute;
+  inset: 0;
+}
+
+/* Los nodos de los rodillos los crea el motor (span > i). */
+.rollers > span {
+  position: absolute;
+  top: 50%;
+  width: calc(var(--belt-d, 100px) * 0.22);
+  height: calc(var(--belt-d, 100px) * 0.22);
+  margin: calc(var(--belt-d, 100px) * -0.11) 0 0 calc(var(--belt-d, 100px) * -0.11);
+  border: 1px solid var(--color-line-strong);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-line-strong) 0 2px, transparent 2.5px);
+  transform: rotate(var(--belt-roll, 0deg));
+}
+
+.rollers > span > i {
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  width: 1px;
+  height: 32%;
+  background: var(--color-text-faint);
+}
+
+/* Marca fija del punto del foco. */
+.claim {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  pointer-events: none;
+}
+
+.claimMark {
+  position: absolute;
+  top: -1px;
+  left: -16px;
+  width: 32px;
+  height: 2px;
+  background: var(--color-primary-fill);
+  box-shadow: 0 0 12px var(--color-primary-glow);
+}
+
+.claimLabel {
+  position: absolute;
+  bottom: 50%;
+  left: calc(var(--belt-d, 100px) * -0.2);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--belt-skirt-top);
+  color: var(--color-primary);
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.14em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: translate(-100%, 50%);
+}
+
+/* ---------- Piezas: balón, cordel y etiqueta ---------- */
+
+.items {
+  position: absolute;
+  inset: 0;
+}
+
+.item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  will-change: transform;
+}
+
+.hit {
+  position: absolute;
+  z-index: 2;
+  top: calc(var(--belt-ball-cy, 100px) - var(--belt-d, 100px) * 0.55);
+  left: calc(var(--belt-d, 100px) * -0.55);
+  width: calc(var(--belt-d, 100px) * 1.15);
+  height: calc(var(--belt-lip-y, 200px) + var(--belt-tag-h, 100px) - var(--belt-ball-cy, 100px) + var(--belt-d, 100px) * 0.55);
+  border-radius: calc(var(--belt-d, 100px) * 0.5);
+  cursor: pointer;
+}
+
+.item[data-claimed] .hit {
+  cursor: default;
+}
+
+/* body: entrada (GSAP). hover: realce al pasar el cursor (CSS). */
+.body,
+.hover {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.hover {
+  transition: transform var(--duration-ui) var(--ease-out);
+}
+
+.item:has(.hit:hover):not([data-claimed]) .hover {
+  transform: translateY(-6px);
+}
+
+/* Póster del balón: el balón ocupa el 53% del ancho, centrado en (52,7%,
+   45,3%) de la imagen; se ubica para que su centro caiga en la pieza. */
+.sprite {
+  position: absolute;
+  top: calc(var(--belt-ball-cy, 100px) - var(--belt-d, 100px) * 0.5724);
+  left: calc(var(--belt-d, 100px) * -0.9945);
+  width: calc(var(--belt-d, 100px) * 1.887);
+  pointer-events: none;
+}
+
+.sprite img {
+  /* Sin display: ThemedPoster oculta el póster del otro tema con display: none. */
+  width: 100%;
+  max-width: none;
+}
+
+.ghost {
+  position: absolute;
+  top: calc(var(--belt-ball-cy, 100px) - var(--belt-d, 100px) / 2);
+  left: calc(var(--belt-d, 100px) / -2);
+  width: var(--belt-d, 100px);
+  height: var(--belt-d, 100px);
+  border: 1.5px dashed color-mix(in srgb, var(--color-primary) 55%, transparent);
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.ghost::after {
+  content: '';
+  position: absolute;
+  inset: 44%;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-primary) 55%, transparent);
+}
+
+.shadow {
+  position: absolute;
+  top: calc(var(--belt-ball-cy, 100px) + var(--belt-d, 100px) * 0.36);
+  left: calc(var(--belt-d, 100px) * -0.56);
+  width: calc(var(--belt-d, 100px) * 1.12);
+  height: calc(var(--belt-d, 100px) * 0.26);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--belt-shadow), transparent);
+}
+
+.string {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: visible;
+  fill: none;
+  stroke: var(--belt-edge);
+  stroke-width: 1.25;
+  pointer-events: none;
+}
+
+/* Etiqueta: cuelga del borde y se balancea (el motor escribe rotate). */
+.tag {
+  position: absolute;
+  top: calc(var(--belt-lip-y, 200px) + 1px);
+  left: calc(var(--belt-d, 100px) * 0.24 - var(--belt-tag-w, 64px) / 2);
+  width: var(--belt-tag-w, 64px);
+  height: var(--belt-tag-h, 100px);
+  transform-origin: 50% calc(var(--belt-tag-w, 64px) * 0.17);
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* drop: entrada (GSAP, rotationX). card: vuelta de la etiqueta (CSS). */
+.drop {
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 0;
+  perspective: 600px;
+}
+
+.card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 0;
+  transform-style: preserve-3d;
+  transition: transform var(--duration-reveal) var(--ease-in-out);
+}
+
+.item[data-claimed] .card {
+  transform: rotateY(180deg);
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: calc(var(--belt-tag-w, 64px) * 0.3);
+  overflow: hidden;
+  border-radius: 3px 3px 5px 5px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  clip-path: polygon(22% 0, 78% 0, 100% 14%, 100% 100%, 0 100%, 0 14%);
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.front {
+  background: var(--belt-tag-bg);
+  color: var(--belt-tag-ink);
+  box-shadow: inset 0 0 0 1px var(--belt-tag-edge);
+}
+
+.backFace {
+  justify-content: center;
+  gap: calc(var(--belt-tag-w, 64px) * 0.1);
+  padding-top: calc(var(--belt-tag-w, 64px) * 0.2);
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+  transform: rotateY(180deg);
+}
+
+/* Ojal con refuerzo. */
+.hole {
+  position: absolute;
+  top: calc(var(--belt-tag-w, 64px) * 0.1);
+  left: 50%;
+  width: calc(var(--belt-tag-w, 64px) * 0.15);
+  height: calc(var(--belt-tag-w, 64px) * 0.15);
+  margin-left: calc(var(--belt-tag-w, 64px) * -0.075);
+  border-radius: 50%;
+  background: var(--color-background);
+  box-shadow: 0 0 0 2px color-mix(in srgb, currentColor 30%, transparent);
+}
+
+.cup {
+  font-size: max(7px, calc(var(--belt-tag-w, 64px) * 0.095));
+  letter-spacing: 0.12em;
+  opacity: 0.65;
+}
+
+.code {
+  max-width: 90%;
+  margin-top: calc(var(--belt-tag-w, 64px) * 0.07);
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-stretch: 75%;
+  font-weight: 800;
+  font-size: min(calc(var(--belt-tag-w, 64px) * 0.16), calc(var(--belt-tag-w, 64px) * 0.88 / (var(--chars, 8) * 0.56)));
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.year {
+  margin-top: calc(var(--belt-tag-w, 64px) * 0.03);
+  font-family: var(--font-display);
+  font-stretch: 100%;
+  font-weight: 850;
+  font-size: calc(var(--belt-tag-w, 64px) * 0.27);
+  letter-spacing: -0.01em;
+}
+
+.bars {
+  width: 70%;
+  height: calc(var(--belt-tag-w, 64px) * 0.16);
+  margin-top: calc(var(--belt-tag-w, 64px) * 0.09);
+  fill: currentColor;
+}
+
+.ballName {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: calc(var(--belt-tag-w, 64px) * 0.06) 0;
+  overflow: hidden;
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+  font-size: max(7px, calc(var(--belt-tag-w, 64px) * 0.1));
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.inFocus {
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-weight: 850;
+  font-size: calc(var(--belt-tag-w, 64px) * 0.2);
+  line-height: 1;
+  text-align: center;
+}
+
+.backYear {
+  font-size: calc(var(--belt-tag-w, 64px) * 0.12);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}

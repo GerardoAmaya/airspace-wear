@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Acentos por producto · AIRSPACE Wear</title>
+    <!-- Lámina de revisión: el acento propuesto para cada producto, en tema
+         oscuro y claro, aplicado al marco, al halo y a "En foco" como se verá
+         en el visor. Datos: accents.json (node scripts/design/accents.mjs). -->
+    <link rel="icon" href="data:," />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Hubot+Sans:wdth,wght@75..125,200..900&family=Mona+Sans:wdth,wght@75..125,200..900&family=Martian+Mono:wdth,wght@75..112.5,100..800&display=swap"
+    />
+    <link rel="stylesheet" href="../core/tokens.css" />
+    <style>
+      body { margin: 0; padding: 32px; font-family: var(--font-body); background: #0e0e10; color: #f4f1ea; }
+      h1 { font-family: var(--font-display); font-stretch: 125%; font-weight: 800; text-transform: uppercase; margin: 0 0 8px; }
+      p.lead { margin: 0 0 24px; color: #a8a49c; max-width: 70ch; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(560px, 1fr)); gap: 16px; }
+      .row { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid #2a2a30; border-radius: 14px; overflow: hidden; }
+      .cell { position: relative; padding: 16px; display: grid; gap: 8px; }
+      .cell[data-theme='dark'] { background: #0e0e10; color: #f4f1ea; --muted: #a8a49c; }
+      .cell[data-theme='light'] { background: #f4f1ea; color: #0e0e10; --muted: #55524c; }
+      .stage { position: relative; aspect-ratio: 3 / 2; display: grid; place-items: center; }
+      .halo { position: absolute; inset: 4%; background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 24%, transparent), color-mix(in srgb, var(--accent) 7%, transparent) 55%, transparent); }
+      .stage img { position: relative; width: 86%; height: auto; }
+      .corner { position: absolute; width: 18px; height: 18px; border: 2.5px solid var(--ink); }
+      .tl { top: 0; left: 0; border-right: 0; border-bottom: 0; } .tr { top: 0; right: 0; border-left: 0; border-bottom: 0; }
+      .bl { bottom: 0; left: 0; border-right: 0; border-top: 0; } .br { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+      .focus { position: absolute; top: 6px; right: 28px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink); }
+      .name { font-family: var(--font-display); font-stretch: 125%; font-weight: 800; text-transform: uppercase; font-size: 15px; }
+      .meta { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; color: var(--muted); }
+      .meta b { color: var(--ink); font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <h1>Acentos por producto</h1>
+    <p class="lead">Cada tenis y balón con su propio acento: marco, halo y "En foco" en el visor 3D. El lima sigue siendo la marca (botones, logo); el naranja queda solo para "Últimos pares". Cada tinta pasa 4.5:1 en su tema.</p>
+    <div class="grid" id="grid"></div>
+    <script type="module">
+      const accents = await (await fetch('./accents.json')).json();
+      const { models } = await (await fetch('/data/manifest.json')).json();
+      const grid = document.querySelector('#grid');
+      for (const [slug, accent] of Object.entries(accents)) {
+        const name = models[slug]?.displayName ?? slug;
+        const cell = (theme) => {
+          const ink = theme === 'dark' ? accent.dark : accent.light;
+          const ratio = theme === 'dark' ? accent.contrastDark : accent.contrastLight;
+          return `<div class="cell" data-theme="${theme}" style="--accent:${accent.base};--ink:${ink}">
+            <div class="stage"><div class="halo"></div><img src="/posters/${slug}-${theme}.webp" alt="" />
+              <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+              <span class="focus">◆ En foco</span></div>
+            <div class="name">${name}</div>
+            <div class="meta">${theme === 'dark' ? 'Noche' : 'Día'} · <b>${ink}</b> · ${ratio}:1${theme === 'dark' ? ` · ${accent.reason}` : ''}</div>
+          </div>`;
+        };
+        grid.insertAdjacentHTML('beforeend', `<div class="row">${cell('dark')}${cell('light')}</div>`);
+      }
+      window.__ready = true;
+    </script>
+  </body>
+</html>

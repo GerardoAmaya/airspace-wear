@@ -1,0 +1,165 @@
+/* Páginas de contenido (créditos, aviso legal): marcos HUD y etiquetas mono. */
+.page {
+  display: grid;
+  gap: var(--space-8);
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding: calc(var(--header-height) + var(--space-12)) var(--gutter) var(--space-24);
+}
+
+.intro {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 60ch;
+}
+
+.kicker,
+.label,
+.panelCount {
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+}
+
+.kicker {
+  color: var(--color-primary);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 800;
+  font-size: var(--text-2xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
+}
+
+.lead {
+  font-size: var(--text-lg);
+  color: var(--color-text-muted);
+}
+
+.panel {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.panelHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-line-strong);
+}
+
+.panelTitle {
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 800;
+  font-size: var(--text-xl);
+  text-transform: uppercase;
+}
+
+.panelCount,
+.label {
+  color: var(--color-text-muted);
+}
+
+.rows {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1.1fr 1.4fr 1fr 0.9fr;
+  gap: var(--space-2) var(--space-6);
+  padding-block: var(--space-4);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.cell {
+  display: grid;
+  align-content: start;
+  gap: var(--space-1);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
+.cell a,
+.prose a,
+.inlineLink {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.name {
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.changes,
+.note {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.prose {
+  display: grid;
+  gap: var(--space-8);
+  max-width: 68ch;
+}
+
+.prose section {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.prose h2 {
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 800;
+  font-size: var(--text-lg);
+  text-transform: uppercase;
+}
+
+.prose p {
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 860px) {
+  .row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+
+  .panel {
+    padding: var(--space-4);
+  }
+}
+
+/* Página que muestra una sección de la home: deja aire para el encabezado fijo. */
+.sectionPage {
+  padding-top: var(--header-height);
+}

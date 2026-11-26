@@ -1,0 +1,709 @@
+/*
+ * Pie de página "Únete al club": tarjeta de miembro con talón desprendible y barra final.
+ * La tarjeta usa --color-surface-raised: oscura en modo noche y papel blanco
+ * impreso en modo día. La banda de acento es un RELLENO
+ * (--color-primary-fill + --color-on-primary).
+ */
+
+/* Estado inicial de las entradas: solo opacidad, definido aquí y no solo en JS.
+   boarding.js marca data-motion="pending" y lo quita al terminar. El texto
+   sigue en el árbol de accesibilidad y el foco lo completa al instante. */
+.footer-section[data-motion='pending'] [data-reveal] {
+  opacity: 0;
+}
+
+.footer-section {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  background: var(--color-background);
+  border-top: 1px solid var(--color-line);
+  padding-top: clamp(5rem, 3rem + 8vw, 10rem);
+}
+
+/* ---------- Presentación ---------- */
+
+.footer-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  align-items: end;
+  gap: var(--space-8) var(--space-16);
+  margin-bottom: clamp(2.5rem, 1.5rem + 3vw, 4.5rem);
+}
+
+.footer-intro__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.footer-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.footer-section:not(.is-live) .footer-dot {
+  animation-play-state: paused;
+}
+
+/* SplitText recorta cada línea (overflow: clip) para el revelado; con un
+   interlineado tan cerrado, ese recorte cortaba las tildes (Ú, Á). El margen
+   negativo compensa el relleno y el diseño no se mueve. */
+.footer-title > div {
+  padding-top: 0.16em;
+  margin-top: -0.16em;
+}
+
+.footer-title {
+  font-size: clamp(2.5rem, 0.9rem + 4.6vw, 5.5rem);
+  line-height: 0.92;
+}
+
+.footer-lead {
+  justify-self: end;
+  max-width: 34ch;
+}
+
+/* ---------- Tarjeta de miembro ---------- */
+
+.pass-stage {
+  perspective: 1400px;
+}
+
+.pass {
+  --notch: 18px;
+  --hole: 2.6px;
+  --hole-step: 12px;
+  --pass-pad: clamp(1.25rem, 0.5rem + 2vw, 2.25rem);
+  /* Gris de etiquetas un poco más cercano al texto: la tarjeta es más clara
+     que el fondo y el gris atenuado normal no llega a 4.5:1 sobre ella. */
+  --pass-muted: color-mix(in srgb, var(--color-text-muted) 72%, var(--color-text));
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(270px, 27%, 330px);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-elevated);
+  color: var(--color-text);
+}
+
+.pass-main,
+.pass-stub {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface-raised);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+/* Muescas semicirculares en los extremos de la línea de corte (máscara). */
+.pass-main {
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  --notch-a: radial-gradient(circle at 100% 0, transparent var(--notch), var(--color-text) calc(var(--notch) + 0.5px));
+  --notch-b: radial-gradient(circle at 100% 100%, transparent var(--notch), var(--color-text) calc(var(--notch) + 0.5px));
+  -webkit-mask-image: var(--notch-a), var(--notch-b);
+  mask-image: var(--notch-a), var(--notch-b);
+  -webkit-mask-position: top, bottom;
+  mask-position: top, bottom;
+  -webkit-mask-size: 100% 51%;
+  mask-size: 100% 51%;
+}
+
+.pass-stub {
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  --notch-a: radial-gradient(circle at 0 0, transparent var(--notch), var(--color-text) calc(var(--notch) + 0.5px));
+  --notch-b: radial-gradient(circle at 0 100%, transparent var(--notch), var(--color-text) calc(var(--notch) + 0.5px));
+  -webkit-mask-image: var(--notch-a), var(--notch-b);
+  mask-image: var(--notch-a), var(--notch-b);
+  -webkit-mask-position: top, bottom;
+  mask-position: top, bottom;
+  -webkit-mask-size: 100% 51%;
+  mask-size: 100% 51%;
+}
+
+/* Perforación: medio agujero en cada lado; juntos forman la línea de corte. */
+.pass-main::after,
+.pass-stub::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--notch) + 8px);
+  bottom: calc(var(--notch) + 8px);
+  width: 4px;
+  pointer-events: none;
+  background-size: 4px var(--hole-step);
+  background-repeat: repeat-y;
+}
+
+.pass-main::after {
+  right: 0;
+  background-image: radial-gradient(circle at 100% 50%, var(--color-background) var(--hole), transparent calc(var(--hole) + 0.6px));
+}
+
+.pass-stub::before {
+  left: 0;
+  z-index: 1;
+  background-image: radial-gradient(circle at 0 50%, var(--color-background) var(--hole), transparent calc(var(--hole) + 0.6px));
+}
+
+/* Banda de acento (relleno) con la identidad del pase. */
+.pass-band {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 52px;
+  padding-inline: var(--pass-pad);
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: var(--text-hud);
+  font-weight: 700;
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+}
+
+.pass-band__brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35em;
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-size: 1rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+}
+
+.pass-band__brand span {
+  font-family: var(--font-body);
+  font-stretch: var(--font-stretch-body);
+  font-size: 0.75em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+.pass-band__title {
+  font: inherit;
+  margin: 0;
+}
+
+.pass-band__meta {
+  opacity: 0.72;
+}
+
+.pass-band--stub {
+  padding-left: calc(var(--space-6) + 4px);
+  padding-right: var(--space-6);
+}
+
+.pass-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--pass-pad);
+}
+
+/* Club: nombre gigante con una línea de acento y la temporada a la derecha. */
+.pass-club {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--space-4) var(--space-8);
+}
+
+.pass-club__name {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.pass-club__title {
+  display: block;
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-size: clamp(1.75rem, 0.8rem + 2.6vw, 3.6rem);
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+}
+
+.pass-club__line {
+  width: 100%;
+  height: 8px;
+  overflow: visible;
+  color: var(--color-primary);
+}
+
+.pass-club__track {
+  stroke: var(--color-line-strong);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 7;
+}
+
+.pass-club__stroke {
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.pass-club__line circle {
+  fill: currentColor;
+}
+
+.pass-club__perk {
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pass-muted);
+}
+
+.pass-club__season {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+  text-align: right;
+}
+
+.pass-club__number {
+  display: block;
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-size: clamp(2.25rem, 0.9rem + 3.2vw, 4.5rem);
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  color: var(--color-primary);
+}
+
+/* Campos impresos del pase. */
+.pass-fields {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding-block: var(--space-6);
+  border-block: 1px dashed var(--color-line-strong);
+}
+
+.pass-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.pass-field__label {
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--pass-muted);
+}
+
+.pass-field__value {
+  margin: 0;
+  min-height: 1.3em;
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pass-field--accent .pass-field__value {
+  color: var(--color-primary);
+}
+
+.pass-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+}
+
+.pass-cta svg,
+.pass-waitlist svg {
+  width: 16px;
+  height: 16px;
+}
+
+.pass-cta svg {
+  transition: transform var(--duration-ui) var(--ease-out);
+}
+
+.pass-cta:hover svg {
+  transform: translateX(3px);
+}
+
+.pass-waitlist span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.pass-waitlist[aria-pressed='true'] {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.pass-note {
+  flex: 1 1 16ch;
+  font-size: var(--text-sm);
+  line-height: 1.4;
+  color: var(--pass-muted);
+}
+
+.pass-note:empty {
+  display: none;
+}
+
+/* Talón */
+.pass-stub__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-6) var(--space-6) var(--space-6) calc(var(--space-6) + 4px);
+}
+
+.pass-fields--stub {
+  grid-template-columns: minmax(0, 1fr);
+  padding-block: 0;
+  border: 0;
+}
+
+.pass-field--code .pass-field__value {
+  font-size: 1.375rem;
+  letter-spacing: 0.04em;
+}
+
+.pass-stub__note {
+  margin-top: calc(var(--space-6) * -0.5);
+  font-size: var(--text-sm);
+  line-height: 1.4;
+  color: var(--pass-muted);
+}
+
+.pass-barcode {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: auto;
+}
+
+.pass-barcode__svg {
+  width: 100%;
+  height: 76px;
+  color: var(--color-text);
+}
+
+.pass-barcode__code {
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.28em;
+  text-align: center;
+  color: var(--pass-muted);
+}
+
+/* ---------- Barra final ---------- */
+
+.footer-bar {
+  margin-top: clamp(4rem, 2rem + 6vw, 8rem);
+  border-top: 1px solid var(--color-line);
+}
+
+.footer-bar__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4) var(--space-8);
+  padding-block: var(--space-6);
+}
+
+.footer-bar__row--legal {
+  padding-block: var(--space-4);
+  border-top: 1px solid var(--color-line);
+}
+
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-8);
+}
+
+.footer-nav a,
+.footer-top {
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  transition: color var(--duration-ui) var(--ease-out);
+}
+
+.footer-nav a:hover,
+.footer-top:hover {
+  color: var(--color-text);
+}
+
+.footer-note {
+  flex-basis: 100%;
+  margin-top: calc(var(--space-2) * -1);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  text-align: right;
+}
+
+.footer-note:empty {
+  display: none;
+}
+
+.footer-tools {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Interruptor Noche / Día con el mismo lenguaje que el selector de idioma. */
+.footer-theme {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: var(--text-hud);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.footer-theme button {
+  padding: 4px 10px;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  border-radius: var(--radius-pill);
+  color: var(--color-text-muted);
+  transition:
+    background-color var(--duration-ui) var(--ease-out),
+    color var(--duration-ui) var(--ease-out);
+}
+
+.footer-theme button[aria-pressed='true'] {
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+}
+
+.footer-disclaimer {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.footer-copy {
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: var(--text-hud);
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+
+.footer-top {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.footer-top svg {
+  width: 14px;
+  height: 14px;
+  transition: transform var(--duration-ui) var(--ease-out);
+}
+
+.footer-top:hover svg {
+  transform: translateY(-3px);
+}
+
+/* Marca gigante que asoma al final de la página. */
+.footer-wordmark {
+  /* Mismo borde izquierdo que el resto de la página (--page-edge). */
+  margin-top: var(--space-4);
+  padding-inline: var(--page-edge);
+  overflow: hidden;
+  line-height: 0;
+}
+
+.footer-wordmark svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.footer-wordmark text {
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-size: 150px;
+  font-weight: 850;
+  fill: color-mix(in srgb, var(--color-text) 7%, transparent);
+}
+
+/* ---------- Tableta y móvil: el pase se apila y la perforación queda horizontal ---------- */
+
+@media (max-width: 860px) {
+  .footer-intro {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+  }
+
+  .footer-lead {
+    justify-self: start;
+  }
+
+  .pass {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pass-main {
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    --notch-a: radial-gradient(circle at 0 100%, transparent var(--notch), var(--color-text) calc(var(--notch) + 0.5px));
+    --notch-b: radial-gradient(circle at 100% 100%, transparent var(--notch), var(--color-text) calc(var(--notch) + 0.5px));
+    -webkit-mask-position: left, right;
+    mask-position: left, right;
+    -webkit-mask-size: 51% 100%;
+    mask-size: 51% 100%;
+  }
+
+  .pass-stub {
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    --notch-a: radial-gradient(circle at 0 0, transparent var(--notch), var(--color-text) calc(var(--notch) + 0.5px));
+    --notch-b: radial-gradient(circle at 100% 0, transparent var(--notch), var(--color-text) calc(var(--notch) + 0.5px));
+    -webkit-mask-position: left, right;
+    mask-position: left, right;
+    -webkit-mask-size: 51% 100%;
+    mask-size: 51% 100%;
+  }
+
+  .pass-main::after,
+  .pass-stub::before {
+    top: auto;
+    bottom: auto;
+    left: calc(var(--notch) + 8px);
+    right: calc(var(--notch) + 8px);
+    width: auto;
+    height: 4px;
+    background-size: var(--hole-step) 4px;
+    background-repeat: repeat-x;
+  }
+
+  .pass-main::after {
+    bottom: 0;
+    background-image: radial-gradient(circle at 50% 100%, var(--color-background) var(--hole), transparent calc(var(--hole) + 0.6px));
+  }
+
+  .pass-stub::before {
+    top: 0;
+    background-image: radial-gradient(circle at 50% 0, var(--color-background) var(--hole), transparent calc(var(--hole) + 0.6px));
+  }
+
+  .pass-band--stub {
+    display: none;
+  }
+
+
+  .pass-stub__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    grid-template-areas:
+      'code barcode'
+      'note barcode';
+    align-items: center;
+    gap: var(--space-2) var(--space-6);
+    padding: var(--space-8) var(--pass-pad) var(--pass-pad);
+  }
+
+  .pass-fields--stub {
+    grid-area: code;
+  }
+
+  .pass-stub__note {
+    grid-area: note;
+    align-self: start;
+    margin-top: 0;
+  }
+
+  .pass-barcode {
+    grid-area: barcode;
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .pass {
+    --notch: 14px;
+  }
+
+  .pass-band {
+    min-height: 44px;
+  }
+
+  .pass-band__meta {
+    display: none;
+  }
+
+  .pass-club__perk {
+    font-size: 0.625rem;
+  }
+
+  .pass-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4) var(--space-3);
+  }
+
+  .pass-field__value {
+    font-size: 0.8125rem;
+  }
+
+  .pass-actions .btn {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+
+  .pass-stub__body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'code'
+      'note'
+      'barcode';
+    gap: var(--space-2);
+  }
+
+  .pass-barcode {
+    margin-top: var(--space-4);
+  }
+
+  .pass-barcode__svg {
+    height: 60px;
+  }
+
+  .footer-bar__row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .footer-nav {
+    gap: var(--space-3) var(--space-6);
+  }
+}

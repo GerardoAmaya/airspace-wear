@@ -1,0 +1,581 @@
+/*
+ * Hangar 360° (adelanto): plataforma giratoria con el par elegido en el
+ * catálogo. Portado de design/prototype/sections/departures/departures.css.
+ * Sección de alto normal: nada fijado ni ligado al scroll.
+ */
+
+.hangar {
+  --dep-scan-tint: var(--color-primary-fill);
+  position: relative;
+  overflow: clip;
+  background: var(--color-background);
+}
+
+/* Sobre crema la estela lima teñiría el zapato: se usa la tinta oliva, más tenue. */
+:global(:root[data-theme='light']) .hangar {
+  --dep-scan-tint: color-mix(in srgb, var(--color-primary) 45%, transparent);
+}
+
+/* ---------- Entradas (estado inicial en CSS, solo opacity y transform) ---------- */
+
+:global(.motion-ok) .hangar[data-enter='idle'] [data-h-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 16px, 0);
+}
+
+:global(.motion-ok) .hangar[data-enter='idle'] [data-h-title],
+:global(.motion-ok) .hangar[data-enter='idle'] [data-ring-art] {
+  opacity: 0;
+}
+
+.floor {
+  position: absolute;
+  inset: 0;
+  opacity: 0.85;
+  -webkit-mask-image: radial-gradient(ellipse 48% 58% at 66% 58%, black 0%, transparent 75%);
+  mask-image: radial-gradient(ellipse 48% 58% at 66% 58%, black 0%, transparent 75%);
+}
+
+.layout {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  align-items: center;
+  column-gap: clamp(1.5rem, 3vw, 3rem);
+  min-height: 100svh;
+  padding-top: calc(var(--header-height) + clamp(1rem, 3vh, 2.5rem));
+  padding-bottom: clamp(1.25rem, 4vh, 2.5rem);
+}
+
+.copy {
+  display: grid;
+  align-content: center;
+  gap: clamp(1rem, 2.6vh, 1.75rem);
+  container-type: inline-size;
+}
+
+.kicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.kicker .chip {
+  border-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
+  color: var(--color-primary);
+}
+
+.chipDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: hangar-blink 1.2s var(--ease-in-out) 3;
+}
+
+.copy .title {
+  margin: 0;
+  font-size: min(var(--text-display), 16.5cqi);
+}
+
+.lead {
+  max-width: 34ch;
+  font-size: var(--text-lg);
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.features {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--color-line);
+}
+
+.feature {
+  display: grid;
+  grid-template-columns: 22px auto 1fr;
+  align-items: center;
+  gap: 2px var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.feature svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.feature .featureIndex {
+  color: var(--color-text-faint);
+}
+
+.featureTitle {
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 650;
+  font-size: var(--text-sm);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.featureText {
+  grid-column: 3;
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+}
+
+.actions .cta:disabled {
+  cursor: not-allowed;
+  border-color: var(--color-line-strong);
+  color: var(--color-text-muted);
+}
+
+.ctaChip {
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+}
+
+.actions .note {
+  font-size: 0.625rem;
+  color: var(--color-text-faint);
+}
+
+/* ---------- Plataforma ---------- */
+
+.slot {
+  position: relative;
+  align-self: stretch;
+  min-height: min(72svh, 760px);
+}
+
+/* Base del canvas en el hangar: se arrastra (o se gira con flechas). */
+.stage {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.stage[data-dragging] {
+  cursor: grabbing;
+}
+
+/* El foco enmarca toda la plataforma por fuera, sin cruzar sus rótulos. */
+.stage:focus-visible {
+  outline: none;
+}
+
+.slot:has(.stage:focus-visible) {
+  outline: 2px solid var(--color-primary);
+  outline-offset: var(--space-3);
+  border-radius: var(--radius-md);
+}
+
+.halo {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  width: min(82%, 640px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.rings,
+.scan {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 50% 50%;
+  pointer-events: none;
+}
+
+.rings {
+  will-change: transform;
+}
+
+.rings svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* Oculto hasta que el modelo está listo (dos cuadros ya dibujados). Camino
+     normal: la plataforma queda vacía mientras carga y el lienzo entra con un
+     fundido, con el zapato ya girando. */
+  opacity: 0;
+}
+
+.stage[data-ready] .canvas {
+  opacity: 1;
+  transition: opacity var(--duration-reveal) var(--ease-out);
+}
+
+/* Con el póster de respaldo a la vista: primero se apaga el póster y después
+   aparece el lienzo; nunca se ven los dos a la vez. */
+.stage[data-ready][data-poster] .canvas {
+  transition: opacity var(--duration-ui) var(--ease-out) var(--duration-ui);
+}
+
+.stage[data-ready][data-loading] .canvas {
+  opacity: 0.35;
+  transition-delay: 0s;
+}
+
+/* Póster de respaldo, sobre el centro de la plataforma: solo aparece si el
+   modelo tarda (data-poster, lo pone HangarTeaser) y se apaga al llegar. */
+.poster {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  width: 54%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity var(--duration-reveal) var(--ease-out);
+}
+
+.stage[data-poster] .poster {
+  opacity: 1;
+}
+
+/* Sin display propio: ThemedPoster oculta la imagen del otro tema con
+   display: none, y un display: block aquí (más específico) mostraba las dos
+   imágenes, una debajo de la otra (dos zapatos). */
+.poster img {
+  width: 100%;
+  height: auto;
+  vertical-align: top;
+}
+
+.stage[data-ready] .poster {
+  opacity: 0;
+  transition-duration: var(--duration-ui);
+}
+
+/* Plataforma sin modelo: espera a que el zapato aterrice. */
+.wait {
+  position: absolute;
+  top: 12%;
+  left: 50%;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: opacity var(--duration-ui) var(--ease-out);
+}
+
+.stage[data-loading] .wait {
+  opacity: 1;
+}
+
+/* Escáner: una línea que sube por el zapato con una estela suave. Solo con
+   el zapato ya posado en la plataforma. */
+.scan {
+  overflow: hidden;
+  opacity: 0;
+  -webkit-mask-image: linear-gradient(to right, transparent, black 18%, black 82%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 18%, black 82%, transparent);
+  transition: opacity 0.5s linear;
+}
+
+.stage[data-landed]:not([data-loading]) .scan {
+  opacity: 1;
+}
+
+.beam {
+  position: absolute;
+  inset: 0;
+  border-top: 1px solid var(--color-primary);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--dep-scan-tint) 16%, transparent),
+    color-mix(in srgb, var(--dep-scan-tint) 4%, transparent) 28%,
+    transparent 50%
+  );
+  opacity: 0;
+}
+
+/* Rótulos HUD de la plataforma. */
+.hud {
+  position: absolute;
+  display: grid;
+  gap: 4px;
+  pointer-events: none;
+}
+
+/* Deja libre la esquina de los rótulos laterales: un nombre largo se parte. */
+.hudTop {
+  top: 0;
+  left: 0;
+  max-width: calc(100% - 11rem);
+}
+
+.hudSide {
+  top: 0;
+  right: 0;
+  justify-items: end;
+}
+
+/* Centrado sin transform: la entrada anima transform sin pisar la posición. */
+.hudBottom {
+  right: 0;
+  bottom: 0;
+  left: 0;
+  justify-items: center;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.model {
+  text-wrap: balance;
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 700;
+  font-size: var(--text-lg);
+  text-transform: uppercase;
+}
+
+.rot {
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-xl);
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--color-primary);
+}
+
+.progress {
+  display: block;
+  width: 180px;
+  height: 2px;
+  background: var(--color-line-strong);
+}
+
+.progress > span {
+  display: block;
+  height: 100%;
+  background: var(--color-primary-fill);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.hintTouch {
+  display: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .hintMouse {
+    display: none;
+  }
+
+  .hintTouch {
+    display: inline;
+  }
+}
+
+/* Anillos de la plataforma (SVG en milímetros del mundo). */
+.ring {
+  fill: none;
+  stroke: var(--color-line-strong);
+  stroke-width: 2;
+}
+
+.ringOuter {
+  stroke: var(--color-line);
+  stroke-dasharray: 3 9;
+}
+
+.ringEdge {
+  stroke: var(--color-primary);
+  stroke-width: 2.4;
+}
+
+.ringInner {
+  stroke: var(--color-line);
+}
+
+.discStop {
+  stop-color: var(--color-primary-fill);
+  stop-opacity: 0;
+}
+
+.discStopCenter {
+  stop-opacity: 0.14;
+}
+
+.arc {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 5;
+}
+
+.tick {
+  stroke: var(--color-text-faint);
+  stroke-width: 2;
+}
+
+.tickMajor {
+  stroke: var(--color-primary);
+  stroke-width: 3;
+}
+
+.rings text {
+  fill: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 17px;
+  letter-spacing: 0.06em;
+  text-anchor: middle;
+}
+
+.index {
+  fill: var(--color-primary);
+}
+
+.cross {
+  stroke: var(--color-line-strong);
+  stroke-width: 1.5;
+}
+
+@keyframes hangar-blink {
+  0%,
+  55%,
+  100% {
+    opacity: 1;
+  }
+  70%,
+  85% {
+    opacity: 0.35;
+  }
+}
+
+/* ---------- Móvil: columna con título, plataforma y funciones ---------- */
+
+@media (max-width: 860px) {
+  .layout {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    min-height: 0;
+    padding-top: calc(var(--header-height) + var(--space-4));
+    padding-bottom: var(--space-12);
+  }
+
+  .copy {
+    display: contents;
+  }
+
+  .kicker {
+    order: 1;
+  }
+
+  .copy .title {
+    order: 2;
+    font-size: clamp(2.5rem, 12vw, 3.5rem);
+  }
+
+  .title br {
+    display: none;
+  }
+
+  .lead {
+    order: 3;
+    font-size: var(--text-sm);
+  }
+
+  .slot {
+    order: 4;
+    flex: none;
+    height: clamp(300px, 46svh, 390px);
+    min-height: 0;
+  }
+
+  .features {
+    order: 5;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+    border: 0;
+  }
+
+  .feature {
+    grid-template-columns: 1fr;
+    justify-items: start;
+    gap: var(--space-1);
+    padding: var(--space-2) 0 0;
+    border-top: 1px solid var(--color-line);
+    border-bottom: 0;
+  }
+
+  .featureIndex,
+  .featureText {
+    display: none;
+  }
+
+  .featureTitle {
+    font-size: 0.6875rem;
+    line-height: 1.25;
+  }
+
+  .actions {
+    order: 6;
+  }
+
+  .actions .note,
+  .hudSide {
+    display: none;
+  }
+
+  .hudTop {
+    max-width: 100%;
+  }
+
+  .model {
+    font-size: var(--text-base);
+  }
+
+  .rot {
+    font-size: var(--text-lg);
+  }
+
+  .progress {
+    width: 120px;
+  }
+
+  .hudBottom .hint {
+    display: none;
+  }
+
+  .floor {
+    -webkit-mask-image: radial-gradient(ellipse 70% 40% at 50% 55%, black 0%, transparent 75%);
+    mask-image: radial-gradient(ellipse 70% 40% at 50% 55%, black 0%, transparent 75%);
+  }
+}

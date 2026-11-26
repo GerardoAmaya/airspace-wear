@@ -1,0 +1,1721 @@
+{
+  "models": {
+    "air-jordan-1": {
+      "slug": "air-jordan-1",
+      "displayName": "Air Jordan 1",
+      "brand": "Nike",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "a4b434181fbb48008ad460722fd53725",
+        "title": "Air Jordan 1",
+        "url": "https://sketchfab.com/3d-models/air-jordan-1-a4b434181fbb48008ad460722fd53725",
+        "author": "makoto",
+        "authorUrl": "https://sketchfab.com/lu87813",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-25"
+      },
+      "raw": {
+        "bytes": 8094868,
+        "sketchfabFaceCount": 59512,
+        "triangles": 59512,
+        "drawCalls": 2,
+        "meshes": 2,
+        "materials": 2,
+        "textures": 6,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "foot": "right",
+        "lateralSideFacing": "+z",
+        "extractedFromPair": true,
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "yawCorrection": 10,
+        "scale": 0.0111592,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 11.4,
+          "height": 17.7
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/air-jordan-1.glb",
+          "bytes": 1053452,
+          "triangles": 29756,
+          "drawCalls": 2,
+          "meshes": 2,
+          "materials": 2,
+          "textures": 6,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/air-jordan-1-lite.glb",
+          "bytes": 437248,
+          "triangles": 19997,
+          "drawCalls": 2,
+          "meshes": 2,
+          "materials": 2,
+          "textures": 6,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "new-balance-997": {
+      "slug": "new-balance-997",
+      "displayName": "New Balance 997",
+      "brand": "New Balance",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "05e79a2dffbc4356bba7e0751fada08f",
+        "title": "New Balance 997",
+        "url": "https://sketchfab.com/3d-models/new-balance-997-05e79a2dffbc4356bba7e0751fada08f",
+        "author": "Isaiah",
+        "authorUrl": "https://sketchfab.com/aizaisia",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-25"
+      },
+      "raw": {
+        "bytes": 12786716,
+        "sketchfabFaceCount": 54927,
+        "triangles": 54925,
+        "drawCalls": 4,
+        "meshes": 4,
+        "materials": 4,
+        "textures": 12,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "foot": "right",
+        "lateralSideFacing": "+z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "yawCorrection": -0.25,
+        "scale": 0.000591378,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 11.1,
+          "height": 15.5
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/new-balance-997.glb",
+          "bytes": 1929836,
+          "triangles": 54925,
+          "drawCalls": 4,
+          "meshes": 4,
+          "materials": 4,
+          "textures": 11,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/new-balance-997-lite.glb",
+          "bytes": 633176,
+          "triangles": 19996,
+          "drawCalls": 4,
+          "meshes": 4,
+          "materials": 4,
+          "textures": 11,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "nike-air-uptempo": {
+      "slug": "nike-air-uptempo",
+      "displayName": "Nike Air Uptempo",
+      "brand": "Nike",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "b147852f4b3f481aac7a4686b08cf43c",
+        "title": "Nike Air Uptempo Sneaker(3D scanned, low poly)",
+        "url": "https://sketchfab.com/3d-models/nike-air-uptempo-sneaker3d-scanned-low-poly-b147852f4b3f481aac7a4686b08cf43c",
+        "author": "WheelchairDrift",
+        "authorUrl": "https://sketchfab.com/WheelchairDrift",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-25"
+      },
+      "raw": {
+        "bytes": 3035200,
+        "sketchfabFaceCount": 9530,
+        "triangles": 9524,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 2,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "foot": "left",
+        "lateralSideFacing": "-z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 1,
+        "scale": 0.123959,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 11.5,
+          "height": 17.9
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/nike-air-uptempo.glb",
+          "bytes": 454500,
+          "triangles": 9524,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 2,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/nike-air-uptempo-lite.glb",
+          "bytes": 220208,
+          "triangles": 9524,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 2,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "adidas-samba": {
+      "slug": "adidas-samba",
+      "displayName": "Adidas Samba",
+      "brand": "Adidas",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "886ff5e75d174dc884c63e829fa4bb59",
+        "title": "Adidas Samba Classic",
+        "url": "https://sketchfab.com/3d-models/adidas-samba-classic-886ff5e75d174dc884c63e829fa4bb59",
+        "author": "nrose",
+        "authorUrl": "https://sketchfab.com/nrose",
+        "license": {
+          "slug": "by-nc-sa",
+          "name": "CC BY-NC-SA 4.0",
+          "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+          "commercialUse": false,
+          "shareAlike": true
+        },
+        "downloadedAt": "2026-11-25"
+      },
+      "raw": {
+        "bytes": 4771456,
+        "sketchfabFaceCount": 89514,
+        "triangles": 89514,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 1,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg"
+        ]
+      },
+      "pose": {
+        "foot": "left",
+        "lateralSideFacing": "-z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          -90,
+          0
+        ],
+        "yawCorrection": 7,
+        "scale": 0.915881,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 10.4,
+          "height": 13.1
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/adidas-samba.glb",
+          "bytes": 588872,
+          "triangles": 89514,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/adidas-samba-lite.glb",
+          "bytes": 175868,
+          "triangles": 20000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "adidas-sambae": {
+      "slug": "adidas-sambae",
+      "displayName": "Adidas Sambae",
+      "brand": "Adidas",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "57413d6cea774d289d4a9a59cbbd884a",
+        "title": "ADIDAS SAMBAE 運動休閒鞋",
+        "url": "https://sketchfab.com/3d-models/adidas-sambae-57413d6cea774d289d4a9a59cbbd884a",
+        "author": "aaa40401",
+        "authorUrl": "https://sketchfab.com/aaa40401",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-25"
+      },
+      "raw": {
+        "bytes": 12608300,
+        "sketchfabFaceCount": 154244,
+        "triangles": 154260,
+        "drawCalls": 34,
+        "meshes": 34,
+        "materials": 2,
+        "textures": 6,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "foot": "right",
+        "lateralSideFacing": "+z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": -6,
+        "scale": 0.0638246,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 11.8,
+          "height": 13.4
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/adidas-sambae.glb",
+          "bytes": 1714940,
+          "triangles": 89999,
+          "drawCalls": 2,
+          "meshes": 2,
+          "materials": 2,
+          "textures": 6,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/adidas-sambae-lite.glb",
+          "bytes": 489720,
+          "triangles": 19996,
+          "drawCalls": 2,
+          "meshes": 2,
+          "materials": 2,
+          "textures": 6,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "adidas-prophere": {
+      "slug": "adidas-prophere",
+      "displayName": "Adidas Prophere",
+      "brand": "Adidas",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "e582295a143041268a737b4ea54556cc",
+        "title": "adidas Originals Prophere CQ2127",
+        "url": "https://sketchfab.com/3d-models/adidas-originals-prophere-cq2127-e582295a143041268a737b4ea54556cc",
+        "author": "CHAMELEONHUM",
+        "authorUrl": "https://sketchfab.com/CHAMELEONHUM",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-25"
+      },
+      "raw": {
+        "bytes": 6885036,
+        "sketchfabFaceCount": 184279,
+        "triangles": 184279,
+        "drawCalls": 3,
+        "meshes": 3,
+        "materials": 2,
+        "textures": 2,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "right",
+        "lateralSideFacing": "+z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0.75,
+        "scale": 1.22582,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 12,
+          "height": 15.7
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/adidas-prophere.glb",
+          "bytes": 906592,
+          "triangles": 89997,
+          "drawCalls": 2,
+          "meshes": 2,
+          "materials": 2,
+          "textures": 2,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/adidas-prophere-lite.glb",
+          "bytes": 255660,
+          "triangles": 19997,
+          "drawCalls": 2,
+          "meshes": 2,
+          "materials": 2,
+          "textures": 2,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "adidas-gazelle": {
+      "slug": "adidas-gazelle",
+      "displayName": "Adidas Gazelle",
+      "brand": "Adidas",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "280ae99c7f4647c9aa450e140aa7a9de",
+        "title": "Adidas Gazelle",
+        "url": "https://sketchfab.com/3d-models/adidas-gazelle-280ae99c7f4647c9aa450e140aa7a9de",
+        "author": "kzolozhkov",
+        "authorUrl": "https://sketchfab.com/kzolozhkov",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-25"
+      },
+      "raw": {
+        "bytes": 3557956,
+        "sketchfabFaceCount": 49999,
+        "triangles": 49999,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 1,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "left",
+        "lateralSideFacing": "-z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          50,
+          0
+        ],
+        "yawCorrection": -11.75,
+        "scale": 0.285557,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 10.8,
+          "height": 13.6
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/adidas-gazelle.glb",
+          "bytes": 542020,
+          "triangles": 49999,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/adidas-gazelle-lite.glb",
+          "bytes": 211520,
+          "triangles": 19996,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "adidas-basketball": {
+      "slug": "adidas-basketball",
+      "displayName": "Adidas Basketball",
+      "brand": "Adidas",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "66eb9956736f491889f444c0aa64c055",
+        "title": "Adidas shoe 3d scan free download",
+        "url": "https://sketchfab.com/3d-models/adidas-shoe-3d-scan-free-download-66eb9956736f491889f444c0aa64c055",
+        "author": "uniqued",
+        "authorUrl": "https://sketchfab.com/uniqued",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-25"
+      },
+      "raw": {
+        "bytes": 35859396,
+        "sketchfabFaceCount": 1007230,
+        "triangles": 1007230,
+        "drawCalls": 11,
+        "meshes": 11,
+        "materials": 1,
+        "textures": 2,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "left",
+        "lateralSideFacing": "-z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": -5.25,
+        "scale": 0.0010341,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 11.3,
+          "height": 19.5
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/adidas-basketball.glb",
+          "bytes": 849316,
+          "triangles": 90000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 2,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/adidas-basketball-lite.glb",
+          "bytes": 322560,
+          "triangles": 31423,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 2,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "air-jordan-1-mid-particle-beige": {
+      "slug": "air-jordan-1-mid-particle-beige",
+      "displayName": "Air Jordan 1 Mid Particle Beige",
+      "brand": "Nike",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "3d9886592e9847c59ebf6c8341b005a7",
+        "title": "Air Jordan 1 mid particle beige",
+        "url": "https://sketchfab.com/3d-models/air-jordan-1-mid-particle-beige-3d9886592e9847c59ebf6c8341b005a7",
+        "author": "Ylenia Trombetta",
+        "authorUrl": "https://sketchfab.com/Mgk.Yle",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-25"
+      },
+      "raw": {
+        "bytes": 19616680,
+        "sketchfabFaceCount": 605778,
+        "triangles": 605778,
+        "drawCalls": 7,
+        "meshes": 7,
+        "materials": 3,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "right",
+        "lateralSideFacing": "+z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "yawCorrection": -2.5,
+        "scale": 0.996719,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 11.7,
+          "height": 18.7
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/air-jordan-1-mid-particle-beige.glb",
+          "bytes": 825528,
+          "triangles": 89996,
+          "drawCalls": 3,
+          "meshes": 3,
+          "materials": 3,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/air-jordan-1-mid-particle-beige-lite.glb",
+          "bytes": 228180,
+          "triangles": 24909,
+          "drawCalls": 3,
+          "meshes": 3,
+          "materials": 3,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "jordan-4-university-blue": {
+      "slug": "jordan-4-university-blue",
+      "displayName": "Jordan 4 Retro University Blue",
+      "brand": "Nike",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "68f32cad08544592aafd56a1ac7c60bc",
+        "title": "Jordan 4 Retro University Blue",
+        "url": "https://sketchfab.com/3d-models/jordan-4-retro-university-blue-68f32cad08544592aafd56a1ac7c60bc",
+        "author": "ShoesPlug",
+        "authorUrl": "https://sketchfab.com/ShoesPlug",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-25"
+      },
+      "raw": {
+        "bytes": 3198032,
+        "sketchfabFaceCount": 53110,
+        "triangles": 53110,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 1,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "right",
+        "lateralSideFacing": "+z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 1.25,
+        "scale": 0.715639,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 11.2,
+          "height": 17.7
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/jordan-4-university-blue.glb",
+          "bytes": 446944,
+          "triangles": 53110,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/jordan-4-university-blue-lite.glb",
+          "bytes": 183384,
+          "triangles": 20000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "nike-pegasus-36": {
+      "slug": "nike-pegasus-36",
+      "displayName": "Nike Air Zoom Pegasus 36",
+      "brand": "Nike",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "00fd99e778c244c3bd3b65f99dad7cb2",
+        "title": "Nike Air Zoom Pegasus 36",
+        "url": "https://sketchfab.com/3d-models/nike-air-zoom-pegasus-36-00fd99e778c244c3bd3b65f99dad7cb2",
+        "author": "quaz30",
+        "authorUrl": "https://sketchfab.com/quaz30",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-25"
+      },
+      "raw": {
+        "bytes": 6070488,
+        "sketchfabFaceCount": 71088,
+        "triangles": 71085,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "right",
+        "lateralSideFacing": "+z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          -90,
+          0
+        ],
+        "yawCorrection": -4.25,
+        "scale": 0.150177,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 10.5,
+          "height": 13.5
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/nike-pegasus-36.glb",
+          "bytes": 1230696,
+          "triangles": 71085,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/nike-pegasus-36-lite.glb",
+          "bytes": 324380,
+          "triangles": 19999,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "jordan-4-travis-scott": {
+      "slug": "jordan-4-travis-scott",
+      "displayName": "Jordan 4 Retro Travis Scott Purple",
+      "brand": "Nike",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "e055428e1f294a73b5e6518a4f902c04",
+        "title": "Jordan 4 Retro Travis Scott \"Purple\"",
+        "url": "https://sketchfab.com/3d-models/jordan-4-retro-travis-scott-purple-e055428e1f294a73b5e6518a4f902c04",
+        "author": "ivandrodejesues908",
+        "authorUrl": "https://sketchfab.com/ivandrodejesues908",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-25"
+      },
+      "raw": {
+        "bytes": 2099996,
+        "sketchfabFaceCount": 24846,
+        "triangles": 24846,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 1,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "left",
+        "lateralSideFacing": "-z",
+        "extractedFromPair": false,
+        "rotation": [
+          -90,
+          77,
+          90
+        ],
+        "yawCorrection": -3.5,
+        "scale": 0.592639,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 11.2,
+          "height": 17.4
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/jordan-4-travis-scott.glb",
+          "bytes": 331500,
+          "triangles": 24846,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/jordan-4-travis-scott-lite.glb",
+          "bytes": 216932,
+          "triangles": 20000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "nike-dunk-high-hawaii": {
+      "slug": "nike-dunk-high-hawaii",
+      "displayName": "Nike Dunk High Hawaii",
+      "brand": "Nike",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "b91992960af540c7a1edef97bf4d7ef1",
+        "title": "Nike Dunk High Hawaii",
+        "url": "https://sketchfab.com/3d-models/nike-dunk-high-hawaii-b91992960af540c7a1edef97bf4d7ef1",
+        "author": "ryanbair",
+        "authorUrl": "https://sketchfab.com/ryanbair",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-25"
+      },
+      "raw": {
+        "bytes": 112148656,
+        "sketchfabFaceCount": 3292952,
+        "triangles": 3292952,
+        "drawCalls": 35,
+        "meshes": 35,
+        "materials": 1,
+        "textures": 1,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg"
+        ]
+      },
+      "pose": {
+        "category": "sneaker",
+        "foot": "left",
+        "lateralSideFacing": "-z",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 12.25,
+        "scale": 0.0185032,
+        "dimensionsCm": {
+          "length": 30,
+          "width": 10.5,
+          "height": 16.2
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/nike-dunk-high-hawaii.glb",
+          "bytes": 1175820,
+          "triangles": 90000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/nike-dunk-high-hawaii-lite.glb",
+          "bytes": 268880,
+          "triangles": 20000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "adidas-teamgeist-2006": {
+      "slug": "adidas-teamgeist-2006",
+      "displayName": "Adidas Teamgeist 2006",
+      "brand": "Adidas",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "570b82c4391c49ddb1e471e6e55de9f4",
+        "title": "Adidas Teamgeist Ball (Germany 2006 Match Ball)",
+        "url": "https://sketchfab.com/3d-models/adidas-teamgeist-ball-germany-2006-match-ball-570b82c4391c49ddb1e471e6e55de9f4",
+        "author": "Armellino Raffaele",
+        "authorUrl": "https://sketchfab.com/armellino.raffaele",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-25"
+      },
+      "raw": {
+        "bytes": 3145928,
+        "sketchfabFaceCount": 76800,
+        "triangles": 76800,
+        "drawCalls": 3,
+        "meshes": 3,
+        "materials": 2,
+        "textures": 4,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "ball",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.126189,
+        "dimensionsCm": {
+          "length": 22,
+          "width": 22,
+          "height": 22
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/adidas-teamgeist-2006.glb",
+          "bytes": 680100,
+          "triangles": 76800,
+          "drawCalls": 2,
+          "meshes": 2,
+          "materials": 2,
+          "textures": 4,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/adidas-teamgeist-2006-lite.glb",
+          "bytes": 213012,
+          "triangles": 19999,
+          "drawCalls": 2,
+          "meshes": 2,
+          "materials": 2,
+          "textures": 4,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "adidas-jabulani-2010": {
+      "slug": "adidas-jabulani-2010",
+      "displayName": "Adidas Jabulani 2010",
+      "brand": "Adidas",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "1ac8623bb591463a930056f3130ddadc",
+        "title": "Adidas 2010 Jabulani",
+        "url": "https://sketchfab.com/3d-models/adidas-2010-jabulani-1ac8623bb591463a930056f3130ddadc",
+        "author": "DayroXD",
+        "authorUrl": "https://sketchfab.com/DayroXD",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-25"
+      },
+      "raw": {
+        "bytes": 391740,
+        "sketchfabFaceCount": 9800,
+        "triangles": 9800,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 1,
+        "maxTextureSize": 512,
+        "textureFormats": [
+          "jpeg"
+        ]
+      },
+      "pose": {
+        "category": "ball",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 1.1183,
+        "dimensionsCm": {
+          "length": 22,
+          "width": 22,
+          "height": 22
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/adidas-jabulani-2010.glb",
+          "bytes": 87044,
+          "triangles": 9800,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/adidas-jabulani-2010-lite.glb",
+          "bytes": 87044,
+          "triangles": 9800,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "adidas-telstar-1970": {
+      "slug": "adidas-telstar-1970",
+      "displayName": "Adidas Telstar 1970",
+      "brand": "Adidas",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "fedfaa96f48d45068414db905d28c769",
+        "title": "Adidas 1970 Telstar",
+        "url": "https://sketchfab.com/3d-models/adidas-1970-telstar-fedfaa96f48d45068414db905d28c769",
+        "author": "DayroXD",
+        "authorUrl": "https://sketchfab.com/DayroXD",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-25"
+      },
+      "raw": {
+        "bytes": 547832,
+        "sketchfabFaceCount": 9800,
+        "triangles": 9800,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 1,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg"
+        ]
+      },
+      "pose": {
+        "category": "ball",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.22,
+        "dimensionsCm": {
+          "length": 22,
+          "width": 22,
+          "height": 22
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/adidas-telstar-1970.glb",
+          "bytes": 101416,
+          "triangles": 9800,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/adidas-telstar-1970-lite.glb",
+          "bytes": 63760,
+          "triangles": 9800,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 1,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "adidas-al-rihla-2022": {
+      "slug": "adidas-al-rihla-2022",
+      "displayName": "Adidas Al Rihla 2022",
+      "brand": "Adidas",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "354acbcd704e48e0be352ebd7b28f934",
+        "title": "Adidas AL RIHLA - Qatar 2022 Ball",
+        "url": "https://sketchfab.com/3d-models/adidas-al-rihla-qatar-2022-ball-354acbcd704e48e0be352ebd7b28f934",
+        "author": "MARLONerick",
+        "authorUrl": "https://sketchfab.com/MARLONerick",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-25"
+      },
+      "raw": {
+        "bytes": 2412144,
+        "sketchfabFaceCount": 21504,
+        "triangles": 21504,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 2,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "ball",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.108099,
+        "dimensionsCm": {
+          "length": 22,
+          "width": 22,
+          "height": 22
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/adidas-al-rihla-2022.glb",
+          "bytes": 484012,
+          "triangles": 21504,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 2,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/adidas-al-rihla-2022-lite.glb",
+          "bytes": 261884,
+          "triangles": 20000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 2,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "adidas-trionda-2026": {
+      "slug": "adidas-trionda-2026",
+      "displayName": "Adidas Trionda 2026",
+      "brand": "Adidas",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "e22ee40495df4cd59465411f8f3d935c",
+        "title": "FIFA WORLD CUP FOOTBALL BALL",
+        "url": "https://sketchfab.com/3d-models/fifa-world-cup-football-ball-e22ee40495df4cd59465411f8f3d935c",
+        "author": "m.akif.tns",
+        "authorUrl": "https://sketchfab.com/m.akif.tns",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-25"
+      },
+      "raw": {
+        "bytes": 20480588,
+        "sketchfabFaceCount": 500000,
+        "triangles": 500000,
+        "drawCalls": 4,
+        "meshes": 4,
+        "materials": 1,
+        "textures": 2,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "ball",
+        "extractedFromPair": false,
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.220466,
+        "dimensionsCm": {
+          "length": 22,
+          "width": 22,
+          "height": 22
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/adidas-trionda-2026.glb",
+          "bytes": 964140,
+          "triangles": 90000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 2,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/adidas-trionda-2026-lite.glb",
+          "bytes": 298952,
+          "triangles": 20000,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 2,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    }
+  }
+}

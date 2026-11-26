@@ -1,0 +1,56 @@
+{
+  "HomeBalls": {
+    "kicker": "Colección mundialista",
+    "brandSize": "{brand} · Talla {size}",
+    "status": {
+      "label": "Vitrina · ",
+      "moving": "En movimiento",
+      "showing": "Mostrando",
+      "paused": "En pausa"
+    },
+    "count": "<value>{count}</value> {total, plural, one {balón} other {balones}} · Mundiales {from} a {to}",
+    "title": "Balones",
+    "lead": "Los balones oficiales de {total, plural, one {un Mundial} other {# Mundiales}}, del {oldest} de {oldestYear} al {newest} de {newestYear}.",
+    "hostYear": "{host} {year}",
+    "details": {
+      "piece": "Modelo {index} / {total}",
+      "finalIn": "Final en",
+      "year": "Año",
+      "panels": "Paneles",
+      "finish": "Acabado",
+      "unknown": "Sin dato",
+      "price": "Precio",
+      "addToCart": "Agregar al carrito",
+      "added": "Agregado al carrito"
+    },
+    "announce": {
+      "showing": "{name} en vista 3D. {edition}.",
+      "added": "{name} agregado al carrito."
+    },
+    "readouts": {
+      "spin": "Giro",
+      "speed": "Velocidad",
+      "axis": "Eje"
+    },
+    "picker": {
+      "label": "Elige tu balón",
+      "item": "{year} {host} {shortName}: {name}, {edition}",
+      "hint": "O elige uno en la vitrina"
+    },
+    "spot": {
+      "view3d": "Vista 3D",
+      "inFocusSuffix": " · En foco",
+      "loading": "Cargando modelo 3D",
+      "axisSpin": "Eje {degrees}° · Giro lento",
+      "axisStill": "Eje {degrees}° · Vista fija",
+      "diameter": "Ø {cm} cm",
+      "sliderLabel": "Gira el {name}: arrastra o usa las flechas",
+      "turnValue": "Giro {degrees}°"
+    },
+    "belt": {
+      "focus": "Foco",
+      "cup": "Mundial",
+      "inFocus": "En foco"
+    }
+  }
+}

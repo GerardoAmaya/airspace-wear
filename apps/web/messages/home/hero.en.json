@@ -1,0 +1,49 @@
+{
+  "HomeHero": {
+    "sectionLabel": "Home",
+    "kicker": "{brand} · Ref. {reference}",
+    "lead": "Sneakers from the brands you love, checked piece by piece before they reach you.",
+    "ctaCatalog": "Explore the catalog",
+    "ctaDetails": "See the details",
+    "cuePointer": "Scroll down for the details",
+    "cueTouch": "Swipe up for the details",
+    "posterAlt": "{name}, side view",
+    "loading": "Loading 3D model",
+    "gripLabel": "Turn the {name}: drag or use the arrow keys",
+    "gripValue": "Turned {degrees}°",
+    "reticle": {
+      "target": "Model · Ref. {reference}",
+      "lock": "In focus"
+    },
+    "readouts": {
+      "label": "Model data",
+      "weight": "Weight",
+      "price": "Price",
+      "sizes": "Sizes",
+      "availability": "Availability",
+      "gramsUnit": "g",
+      "degreesUnit": "°",
+      "sizesValue": "{system} {min}-{max}"
+    },
+    "details": {
+      "headLabel": "Ref. {reference} · {name}",
+      "title": "Piece by piece",
+      "progressLabel": "Progress",
+      "progress": "{seen} of {total} details seen",
+      "complete": "Tour complete",
+      "completeTitle": "Now pick yours",
+      "ctaFinish": "Shop the catalog",
+      "turnLabel": "Turn",
+      "railTitle": "Details",
+      "railHint": "Select a detail to see it up close",
+      "counter": "{current} / {total}",
+      "jumpTo": "Show detail",
+      "specWeight": "Weight",
+      "specStack": "Stack height",
+      "specUpper": "Upper",
+      "specSole": "Sole",
+      "gramsUnit": "g",
+      "millimetersUnit": "mm"
+    }
+  }
+}

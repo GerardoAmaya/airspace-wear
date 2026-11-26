@@ -1,0 +1,120 @@
+# Servicios locales de AIRSPACE Wear. Uso: pnpm db:up / pnpm db:down.
+# Postgres escucha solo en 127.0.0.1:5434 (5432 y 5433 suelen estar ocupados
+# por otros proyectos). Credenciales de desarrollo local, no secretas.
+#
+# Sin perfil solo existe `db`. El perfil `full` agrega las migraciones, el seed,
+# la API (127.0.0.1:4001) y la web (127.0.0.1:3001), en puertos distintos de
+# los de pnpm dev (3000 y 4000) para que ambos convivan. Uso: pnpm docker:up /
+# pnpm docker:down (ver README.md, sección Docker).
+#
+# Las variables de abajo con ${...} se leen del entorno o del .env de la raíz
+# al ejecutar. Ninguna se guarda en una imagen.
+name: airspace-wear
+
+services:
+  db:
+    image: postgres:18.7-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: airspace
+      POSTGRES_PASSWORD: airspace
+      POSTGRES_DB: airspace
+    ports:
+      - '127.0.0.1:5434:5432'
+    volumes:
+      - db-data:/var/lib/postgresql
+      # Crea también la base de pruebas (airspace_test) en el primer arranque.
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U airspace -d airspace']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # ---------- Perfil full ----------
+
+  # Aplica las migraciones pendientes (prisma migrate deploy) y termina.
+  migrate:
+    profiles: [full]
+    image: airspace-wear-api-tools:local
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: tools
+    environment:
+      DATABASE_URL: postgresql://airspace:airspace@db:5432/airspace
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Carga el catálogo (repetible) y termina. Misma imagen que migrate.
+  seed:
+    profiles: [full]
+    image: airspace-wear-api-tools:local
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: tools
+    command: ['./node_modules/.bin/tsx', 'prisma/seed/index.ts']
+    environment:
+      DATABASE_URL: postgresql://airspace:airspace@db:5432/airspace
+      # Al terminar avisa a la web para refrescar su caché (si ya está arriba).
+      WEB_ORIGIN: http://web:3000
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET:-}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  api:
+    profiles: [full]
+    image: airspace-wear-api:local
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://airspace:airspace@db:5432/airspace
+      API_HOST: 0.0.0.0
+      API_PORT: 4000
+      WEB_ORIGIN: http://localhost:3001,http://127.0.0.1:3001
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      STYLIST_ENABLED: ${STYLIST_ENABLED:-true}
+      STYLIST_MODEL: ${STYLIST_MODEL:-claude-opus-5-5}
+      STYLIST_DAILY_BUDGET_USD: ${STYLIST_DAILY_BUDGET_USD:-2}
+      TRUST_PROXY: ${TRUST_PROXY:-0}
+    ports:
+      - '127.0.0.1:4001:4000'
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+
+  # La web se construye contra la API ya levantada (el build prerenderiza el
+  # catálogo): por eso pnpm docker:up levanta primero `api` y después `web`.
+  web:
+    profiles: [full]
+    image: airspace-wear-web:local
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        # Durante el build, la API publicada en el host (127.0.0.1:4001).
+        API_URL: ${WEB_BUILD_API_URL:-http://host.docker.internal:4001}
+        # El navegador llama a la API publicada (solo el estilista).
+        NEXT_PUBLIC_API_URL: http://127.0.0.1:4001
+        # Dirección pública de esta web, para hreflang y la URL canónica.
+        SITE_URL: http://localhost:3001
+      # En Linux, host.docker.internal no existe por defecto.
+      extra_hosts:
+        - 'host.docker.internal:host-gateway'
+    restart: unless-stopped
+    environment:
+      API_URL: http://api:4000
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET:-}
+    ports:
+      - '127.0.0.1:3001:3000'
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  db-data:

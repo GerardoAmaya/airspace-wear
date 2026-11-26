@@ -1,0 +1,1210 @@
+/*
+ * Catálogo de la home: tablero split-flap, vista 3D y detalles. Portado de
+ * design/prototype/sections/departures/departures.css. Solo se animan
+ * transform y opacity; los colores salen de los tokens.
+ */
+
+/* ---------- Sección ---------- */
+
+.section {
+  /* Paletas del tablero (tema oscuro). */
+  --dep-tile-bg: var(--color-surface);
+  --dep-tile-ink: var(--color-text);
+  --dep-tile-edge: color-mix(in srgb, var(--color-text) 7%, transparent);
+  --dep-tile-sheen: color-mix(in srgb, var(--color-text) 4%, transparent);
+  --dep-tile-hinge: color-mix(in srgb, var(--color-background) 85%, transparent);
+  --dep-tile-stretch: 87.5%;
+
+  position: relative;
+  background: var(--color-background);
+}
+
+/* Tema claro: paletas claras con tinta oscura y una arista visible. */
+:global(:root[data-theme='light']) .section {
+  --dep-tile-bg: var(--color-surface-raised);
+  --dep-tile-edge: var(--color-line);
+  --dep-tile-sheen: color-mix(in srgb, var(--color-text) 3%, transparent);
+  --dep-tile-hinge: color-mix(in srgb, var(--color-text) 13%, transparent);
+}
+
+/* Fila de apertura compacta: el título y el tablero caben en la primera
+   vista aun en pantallas bajas (1720 x 816). */
+.intro {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding-top: calc(var(--header-height) + var(--space-4));
+}
+
+.introRule {
+  flex: 1;
+  height: 1px;
+  background: var(--color-line-strong);
+  transform-origin: left center;
+}
+
+.introBrands {
+  white-space: nowrap;
+}
+
+/* ---------- Layout ---------- */
+
+.board {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(320px, 29vw, 440px);
+  grid-template-areas:
+    'head band'
+    'list band';
+  align-content: start;
+  column-gap: clamp(2rem, 4vw, 4.5rem);
+  row-gap: clamp(1.25rem, 3.5vh, 2.5rem);
+  padding-top: clamp(1.25rem, 3vh, 2rem);
+  padding-bottom: clamp(2.5rem, 8vh, 5rem);
+}
+
+/* ---------- Entradas (estado inicial en CSS, solo opacity y transform) ----------
+   Solo con movimiento permitido (html.motion-ok); la entrada se completa al
+   instante si el foco llega antes. */
+
+:global(.motion-ok) .board[data-enter='idle'] [data-enter-item] {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+}
+
+:global(.motion-ok) .board[data-enter='idle'] [data-slot-enter] {
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+:global(.motion-ok) .board[data-enter='idle'] [data-title] {
+  opacity: 0;
+}
+
+:global(.motion-ok) .section:has(.board[data-enter='idle']) .introRule {
+  transform: scaleX(0);
+}
+
+.head {
+  grid-area: head;
+  display: grid;
+  align-content: end;
+  gap: var(--space-3);
+  container-type: inline-size;
+}
+
+.headMeta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-6);
+}
+
+.headTitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4) var(--space-8);
+}
+
+/* "CATÁLOGO" siempre en una línea: se ajusta al ancho de su columna.
+   (Selectores compuestos: ganan a las piezas comunes de ui.module.css.) */
+.head .title {
+  margin: 0 0 0 -0.04em;
+  font-size: min(var(--text-display), 14.5cqi);
+  white-space: nowrap;
+}
+
+.lead {
+  max-width: 30ch;
+  padding-bottom: 0.4em;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+/* ---------- Vista 3D ---------- */
+
+.band {
+  grid-area: band;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+.slot {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 260px;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.slot[data-dragging] {
+  cursor: grabbing;
+}
+
+.slotGrid {
+  position: absolute;
+  inset: 1px;
+  opacity: 0.7;
+  -webkit-mask-image: radial-gradient(closest-side, black 20%, transparent 100%);
+  mask-image: radial-gradient(closest-side, black 20%, transparent 100%);
+}
+
+/* Marcas de mira en el centro de cada borde. */
+.slotMarks {
+  --mark: var(--color-line-strong);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--mark), var(--mark)) 50% 0 / 1px 10px no-repeat,
+    linear-gradient(var(--mark), var(--mark)) 50% 100% / 1px 10px no-repeat,
+    linear-gradient(var(--mark), var(--mark)) 0 50% / 10px 1px no-repeat,
+    linear-gradient(var(--mark), var(--mark)) 100% 50% / 10px 1px no-repeat;
+}
+
+/* Halo de estudio detrás del zapato. */
+.halo {
+  position: absolute;
+  top: 53%;
+  left: 50%;
+  width: 92%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Póster del tema mientras llega el modelo; se desvanece al estar listo. */
+.poster {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--duration-reveal) var(--ease-out);
+}
+
+.poster img {
+  width: 82%;
+  height: auto;
+}
+
+/* Póster de respaldo: oculto mientras carga el modelo (escenario vacío:
+   marco, grilla y halo). BoardPreview pone data-poster si el 3D tarda;
+   entonces aparece con un fundido y flota (solo translate, solo a la vista)
+   hasta el relevo, donde se congela sin saltar. */
+.slot[data-poster] .poster {
+  opacity: 1;
+}
+
+.slot[data-poster][data-live] .poster img {
+  animation: poster-float 2.7s var(--ease-in-out) infinite alternate;
+}
+
+.slot[data-ready] .poster img {
+  animation-play-state: paused;
+}
+
+@keyframes poster-float {
+  from {
+    translate: 0 3px;
+  }
+  to {
+    translate: 0 -4px;
+  }
+}
+
+/* Modelo listo. Camino normal: el lienzo aparece con un fundido mientras el
+   zapato ya entra girando (BoardScene). Con el póster a la vista, primero se
+   apaga el póster y recién entonces aparece el lienzo, en la misma vista
+   (BoardScene la calza); nunca se ven los dos a la vez. Al cambiar de
+   modelo, BoardScene apaga y vuelve a encender el propio <canvas>. */
+.slot[data-ready] .poster {
+  opacity: 0;
+  transition-duration: var(--duration-ui);
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.slot[data-ready] .canvas {
+  opacity: 1;
+  transition: opacity var(--duration-reveal) var(--ease-out);
+}
+
+.slot[data-ready][data-poster] .canvas {
+  transition: opacity var(--duration-ui) var(--ease-out) var(--duration-ui);
+}
+
+.slot .slotLabel {
+  position: absolute;
+  z-index: 2;
+  font-size: 0.625rem;
+  pointer-events: none;
+}
+
+.tl {
+  top: var(--space-3);
+  left: calc(var(--hud-corner) + var(--space-2));
+}
+
+.tr {
+  top: var(--space-3);
+  right: calc(var(--hud-corner) + var(--space-2));
+}
+
+.bl {
+  bottom: var(--space-3);
+  left: calc(var(--hud-corner) + var(--space-2));
+}
+
+.br {
+  right: calc(var(--hud-corner) + var(--space-2));
+  bottom: var(--space-3);
+}
+
+/* La indicación cambia con el tipo de puntero (COPY.md: nada de "Desliza"
+   en escritorio). */
+.hintTouch {
+  display: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .hintMouse {
+    display: none;
+  }
+
+  .hintTouch {
+    display: inline;
+  }
+}
+
+/* Carga de un modelo: barra indeterminada al pie de la ventana. */
+.loader {
+  position: absolute;
+  right: calc(var(--hud-corner) + var(--space-2));
+  bottom: calc(var(--space-3) + 1.6em);
+  left: calc(var(--hud-corner) + var(--space-2));
+  height: 1px;
+  overflow: hidden;
+  background: var(--color-line);
+  opacity: 0;
+  transition: opacity var(--duration-ui) var(--ease-out);
+}
+
+.loader::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 30%;
+  background: var(--color-primary);
+  transform: translateX(-100%);
+}
+
+.slot[data-loading] .loader {
+  opacity: 1;
+}
+
+.slot[data-loading] .loader::after {
+  animation: dep-loader 1.1s var(--ease-in-out) infinite;
+}
+
+@keyframes dep-loader {
+  to {
+    transform: translateX(340%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slot .poster img {
+    animation: none;
+  }
+
+  .slot[data-loading] .loader::after {
+    width: 100%;
+    opacity: 0.5;
+    transform: none;
+    animation: none;
+  }
+}
+
+/* ---------- Detalles ---------- */
+
+.details {
+  display: grid;
+  gap: var(--space-3);
+  /* min-width 0: un nombre largo nunca ensancha la columna. */
+  min-width: 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-line-strong);
+  container-type: inline-size;
+}
+
+.detailsTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.detailsTop > p {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Altura fija de dos líneas: un nombre largo ("Jordan 4 Retro Travis
+   Scott") se angosta o se parte en dos en lugar de salirse, y cambiar de
+   modelo nunca mueve el layout. */
+.name {
+  display: flex;
+  align-items: flex-end;
+  min-height: 2em;
+  margin: 0;
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 750;
+  font-size: min(var(--text-xl), 7.6cqi);
+  line-height: 1;
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+
+.tagline {
+  display: -webkit-box;
+  min-height: 3em;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  min-height: 24px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  list-style: none;
+}
+
+.tag {
+  flex: none;
+  padding: 4px 10px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+}
+
+/* Precio y talla en una fila; el botón ocupa todo el ancho debajo. */
+.buy {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--space-3) var(--space-4);
+  margin-top: var(--space-2);
+}
+
+.fare {
+  display: grid;
+  gap: 2px;
+}
+
+.price {
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-lg);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Talla: selector nativo con aspecto de chip HUD. */
+.sizeField {
+  display: grid;
+  gap: 2px;
+}
+
+.sizeField[data-invalid] .sizeLabel {
+  color: var(--color-secondary);
+}
+
+.sizeSelect {
+  height: 48px;
+  min-width: 6.5rem;
+  padding: 0 2.2rem 0 var(--space-4);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  background:
+    linear-gradient(45deg, transparent 50%, var(--color-text-muted) 50%) calc(100% - 18px) 50% / 5px 5px no-repeat,
+    linear-gradient(135deg, var(--color-text-muted) 50%, transparent 50%) calc(100% - 13px) 50% / 5px 5px no-repeat,
+    var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  appearance: none;
+  cursor: pointer;
+  transition: border-color var(--duration-ui) var(--ease-out);
+}
+
+.sizeSelect:hover:not(:disabled) {
+  border-color: var(--color-primary);
+}
+
+.sizeField[data-invalid] .sizeSelect {
+  border-color: var(--color-secondary);
+}
+
+.buy .cta {
+  grid-column: 1 / -1;
+}
+
+.cta svg {
+  transition: transform var(--duration-ui) var(--ease-out);
+}
+
+.cta:hover svg {
+  transform: translateX(3px);
+}
+
+.cta[data-done] {
+  pointer-events: none;
+}
+
+/* Disponibilidad: tinta según el tono. */
+.status {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.status[data-tone='primary'] {
+  color: var(--color-primary);
+}
+
+.status[data-tone='alert'] {
+  color: var(--color-secondary);
+}
+
+.status[data-tone='muted'] {
+  color: var(--color-text-muted);
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Últimos pares: late tres veces al aparecer y queda fijo (WCAG 2.2.2). */
+.status[data-tone='alert'] .statusDot {
+  animation: dep-blink 1.2s var(--ease-in-out) 3;
+}
+
+/* ---------- Tablero: barra, columnas y filas ---------- */
+
+.list {
+  /* --dep-fit (ancho del tablero en em) lo calcula BoardSection al medir. */
+  --dep-row-size: clamp(9.5px, calc(100cqi / var(--dep-fit, 76)), 15px);
+  grid-area: list;
+  position: relative;
+  min-width: 0;
+  container-type: inline-size;
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-line-strong);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 7px 13px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color var(--duration-ui) var(--ease-out),
+    border-color var(--duration-ui) var(--ease-out),
+    transform var(--duration-ui) var(--ease-out);
+}
+
+.chip:hover {
+  border-color: var(--color-primary);
+  color: var(--color-text);
+}
+
+.chip:active {
+  transform: scale(0.96);
+}
+
+.chip[aria-pressed='true'] {
+  border-color: transparent;
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+}
+
+/* Conteo por marca, calculado del catálogo. */
+.chipCount {
+  font-size: 0.625rem;
+  opacity: 0.7;
+}
+
+.count {
+  white-space: nowrap;
+}
+
+/* Columnas: el ancho de cada una sale de su número de paletas. */
+.cols,
+.cells {
+  --tile-w: calc(1ch + 0.42em);
+  --tile-gap: 0.1em;
+  --tile-step: calc(var(--tile-w) + var(--tile-gap));
+  display: grid;
+  grid-template-columns:
+    calc(var(--n-ref) * var(--tile-step))
+    calc(var(--n-name) * var(--tile-step))
+    calc(var(--n-brand) * var(--tile-step))
+    calc(var(--n-sizes) * var(--tile-step))
+    calc(var(--n-price) * var(--tile-step))
+    calc(var(--n-stock) * var(--tile-step));
+  justify-content: space-between;
+  column-gap: 1em;
+  font-family: var(--font-mono);
+  font-stretch: var(--dep-tile-stretch);
+  font-size: var(--dep-row-size);
+}
+
+.list[data-compact] .cols,
+.list[data-compact] .cells {
+  grid-template-columns:
+    calc(var(--n-ref) * var(--tile-step))
+    calc(var(--n-name) * var(--tile-step))
+    calc(var(--n-sizes) * var(--tile-step))
+    calc(var(--n-price) * var(--tile-step))
+    calc(var(--n-stock) * var(--tile-step));
+}
+
+.list[data-compact] [data-col='brand'],
+.list[data-compact] [data-cell='brand'] {
+  display: none;
+}
+
+.cols {
+  padding: 1.1em 1.1em 0.6em;
+}
+
+.col {
+  font-size: var(--text-hud);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--color-text-faint);
+}
+
+.rows {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  position: relative;
+  transition: opacity var(--duration-reveal) var(--ease-out);
+}
+
+.item + .item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 1.1em;
+  left: 1.1em;
+  height: 1px;
+  background: var(--color-line);
+}
+
+.item[data-dimmed] {
+  opacity: 0.28;
+}
+
+.row {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.row:disabled {
+  cursor: default;
+}
+
+/* Hover: un tinte neutro y tenue, distinto del resaltado lima de la fila
+   elegida. Solo indica que se puede elegir; no selecciona. */
+.row::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--color-text) 6%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-micro) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .row:not(:disabled):not([aria-pressed='true']):hover::before {
+    opacity: 1;
+  }
+}
+
+.cells {
+  position: relative;
+  padding: 0.8em 1.1em;
+}
+
+/* Resaltado HUD de la fila elegida: relleno suave, barra y esquinas. */
+.rowHighlight {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--color-primary-soft);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-ui) var(--ease-out);
+}
+
+.rowHighlight::before {
+  content: '';
+  position: absolute;
+  top: 22%;
+  bottom: 22%;
+  left: 0;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--color-primary-fill);
+  transform: scaleY(0);
+  transition: transform var(--duration-reveal) var(--ease-out);
+}
+
+.rowHighlight::after {
+  --c: var(--color-primary);
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(var(--c), var(--c)) 0 0 / 9px 1.5px no-repeat,
+    linear-gradient(var(--c), var(--c)) 0 0 / 1.5px 9px no-repeat,
+    linear-gradient(var(--c), var(--c)) 100% 0 / 9px 1.5px no-repeat,
+    linear-gradient(var(--c), var(--c)) 100% 0 / 1.5px 9px no-repeat,
+    linear-gradient(var(--c), var(--c)) 0 100% / 9px 1.5px no-repeat,
+    linear-gradient(var(--c), var(--c)) 0 100% / 1.5px 9px no-repeat,
+    linear-gradient(var(--c), var(--c)) 100% 100% / 9px 1.5px no-repeat,
+    linear-gradient(var(--c), var(--c)) 100% 100% / 1.5px 9px no-repeat;
+}
+
+.row[aria-pressed='true'] .rowHighlight {
+  opacity: 1;
+}
+
+.row[aria-pressed='true'] .rowHighlight::before {
+  transform: scaleY(1);
+}
+
+/* La referencia de la fila elegida se enciende como en un tablero real. */
+.row[aria-pressed='true'] [data-cell='ref'] {
+  --dep-tile-bg: var(--color-primary-fill);
+  --dep-tile-ink: var(--color-on-primary);
+  --dep-tile-edge: transparent;
+  --dep-tile-sheen: transparent;
+  --dep-tile-hinge: color-mix(in srgb, var(--color-on-primary) 22%, transparent);
+}
+
+.cell {
+  display: flex;
+  gap: var(--tile-gap);
+  min-width: 0;
+}
+
+.cell[data-tone='primary'] {
+  --dep-tile-ink: var(--color-primary);
+}
+
+.cell[data-tone='muted'] {
+  --dep-tile-ink: var(--color-text-muted);
+}
+
+.cell[data-tone='alert'] {
+  --dep-tile-ink: var(--color-secondary);
+}
+
+/* Late tres veces cuando el tablero entra en vista y luego queda fijo. */
+.list[data-pulse] .cell[data-tone='alert'] .ch {
+  animation: dep-blink 1.2s var(--ease-in-out) 3;
+}
+
+/* Antes de girar, el texto final (escrito por el servidor) queda oculto en
+   CSS; las paletas giran hasta él al entrar el tablero en vista. Solo con
+   movimiento permitido: si no, se ve desde el inicio. */
+:global(.motion-ok) .list[data-flap='idle'] .ch {
+  opacity: 0;
+}
+
+/* ---------- Paleta split-flap ---------- */
+
+.tile {
+  position: relative;
+  isolation: isolate;
+  display: inline-block;
+  flex: none;
+  width: var(--tile-w);
+  height: 1.8em;
+  overflow: hidden;
+  border-radius: 0.16em;
+  background: var(--dep-tile-bg);
+  box-shadow: inset 0 0 0 1px var(--dep-tile-edge);
+  color: var(--dep-tile-ink);
+  font-weight: 500;
+  line-height: 1.8em;
+  text-align: center;
+}
+
+/* Brillo del medio superior y bisagra al centro. */
+.tile::before,
+.tile::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.tile::before {
+  top: 0;
+  height: 50%;
+  background: var(--dep-tile-sheen);
+}
+
+.tile::after {
+  top: calc(50% - 0.5px);
+  z-index: 3;
+  height: 1px;
+  background: var(--dep-tile-hinge);
+}
+
+.ch {
+  position: relative;
+  z-index: 1;
+}
+
+/* Medio superior que cae: muestra la letra anterior sobre la nueva. */
+.flap {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  height: 50%;
+  overflow: hidden;
+  background: var(--dep-tile-bg);
+  opacity: 0;
+  transform-origin: 50% 100%;
+}
+
+.flap > span {
+  display: block;
+  height: 1.8em;
+  line-height: 1.8em;
+}
+
+/* Dos animaciones iguales con distinto nombre: alternarlas la reinicia. */
+.flap[data-phase='a'] {
+  animation: dep-flap-a 90ms linear;
+}
+
+.flap[data-phase='b'] {
+  animation: dep-flap-b 90ms linear;
+}
+
+@keyframes dep-flap-a {
+  from {
+    opacity: 1;
+    transform: perspective(4em) rotateX(0deg);
+  }
+  to {
+    opacity: 0.7;
+    transform: perspective(4em) rotateX(-88deg);
+  }
+}
+
+@keyframes dep-flap-b {
+  from {
+    opacity: 1;
+    transform: perspective(4em) rotateX(0deg);
+  }
+  to {
+    opacity: 0.7;
+    transform: perspective(4em) rotateX(-88deg);
+  }
+}
+
+@keyframes dep-blink {
+  0%,
+  55%,
+  100% {
+    opacity: 1;
+  }
+  70%,
+  85% {
+    opacity: 0.35;
+  }
+}
+
+/* Sonda para medir el avance real de la mono (ch / em). Fija y fuera de
+   pantalla a la izquierda: no ensancha la página en móviles. */
+.probe {
+  position: fixed;
+  top: 0;
+  left: 0;
+  font-family: var(--font-mono);
+  font-stretch: var(--dep-tile-stretch);
+  font-size: 100px;
+  white-space: nowrap;
+  visibility: hidden;
+  pointer-events: none;
+  translate: -110% 0;
+}
+
+/* ---------- Tablet ---------- */
+
+@media (max-width: 1100px) {
+  .lead {
+    display: none;
+  }
+}
+
+/* Entre 861 y 1100 px, con nombres largos el tablero ya no cabe junto a la
+   vista 3D: la vista y los detalles pasan arriba, lado a lado, y el tablero
+   ocupa todo el ancho debajo. */
+@media (min-width: 861px) and (max-width: 1100px) {
+  .board {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'head'
+      'band'
+      'list';
+  }
+
+  .band {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: end;
+    gap: var(--space-6);
+  }
+
+  .slot {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* ---------- Móvil: tarjetas apiladas y vista previa fija arriba ---------- */
+
+@media (max-width: 860px) {
+  .introBrands {
+    display: none;
+  }
+
+  .board {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    padding-top: var(--space-4);
+    padding-bottom: var(--space-12);
+  }
+
+  /* La vista 3D va arriba de la lista; el DOM (y el foco) siguen el orden
+     encabezado, filtros, filas, detalles. */
+  .head {
+    order: 1;
+  }
+
+  .band {
+    order: 2;
+  }
+
+  .list {
+    order: 3;
+  }
+
+  .headSizes {
+    display: none;
+  }
+
+  .lead {
+    display: block;
+    max-width: none;
+    padding-bottom: 0;
+  }
+
+  /* La vista previa queda fija bajo el encabezado y las tarjetas pasan por debajo. */
+  .band {
+    position: sticky;
+    top: var(--header-height);
+    z-index: 2;
+    gap: var(--space-3);
+    margin-inline: calc(var(--gutter) * -1);
+    padding: var(--space-2) var(--gutter) var(--space-3);
+    background: var(--color-background);
+  }
+
+  .band::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    height: 28px;
+    background: linear-gradient(var(--color-background), transparent);
+    pointer-events: none;
+  }
+
+  .slot {
+    flex: none;
+    height: clamp(150px, 24svh, 230px);
+    min-height: 0;
+  }
+
+  .details {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1) var(--space-3);
+    padding-top: var(--space-3);
+  }
+
+  .details .name {
+    min-height: 0;
+    font-size: min(1.25rem, 6.4cqi);
+  }
+
+  .meta {
+    min-width: 0;
+    overflow: hidden;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--color-text-muted);
+  }
+
+  .tagline,
+  .tags {
+    display: none;
+  }
+
+  /* Precio, talla y botón en una sola fila. */
+  .buy {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: var(--space-1) 0 0;
+  }
+
+  .fare {
+    margin-right: auto;
+  }
+
+  .fareLabel,
+  .sizeLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .price {
+    font-size: var(--text-base);
+  }
+
+  /* Ancho fijo: el selector nativo mediría su opción más larga. */
+  .sizeSelect {
+    width: 5.75rem;
+    height: 40px;
+    min-width: 0;
+    padding-left: var(--space-3);
+  }
+
+  .buy .cta svg {
+    display: none;
+  }
+
+  .buy .cta {
+    flex: 1 1 auto;
+    letter-spacing: 0.06em;
+    min-width: 0;
+    height: 40px;
+    padding-inline: var(--space-3);
+  }
+
+  .bar {
+    padding-bottom: var(--space-3);
+  }
+
+  .filters {
+    flex-wrap: nowrap;
+    gap: 5px;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .chip {
+    padding: 6px 10px;
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+  }
+
+  .cols {
+    display: none;
+  }
+
+  .rows {
+    display: grid;
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+  }
+
+  .item + .item::before {
+    display: none;
+  }
+
+  .row {
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--color-surface) 55%, transparent);
+  }
+
+  .rowHighlight {
+    border-radius: var(--radius-md);
+  }
+
+  /* Tarjeta: referencia y precio, modelo grande, disponibilidad y tallas. */
+  .cells,
+  .list[data-compact] .cells {
+    grid-template-columns: auto auto;
+    grid-template-areas:
+      'ref price'
+      'name name'
+      'stock sizes';
+    justify-content: space-between;
+    row-gap: 0.6em;
+    padding: 1.1em 1.2em;
+    font-size: 12px;
+  }
+
+  .cell[data-cell='ref'] {
+    grid-area: ref;
+  }
+
+  .cell[data-cell='name'] {
+    grid-area: name;
+    /* --dep-name-size lo calcula el ajuste para que el nombre más largo quepa. */
+    font-size: var(--dep-name-size, 1.22em);
+  }
+
+  .cell[data-cell='brand'] {
+    display: none;
+  }
+
+  .cell[data-cell='sizes'] {
+    grid-area: sizes;
+    justify-self: end;
+  }
+
+  .cell[data-cell='price'] {
+    grid-area: price;
+    justify-self: end;
+  }
+
+  .cell[data-cell='stock'] {
+    grid-area: stock;
+  }
+}
+
+@media (max-width: 400px) {
+  .detailsTop > p {
+    font-size: 0.625rem;
+  }
+}

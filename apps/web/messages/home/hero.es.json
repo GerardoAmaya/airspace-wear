@@ -1,0 +1,49 @@
+{
+  "HomeHero": {
+    "sectionLabel": "Inicio",
+    "kicker": "{brand} · Ref. {reference}",
+    "lead": "Sneakers de las marcas que amas, revisados pieza por pieza antes de llegar a ti.",
+    "ctaCatalog": "Explorar catálogo",
+    "ctaDetails": "Ver detalles",
+    "cuePointer": "Baja para ver los detalles",
+    "cueTouch": "Desliza para ver los detalles",
+    "posterAlt": "{name}, vista de perfil",
+    "loading": "Cargando modelo 3D",
+    "gripLabel": "Gira el {name}: arrastra o usa las flechas",
+    "gripValue": "Giro {degrees}°",
+    "reticle": {
+      "target": "Modelo · Ref. {reference}",
+      "lock": "En foco"
+    },
+    "readouts": {
+      "label": "Datos del modelo",
+      "weight": "Peso",
+      "price": "Precio",
+      "sizes": "Tallas",
+      "availability": "Disponibilidad",
+      "gramsUnit": "g",
+      "degreesUnit": "°",
+      "sizesValue": "{system} {min}-{max}"
+    },
+    "details": {
+      "headLabel": "Ref. {reference} · {name}",
+      "title": "Pieza por pieza",
+      "progressLabel": "Progreso",
+      "progress": "{seen} de {total} detalles vistos",
+      "complete": "Recorrido completo",
+      "completeTitle": "Ahora elige el tuyo",
+      "ctaFinish": "Ver catálogo",
+      "turnLabel": "Giro",
+      "railTitle": "Detalles",
+      "railHint": "Selecciona cada detalle para verlo de cerca",
+      "counter": "{current} / {total}",
+      "jumpTo": "Ver detalle",
+      "specWeight": "Peso",
+      "specStack": "Altura de suela",
+      "specUpper": "Parte superior",
+      "specSole": "Suela",
+      "gramsUnit": "g",
+      "millimetersUnit": "mm"
+    }
+  }
+}

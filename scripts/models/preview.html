@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AIRSPACE Wear · Model preview</title>
+    <script>
+      // model-viewer no trae un decodificador Meshopt por defecto (Draco y KTX2
+      // sí). Sin esta ruta, los modelos optimizados no cargan. Debe definirse
+      // antes de cargar model-viewer.
+      self.ModelViewerElement = { meshoptDecoderLocation: '/vendor/meshopt_decoder.cjs' };
+    </script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@4.4.0/dist/model-viewer.min.js"></script>
+    <style>
+      /* Paleta de marca (ver CLAUDE.md) */
+      :root {
+        --color-background: #0e0e10;
+        --color-surface: #1c1c21;
+        --color-primary: #c6ff3d;
+        --color-secondary: #ff5b2e;
+        --color-text: #f4f1ea;
+        --color-muted: #8d8a84;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--color-background);
+        color: var(--color-text);
+        font: 15px/1.5 ui-sans-serif, system-ui, sans-serif;
+      }
+      header { padding: 32px 24px 8px; max-width: 1400px; margin: 0 auto; }
+      .logo { font-weight: 800; letter-spacing: 0.04em; font-size: 22px; }
+      .logo span { color: var(--color-primary); font-weight: 600; font-size: 15px; margin-left: 4px; }
+      header p { color: var(--color-muted); margin: 4px 0 0; }
+      main { max-width: 1400px; margin: 0 auto; padding: 16px 24px 64px; display: grid; gap: 24px; }
+      .card { background: var(--color-surface); border-radius: 20px; padding: 20px; }
+      .card h2 { margin: 0; font-size: 20px; }
+      .meta { color: var(--color-muted); font-size: 13px; margin: 2px 0 16px; }
+      .meta a { color: var(--color-text); }
+      .badge { color: var(--color-secondary); font-weight: 600; }
+      .viewers { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+      .viewer { background: #141417; border-radius: 14px; overflow: hidden; position: relative; }
+      .viewer h3 { position: absolute; top: 10px; left: 12px; margin: 0; font-size: 12px; z-index: 1;
+        text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-muted); }
+      .viewer h3 b { color: var(--color-primary); font-weight: 600; }
+      model-viewer { width: 100%; height: 320px; --poster-color: transparent; }
+      .stats { font-size: 12px; color: var(--color-muted); padding: 8px 12px 12px; font-variant-numeric: tabular-nums; }
+      .load-raw { margin: 140px auto; display: block; background: none; color: var(--color-text);
+        border: 1px solid #3a3a42; border-radius: 999px; padding: 10px 18px; cursor: pointer; font: inherit; }
+      .load-raw:hover { border-color: var(--color-primary); color: var(--color-primary); }
+      .empty { color: var(--color-muted); }
+      /* Modo de una sola vista para capturas automáticas */
+      body.single { background: #2a2a30; }
+      body.single model-viewer { position: fixed; inset: 0; width: 100vw; height: 100vh; }
+    </style>
+  </head>
+  <body>
+    <script type="module">
+      const params = new URLSearchParams(location.search);
+      const formatMegabytes = (bytes) => `${(bytes / 1_000_000).toFixed(2)} MB`;
+      const formatThousands = (value) => value.toLocaleString('en-US');
+
+      // URL de cada variante de un modelo dentro del visor.
+      const variantUrl = (slug, variant) =>
+        variant === 'raw' ? `/raw/${slug}.glb` : `/models/${slug}${variant === 'lite' ? '-lite' : ''}.glb`;
+
+      function createViewer(src, orbit) {
+        const viewer = document.createElement('model-viewer');
+        viewer.setAttribute('src', src);
+        viewer.setAttribute('camera-controls', '');
+        viewer.setAttribute('environment-image', 'neutral');
+        viewer.setAttribute('shadow-intensity', '1');
+        viewer.setAttribute('interaction-prompt', 'none');
+        if (orbit) viewer.setAttribute('camera-orbit', orbit);
+        return viewer;
+      }
+
+      // Modo de una sola vista: marca el body cuando el modelo terminó de cargar.
+      if (params.has('slug')) {
+        document.body.classList.add('single');
+        if (params.get('bg')) document.body.style.background = params.get('bg');
+        const viewer = createViewer(variantUrl(params.get('slug'), params.get('variant') ?? 'hero'), params.get('orbit'));
+        viewer.removeAttribute('camera-controls');
+        viewer.addEventListener('load', () => requestAnimationFrame(() => setTimeout(() => (document.body.dataset.ready = 'true'), 300)));
+        viewer.addEventListener('error', () => (document.body.dataset.error = 'true'));
+        document.body.append(viewer);
+      } else {
+        renderGrid();
+      }
+
+      // Registra un visor en su grupo para que todos compartan la misma cámara.
+      // thetaOffset compensa que el original no está en la pose canónica: es el
+      // giro horizontal (en grados) que el pipeline le aplicó. El zoom no se
+      // sincroniza porque el original puede estar en otra escala.
+      function registerSynced(viewer, group, thetaOffset = 0) {
+        const entry = { viewer, thetaOffset };
+        group.push(entry);
+        viewer.addEventListener('camera-change', (event) => {
+          if (event.detail.source !== 'user-interaction') return;
+          const { theta, phi } = viewer.getCameraOrbit();
+          for (const other of group) {
+            if (other === entry || !other.viewer.isConnected) continue;
+            const otherTheta = theta + ((other.thetaOffset - thetaOffset) * Math.PI) / 180;
+            other.viewer.cameraOrbit = `${otherTheta}rad ${phi}rad ${other.viewer.getCameraOrbit().radius}m`;
+            other.viewer.jumpCameraToGoal();
+          }
+        });
+      }
+
+      function statsLine(stats) {
+        if (!stats) return 'Not generated yet';
+        return `${formatThousands(stats.triangles)} tris · ${formatMegabytes(stats.bytes)} · tex ${stats.maxTextureSize}px ${stats.textureFormats?.join('/') ?? ''}`;
+      }
+
+      async function renderGrid() {
+        document.body.insertAdjacentHTML(
+          'afterbegin',
+          `<header><div class="logo">AIRSPACE<span>Wear</span></div>
+           <p>Model preview: original vs optimized (hero and lite). Orbit one viewer and the others follow.</p></header><main></main>`,
+        );
+        const main = document.querySelector('main');
+        const response = await fetch('/manifest.json');
+        if (!response.ok) {
+          main.innerHTML = '<p class="empty">No manifest yet. Run pnpm models first.</p>';
+          return;
+        }
+        const { models } = await response.json();
+        for (const model of Object.values(models)) {
+          const card = document.createElement('section');
+          card.className = 'card';
+          const license = model.source.license;
+          card.innerHTML = `<h2>${model.displayName}</h2>
+            <p class="meta">${model.brand} · by <a href="${model.source.authorUrl}" target="_blank" rel="noopener">${model.source.author}</a>
+            · <a href="${license.url}" target="_blank" rel="noopener">${license.name}</a>
+            ${license.commercialUse ? '' : '<span class="badge">· non-commercial only</span>'}</p>
+            <div class="viewers"></div>`;
+          const grid = card.querySelector('.viewers');
+          const viewers = [];
+          for (const variant of ['raw', 'hero', 'lite']) {
+            const stats = variant === 'raw' ? model.raw : model.variants?.[variant];
+            const cell = document.createElement('div');
+            cell.className = 'viewer';
+            cell.innerHTML = `<h3><b>${variant === 'raw' ? 'Original' : variant}</b></h3><div class="slot"></div><div class="stats">${statsLine(stats)}</div>`;
+            const slot = cell.querySelector('.slot');
+            // Giro que el pipeline aplicó al original (config + ajuste fino).
+            const rawYaw = -((model.pose?.rotation?.[1] ?? 0) + (model.pose?.yawCorrection ?? 0));
+            const thetaOffset = variant === 'raw' ? rawYaw : 0;
+            const mount = () => {
+              const viewer = createViewer(variantUrl(model.slug, variant), `${thetaOffset}deg 75deg auto`);
+              slot.replaceChildren(viewer);
+              registerSynced(viewer, viewers, thetaOffset);
+            };
+            // El original puede pesar decenas de MB: se carga solo bajo demanda.
+            if (variant === 'raw') {
+              const button = document.createElement('button');
+              button.className = 'load-raw';
+              button.textContent = `Load original (${model.raw ? formatMegabytes(model.raw.bytes) : '?'})`;
+              button.addEventListener('click', mount);
+              slot.append(button);
+            } else if (stats) {
+              mount();
+            } else {
+              slot.innerHTML = '<p class="load-raw empty">Not generated yet</p>';
+            }
+            grid.append(cell);
+          }
+          main.append(card);
+        }
+      }
+    </script>
+  </body>
+</html>

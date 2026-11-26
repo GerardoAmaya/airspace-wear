@@ -1,0 +1,1565 @@
+/*
+ * Sección "departures" (catálogo): tablero split-flap y Hangar 360°.
+ * Prefijos: dep- (tablero y escenario) y hangar- (hangar).
+ * Solo se animan transform, opacity y filter; los colores salen de tokens.css.
+ */
+
+/* ---------- Sección y escenario ---------- */
+
+.dep {
+  /* Paletas del tablero (tema oscuro). */
+  --dep-tile-bg: var(--color-surface);
+  --dep-tile-ink: var(--color-text);
+  --dep-tile-edge: color-mix(in srgb, var(--color-text) 7%, transparent);
+  --dep-tile-sheen: color-mix(in srgb, var(--color-text) 4%, transparent);
+  --dep-tile-hinge: color-mix(in srgb, var(--color-background) 85%, transparent);
+  --dep-tile-stretch: 87.5%;
+  --dep-scan-tint: var(--color-primary-fill);
+
+  position: relative;
+  background: var(--color-background);
+}
+
+/* Tema claro: paletas claras con tinta oscura y una arista visible. */
+:root[data-theme='light'] .dep {
+  --dep-tile-bg: var(--color-surface-raised);
+  --dep-tile-edge: var(--color-line);
+  --dep-tile-sheen: color-mix(in srgb, var(--color-text) 3%, transparent);
+  --dep-tile-hinge: color-mix(in srgb, var(--color-text) 13%, transparent);
+  /* Sobre crema la estela lima teñiría el zapato: se usa la tinta oliva, más tenue. */
+  --dep-scan-tint: color-mix(in srgb, var(--color-primary) 45%, transparent);
+}
+
+/* Fila de apertura compacta: el título y el tablero caben en la primera vista
+   aun en pantallas bajas (1720 x 816). */
+.dep-intro {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding-top: calc(var(--header-height) + var(--space-4));
+}
+
+.dep-intro__rule {
+  flex: 1;
+  height: 1px;
+  background: var(--color-line-strong);
+  transform-origin: left center;
+}
+
+.dep-deck {
+  position: relative;
+  isolation: isolate;
+}
+
+/* El único canvas 3D llena la base que lo aloja (vista previa o plataforma). */
+.dep-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Mientras llega otro modelo, el actual queda atenuado como marcador. */
+.is-loading > .dep-canvas {
+  opacity: 0.35;
+  transition: opacity var(--duration-ui) var(--ease-out);
+}
+
+/* Halo de estudio detrás del zapato: separa los modelos negros del fondo. */
+.dep-halo,
+.hangar-halo {
+  position: absolute;
+  left: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.dep-halo {
+  top: 53%;
+  width: 92%;
+  aspect-ratio: 1;
+}
+
+.hangar-halo {
+  top: 46%;
+  width: min(82%, 640px);
+  aspect-ratio: 1;
+}
+
+/* ---------- Tablero: layout ---------- */
+
+.dep-board {
+  position: relative;
+  z-index: 1;
+  padding-top: clamp(1.25rem, 3vh, 2rem);
+  padding-bottom: clamp(2.5rem, 8vh, 5rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(320px, 29vw, 440px);
+  grid-template-areas:
+    'head band'
+    'list band';
+  align-content: start;
+  column-gap: clamp(2rem, 4vw, 4.5rem);
+  row-gap: clamp(1.25rem, 3.5vh, 2.5rem);
+}
+
+/* ---------- Entradas (estado inicial en CSS, solo opacity y transform) ---------- */
+
+.dep.is-motion .dep-enter {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+}
+
+.dep.is-motion .dep-enter-slot {
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+.dep.is-motion .dep-enter-rule {
+  transform: scaleX(0);
+}
+
+.dep.is-motion .hangar-rings [data-ticks] > * {
+  opacity: 0;
+}
+
+.dep-head {
+  grid-area: head;
+  display: grid;
+  align-content: end;
+  gap: var(--space-3);
+  container-type: inline-size;
+}
+
+.dep-head__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-6);
+}
+
+.dep-head__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4) var(--space-8);
+}
+
+/* "CATÁLOGO" siempre en una línea: se ajusta al ancho de su columna. */
+.dep-title {
+  margin-left: -0.04em;
+  font-size: min(var(--text-display), 14.5cqi);
+  white-space: nowrap;
+}
+
+.dep-lead {
+  max-width: 30ch;
+  padding-bottom: 0.4em;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+/* ---------- Vista previa y detalles ---------- */
+
+.dep-band {
+  grid-area: band;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+/* Con el modelo cargado, la vista 3D también se arrastra para girar. */
+.dep-slot[data-canvas='true'] {
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.dep-slot.is-dragging {
+  cursor: grabbing;
+}
+
+.dep-slot {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 260px;
+}
+
+.dep-slot__grid {
+  position: absolute;
+  inset: 1px;
+  opacity: 0.7;
+  -webkit-mask-image: radial-gradient(closest-side, black 20%, transparent 100%);
+  mask-image: radial-gradient(closest-side, black 20%, transparent 100%);
+}
+
+/* Marcas de mira en el centro de cada borde. */
+.dep-slot__marks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  --mark: var(--color-line-strong);
+  background:
+    linear-gradient(var(--mark), var(--mark)) 50% 0 / 1px 10px no-repeat,
+    linear-gradient(var(--mark), var(--mark)) 50% 100% / 1px 10px no-repeat,
+    linear-gradient(var(--mark), var(--mark)) 0 50% / 10px 1px no-repeat,
+    linear-gradient(var(--mark), var(--mark)) 100% 50% / 10px 1px no-repeat;
+}
+
+.dep-slot__label {
+  position: absolute;
+  font-size: 0.625rem;
+}
+
+/* Carga de un modelo: barra indeterminada al pie de la ventana. */
+.dep-slot__loader {
+  position: absolute;
+  right: calc(var(--hud-corner) + var(--space-2));
+  bottom: calc(var(--space-3) + 1.6em);
+  left: calc(var(--hud-corner) + var(--space-2));
+  height: 1px;
+  overflow: hidden;
+  background: var(--color-line);
+  opacity: 0;
+  transition: opacity var(--duration-ui) var(--ease-out);
+}
+
+.dep-slot__loader::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 30%;
+  background: var(--color-primary);
+  transform: translateX(-100%);
+}
+
+.dep-slot.is-loading .dep-slot__loader {
+  opacity: 1;
+}
+
+.dep-slot.is-loading .dep-slot__loader::after {
+  animation: dep-loader 1.1s var(--ease-in-out) infinite;
+}
+
+@keyframes dep-loader {
+  to {
+    transform: translateX(340%);
+  }
+}
+
+/* Con el zapato en el hangar, la ventana muestra a dónde fue. */
+.dep-slot__away {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  color: var(--color-primary);
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, -50%);
+  transition:
+    opacity var(--duration-ui) var(--ease-out),
+    visibility 0s linear var(--duration-ui);
+}
+
+/* Es un estado (no una entrada): solo existe para el foco cuando se ve. */
+.dep-slot[data-canvas='false'] .dep-slot__away {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity var(--duration-ui) var(--ease-out);
+}
+
+.dep-slot__label--tl {
+  top: var(--space-3);
+  left: calc(var(--hud-corner) + var(--space-2));
+}
+
+.dep-slot__label--tr {
+  top: var(--space-3);
+  right: calc(var(--hud-corner) + var(--space-2));
+}
+
+.dep-slot__label--bl {
+  bottom: var(--space-3);
+  left: calc(var(--hud-corner) + var(--space-2));
+}
+
+.dep-slot__label--br {
+  bottom: var(--space-3);
+  right: calc(var(--hud-corner) + var(--space-2));
+}
+
+.dep-details {
+  display: grid;
+  gap: var(--space-3);
+  /* min-width 0: un nombre largo nunca ensancha la columna (se cortaba a la derecha). */
+  min-width: 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-line-strong);
+  container-type: inline-size;
+}
+
+.dep-details__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.dep-details__top .hud-label {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Altura fija de dos líneas: un nombre largo ("Jordan 4 Retro Travis
+   Scott") se parte en dos en lugar de salirse, y cambiar de modelo nunca
+   mueve el layout. */
+.dep-details__name {
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 750;
+  font-size: min(var(--text-xl), 7.6cqi);
+  line-height: 1;
+  min-height: 2em;
+  display: flex;
+  align-items: flex-end;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
+}
+
+.dep-details__meta {
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+
+.dep-details__tagline {
+  display: -webkit-box;
+  min-height: 3em;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.dep-details__tags {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dep-tag {
+  padding: 4px 10px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.dep-details__buy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+}
+
+.dep-details__fare {
+  display: grid;
+  gap: 2px;
+}
+
+.dep-details__price {
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-lg);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.dep-cta {
+  flex: none;
+}
+
+.dep-cta svg {
+  transition: transform var(--duration-ui) var(--ease-out);
+}
+
+.dep-cta:hover svg {
+  transform: translateX(3px);
+}
+
+.dep-cta.is-done {
+  pointer-events: none;
+}
+
+/* Disponibilidad: tinta según el tono. */
+.dep-status {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.dep-status[data-tone='primary'] {
+  color: var(--color-primary);
+}
+
+.dep-status[data-tone='alert'] {
+  color: var(--color-secondary);
+}
+
+.dep-status[data-tone='muted'] {
+  color: var(--color-text-muted);
+}
+
+.dep-status__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Últimos pares: late tres veces al aparecer y queda fijo (WCAG 2.2.2). */
+.dep-status[data-tone='alert'] .dep-status__dot {
+  animation: dep-blink 1.2s var(--ease-in-out) 3;
+}
+
+/* ---------- Tablero: barra, columnas y filas ---------- */
+
+.dep-list {
+  /* --dep-fit (ancho del tablero en em) lo calcula departures.js al medir. */
+  --dep-row-size: clamp(9.5px, calc(100cqi / var(--dep-fit, 76)), 15px);
+  grid-area: list;
+  position: relative;
+  container-type: inline-size;
+  min-width: 0;
+}
+
+.dep-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-line-strong);
+}
+
+.dep-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dep-chip {
+  padding: 7px 13px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  transition:
+    color var(--duration-ui) var(--ease-out),
+    border-color var(--duration-ui) var(--ease-out),
+    transform var(--duration-ui) var(--ease-out);
+}
+
+.dep-chip:hover {
+  color: var(--color-text);
+  border-color: var(--color-primary);
+}
+
+.dep-chip:active {
+  transform: scale(0.96);
+}
+
+.dep-chip[aria-pressed='true'] {
+  border-color: transparent;
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+}
+
+/* Conteo de pares visibles: sale del catálogo y del filtro activo. */
+.dep-count {
+  white-space: nowrap;
+}
+
+/* Columnas: el ancho de cada una sale de su número de paletas. */
+.dep-cols,
+.dep-row__cells {
+  --tile-w: calc(1ch + 0.42em);
+  --tile-gap: 0.1em;
+  --tile-step: calc(var(--tile-w) + var(--tile-gap));
+  display: grid;
+  grid-template-columns:
+    calc(var(--n-ref) * var(--tile-step))
+    calc(var(--n-name) * var(--tile-step))
+    calc(var(--n-brand) * var(--tile-step))
+    calc(var(--n-sizes) * var(--tile-step))
+    calc(var(--n-price) * var(--tile-step))
+    calc(var(--n-stock) * var(--tile-step));
+  justify-content: space-between;
+  column-gap: 1em;
+  font-family: var(--font-mono);
+  font-stretch: var(--dep-tile-stretch);
+  font-size: var(--dep-row-size);
+}
+
+.dep-list.is-compact .dep-cols,
+.dep-list.is-compact .dep-row__cells {
+  grid-template-columns:
+    calc(var(--n-ref) * var(--tile-step))
+    calc(var(--n-name) * var(--tile-step))
+    calc(var(--n-sizes) * var(--tile-step))
+    calc(var(--n-price) * var(--tile-step))
+    calc(var(--n-stock) * var(--tile-step));
+}
+
+.dep-list.is-compact .dep-col--brand,
+.dep-list.is-compact .dep-cell--brand {
+  display: none;
+}
+
+.dep-cols {
+  padding: 1.1em 1.1em 0.6em;
+}
+
+.dep-col {
+  font-size: var(--text-hud);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--color-text-faint);
+}
+
+.dep-rows {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dep-item {
+  position: relative;
+  transition: opacity var(--duration-reveal) var(--ease-out);
+}
+
+.dep-item + .dep-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 1.1em;
+  left: 1.1em;
+  height: 1px;
+  background: var(--color-line);
+}
+
+.dep-item.is-dimmed {
+  opacity: 0.28;
+}
+
+.dep-row {
+  position: relative;
+  display: block;
+  width: 100%;
+  border-radius: var(--radius-sm);
+  text-align: left;
+}
+
+.dep-row:disabled {
+  cursor: default;
+}
+
+/* Hover: un tinte neutro y tenue, distinto del resaltado lima de la fila
+   elegida. Solo indica que la fila se puede elegir; no selecciona. */
+.dep-row::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--color-text) 6%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-micro) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .dep-row:not(:disabled):not([aria-pressed='true']):hover::before {
+    opacity: 1;
+  }
+}
+
+.dep-row__cells {
+  position: relative;
+  padding: 0.8em 1.1em;
+}
+
+/* Resaltado HUD de la fila elegida: relleno suave, barra y esquinas. */
+.dep-row__hl {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--color-primary-soft);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-ui) var(--ease-out);
+}
+
+.dep-row__hl::before {
+  content: '';
+  position: absolute;
+  top: 22%;
+  bottom: 22%;
+  left: 0;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--color-primary-fill);
+  transform: scaleY(0);
+  transition: transform var(--duration-reveal) var(--ease-out);
+}
+
+.dep-row__hl::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  --c: var(--color-primary);
+  background:
+    linear-gradient(var(--c), var(--c)) 0 0 / 9px 1.5px no-repeat,
+    linear-gradient(var(--c), var(--c)) 0 0 / 1.5px 9px no-repeat,
+    linear-gradient(var(--c), var(--c)) 100% 0 / 9px 1.5px no-repeat,
+    linear-gradient(var(--c), var(--c)) 100% 0 / 1.5px 9px no-repeat,
+    linear-gradient(var(--c), var(--c)) 0 100% / 9px 1.5px no-repeat,
+    linear-gradient(var(--c), var(--c)) 0 100% / 1.5px 9px no-repeat,
+    linear-gradient(var(--c), var(--c)) 100% 100% / 9px 1.5px no-repeat,
+    linear-gradient(var(--c), var(--c)) 100% 100% / 1.5px 9px no-repeat;
+}
+
+.dep-row[aria-pressed='true'] .dep-row__hl {
+  opacity: 1;
+}
+
+.dep-row[aria-pressed='true'] .dep-row__hl::before {
+  transform: scaleY(1);
+}
+
+/* La referencia de la fila elegida se enciende como en un tablero real. */
+.dep-row[aria-pressed='true'] .dep-cell--ref {
+  --dep-tile-bg: var(--color-primary-fill);
+  --dep-tile-ink: var(--color-on-primary);
+  --dep-tile-edge: transparent;
+  --dep-tile-sheen: transparent;
+  --dep-tile-hinge: color-mix(in srgb, var(--color-on-primary) 22%, transparent);
+}
+
+.dep-cell {
+  display: flex;
+  gap: var(--tile-gap);
+  min-width: 0;
+}
+
+.dep-cell--stock[data-tone='primary'] {
+  --dep-tile-ink: var(--color-primary);
+}
+
+.dep-cell--stock[data-tone='muted'] {
+  --dep-tile-ink: var(--color-text-muted);
+}
+
+.dep-cell--stock[data-tone='alert'] {
+  --dep-tile-ink: var(--color-secondary);
+}
+
+/* Late tres veces cuando el tablero entra en vista y luego queda fijo. */
+.dep-list.is-pulsing .dep-cell--stock[data-tone='alert'] .dep-ch {
+  animation: dep-blink 1.2s var(--ease-in-out) 3;
+}
+
+/* ---------- Paleta split-flap ---------- */
+
+.dep-tile {
+  position: relative;
+  isolation: isolate;
+  display: inline-block;
+  flex: none;
+  width: var(--tile-w);
+  height: 1.8em;
+  border-radius: 0.16em;
+  overflow: hidden;
+  background: var(--dep-tile-bg);
+  box-shadow: inset 0 0 0 1px var(--dep-tile-edge);
+  color: var(--dep-tile-ink);
+  font-weight: 500;
+  line-height: 1.8em;
+  text-align: center;
+}
+
+/* Brillo del medio superior y bisagra al centro. */
+.dep-tile::before,
+.dep-tile::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+}
+
+.dep-tile::before {
+  top: 0;
+  height: 50%;
+  background: var(--dep-tile-sheen);
+}
+
+.dep-tile::after {
+  top: calc(50% - 0.5px);
+  height: 1px;
+  background: var(--dep-tile-hinge);
+  z-index: 3;
+}
+
+.dep-ch {
+  position: relative;
+  z-index: 1;
+}
+
+/* Medio superior que cae: muestra la letra anterior sobre la nueva. */
+.dep-flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  overflow: hidden;
+  z-index: 2;
+  background: var(--dep-tile-bg);
+  opacity: 0;
+  transform-origin: 50% 100%;
+}
+
+.dep-flap > span {
+  display: block;
+  height: 1.8em;
+  line-height: 1.8em;
+}
+
+.dep-flap.is-a {
+  animation: dep-flap-a 90ms linear;
+}
+
+.dep-flap.is-b {
+  animation: dep-flap-b 90ms linear;
+}
+
+@keyframes dep-flap-a {
+  from {
+    opacity: 1;
+    transform: perspective(4em) rotateX(0deg);
+  }
+  to {
+    opacity: 0.7;
+    transform: perspective(4em) rotateX(-88deg);
+  }
+}
+
+@keyframes dep-flap-b {
+  from {
+    opacity: 1;
+    transform: perspective(4em) rotateX(0deg);
+  }
+  to {
+    opacity: 0.7;
+    transform: perspective(4em) rotateX(-88deg);
+  }
+}
+
+@keyframes dep-blink {
+  0%,
+  55%,
+  100% {
+    opacity: 1;
+  }
+  70%,
+  85% {
+    opacity: 0.35;
+  }
+}
+
+/* Sonda para medir el avance real de la mono (ch / em). Es fija y queda
+   fuera de pantalla a la izquierda: así no ensancha la página en móviles. */
+.dep-probe {
+  position: fixed;
+  top: 0;
+  left: 0;
+  translate: -110% 0;
+  visibility: hidden;
+  pointer-events: none;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-stretch: var(--dep-tile-stretch);
+  font-size: 100px;
+}
+
+/* ---------- Hangar 360° ---------- */
+
+/* Sección de alto normal: nada fijado ni ligado al scroll. */
+.hangar {
+  position: relative;
+  overflow: clip;
+}
+
+.hangar-screen {
+  position: relative;
+  min-height: 100svh;
+}
+
+.hangar-floor {
+  position: absolute;
+  inset: 0;
+  opacity: 0.85;
+  -webkit-mask-image: radial-gradient(ellipse 48% 58% at 66% 58%, black 0%, transparent 75%);
+  mask-image: radial-gradient(ellipse 48% 58% at 66% 58%, black 0%, transparent 75%);
+}
+
+.hangar-layout {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  align-items: center;
+  column-gap: clamp(1.5rem, 3vw, 3rem);
+  padding-top: calc(var(--header-height) + clamp(1rem, 3vh, 2.5rem));
+  padding-bottom: clamp(1.25rem, 4vh, 2.5rem);
+}
+
+.hangar-copy {
+  display: grid;
+  align-content: center;
+  gap: clamp(1rem, 2.6vh, 1.75rem);
+  container-type: inline-size;
+}
+
+.hangar-kicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.hangar-chip {
+  color: var(--color-primary);
+  border-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
+}
+
+.hangar-chip__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: dep-blink 1.2s var(--ease-in-out) 3;
+}
+
+.hangar-title {
+  font-size: min(var(--text-display), 16.5cqi);
+}
+
+.hangar-lead {
+  max-width: 34ch;
+  font-size: var(--text-lg);
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.hangar-features {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--color-line);
+}
+
+.hangar-feature {
+  display: grid;
+  grid-template-columns: 22px auto 1fr;
+  align-items: center;
+  gap: 2px var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.hangar-feature svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hangar-feature__index {
+  color: var(--color-text-faint);
+}
+
+.hangar-feature__title {
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 650;
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+.hangar-feature__text {
+  grid-column: 3;
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.hangar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+}
+
+.hangar-cta[disabled] {
+  cursor: not-allowed;
+  color: var(--color-text-muted);
+  border-color: var(--color-line-strong);
+}
+
+.hangar-cta[disabled]:hover {
+  color: var(--color-text-muted);
+  border-color: var(--color-line-strong);
+}
+
+.hangar-cta[disabled]:active {
+  transform: none;
+}
+
+.hangar-cta__chip {
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+}
+
+.hangar-note {
+  font-size: 0.625rem;
+  color: var(--color-text-faint);
+}
+
+/* Plataforma: base del canvas en el hangar. Se arrastra para girar. */
+.hangar-slot {
+  position: relative;
+  align-self: stretch;
+  min-height: min(72svh, 760px);
+}
+
+.hangar-stage {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hangar-stage.is-dragging {
+  cursor: grabbing;
+}
+
+/* El foco enmarca toda la plataforma por fuera, sin cruzar sus rótulos. */
+.hangar-stage:focus-visible {
+  outline: none;
+}
+
+.hangar-slot:has(.hangar-stage:focus-visible) {
+  outline: 2px solid var(--color-primary);
+  outline-offset: var(--space-3);
+  border-radius: var(--radius-md);
+}
+
+.hangar-stage[data-canvas='false'] {
+  cursor: default;
+}
+
+.hangar-stage[data-canvas='false'] .hangar-scan {
+  opacity: 0;
+}
+
+.hangar-rings,
+.hangar-scan {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 50% 50%;
+  pointer-events: none;
+}
+
+.hangar-rings {
+  will-change: transform;
+}
+
+/* Plataforma vacía: espera a que el zapato aterrice. */
+.hangar-wait {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: opacity var(--duration-ui) var(--ease-out);
+}
+
+.hangar-stage[data-canvas='false'] .hangar-wait,
+.hangar-stage.is-loading .hangar-wait {
+  opacity: 1;
+}
+
+.hangar-stage.is-loading .hangar-wait {
+  top: 12%;
+}
+
+.hangar-hud {
+  position: absolute;
+  display: grid;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.hangar-hud--top {
+  top: 0;
+  left: 0;
+}
+
+.hangar-hud--side {
+  top: 0;
+  right: 0;
+  justify-items: end;
+}
+
+/* Centrado sin transform: la entrada anima transform sin pisar la posición. */
+.hangar-hud--bottom {
+  white-space: nowrap;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  justify-items: center;
+  text-align: center;
+}
+
+.hangar-model {
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 700;
+  font-size: var(--text-lg);
+  text-transform: uppercase;
+}
+
+.hangar-rot {
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-xl);
+  font-weight: 500;
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+
+.hangar-progress {
+  display: block;
+  width: 180px;
+  height: 2px;
+  background: var(--color-line-strong);
+}
+
+.hangar-progress > span {
+  display: block;
+  height: 100%;
+  background: var(--color-primary-fill);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+/* Anillos de la plataforma (SVG en milímetros del mundo). */
+.hangar-rings svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.hangar-ring {
+  fill: none;
+  stroke: var(--color-line-strong);
+  stroke-width: 2;
+}
+
+.hangar-ring--outer {
+  stroke: var(--color-line);
+  stroke-dasharray: 3 9;
+}
+
+.hangar-ring--edge {
+  stroke: var(--color-primary);
+  stroke-width: 2.4;
+}
+
+.hangar-ring--inner {
+  stroke: var(--color-line);
+}
+
+.hangar-disc {
+  fill: url(#hangar-disc-gradient);
+}
+
+.hangar-disc-stop {
+  stop-color: var(--color-primary-fill);
+  stop-opacity: 0;
+}
+
+.hangar-disc-stop--center {
+  stop-opacity: 0.14;
+}
+
+.hangar-arc {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 5;
+  stroke-dasharray: 0 1;
+}
+
+.hangar-tick {
+  stroke: var(--color-text-faint);
+  stroke-width: 2;
+}
+
+.hangar-tick--major {
+  stroke: var(--color-primary);
+  stroke-width: 3;
+}
+
+.hangar-rings text {
+  fill: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 17px;
+  letter-spacing: 0.06em;
+  text-anchor: middle;
+}
+
+.hangar-index {
+  fill: var(--color-primary);
+}
+
+.hangar-cross {
+  stroke: var(--color-line-strong);
+  stroke-width: 1.5;
+}
+
+/* Escáner: una línea que sube por el zapato con una estela suave. */
+.hangar-scan {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, black 18%, black 82%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 18%, black 82%, transparent);
+}
+
+.hangar-scan__beam {
+  position: absolute;
+  inset: 0;
+  border-top: 1px solid var(--color-primary);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--dep-scan-tint) 16%, transparent),
+    color-mix(in srgb, var(--dep-scan-tint) 4%, transparent) 28%,
+    transparent 50%
+  );
+  opacity: 0;
+}
+
+
+/* ---------- Tablet: menos columnas en el tablero ---------- */
+
+@media (max-width: 1100px) {
+  .dep-lead {
+    display: none;
+  }
+}
+
+/* Entre tablet y escritorio angosto (861 a 1100 px), con nombres largos como
+   "Jordan 4 Retro University Blue" el tablero ya no cabe junto a la vista 3D:
+   la vista y los detalles pasan arriba, lado a lado, y el tablero ocupa todo
+   el ancho debajo. */
+@media (min-width: 861px) and (max-width: 1100px) {
+  .dep-board {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'head'
+      'band'
+      'list';
+  }
+
+  .dep-band {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: end;
+    gap: var(--space-6);
+  }
+}
+
+/* ---------- Móvil: tarjetas apiladas y vista previa fija arriba ---------- */
+
+@media (max-width: 860px) {
+  .dep {
+    --dep-tile-stretch: 87.5%;
+  }
+
+  .dep-intro .hud-label:last-child {
+    display: none;
+  }
+
+  .dep-board {
+    display: flex;
+    flex-direction: column;
+    padding-top: var(--space-4);
+    padding-bottom: var(--space-12);
+    gap: var(--space-6);
+  }
+
+  /* En móvil la vista 3D va arriba de la lista; el DOM (y el foco) siguen el
+     orden encabezado, filtros, filas, detalles. */
+  .dep-head {
+    order: 1;
+  }
+
+  .dep-band {
+    order: 2;
+  }
+
+  .dep-list {
+    order: 3;
+  }
+
+  .dep-head__meta .hud-label:last-child {
+    display: none;
+  }
+
+  .dep-lead {
+    display: block;
+    max-width: none;
+    padding-bottom: 0;
+  }
+
+  /* La vista previa queda fija bajo el encabezado y las tarjetas pasan por debajo. */
+  .dep-band {
+    position: sticky;
+    top: var(--header-height);
+    z-index: 2;
+    gap: var(--space-3);
+    margin-inline: calc(var(--gutter) * -1);
+    padding: var(--space-2) var(--gutter) var(--space-3);
+    background: var(--color-background);
+  }
+
+  .dep-band::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    height: 28px;
+    background: linear-gradient(var(--color-background), transparent);
+    pointer-events: none;
+  }
+
+  .dep-slot {
+    flex: none;
+    height: clamp(170px, 26svh, 240px);
+    min-height: 0;
+  }
+
+  .dep-details {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-1) var(--space-3);
+    padding-top: var(--space-3);
+  }
+
+  .dep-details__top {
+    grid-column: 1 / -1;
+  }
+
+  .dep-details__name {
+    font-size: min(1.25rem, 6.4cqi);
+  }
+
+  .dep-details__meta {
+    grid-column: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+  }
+
+  .dep-details__tagline,
+  .dep-details__tags {
+    display: none;
+  }
+
+  .dep-details__buy {
+    grid-column: 2;
+    grid-row: 2 / span 2;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-2);
+    margin: 0;
+  }
+
+  .dep-details__fare {
+    justify-items: end;
+  }
+
+  .dep-details__fare .hud-label {
+    display: none;
+  }
+
+  .dep-details__price {
+    font-size: var(--text-base);
+  }
+
+  .dep-cta {
+    height: 40px;
+    padding-inline: var(--space-4);
+  }
+
+  .dep-bar {
+    padding-bottom: var(--space-3);
+  }
+
+  .dep-filters {
+    flex-wrap: nowrap;
+    gap: 5px;
+  }
+
+  .dep-chip {
+    padding: 6px 10px;
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+
+  .dep-cols {
+    display: none;
+  }
+
+  .dep-rows {
+    display: grid;
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+  }
+
+  .dep-item + .dep-item::before {
+    display: none;
+  }
+
+  .dep-row {
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--color-surface) 55%, transparent);
+  }
+
+  .dep-row__hl {
+    border-radius: var(--radius-md);
+  }
+
+  /* Tarjeta: referencia y precio, modelo grande, disponibilidad y tallas. */
+  .dep-row__cells,
+  .dep-list.is-compact .dep-row__cells {
+    grid-template-columns: auto auto;
+    grid-template-areas:
+      'ref price'
+      'name name'
+      'stock sizes';
+    justify-content: space-between;
+    row-gap: 0.6em;
+    padding: 1.1em 1.2em;
+    font-size: 12px;
+  }
+
+  .dep-cell--ref {
+    grid-area: ref;
+  }
+
+  .dep-cell--name {
+    grid-area: name;
+    /* --dep-name-size lo calcula fitBoard() para que el nombre más largo quepa. */
+    font-size: var(--dep-name-size, 1.22em);
+  }
+
+  .dep-cell--brand {
+    display: none;
+  }
+
+  .dep-cell--sizes {
+    grid-area: sizes;
+    justify-self: end;
+  }
+
+  .dep-cell--price {
+    grid-area: price;
+    justify-self: end;
+  }
+
+  .dep-cell--stock {
+    grid-area: stock;
+  }
+
+  /* Hangar en columna: título, plataforma y funciones. */
+  .hangar-screen,
+  .hangar-layout {
+    min-height: 0;
+  }
+
+  .hangar-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    padding-top: calc(var(--header-height) + var(--space-4));
+    padding-bottom: var(--space-12);
+  }
+
+  .hangar-copy {
+    display: contents;
+  }
+
+  .hangar-kicker {
+    order: 1;
+  }
+
+  .hangar-title {
+    order: 2;
+    font-size: clamp(2.5rem, 12vw, 3.5rem);
+  }
+
+  .hangar-title br {
+    display: none;
+  }
+
+  .hangar-lead {
+    order: 3;
+    font-size: var(--text-sm);
+  }
+
+  .hangar-slot {
+    order: 4;
+    flex: none;
+    height: clamp(300px, 46svh, 390px);
+    min-height: 0;
+  }
+
+  .hangar-features {
+    order: 5;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+    border: 0;
+  }
+
+  .hangar-feature {
+    grid-template-columns: 1fr;
+    justify-items: start;
+    gap: var(--space-1);
+    padding: var(--space-2) 0 0;
+    border-bottom: 0;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .hangar-feature__index,
+  .hangar-feature__text {
+    display: none;
+  }
+
+  .hangar-feature__title {
+    font-size: 0.6875rem;
+    line-height: 1.25;
+  }
+
+  .hangar-actions {
+    order: 6;
+  }
+
+  .hangar-note {
+    display: none;
+  }
+
+  .hangar-hud--side {
+    display: none;
+  }
+
+  .hangar-model {
+    font-size: var(--text-base);
+  }
+
+  .hangar-rot {
+    font-size: var(--text-lg);
+  }
+
+  .hangar-progress {
+    width: 120px;
+  }
+
+  .hangar-hud--bottom .hud-label {
+    display: none;
+  }
+
+  .hangar-floor {
+    -webkit-mask-image: radial-gradient(ellipse 70% 40% at 50% 55%, black 0%, transparent 75%);
+    mask-image: radial-gradient(ellipse 70% 40% at 50% 55%, black 0%, transparent 75%);
+  }
+}
+
+/* ---------- Movimiento reducido: estados estáticos ---------- */
+
+.dep.is-reduced .dep-slot__loader::after {
+  animation: none;
+  width: 100%;
+  transform: none;
+  opacity: 0.5;
+}

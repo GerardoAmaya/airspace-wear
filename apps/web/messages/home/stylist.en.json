@@ -1,0 +1,118 @@
+{
+  "HomeStylist": {
+    "kicker": "AI stylist",
+    "title": "Talk to your stylist",
+    "lead": "Our AI stylist knows every pair in the catalog. Tell it where you're headed or what you're after, and it recommends the right model, with clear reasons and in your language.",
+    "readouts": {
+      "catalog": "Catalog",
+      "catalogUnit": "models",
+      "languages": "Languages",
+      "languagesValue": "ES <unit>and</unit> EN",
+      "response": "Response",
+      "responseValue": "In seconds"
+    },
+    "console": {
+      "name": "AI stylist",
+      "online": "Online",
+      "modeYou": "You",
+      "modeAi": "AI",
+      "language": "Answers in your language",
+      "statusLabel": "Status",
+      "stamp": "Query {number}",
+      "logLabel": "Conversation with your stylist"
+    },
+    "status": {
+      "idle": "Available",
+      "listening": "Listening",
+      "reading": "Reading",
+      "replying": "Replying"
+    },
+    "message": {
+      "you": "You",
+      "stylist": "Stylist",
+      "sent": "Sent"
+    },
+    "card": {
+      "listLabel": "Stylist recommendations",
+      "recommendation": "Recommendation {index}",
+      "match": "Match <value>{percent}</value>%",
+      "tags": "Tags",
+      "view3d": "View in 3D",
+      "view3dLabel": "View in 3D: {name}"
+    },
+    "controls": {
+      "suggestions": "Try",
+      "inputLabel": "Write your message to the stylist",
+      "placeholder": "Ask about a style, an occasion or a size",
+      "placeholderShort": "Write your message",
+      "send": "Send message"
+    },
+    "announce": {
+      "reply": "Stylist: {text}",
+      "products": "Recommendations: {list}."
+    },
+    "scenarios": {
+      "comfort": {
+        "chip": "I'm looking for all-day comfort",
+        "question": "I need something comfortable to walk around the city all day.",
+        "answer": "Sure! For walking all day I'd go with two pairs: the {p1}, with ENCAP cushioning and suede that hugs your foot, and the {p2}, light (just 280 g) with Zoom Air so you can forget about your feet.",
+        "reason1": "ENCAP cushioning that lasts from morning to night.",
+        "reason2": "Just 280 g with Zoom Air foam for a light step."
+      },
+      "concert": {
+        "chip": "I want to stand out at a concert",
+        "question": "I'm going to a concert this Saturday and I want to stand out.",
+        "answer": "Great plan! To be seen from the back row: the {p1}, with giant AIR letters and visible cushioning, and the {p2}, in lilac suede with black speckles, which never go unnoticed.",
+        "reason1": "AIR letters you can read from the stage.",
+        "reason2": "Lilac suede: the Jordan 4 at its boldest."
+      },
+      "basic": {
+        "chip": "I'm looking for an easy basic",
+        "question": "I'm looking for a basic that goes with everything in my closet.",
+        "answer": "I've got just the thing: the {p1}, black with three white stripes and a gum sole, work with jeans, joggers or dress pants. If you'd like a touch of color, the {p2} in green suede are your second pick.",
+        "reason1": "Low profile and minimal: from jeans to dress pants.",
+        "reason2": "A 1966 classic with a touch of color."
+      }
+    },
+    "freeReply": "Thanks for writing! In this demo my replies are prepared in advance, but on the real site your stylist uses AI and answers any question about the catalog, in your language. In the meantime, try one of the ideas below.",
+    "errors": {
+      "rateLimited": "You're asking a bit too fast. Wait a moment and try again.",
+      "refused": "I'd rather not answer that. Tell me what you're looking for in sneakers or balls and I'll help.",
+      "generic": "I couldn't answer right now. Please try again in a moment."
+    }
+  },
+  "HomeClub": {
+    "kicker": "Early access",
+    "title": "Join the club",
+    "lead": "Create your account to save your favorite pairs, track your orders and be the first to hear about every drop.",
+    "cardTitle": "Member card",
+    "clubLabel": "Members club",
+    "clubName": "AIRSPACE CLUB",
+    "perk": "Drops before anyone else",
+    "seasonLabel": "Season",
+    "season": "26",
+    "fields": {
+      "member": "Member",
+      "memberValue": "Guest",
+      "since": "Since",
+      "sinceFallback": "Today",
+      "size": "Favorite size",
+      "sizeValue": "To be chosen"
+    },
+    "stub": {
+      "title": "Scan at checkout",
+      "number": "Member no.",
+      "numberValue": "AS-2026",
+      "note": "Valid in store and online",
+      "code": "AS2026 CLUB T26"
+    },
+    "actions": {
+      "signup": "Create account",
+      "waitlist": "Join the list",
+      "waitlistJoined": "We'll let you know",
+      "signupNote": "Coming soon: sign-up opens with the real site. For now, keep exploring.",
+      "waitlistNote": "Done: we'll let you know about every drop. This is a demo and we don't store any data.",
+      "waitlistLeft": "You left the list."
+    }
+  }
+}

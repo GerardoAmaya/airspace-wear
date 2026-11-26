@@ -1,0 +1,216 @@
+// Esquema de la base de AIRSPACE Wear (Prisma 7). La URL de conexión vive en
+// prisma.config.ts.
+//
+// Reglas (ver CLAUDE.md y docs/plan-paso-2.md):
+// - Nombres y descripciones de productos se guardan por idioma en
+//   ProductTranslation (clave: producto + idioma), nunca en los mensajes de la web.
+// - Categorías y disponibilidad son códigos; sus etiquetas son texto de UI.
+// - Las posiciones de los hotspots están en metros, en el espacio del modelo
+//   (pose canónica), así siguen valiendo si el modelo se vuelve a optimizar.
+
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "esm"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Locale {
+  es
+  en
+}
+
+enum Category {
+  sneaker
+  apparel
+  ball
+}
+
+enum Availability {
+  new
+  available
+  low_stock
+  coming_soon
+}
+
+enum Foot {
+  left
+  right
+}
+
+// Lado externo del zapato respecto de la cámara por defecto (+Z).
+enum LateralSide {
+  plus_z
+  minus_z
+}
+
+enum CreditKind {
+  model
+  font
+  library
+}
+
+model Brand {
+  id       Int       @id @default(autoincrement())
+  slug     String    @unique
+  name     String
+  products Product[]
+}
+
+model Product {
+  id           Int                  @id @default(autoincrement())
+  slug         String               @unique
+  // Referencia de tienda, por ejemplo "AS-001".
+  reference    String               @unique
+  category     Category
+  brandId      Int
+  brand        Brand                @relation(fields: [brandId], references: [id])
+  priceCents   Int
+  currency     String               @default("USD") @db.Char(3)
+  availability Availability         @default(available)
+  // Datos técnicos sin idioma: peso, altura de suela, paneles, año, código de sede.
+  attributes   Json                 @default("{}")
+  published    Boolean              @default(true)
+  sortOrder    Int                  @default(0)
+  // Imagen o póster propio (ropa sin modelo 3D, Open Graph). Los productos
+  // con 3D usan además el póster del modelo.
+  imageUrl     String?
+  // Acento del visor (hex): tinta para tema oscuro y para tema claro, AA
+  // sobre sus fondos. Null = el lima de la marca.
+  accentDark   String?
+  accentLight  String?
+  // Un modelo puede servir a varios productos (por ejemplo, dos colorways
+  // que comparten malla).
+  modelId      Int?
+  model        Model3D?             @relation(fields: [modelId], references: [id])
+  translations ProductTranslation[]
+  sizes        ProductSize[]
+  hotspots     Hotspot[]
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  @@index([published, sortOrder])
+  @@index([category, published, sortOrder])
+  @@index([brandId])
+  @@index([modelId])
+}
+
+model ProductTranslation {
+  productId   Int
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  locale      Locale
+  name        String
+  colorway    String?
+  tagline     String
+  description String
+  // Edición y sede (balones mundialistas), por ejemplo "Mundial Alemania 2006" y "Berlín".
+  edition     String?
+  hostCity    String?
+  // Materiales por pieza: { upper, sole } en sneakers, { finish } en balones.
+  materials   Json     @default("{}")
+  tags        String[] @default([])
+
+  @@id([productId, locale])
+}
+
+model ProductSize {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  // Sistema de tallas: "EU" en sneakers, "BALL" en balones (talla 5).
+  system    String
+  label     String
+  sortOrder Int     @default(0)
+  stock     Int     @default(0)
+
+  @@unique([productId, system, label])
+}
+
+model Model3D {
+  id                Int         @id @default(autoincrement())
+  // Slug del manifest (assets/models/manifest.json).
+  slug              String      @unique
+  heroUrl           String
+  liteUrl           String
+  heroBytes         Int
+  liteBytes         Int
+  heroTriangles     Int
+  liteTriangles     Int
+  foot              Foot?
+  // Eje hacia el que mira el lado externo del zapato, del manifest.
+  lateralSideFacing LateralSide?
+  // Pósters WebP por tema (pnpm models:posters): la luz cambia con el tema.
+  posterDarkUrl     String?
+  posterLightUrl    String?
+  creditId          Int         @unique
+  credit            AssetCredit @relation(fields: [creditId], references: [id])
+  products          Product[]
+}
+
+// Los hotspots cuelgan del producto porque su texto describe el producto,
+// pero su posición está en el espacio del modelo: si el producto cambia de
+// modelo, se recalibran en prisma/seed/hotspots.ts.
+model Hotspot {
+  id           Int                  @id @default(autoincrement())
+  productId    Int
+  product      Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
+  key          String
+  sortOrder    Int                  @default(0)
+  // Punto [x, y, z] en metros, en el espacio del modelo.
+  position     Float[]
+  // Pose del zapato y encuadre de cámara para este detalle.
+  view         Json                 @default("{}")
+  translations HotspotTranslation[]
+
+  @@unique([productId, key])
+}
+
+model HotspotTranslation {
+  hotspotId Int
+  hotspot   Hotspot @relation(fields: [hotspotId], references: [id], onDelete: Cascade)
+  locale    Locale
+  title     String
+  text      String
+
+  @@id([hotspotId, locale])
+}
+
+// Consumo diario del estilista IA, para el presupuesto (STYLIST_DAILY_BUDGET_USD).
+// No guarda conversaciones: solo conteos y costo estimado.
+model StylistUsage {
+  // Día en UTC, YYYY-MM-DD.
+  day              String @id
+  requests         Int    @default(0)
+  inputTokens      Int    @default(0)
+  outputTokens     Int    @default(0)
+  cacheReadTokens  Int    @default(0)
+  cacheWriteTokens Int    @default(0)
+  // Costo estimado en millonésimas de dólar.
+  costMicros       Int    @default(0)
+}
+
+model AssetCredit {
+  id            Int        @id @default(autoincrement())
+  // Clave estable, por ejemplo "model:air-jordan-1" o "font:hubot-sans".
+  key           String     @unique
+  kind          CreditKind
+  // Nombre del recurso en el sitio (producto, fuente o librería).
+  name          String
+  // Título del original y su enlace (modelos).
+  sourceTitle   String?
+  sourceUrl     String?
+  author        String
+  authorUrl     String?
+  licenseName   String
+  licenseUrl    String?
+  commercialUse Boolean    @default(true)
+  shareAlike    Boolean    @default(false)
+  // Códigos de cambios (los traduce la web): kept_one_shoe, reoriented_rescaled...
+  changes       String[]   @default([])
+  sortOrder     Int        @default(0)
+  model3d       Model3D?
+}

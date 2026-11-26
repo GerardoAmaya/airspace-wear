@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Prueba de iluminación · AIRSPACE Wear</title>
+    <!-- Página de desarrollo: compara zapatos claros y oscuros con el halo y
+         los presets de luz en ambos temas. Uso: /dev/lighting.html?theme=light -->
+    <script>
+      document.documentElement.setAttribute('data-theme', new URLSearchParams(location.search).get('theme') || 'dark');
+    </script>
+    <link rel="icon" href="data:," />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Hubot+Sans:wdth,wght@75..125,200..900&family=Mona+Sans:wdth,wght@75..125,200..900&family=Martian+Mono:wdth,wght@75..112.5,100..800&display=swap"
+    />
+    <link rel="stylesheet" href="../core/tokens.css" />
+    <link rel="stylesheet" href="../core/base.css" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.1/dist/gsap.min.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/"
+        }
+      }
+    </script>
+    <style>
+      .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); padding: var(--space-6); }
+      .cell { position: relative; aspect-ratio: 4 / 3; }
+      .cell canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+      .cell .stage-halo { position: absolute; inset: 8%; }
+      .cell .hud-label { position: absolute; left: 0; top: 0; }
+    </style>
+  </head>
+  <body>
+    <div class="grid">
+      <div class="cell"><div class="stage-halo"></div><canvas data-slug="air-jordan-1"></canvas><span class="hud-label">air-jordan-1</span></div>
+      <div class="cell"><div class="stage-halo"></div><canvas data-slug="adidas-sambae"></canvas><span class="hud-label">adidas-sambae</span></div>
+      <div class="cell"><div class="stage-halo"></div><canvas data-slug="nike-air-uptempo"></canvas><span class="hud-label">nike-air-uptempo</span></div>
+    </div>
+    <script type="module">
+      import { createStage } from '../core/stage.js';
+      const stages = [...document.querySelectorAll('canvas')].map((canvas) => {
+        const stage = createStage(canvas, { models: [canvas.dataset.slug], cameraZ: 0.95 });
+        // Vista de tres cuartos desde el lado exterior.
+        stage.ready.then(() => (stage.sneaker.rotation.y = ['air-jordan-1', 'adidas-sambae'].includes(canvas.dataset.slug) ? -0.5 : Math.PI + 0.5));
+        return stage;
+      });
+      await Promise.all(stages.map((stage) => stage.ready));
+      window.__prototypeReady = true;
+    </script>
+  </body>
+</html>

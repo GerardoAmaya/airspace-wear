@@ -1,0 +1,146 @@
+/*
+ * Tokens de diseño de AIRSPACE Wear, dirección "Flight Deck". Portados tal
+ * cual desde design/prototype/core/tokens.css (salvo las familias tipográficas).
+ * Fuente única de colores, tipografía, espaciado y movimiento. Las secciones
+ * nunca usan valores hexadecimales ni duraciones sueltas: siempre estas variables.
+ *
+ * Temas: <html data-theme="dark|light">. El oscuro ("vuelo nocturno") es la
+ * paleta de marca; el claro ("vuelo diurno") la invierte: la crema de marca
+ * pasa a ser el fondo. Cada acento tiene dos usos:
+ *   --color-primary / --color-secondary: TINTA para texto, líneas, trazos y
+ *     marcas sobre el fondo. En claro se oscurecen para ser legibles (AA).
+ *   --color-primary-fill / --color-secondary-fill: RELLENO de botones, chips
+ *     activos y resaltados. Iguales en ambos temas; el texto encima usa
+ *     --color-on-primary.
+ */
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* Marca (CLAUDE.md) */
+  --color-background: #0e0e10;
+  --color-surface: #1c1c21;
+  --color-primary: #c6ff3d; /* lima: radar, HUD, acentos */
+  --color-secondary: #ff5b2e; /* naranja: alertas, estados de "última llamada" */
+  --color-text: #f4f1ea;
+
+  /* Rellenos de acento (iguales en ambos temas) */
+  --color-primary-fill: #c6ff3d;
+  --color-secondary-fill: #ff5b2e;
+  --color-on-primary: #0e0e10;
+
+  /* Derivados */
+  --color-surface-raised: #24242b;
+  /* Contraste AA (4.5:1 o más) sobre fondo y superficies: los dos tonos se
+     usan para texto real, no solo para adornos. */
+  --color-text-muted: #a8a49c;
+  --color-text-faint: #8f8c86;
+  --color-line: color-mix(in srgb, var(--color-text) 10%, transparent); /* cuadrícula y divisores */
+  --color-line-strong: color-mix(in srgb, var(--color-text) 22%, transparent);
+  --color-primary-glow: color-mix(in srgb, var(--color-primary-fill) 35%, transparent);
+  --color-primary-soft: color-mix(in srgb, var(--color-primary-fill) 12%, transparent);
+  --color-secondary-soft: color-mix(in srgb, var(--color-secondary-fill) 14%, transparent);
+  --shadow-elevated: 0 24px 60px -20px rgb(0 0 0 / 0.6);
+}
+
+/* Vuelo diurno: se aplica con data-theme="light" (lo decide el script del <head>). */
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --color-background: #f4f1ea;
+  --color-surface: #fbf9f4;
+  --color-surface-raised: #ffffff;
+  --color-text: #0e0e10;
+  --color-text-muted: #55524c;
+  --color-text-faint: #6c6861;
+  --color-primary: #4d6b00; /* lima oscurecido: 5.4:1 sobre la crema */
+  --color-secondary: #c2410c; /* naranja oscurecido: 4.6:1 sobre la crema */
+  --color-line: color-mix(in srgb, var(--color-text) 11%, transparent);
+  --color-line-strong: color-mix(in srgb, var(--color-text) 24%, transparent);
+  --color-primary-glow: color-mix(in srgb, var(--color-primary-fill) 70%, transparent);
+  --color-primary-soft: color-mix(in srgb, var(--color-primary-fill) 30%, transparent);
+  --color-secondary-soft: color-mix(in srgb, var(--color-secondary-fill) 16%, transparent);
+  --shadow-elevated: 0 24px 60px -24px rgb(14 14 16 / 0.28);
+}
+
+:root {
+
+  /*
+   * Tipografía (todas OFL, variables con eje de ancho):
+   * - Hubot Sans: titulares. Expandida y pesada, con cortes técnicos, como la
+   *   rotulación de un avión.
+   * - Mona Sans: texto. Hermana de Hubot, sobria y muy legible.
+   * - Martian Mono: datos HUD, telemetría y el tablero de salidas.
+   * Usa siempre estas variables, nunca el nombre de la fuente.
+   */
+  /* Las familias llegan de next/font (app/[locale]/layout.tsx) como
+     --font-hubot, --font-mona y --font-martian. */
+  --font-display: var(--font-hubot), var(--font-mona), system-ui, sans-serif;
+  --font-body: var(--font-mona), system-ui, sans-serif;
+  --font-mono: var(--font-martian), ui-monospace, monospace;
+  --font-stretch-display: 125%; /* expandida; en móvil se angosta (ver abajo) */
+  --font-stretch-body: 100%;
+  --font-stretch-mono: 100%;
+
+  /* Escala tipográfica fluida (de móvil a escritorio) */
+  --text-hud: 0.6875rem; /* 11px, etiquetas HUD en mayúsculas */
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+  --text-xl: clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem);
+  --text-2xl: clamp(2.25rem, 1.6rem + 3vw, 4rem);
+  --text-display: clamp(3rem, 1.5rem + 7.5vw, 9.5rem);
+  --tracking-hud: 0.12em; /* Martian Mono ya es ancha: menos espaciado que una mono común */
+  --tracking-display: -0.02em;
+  --leading-tight: 0.92;
+  --leading-body: 1.55;
+
+  /* Espaciado y forma */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+  --space-section: clamp(6rem, 4rem + 10vw, 14rem);
+  --gutter: clamp(1rem, 0.5rem + 2.5vw, 3rem);
+  /* Ancho del contenido y borde izquierdo común: el encabezado, el inicio y
+     todas las secciones alinean su contenido con --page-edge. */
+  --container-max: 1440px;
+  --page-edge: max(var(--gutter), calc((100vw - var(--container-max)) / 2 + var(--gutter)));
+  --radius-sm: 6px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+  --header-height: 64px;
+  --hud-corner: 14px; /* tamaño de las esquinas de los marcos HUD */
+
+  /*
+   * Movimiento. Los mismos valores existen en core/motion.js para GSAP.
+   * out: revelados y entradas. inOut: cámara y desplazamientos largos.
+   */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-micro: 150ms;
+  --duration-ui: 300ms;
+  --duration-reveal: 900ms;
+  --duration-cinematic: 1600ms;
+
+  /* Capas */
+  --z-stage: 0;
+  --z-content: 1;
+  --z-hud: 5;
+  --z-header: 50;
+  --z-overlay: 100;
+}
+
+/* En pantallas angostas los titulares se angostan con el eje de ancho, para
+   que palabras largas como "INSPECCIÓN" quepan sin reducir tanto el tamaño. */
+@media (max-width: 600px) {
+  :root {
+    --font-stretch-display: 108%;
+  }
+}

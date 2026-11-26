@@ -1,0 +1,905 @@
+/*
+ * Sección "Estilista IA" (id "tower").
+ * Columna de presentación + consola de radio con marco HUD y un radar detrás.
+ * Tinta (--color-primary) para trazos y texto; relleno (--color-primary-fill)
+ * para superficies con texto encima (--color-on-primary).
+ */
+
+/* Estado inicial de la entrada: solo opacidad, definido aquí y no solo en JS.
+   tower.js marca data-motion="pending" y lo cambia a "done" al terminar. El
+   contenido sigue en el árbol de accesibilidad y el foco lo completa. */
+.tower-section[data-motion='pending'] [data-reveal] {
+  opacity: 0;
+}
+
+/* El relleno superior deja libre el encabezado fijo: al llegar con el menú
+   (#estilista) la consola entera cabe en la ventana. */
+.tower-section {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  background: var(--color-background);
+  padding-block: calc(var(--header-height) + clamp(1.25rem, 4svh, 3rem)) clamp(4rem, 3rem + 5vw, 8rem);
+}
+
+/* Cuadrícula de navegación que se desvanece hacia los bordes. */
+.tower-grid {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.55;
+  mask-image: radial-gradient(ellipse 70% 60% at 65% 50%, var(--color-background) 10%, transparent 75%);
+}
+
+.tower-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 4.4fr) minmax(0, 7.6fr);
+  gap: clamp(2.5rem, 1rem + 4vw, 6rem);
+  align-items: center;
+}
+
+/* ---------- Presentación ---------- */
+
+.tower-intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.tower-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* SplitText recorta cada línea (overflow: clip) para el revelado; con un
+   interlineado tan cerrado, ese recorte cortaba las tildes (Ú, Á). El margen
+   negativo compensa el relleno y el diseño no se mueve. */
+.tower-title > div {
+  padding-top: 0.16em;
+  margin-top: -0.16em;
+}
+
+.tower-title {
+  font-size: clamp(2.25rem, 4.1vw, 3.75rem);
+  line-height: 0.92;
+  max-width: 9ch;
+}
+
+.tower-lead {
+  max-width: 34ch;
+}
+
+.tower-readouts {
+  margin: var(--space-4) 0 0;
+  display: grid;
+  border-top: 1px solid var(--color-line-strong);
+}
+
+.tower-readout {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-block: var(--space-3);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.tower-readout dd {
+  margin: 0;
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.tower-readout__value {
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+}
+
+.tower-readout__unit {
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* ---------- Escenario: radar + consola ---------- */
+
+.tower-stage {
+  position: relative;
+  min-width: 0;
+}
+
+.tower-radar {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(1180px, 150%);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  z-index: -1;
+  pointer-events: none;
+  color: var(--color-primary);
+  mask-image: radial-gradient(circle, var(--color-background) 30%, transparent 70%);
+}
+
+.tower-radar__rings {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.3;
+}
+
+.tower-radar__sweep {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    color-mix(in srgb, var(--color-primary) 22%, transparent),
+    transparent 70deg,
+    transparent
+  );
+  animation: tower-sweep 9s linear infinite;
+  will-change: transform;
+}
+
+@keyframes tower-sweep {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Fuera de pantalla los bucles CSS se detienen (la clase la pone tower.js). */
+.tower-section:not(.is-live) .tower-radar__sweep,
+.tower-section:not(.is-live) .tower-caret,
+.tower-section:not(.is-live) .tower-thinking i,
+.tower-section:not(.is-live) .status-dot {
+  animation-play-state: paused;
+}
+
+:root.lite .tower-radar__sweep {
+  animation: none;
+  opacity: 0.4;
+}
+
+/* ---------- Consola ---------- */
+
+.tower-console {
+  --console-pad: clamp(1rem, 0.6rem + 1.2vw, 1.75rem);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  box-shadow: var(--shadow-elevated);
+}
+
+/* Las esquinas HUD quedan por fuera del borde, como un visor sobre la pieza. */
+.tower-console.hud-frame::before,
+.tower-console.hud-frame::after,
+.tower-console.hud-frame > .hud-frame__corners::before,
+.tower-console.hud-frame > .hud-frame__corners::after {
+  margin: -7px;
+}
+
+.tower-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4) var(--space-6);
+  padding: var(--space-4) var(--console-pad);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.tower-head__id {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.tower-head__id .hud-label {
+  color: var(--color-text);
+}
+
+.tower-freq {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.tower-freq__value {
+  font-size: var(--text-hud);
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+}
+
+/* Forma de onda: barras que escala el ticker de GSAP (solo transform). */
+.tower-wave {
+  flex: 1;
+  min-width: 64px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px;
+}
+
+.tower-wave__bar {
+  flex: 1;
+  max-width: 3px;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--color-primary);
+  opacity: 0.45;
+  transform: scaleY(0.06);
+  transition: opacity var(--duration-reveal) var(--ease-out);
+  will-change: transform;
+}
+
+.tower-console[data-mode='tx'] .tower-wave__bar {
+  opacity: 1;
+}
+
+.tower-mode {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tower-mode span {
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--color-text-faint);
+  transition:
+    background-color var(--duration-ui) var(--ease-out),
+    color var(--duration-ui) var(--ease-out);
+}
+
+.tower-console[data-mode='rx'] .tower-mode__rx {
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+}
+
+.tower-console[data-mode='tx'] .tower-mode__tx {
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+}
+
+.tower-lang {
+  flex: none;
+  gap: var(--space-2);
+  color: var(--color-text);
+  border-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
+}
+
+.tower-lang svg {
+  width: 14px;
+  height: 14px;
+  color: var(--color-primary);
+}
+
+/* Línea de estado con regla graduada. */
+.tower-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--console-pad) 0;
+}
+
+.tower-status__label {
+  color: var(--color-text-faint);
+}
+
+.tower-status__value {
+  min-width: 15ch;
+}
+
+.tower-status__tx {
+  color: var(--color-text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.tower-ruler {
+  flex: 1;
+  height: 9px;
+  background:
+    linear-gradient(var(--color-line-strong), var(--color-line-strong)) left bottom / 100% 1px no-repeat,
+    repeating-linear-gradient(90deg, var(--color-line-strong) 0 1px, transparent 1px 8px) left bottom / 100% 4px no-repeat,
+    repeating-linear-gradient(90deg, var(--color-text-muted) 0 1px, transparent 1px 64px) left bottom / 100% 9px no-repeat;
+}
+
+/* Registro: columna invertida para quedar anclado abajo mientras crece. */
+.tower-log {
+  position: relative;
+  /* Alto según la ventana: cabecera, registro, ideas y campo caben juntos
+     (1720x816, 1440x900, 1280x720). --console-rest es el resto de la consola
+     más el encabezado fijo y un margen; crece cuando las ideas usan dos filas. */
+  --console-rest: 380px;
+  height: clamp(240px, 100svh - var(--console-rest) - clamp(1.25rem, 4svh, 3rem), 480px);
+  display: flex;
+  flex-direction: column-reverse;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-strong) transparent;
+  padding-inline: var(--console-pad);
+  mask-image: linear-gradient(to bottom, transparent 0, transparent 4px, var(--color-background) 34px, var(--color-background) calc(100% - 12px), transparent);
+}
+
+.tower-log:focus-visible {
+  outline-offset: -4px;
+}
+
+.tower-thread {
+  margin-bottom: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-block: var(--space-8) var(--space-4);
+}
+
+.tower-thread [hidden] {
+  display: none !important;
+}
+
+/* ---------- Mensajes ---------- */
+
+.tower-msg {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.tower-msg__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.625rem;
+  color: var(--color-text-faint);
+}
+
+.tower-msg__callsign {
+  color: var(--color-primary);
+}
+
+.tower-msg__sent {
+  margin-left: var(--space-1);
+  padding: 1px 6px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  color: var(--color-text-muted);
+}
+
+.tower-msg--pilot {
+  align-self: flex-end;
+  align-items: flex-end;
+  max-width: min(88%, 60ch);
+}
+
+.tower-bubble {
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md) var(--radius-md) 3px var(--radius-md);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.45;
+  color: var(--color-text);
+}
+
+.tower-caret {
+  display: inline-block;
+  width: 0.5em;
+  height: 1.1em;
+  margin-left: 2px;
+  vertical-align: -0.2em;
+  background: var(--color-primary);
+  animation: tower-blink 1s steps(1) infinite;
+}
+
+@keyframes tower-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.tower-msg--tower {
+  align-self: flex-start;
+  max-width: 94%;
+}
+
+.tower-reply {
+  position: relative;
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--color-primary);
+}
+
+.tower-reply__text {
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  color: var(--color-text);
+  text-wrap: pretty;
+}
+
+.tower-word {
+  display: inline-block;
+}
+
+.tower-word--hl {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.tower-thinking {
+  display: inline-flex;
+  gap: 5px;
+  padding-block: 0.6em;
+}
+
+.tower-thinking i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  animation: tower-dots 0.9s var(--ease-in-out) infinite;
+}
+
+.tower-thinking i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.tower-thinking i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes tower-dots {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+/* ---------- Tarjetas de recomendación ---------- */
+
+.tower-recs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  padding-left: calc(var(--space-4) + 2px);
+}
+
+.tower-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px var(--space-4);
+  background: var(--color-background);
+  border: 1px solid var(--color-line-strong);
+  transition: border-color var(--duration-ui) var(--ease-out);
+}
+
+.tower-card:hover,
+.tower-card:focus-within {
+  border-color: var(--color-primary);
+}
+
+.tower-card__head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: 0.625rem;
+}
+
+.tower-card__head .hud-label {
+  font-size: 0.625rem;
+}
+
+.tower-card__match {
+  font-variant-numeric: tabular-nums;
+}
+
+.tower-card__meter {
+  display: block;
+  height: 2px;
+  background: var(--color-line);
+  overflow: hidden;
+}
+
+.tower-card__meter-fill {
+  display: block;
+  height: 100%;
+  background: var(--color-primary);
+  transform-origin: 0 50%;
+}
+
+.tower-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.tower-card__name {
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-size: 1.25rem;
+  font-weight: 750;
+  line-height: 1.05;
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
+}
+
+.tower-card__reason {
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.tower-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tower-card__tags li {
+  padding: 2px 8px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.tower-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-line);
+}
+
+.tower-card__price {
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+.tower-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: var(--text-hud);
+  font-weight: 700;
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.tower-card__link svg {
+  width: 14px;
+  height: 14px;
+  transition: transform var(--duration-ui) var(--ease-out);
+}
+
+.tower-card__link:hover svg,
+.tower-card__link:focus-visible svg {
+  transform: translate(2px, -2px);
+}
+
+/* ---------- Controles: rutas sugeridas + campo ---------- */
+
+.tower-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--console-pad) var(--console-pad);
+  border-top: 1px solid var(--color-line);
+}
+
+.tower-routes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.tower-routes__label {
+  color: var(--color-text-faint);
+}
+
+.tower-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.tower-chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 9px 14px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  color: var(--color-text);
+  transition:
+    border-color var(--duration-ui) var(--ease-out),
+    background-color var(--duration-ui) var(--ease-out),
+    color var(--duration-ui) var(--ease-out),
+    transform var(--duration-ui) var(--ease-out);
+}
+
+.tower-chip:hover {
+  border-color: var(--color-primary);
+}
+
+.tower-chip:active {
+  transform: scale(0.97);
+}
+
+.tower-chip[aria-pressed='true'] {
+  border-color: var(--color-primary-fill);
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+}
+
+.tower-form {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 6px 6px 6px var(--space-4);
+  background: var(--color-background);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  transition: border-color var(--duration-ui) var(--ease-out);
+}
+
+.tower-form:focus-within {
+  border-color: var(--color-primary);
+}
+
+.tower-form__prompt {
+  color: var(--color-primary);
+  letter-spacing: 0;
+}
+
+.tower-input {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  border: 0;
+  background: none;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  outline: none;
+}
+
+.tower-input::placeholder {
+  color: var(--color-text-faint);
+}
+
+.tower-send {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+  transition:
+    transform var(--duration-ui) var(--ease-out),
+    box-shadow var(--duration-ui) var(--ease-out);
+}
+
+.tower-send svg {
+  width: 18px;
+  height: 18px;
+}
+
+.tower-send:hover {
+  box-shadow: 0 0 0 5px var(--color-primary-soft);
+}
+
+.tower-send:active {
+  transform: scale(0.92);
+}
+
+/* ---------- Tableta y móvil ---------- */
+
+/* Escritorio angosto: las ideas pasan a dos filas y el registro cede ese alto. */
+@media (min-width: 961px) and (max-width: 1360px) {
+  .tower-log {
+    --console-rest: 428px;
+  }
+}
+
+/* Cabecera en dos filas: estado y Tú/IA arriba; idioma y onda abajo. */
+@media (max-width: 1100px) {
+  .tower-head {
+    flex-wrap: wrap;
+    row-gap: var(--space-3);
+  }
+
+  .tower-mode {
+    order: 3;
+    margin-left: auto;
+  }
+
+  .tower-lang {
+    order: 4;
+  }
+
+  .tower-wave {
+    order: 5;
+  }
+}
+
+@media (max-width: 960px) {
+  .tower-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tower-title {
+    max-width: none;
+  }
+
+  .tower-radar {
+    width: 170%;
+  }
+}
+
+@media (max-width: 600px) {
+  .tower-section {
+    padding-block: var(--space-24);
+  }
+
+  .tower-head {
+    gap: var(--space-3);
+  }
+
+  .tower-lang {
+    padding: 5px 10px;
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+  }
+
+  .tower-log {
+    height: clamp(300px, 100svh - 400px, 440px);
+  }
+
+  .tower-status {
+    white-space: nowrap;
+  }
+
+  .tower-status__value {
+    min-width: 0;
+  }
+
+  .tower-ruler,
+  .tower-status__label {
+    display: none;
+  }
+
+  .tower-status__tx {
+    margin-left: auto;
+  }
+
+  .tower-card__brand,
+  .tower-card__match-label {
+    display: none;
+  }
+
+  /* En móvil las rutas se deslizan en su propio carril, sin mover la página. */
+  .tower-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    margin-inline: calc(var(--console-pad) * -1);
+    padding-inline: var(--console-pad);
+    scroll-padding-inline: var(--console-pad);
+  }
+
+  .tower-chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tower-chip {
+    scroll-snap-align: start;
+  }
+
+  /* Tarjetas en carrusel horizontal dentro de la consola. */
+  .tower-recs {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 84%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding-left: 0;
+    margin-inline: calc(var(--console-pad) * -1);
+    padding-inline: var(--console-pad);
+    scroll-padding-inline: var(--console-pad);
+  }
+
+  .tower-recs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tower-card {
+    scroll-snap-align: start;
+  }
+
+  .tower-msg--pilot {
+    max-width: 90%;
+  }
+
+  .tower-msg--tower {
+    max-width: 100%;
+  }
+
+  .tower-reply__text {
+    font-size: var(--text-base);
+  }
+
+  .tower-input {
+    font-size: var(--text-base);
+  }
+}
+
+/* Movimiento reducido: radar quieto, cursor fijo. */
+@media (prefers-reduced-motion: reduce) {
+  .tower-radar__sweep {
+    animation: none;
+    opacity: 0.5;
+  }
+
+  .tower-caret,
+  .tower-thinking {
+    display: none;
+  }
+}

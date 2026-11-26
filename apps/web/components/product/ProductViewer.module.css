@@ -1,0 +1,199 @@
+.viewer {
+  /* Acento del producto (o el lima de la marca): marcadores, pista y halo. */
+  --viewer-accent: var(--accent-ink, var(--color-primary));
+  position: relative;
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background-image:
+    linear-gradient(var(--color-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: center;
+  overflow: hidden;
+}
+
+/* Halo de estudio: separa zapatos negros del fondo oscuro y blancos del claro. */
+.halo {
+  position: absolute;
+  inset: 6%;
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--color-text) 13%, transparent),
+    color-mix(in srgb, var(--color-text) 5%, transparent) 55%,
+    transparent
+  );
+}
+
+.viewer[data-accent] .halo {
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--viewer-accent) 20%, transparent),
+    color-mix(in srgb, var(--viewer-accent) 6%, transparent) 55%,
+    transparent
+  );
+}
+
+/* Póster de respaldo: oculto mientras carga el modelo (escenario vacío).
+   ProductViewer pone data-poster si el 3D tarda; entonces aparece con un
+   fundido y flota (solo translate, solo a la vista) hasta el relevo. */
+.poster {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transition: opacity var(--duration-reveal) var(--ease-out);
+}
+
+.poster img {
+  width: 78%;
+  height: auto;
+}
+
+.viewer[data-poster] .poster {
+  opacity: 1;
+}
+
+.viewer[data-poster][data-live] .poster img {
+  animation: poster-float 2.7s var(--ease-in-out) infinite alternate;
+}
+
+.viewer[data-ready] .poster img {
+  animation-play-state: paused;
+}
+
+@keyframes poster-float {
+  from {
+    translate: 0 3px;
+  }
+  to {
+    translate: 0 -4px;
+  }
+}
+
+/* Modelo listo. Camino normal: el lienzo aparece con un fundido mientras
+   el zapato ya entra (ProductScene). Con el póster a la vista, primero se
+   apaga el póster y recién entonces aparece el lienzo, en la misma vista
+   (ProductScene la calza); nunca se ven los dos a la vez. */
+.viewer[data-ready] .poster {
+  opacity: 0;
+  transition-duration: var(--duration-ui);
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.viewer[data-ready] .canvas {
+  opacity: 1;
+  transition: opacity var(--duration-reveal) var(--ease-out);
+}
+
+.viewer[data-ready][data-poster] .canvas {
+  transition: opacity var(--duration-ui) var(--ease-out) var(--duration-ui);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poster img {
+    animation: none !important;
+  }
+}
+
+.markers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Cada marcador se ubica con transform desde la escena (sin tocar layout). */
+.marker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity var(--duration-ui) var(--ease-out);
+}
+
+.marker[data-active] {
+  opacity: 1;
+}
+
+.dot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border: 2px solid var(--viewer-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--viewer-accent) 22%, transparent);
+}
+
+.label {
+  position: absolute;
+  top: -12px;
+  left: 18px;
+  display: grid;
+  gap: 2px;
+  width: max-content;
+  max-width: 220px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.marker[data-side='left'] .label {
+  left: auto;
+  right: 18px;
+}
+
+.label strong {
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+/* Área de arrastre: toda la vista; cursor de agarre y foco visible. */
+.grip {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.grip:active {
+  cursor: grabbing;
+}
+
+.grip:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -4px;
+  border-radius: var(--radius-md);
+}
+
+.hint {
+  position: absolute;
+  left: var(--space-4);
+  bottom: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--viewer-accent);
+  pointer-events: none;
+}
+
+@media (max-width: 520px) {
+  .label {
+    max-width: 150px;
+  }
+}

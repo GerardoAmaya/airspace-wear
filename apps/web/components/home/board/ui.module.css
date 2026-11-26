@@ -1,0 +1,198 @@
+/*
+ * Piezas HUD del prototipo (design/prototype/core/base.css) que el tablero y
+ * el hangar comparten. El sitio aún no las tiene como clases globales: viven
+ * aquí, con los mismos tokens.
+ */
+
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.display {
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 800;
+  font-size: var(--text-display);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
+}
+
+/* Etiqueta HUD: mono, mayúsculas, espaciada. Para datos, estados y rótulos. */
+.hudLabel {
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: var(--text-hud);
+  font-weight: 500;
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.hudPrimary {
+  color: var(--color-primary);
+}
+
+.hudAlert {
+  color: var(--color-secondary);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  height: 48px;
+  padding-inline: var(--space-6);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: inherit;
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: var(--text-hud);
+  font-weight: 700;
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    transform var(--duration-ui) var(--ease-out),
+    box-shadow var(--duration-ui) var(--ease-out);
+}
+
+.btnPrimary {
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+}
+
+.btnPrimary:hover:not(:disabled) {
+  box-shadow:
+    0 0 0 6px var(--color-primary-soft),
+    0 0 32px var(--color-primary-glow);
+}
+
+.btnPrimary:disabled {
+  background: var(--color-line);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.btnGhost {
+  border: 1px solid var(--color-line-strong);
+  color: var(--color-text);
+}
+
+.btnGhost:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Marco con cuatro esquinas tipo visor: las dos de arriba son ::before y
+   ::after del marco; las de abajo, de .hudCorners (un hijo vacío). */
+.hudFrame {
+  --corner-color: var(--color-primary);
+}
+
+/* Visor con el acento del producto seleccionado (lib/accent.ts). */
+.hudFrame[data-accent] {
+  --corner-color: var(--accent-ink);
+}
+
+.hudFrame[data-accent] .halo {
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--accent-ink) 20%, transparent),
+    color-mix(in srgb, var(--accent-ink) 6%, transparent) 55%,
+    transparent
+  );
+}
+
+.hudFrame::before,
+.hudFrame::after,
+.hudCorners::before,
+.hudCorners::after {
+  content: '';
+  position: absolute;
+  z-index: 3;
+  width: var(--hud-corner);
+  height: var(--hud-corner);
+  border: 1.5px solid var(--corner-color);
+  pointer-events: none;
+}
+
+.hudFrame::before {
+  top: 0;
+  left: 0;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.hudFrame::after {
+  top: 0;
+  right: 0;
+  border-bottom: 0;
+  border-left: 0;
+}
+
+.hudCorners {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hudCorners::before {
+  bottom: 0;
+  left: 0;
+  border-top: 0;
+  border-right: 0;
+}
+
+.hudCorners::after {
+  right: 0;
+  bottom: 0;
+  border-top: 0;
+  border-left: 0;
+}
+
+/* Cuadrícula de fondo. */
+.hudGrid {
+  background-image:
+    linear-gradient(var(--color-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-line) 1px, transparent 1px);
+  background-size: 64px 64px;
+  background-position: center center;
+}
+
+/* Halo de estudio detrás del zapato: más claro en oscuro (separa los zapatos
+   negros) y más oscuro en claro (separa los blancos). */
+.halo {
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--color-text) 13%, transparent),
+    color-mix(in srgb, var(--color-text) 5%, transparent) 55%,
+    transparent
+  );
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 6px 12px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: var(--text-hud);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}

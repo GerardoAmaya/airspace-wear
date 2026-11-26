@@ -1,0 +1,191 @@
+.header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: var(--z-header);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  height: var(--header-height);
+  padding-inline: var(--page-edge);
+}
+
+/* Fondo en dos capas, sin backdrop-filter: degradado arriba de todo y barra
+   sólida con línea inferior en cuanto se baja. Solo cambia la opacidad. */
+.header::before,
+.header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  transition: opacity var(--duration-ui) var(--ease-out);
+}
+
+.header::before {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-background) 94%, transparent) 0%,
+    color-mix(in srgb, var(--color-background) 70%, transparent) 60%,
+    transparent
+  );
+}
+
+.header::after {
+  opacity: 0;
+  background: var(--color-background);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.header[data-scrolled]::before {
+  opacity: 0;
+}
+
+.header[data-scrolled]::after,
+.header[data-menu-open]::after {
+  opacity: 1;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35em;
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 850;
+  font-size: 1.125rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* "Wear": lima en oscuro; en claro, la tinta primaria (legible sobre crema). */
+.logoWear {
+  font-stretch: var(--font-stretch-body);
+  font-weight: 600;
+  font-size: 0.72em;
+  letter-spacing: 0.02em;
+  color: var(--color-primary);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.nav > a {
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  transition: color var(--duration-ui) var(--ease-out);
+}
+
+.nav > a:hover {
+  color: var(--color-text);
+}
+
+.tools {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.menuExtras {
+  display: none;
+}
+
+.menuButton {
+  display: none;
+  place-items: center;
+  width: 36px;
+  height: 30px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.bars {
+  display: grid;
+  gap: 4px;
+  width: 14px;
+}
+
+.bars span {
+  height: 1.5px;
+  background: currentColor;
+  transition: transform var(--duration-ui) var(--ease-out);
+}
+
+[data-menu-open] .bars span:first-child {
+  transform: translateY(2.75px) rotate(45deg);
+}
+
+[data-menu-open] .bars span:last-child {
+  transform: translateY(-2.75px) rotate(-45deg);
+}
+
+/* Por debajo de 960 px el menú pasa a un panel bajo el encabezado. */
+@media (max-width: 960px) {
+  .menuButton {
+    display: inline-grid;
+  }
+
+  .nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: var(--space-2) var(--page-edge) var(--space-6);
+    background: var(--color-background);
+    border-bottom: 1px solid var(--color-line-strong);
+    box-shadow: var(--shadow-elevated);
+    opacity: 0;
+    transform: translateY(-8px);
+    visibility: hidden;
+    transition:
+      opacity var(--duration-ui) var(--ease-out),
+      transform var(--duration-ui) var(--ease-out),
+      visibility 0s linear var(--duration-ui);
+  }
+
+  [data-menu-open] .nav {
+    opacity: 1;
+    transform: none;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  .nav > a {
+    padding-block: var(--space-4);
+    border-bottom: 1px solid var(--color-line);
+    font-size: var(--text-sm);
+    color: var(--color-text);
+  }
+}
+
+@media (max-width: 520px) {
+  .header {
+    gap: var(--space-3);
+  }
+
+  .tools {
+    gap: var(--space-2);
+  }
+
+  .localeBar {
+    display: none;
+  }
+
+  .menuExtras {
+    display: block;
+    margin-top: var(--space-4);
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "jordan-4-travis-scott": {
+    "base": "#a855f7",
+    "reason": "morado del forro",
+    "dark": "#ac5ef7",
+    "light": "#8f48d2",
+    "contrastDark": 4.6,
+    "contrastLight": 4.62
+  },
+  "nike-dunk-high-hawaii": {
+    "base": "#2dd4bf",
+    "reason": "turquesa del estampado floral",
+    "dark": "#2dd4bf",
+    "light": "#1a796d",
+    "contrastDark": 9.12,
+    "contrastLight": 4.65
+  },
+  "adidas-prophere": {
+    "base": "#c2b280",
+    "reason": "caqui del camuflaje",
+    "dark": "#c2b280",
+    "light": "#746b4d",
+    "contrastDark": 8.06,
+    "contrastLight": 4.71
+  },
+  "adidas-gazelle": {
+    "base": "#22c55e",
+    "reason": "verde de la gamuza",
+    "dark": "#22c55e",
+    "light": "#157c3b",
+    "contrastDark": 7.45,
+    "contrastLight": 4.68
+  },
+  "nike-air-uptempo": {
+    "base": "#d4d4d8",
+    "reason": "blanco y negro: acento neutro",
+    "dark": "#d4d4d8",
+    "light": "#6c6c6e",
+    "contrastDark": 11.48,
+    "contrastLight": 4.65
+  },
+  "jordan-4-university-blue": {
+    "base": "#60a5fa",
+    "reason": "azul universitario",
+    "dark": "#60a5fa",
+    "light": "#3f6da5",
+    "contrastDark": 6.67,
+    "contrastLight": 4.72
+  },
+  "air-jordan-1": {
+    "base": "#e7dcc4",
+    "reason": "vela (sail): acento neutro cálido",
+    "dark": "#e7dcc4",
+    "light": "#716c60",
+    "contrastDark": 12.47,
+    "contrastLight": 4.64
+  },
+  "new-balance-997": {
+    "base": "#94a3b8",
+    "reason": "gris pizarra",
+    "dark": "#94a3b8",
+    "light": "#636d7b",
+    "contrastDark": 6.62,
+    "contrastLight": 4.65
+  },
+  "adidas-samba": {
+    "base": "#e4e4e7",
+    "reason": "blanco y negro: acento neutro",
+    "dark": "#e4e4e7",
+    "light": "#6b6b6d",
+    "contrastDark": 13.37,
+    "contrastLight": 4.71
+  },
+  "adidas-sambae": {
+    "base": "#f59e0b",
+    "reason": "ámbar de la goma translúcida",
+    "dark": "#f59e0b",
+    "light": "#956007",
+    "contrastDark": 7.9,
+    "contrastLight": 4.71
+  },
+  "adidas-basketball": {
+    "base": "#ec4899",
+    "reason": "rosa del corte",
+    "dark": "#ec4899",
+    "light": "#ba3979",
+    "contrastDark": 4.81,
+    "contrastLight": 4.71
+  },
+  "air-jordan-1-mid-particle-beige": {
+    "base": "#eab308",
+    "reason": "mostaza del logo",
+    "dark": "#eab308",
+    "light": "#886805",
+    "contrastDark": 8.85,
+    "contrastLight": 4.62
+  },
+  "nike-pegasus-36": {
+    "base": "#818cf8",
+    "reason": "gris azulado: periwinkle",
+    "dark": "#818cf8",
+    "light": "#5e66b5",
+    "contrastDark": 5.69,
+    "contrastLight": 4.6
+  },
+  "adidas-trionda-2026": {
+    "base": "#d4af37",
+    "reason": "dorado de la final",
+    "dark": "#d4af37",
+    "light": "#7f6921",
+    "contrastDark": 8.07,
+    "contrastLight": 4.72
+  },
+  "adidas-al-rihla-2022": {
+    "base": "#22d3ee",
+    "reason": "cian de sus trazos",
+    "dark": "#22d3ee",
+    "light": "#137685",
+    "contrastDark": 9.39,
+    "contrastLight": 4.7
+  },
+  "adidas-jabulani-2010": {
+    "base": "#f87171",
+    "reason": "rojo de sus paneles",
+    "dark": "#f87171",
+    "light": "#ae4f4f",
+    "contrastDark": 6.14,
+    "contrastLight": 4.62
+  },
+  "adidas-teamgeist-2006": {
+    "base": "#fbbf24",
+    "reason": "dorado de Berlín",
+    "dark": "#fbbf24",
+    "light": "#886713",
+    "contrastDark": 10.17,
+    "contrastLight": 4.66
+  },
+  "adidas-telstar-1970": {
+    "base": "#e5e7eb",
+    "reason": "blanco y negro: acento neutro",
+    "dark": "#e5e7eb",
+    "light": "#696a6c",
+    "contrastDark": 13.71,
+    "contrastLight": 4.8
+  }
+}

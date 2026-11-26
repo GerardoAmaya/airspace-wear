@@ -1,0 +1,312 @@
+/*
+ * Página de créditos. Mismo lenguaje que la tienda: etiquetas mono, líneas
+ * HUD y marcos con esquinas. Solo tokens de core/tokens.css.
+ */
+
+body {
+  background: var(--color-background);
+}
+
+.credits-header {
+  justify-content: space-between;
+}
+
+.credits-back {
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  transition: color var(--duration-ui) var(--ease-out);
+}
+
+.credits-back:hover {
+  color: var(--color-text);
+}
+
+.credits {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2rem, 1rem + 3vw, 4rem);
+  padding-block: calc(var(--header-height) + clamp(2.5rem, 1rem + 5vw, 6rem)) clamp(4rem, 2rem + 6vw, 8rem);
+}
+
+.credits:focus {
+  outline: none;
+}
+
+/* ---------- Presentación ---------- */
+
+.credits-hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 62rem;
+}
+
+.credits-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.credits-title {
+  font-size: clamp(2.25rem, 1rem + 4.2vw, 5rem);
+  line-height: 0.92;
+}
+
+.credits-lead {
+  max-width: 46ch;
+}
+
+/* ---------- Secciones ---------- */
+
+.credits-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: clamp(1.25rem, 0.75rem + 1.5vw, 2rem);
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+}
+
+.credits-section.hud-frame::before,
+.credits-section.hud-frame::after,
+.credits-section.hud-frame > .hud-frame__corners::before,
+.credits-section.hud-frame > .hud-frame__corners::after {
+  margin: -6px;
+}
+
+.credits-section__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-line-strong);
+}
+
+.credits-section__title {
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-size: var(--text-xl);
+  font-weight: 750;
+  line-height: 1;
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
+}
+
+/* Encabezado de columnas de los modelos (solo en pantallas anchas). */
+.credits-columns,
+.credits-list:not(.credits-list--simple) .credits-item__fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.35fr) minmax(0, 0.9fr) minmax(0, 0.9fr) minmax(0, 2fr);
+  gap: var(--space-4) var(--space-6);
+}
+
+.credits-columns {
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.credits-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.credits-item {
+  padding-block: var(--space-4);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.credits-item:last-child {
+  border-bottom: 0;
+}
+
+.credits-item--empty {
+  color: var(--color-text-muted);
+}
+
+.credits-item__fields {
+  margin: 0;
+}
+
+.credits-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.credits-field dt {
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.credits-field dd {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+/* En la tabla de modelos los rótulos ya están en el encabezado de columnas. */
+.credits-list:not(.credits-list--simple) .credits-field dt {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.credits-item__name {
+  display: block;
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-size: 1rem;
+  font-weight: 750;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.credits-item__brand {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.credits-field--changes dd {
+  color: var(--color-text-muted);
+}
+
+.credits a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--duration-ui) var(--ease-out);
+}
+
+.credits a:hover {
+  text-decoration-color: currentColor;
+}
+
+.credits .credits-item__name a {
+  color: inherit;
+}
+
+.credits-flag {
+  display: inline-block;
+  margin-left: var(--space-2);
+  padding: 1px 8px;
+  border: 1px solid var(--color-secondary);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  vertical-align: 1px;
+}
+
+.credits-note {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-line-strong);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--color-text-muted);
+  max-width: 90ch;
+}
+
+/* Fuentes y librerías: tres columnas con rótulos visibles. */
+.credits-list--simple .credits-item__fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-4) var(--space-6);
+}
+
+/* ---------- Pie ---------- */
+
+.credits-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4) var(--space-8);
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--color-line);
+}
+
+.credits-disclaimer {
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+.credits-small {
+  flex-basis: 100%;
+  order: 3;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  max-width: 70ch;
+}
+
+/* ---------- Pantallas angostas: cada fila se vuelve una ficha ---------- */
+
+@media (max-width: 960px) {
+  .credits-columns {
+    display: none;
+  }
+
+  .credits-list:not(.credits-list--simple) .credits-item__fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .credits-list:not(.credits-list--simple) .credits-field dt {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
+
+  .credits-field--name,
+  .credits-field--changes {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 600px) {
+  .credits-list:not(.credits-list--simple) .credits-item__fields,
+  .credits-list--simple .credits-item__fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .credits-back {
+    display: none;
+  }
+}

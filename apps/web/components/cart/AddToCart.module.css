@@ -1,0 +1,105 @@
+.block {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.sizes {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.legend {
+  margin-bottom: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+  gap: var(--space-2);
+}
+
+.size {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: border-color var(--duration-ui) var(--ease-out);
+}
+
+.size input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.size:hover {
+  border-color: var(--color-primary);
+}
+
+.size:has(input:checked) {
+  border-color: var(--color-primary-fill);
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+}
+
+.size:has(input:focus-visible) {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Pocas existencias: una marca naranja en la esquina. */
+.size[data-stock='low']::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-secondary);
+}
+
+.size:has(input:disabled) {
+  color: var(--color-text-faint);
+  border-style: dashed;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.add {
+  height: 52px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  font-weight: 700;
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: box-shadow var(--duration-ui) var(--ease-out);
+}
+
+.add:hover:not(:disabled) {
+  box-shadow: 0 0 0 6px var(--color-primary-soft);
+}
+
+.add:disabled {
+  background: var(--color-line);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}

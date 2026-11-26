@@ -1,0 +1,1543 @@
+/*
+ * Sección "flight": carga inicial, portada 3D y "Pieza por pieza" (detalles del zapato).
+ * .flight-track mide toda la sección y contiene la capa de escena
+ * (.flight-sticky, position: sticky): se queda arriba mientras se recorren la
+ * portada y los detalles, y se va junto con la sección. Su borde inferior se
+ * desvanece con una máscara, sin cortes duros. Sin pin, sin scrub.
+ * Lo que solo aparece en los detalles arranca oculto desde el CSS (opacidad).
+ */
+
+.flight {
+  position: relative;
+  /* Acento de la retícula de la portada. Por defecto es el lima de marca;
+     una portada de HERO_OPTIONS (content.js) puede cambiarlo con
+     data-hero-accent. Siempre tokens, nunca hex. */
+  --hero-accent: var(--color-primary);
+}
+
+/* Portada con el Jordan 4 Travis Scott: acento violeta eléctrico, esquinas
+   más marcadas y un halo teñido que separa el cuero lila del fondo. */
+.flight[data-hero-accent='violet'] {
+  --hero-accent: var(--color-violet);
+}
+
+.flight[data-hero-accent='violet'] .flight-reticle__inner {
+  --hud-corner: 24px;
+}
+
+.flight[data-hero-accent='violet'] .flight-reticle__inner::before,
+.flight[data-hero-accent='violet'] .flight-reticle__inner::after,
+.flight[data-hero-accent='violet'] .flight-reticle__inner > .hud-frame__corners::before,
+.flight[data-hero-accent='violet'] .flight-reticle__inner > .hud-frame__corners::after {
+  border-width: 2.5px;
+}
+
+.flight[data-hero-accent='violet'] .flight-reticle__tick {
+  width: 16px;
+  height: 2px;
+}
+
+.flight[data-hero-accent='violet'] .flight-halo {
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--color-violet-fill) 22%, transparent),
+    color-mix(in srgb, var(--color-violet-fill) 7%, transparent) 55%,
+    transparent
+  );
+}
+
+/* ---------- Capa de escena ---------- */
+
+.flight-track {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-stage);
+  pointer-events: none;
+}
+
+.flight-sticky {
+  --flight-feather: clamp(72px, 14svh, 140px);
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  contain: layout paint;
+  -webkit-mask-image: linear-gradient(to bottom, var(--color-text) calc(100% - var(--flight-feather)), transparent);
+  mask-image: linear-gradient(to bottom, var(--color-text) calc(100% - var(--flight-feather)), transparent);
+}
+
+.flight-backdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.flight-backdrop__grid {
+  position: absolute;
+  inset: 0;
+  -webkit-mask-image: radial-gradient(ellipse 62% 58% at 60% 52%, var(--color-text) 10%, transparent 78%);
+  mask-image: radial-gradient(ellipse 62% 58% at 60% 52%, var(--color-text) 10%, transparent 78%);
+}
+
+/* Halo de estudio: lo posiciona y escala flight.js para que siga al zapato. */
+.flight-halo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--halo-width, 640px);
+  height: var(--halo-height, 420px);
+  margin: calc(var(--halo-height, 420px) / -2) 0 0 calc(var(--halo-width, 640px) / -2);
+  will-change: transform;
+}
+
+.flight-stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+}
+
+/* Área de arrastre sobre el zapato: la única parte de la escena que recibe
+   el puntero. pan-y deja que un deslizamiento vertical siga desplazando la página. */
+.flight-grip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: var(--radius-lg);
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.flight-grip.is-grabbing {
+  cursor: grabbing;
+}
+
+.flight-grip.is-off {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.flight-grip:focus-visible {
+  outline: 1px dashed var(--color-primary);
+  outline-offset: 6px;
+}
+
+/* ---------- Retícula de la portada ---------- */
+
+.flight-reticle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform;
+}
+
+.flight-reticle__inner {
+  position: absolute;
+  inset: 0;
+  --corner-color: var(--hero-accent);
+  --hud-corner: 18px;
+}
+
+.flight-reticle__tag,
+.flight-reticle__lock {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  white-space: nowrap;
+}
+
+.flight-reticle__tag {
+  left: 0;
+}
+
+.flight-reticle__lock,
+.flight-reticle__lock.hud-label--primary {
+  color: var(--hero-accent);
+}
+
+.flight-reticle__lock {
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Indicador "en foco": un rombo que parpadea. */
+.flight-reticle__pip {
+  width: 6px;
+  height: 6px;
+  background: var(--hero-accent);
+  transform: rotate(45deg);
+  animation: flight-blink 1.6s steps(1, end) infinite;
+}
+
+@keyframes flight-blink {
+  50% {
+    opacity: 0.2;
+  }
+}
+
+.flight-reticle__tick {
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 1px;
+  background: var(--hero-accent);
+}
+
+.flight-reticle__tick--left {
+  left: 0;
+}
+
+.flight-reticle__tick--right {
+  right: 0;
+}
+
+.flight-tape {
+  position: absolute;
+  top: calc(100% + 14px);
+  left: 50%;
+  width: var(--tape-width, 240px);
+  height: 34px;
+  translate: -50% 0;
+}
+
+.flight-tape__window {
+  position: absolute;
+  inset: 8px 0 0;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, var(--color-text) 26%, var(--color-text) 74%, transparent);
+  mask-image: linear-gradient(to right, transparent, var(--color-text) 26%, var(--color-text) 74%, transparent);
+}
+
+.flight-tape__strip {
+  max-width: none;
+  will-change: transform;
+}
+
+.flight-tape__strip path {
+  stroke: var(--color-text-muted);
+  stroke-width: 1;
+  fill: none;
+}
+
+.flight-tape__strip text {
+  fill: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  text-anchor: middle;
+}
+
+.flight-tape__caret {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 0;
+  height: 0;
+  translate: -50% 0;
+  border-inline: 4px solid transparent;
+  border-top: 6px solid var(--hero-accent);
+}
+
+/* ---------- Marcas, guías y etiquetas de los puntos (ocultas por defecto) ---------- */
+
+.flight-lines,
+.flight-marks,
+.flight-labels {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.flight-lines {
+  max-width: none;
+  overflow: visible;
+}
+
+.flight-leader,
+.flight-trail {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 1.25;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.flight-trail {
+  stroke-dasharray: 0 99999;
+}
+
+.flight-mark,
+.flight-leader,
+.flight-label {
+  opacity: 0;
+}
+
+.flight-mark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform;
+}
+
+.flight-mark__dot,
+.flight-mark__ring {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.flight-mark__dot {
+  top: -5px;
+  left: -5px;
+  width: 10px;
+  height: 10px;
+  background: var(--color-primary-fill);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-on-primary) 45%, transparent);
+}
+
+.flight-mark__ring {
+  top: -17px;
+  left: -17px;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--color-primary-fill);
+}
+
+.flight-mark__ring::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  border: 1px solid var(--color-primary-fill);
+  animation: flight-ping 2s var(--ease-out) infinite;
+}
+
+@keyframes flight-ping {
+  from {
+    transform: scale(0.6);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+.flight-label {
+  position: absolute;
+  top: calc(var(--slot-y) * 100%);
+  width: min(17rem, 22vw);
+  padding: var(--space-4);
+  display: grid;
+  gap: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  --hud-corner: 10px;
+}
+
+.flight-label[data-side='right'] {
+  right: var(--page-edge);
+}
+
+.flight-label[data-side='left'] {
+  left: var(--page-edge);
+}
+
+.flight-label__title {
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 750;
+  font-size: 1.125rem;
+  line-height: 1.1;
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
+}
+
+.flight-label__text {
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+/* Casilla tildada en lima. */
+.flight-tick {
+  position: relative;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: var(--color-primary-fill);
+}
+
+.flight-tick::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 5px;
+  height: 9px;
+  border: solid var(--color-on-primary);
+  border-width: 0 1.8px 1.8px 0;
+  transform: rotate(45deg);
+}
+
+/* ---------- Portada ---------- */
+
+/* Portada e inspección dejan pasar el puntero hacia el zapato; solo su
+   contenido real (texto, CTA, lista) lo recibe. */
+.flight-hero,
+.flight-inspect,
+.flight-inspect__ui {
+  pointer-events: none;
+}
+
+.flight-hero__content,
+.flight-instruments,
+.flight-inspect__ui > * {
+  pointer-events: auto;
+}
+
+.flight-hero {
+  position: relative;
+  z-index: var(--z-content);
+  height: 100svh;
+  min-height: 600px;
+  padding: calc(var(--header-height) + var(--space-6)) var(--page-edge) 0;
+  display: grid;
+}
+
+.flight-hero__content {
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-6);
+  max-width: min(48rem, 50vw);
+  padding-bottom: var(--space-16);
+}
+
+/* Marca y referencia sobre el titular: etiqueta HUD limpia. */
+.flight-kicker {
+  color: var(--color-text-muted);
+}
+
+/* ---------- Titular: el nombre del zapato ---------- */
+
+/* El tamaño se ajusta para que la línea más larga entre en la columna del
+   texto (--name-chars la fija flight.js). */
+.flight-hero__title {
+  --name-column: min(38rem, 38vw);
+  /* flight.js fija --name-size para que la línea más larga no llegue a la
+     retícula; este cálculo es solo el punto de partida. */
+  font-size: var(--name-size, min(7.5rem, calc(var(--name-column) / (var(--name-chars, 8) * 0.9))));
+  margin-top: var(--space-1);
+  perspective: 900px;
+}
+
+.flight-name__line {
+  position: relative;
+  display: block;
+  white-space: nowrap;
+}
+
+.flight-char {
+  position: relative;
+  display: inline-block;
+  white-space: pre;
+  backface-visibility: hidden;
+}
+
+/* Segunda línea: el contorno en el acento queda debajo del relleno, que
+   aparece al final de la entrada. */
+.flight-name__line--two .flight-char::before {
+  content: attr(data-c);
+  position: absolute;
+  inset: 0;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--hero-accent);
+}
+
+.flight-char__fill {
+  position: relative;
+  display: inline-block;
+}
+
+/* Estado previo a la entrada (solo opacidad y giro, desde el CSS). */
+.flight.is-intro .flight-char {
+  opacity: 0;
+  transform: rotateX(-100deg);
+}
+
+.flight.is-intro .flight-name__line--two .flight-char__fill {
+  opacity: 0;
+}
+
+/* Barrido de luz: copia del texto recortada con una banda del acento que
+   cruza cada ~6 s. Solo se mueve background-position. */
+.flight-name__line::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  white-space: pre;
+  color: transparent;
+  background-image: linear-gradient(
+    100deg,
+    transparent 42%,
+    color-mix(in srgb, var(--hero-accent) 85%, transparent) 50%,
+    transparent 58%
+  );
+  background-size: 300% 100%;
+  background-position: 120% 0;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.flight.is-sweeping .flight-name__line::after {
+  opacity: 1;
+  animation: flight-sweep 6s var(--ease-in-out) infinite;
+}
+
+.flight.is-sweeping .flight-name__line--two::after {
+  animation-delay: 0.18s;
+}
+
+@keyframes flight-sweep {
+  0% {
+    background-position: 120% 0;
+  }
+  28%,
+  100% {
+    background-position: -20% 0;
+  }
+}
+
+.flight-hero__lead {
+  max-width: 34ch;
+  margin-top: var(--space-2);
+}
+
+.flight-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.flight-icon {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform var(--duration-ui) var(--ease-out);
+}
+
+.flight-hero__actions .btn--primary:hover .flight-icon {
+  transform: translateX(3px);
+}
+
+.flight-hero__actions .btn--ghost:hover .flight-icon {
+  transform: translateY(3px);
+}
+
+/* Tira de instrumentos al pie de la portada. */
+.flight-instruments {
+  position: absolute;
+  left: var(--page-edge);
+  right: var(--page-edge);
+  bottom: var(--space-6);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding-top: var(--space-4);
+}
+
+.flight-instruments::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: var(--color-line-strong);
+  transform: scaleX(var(--rule-scale, 1));
+  transform-origin: 0 50%;
+}
+
+.flight-instruments__list {
+  display: flex;
+  gap: clamp(var(--space-6), 3vw, var(--space-12));
+  margin: 0;
+}
+
+.flight-instrument {
+  display: grid;
+  gap: 6px;
+}
+
+.flight-instrument dd {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.flight-instrument--status dd {
+  align-items: center;
+  gap: var(--space-2);
+  white-space: nowrap;
+}
+
+.flight-instrument--status[data-tone='alert'] dd {
+  color: var(--color-secondary);
+}
+
+.flight-instrument--status[data-tone='primary'] dd {
+  color: var(--color-primary);
+}
+
+.flight-instrument small {
+  font-size: var(--text-hud);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.flight-instruments__cue {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Mouse: "Baja para ver los detalles". Táctil: "Desliza para ver los detalles". */
+.flight-cue__touch {
+  display: none;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .flight-cue__pointer {
+    display: none;
+  }
+
+  .flight-cue__touch {
+    display: inline;
+  }
+}
+
+.flight-cue {
+  position: relative;
+  width: 1px;
+  height: 28px;
+  overflow: hidden;
+  background: var(--color-line-strong);
+}
+
+.flight-cue::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-primary);
+  transform: translateY(-100%);
+  animation: flight-cue 2.2s var(--ease-in-out) infinite;
+}
+
+@keyframes flight-cue {
+  60%,
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+/* ---------- Inspección ---------- */
+
+.flight-inspect {
+  position: relative;
+  z-index: var(--z-content);
+  height: 100svh;
+  min-height: 640px;
+}
+
+.flight-inspect__ui {
+  position: absolute;
+  inset: calc(var(--header-height) + var(--space-6)) var(--page-edge) var(--space-8);
+}
+
+.flight-inspect__head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.flight-inspect__title {
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 750;
+  font-size: clamp(1.5rem, 0.9rem + 1.5vw, 2.5rem);
+  line-height: 1;
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
+}
+
+.flight-inspect__title > span {
+  display: block;
+}
+
+.flight-inspect__status {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: grid;
+  justify-items: end;
+  gap: var(--space-2);
+  text-align: right;
+}
+
+.flight-inspect__state {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-text);
+  transition: color var(--duration-ui) var(--ease-out);
+}
+
+.flight.is-complete .flight-inspect__state {
+  color: var(--color-primary);
+}
+
+.flight-inspect__hdg {
+  margin-top: var(--space-2);
+}
+
+.flight-inspect__hdg .mono {
+  color: var(--color-text);
+}
+
+/* Lista de puntos: cada fila es el botón que lleva la cámara a ese punto. */
+.flight-inspect__rail {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: min(21rem, 28vw);
+}
+
+.flight-rail__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.flight-rail__head .mono {
+  color: var(--color-text);
+}
+
+.flight-rail__hint {
+  margin: var(--space-3) 0 var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.flight-rail__body {
+  position: relative;
+  padding-left: var(--space-4);
+}
+
+.flight-rail__track {
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 1px;
+  background: var(--color-line-strong);
+}
+
+.flight-rail__fill {
+  position: absolute;
+  inset: 0;
+  background: var(--color-primary);
+  transform: scaleY(0);
+  transform-origin: 50% 0;
+}
+
+.flight-rail {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flight-rail__item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  min-height: 40px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  text-align: left;
+  color: var(--color-text-muted);
+  transition:
+    color var(--duration-ui) var(--ease-out),
+    background-color var(--duration-ui) var(--ease-out);
+}
+
+.flight-rail__item:hover {
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-text) 6%, transparent);
+}
+
+.flight-rail__item.is-done {
+  color: var(--color-text);
+}
+
+.flight-rail__item.is-active {
+  color: var(--color-text);
+  background: var(--color-primary-soft);
+}
+
+.flight-rail__index {
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+}
+
+.flight-rail__item.is-active .flight-rail__index {
+  color: var(--color-primary);
+}
+
+.flight-rail__copy {
+  display: grid;
+  gap: 2px;
+}
+
+.flight-rail__name {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+/* La descripción la muestran las etiquetas; aquí queda para lectores de pantalla. */
+.flight-rail__text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.flight-rail__check {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 4px;
+  transition:
+    background-color var(--duration-ui) var(--ease-out),
+    border-color var(--duration-ui) var(--ease-out);
+}
+
+.flight-rail__check svg {
+  width: 12px;
+  height: 12px;
+}
+
+.flight-rail__check path {
+  fill: none;
+  stroke: var(--color-on-primary);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 12;
+  stroke-dashoffset: 12;
+  transition: stroke-dashoffset var(--duration-ui) var(--ease-out) 80ms;
+}
+
+.flight-rail__item.is-done .flight-rail__check {
+  background: var(--color-primary-fill);
+  border-color: var(--color-primary-fill);
+}
+
+.flight-rail__item.is-done .flight-rail__check path {
+  stroke-dashoffset: 0;
+}
+
+/* Especificaciones */
+.flight-specs {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: min(19rem, 26vw);
+  margin: 0;
+}
+
+.flight-spec {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-block: var(--space-3);
+  border-top: 1px solid var(--color-line);
+}
+
+.flight-spec dd {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+
+.flight-spec dd.mono {
+  font-size: var(--text-base);
+}
+
+/* "Ver catálogo": siempre disponible; con los cuatro detalles vistos pasa a primario. */
+.flight-launch {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-4);
+  translate: -50% 0;
+  text-align: center;
+}
+
+.flight-done {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+}
+
+.flight-done[hidden] {
+  display: none;
+}
+
+.flight-done__label {
+  display: none;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* En escritorio el estado (arriba a la derecha) ya dice "Recorrido completo":
+   aquí solo va el título con la tilde, para no repetirlo. */
+.flight-done__title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.flight-done__title {
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 800;
+  font-size: clamp(1.5rem, 0.9rem + 1.4vw, 2.5rem);
+  line-height: 1;
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.flight-takeoff {
+  position: relative;
+}
+
+.flight-icon--up {
+  transition: transform var(--duration-ui) var(--ease-out);
+}
+
+.flight-takeoff:hover .flight-icon--up {
+  transform: translate(2px, -2px);
+}
+
+/* Anillo que late alrededor del CTA cuando la inspección está completa. */
+.flight.is-complete .flight-takeoff::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border: 1px solid var(--color-primary-fill);
+  animation: flight-launch-ping 2.4s var(--ease-out) infinite;
+  pointer-events: none;
+}
+
+@keyframes flight-launch-ping {
+  from {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(1.18, 1.4);
+    opacity: 0;
+  }
+}
+
+/* Tarjeta inferior (móvil) */
+.flight-card {
+  display: none;
+}
+
+/* ---------- Móvil ---------- */
+
+@media (max-width: 860px), (max-aspect-ratio: 9/10) {
+  /* La escena no se queda fija: va en el lugar de la portada (arriba) o en el
+     de los detalles (abajo) y se desplaza con su bloque. */
+  .flight-sticky {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+
+  .flight.is-slot-inspect .flight-sticky {
+    top: auto;
+    bottom: 0;
+  }
+
+  .flight-backdrop__grid {
+    -webkit-mask-image: radial-gradient(ellipse 90% 45% at 50% 36%, var(--color-text) 10%, transparent 80%);
+    mask-image: radial-gradient(ellipse 90% 45% at 50% 36%, var(--color-text) 10%, transparent 80%);
+  }
+
+  /* Portada en móvil: el texto fluye debajo de la retícula (flight.js mide su
+     borde inferior en --flight-hero-stage) y los datos van en el flujo, al
+     final. Si no entra en una pantalla, la portada crece en vez de encimar. */
+  .flight-hero {
+    height: auto;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: var(--space-6);
+    padding: var(--flight-hero-stage, 54svh) var(--page-edge) var(--space-4);
+  }
+
+  .flight-hero__content {
+    align-self: stretch;
+    max-width: none;
+    gap: var(--space-4);
+    padding-bottom: 0;
+  }
+
+  .flight-hero__title {
+    --name-column: calc(100vw - 2 * var(--page-edge));
+    font-size: var(--name-size, min(5rem, calc(var(--name-column) / (var(--name-chars, 8) * 0.84))));
+  }
+
+  .flight-instrument--desk {
+    display: none;
+  }
+
+  .flight-hero__lead {
+    font-size: var(--text-base);
+  }
+
+  /* Si los dos botones no entran en una fila, cada uno ocupa la suya. */
+  .flight-hero__actions {
+    align-self: stretch;
+  }
+
+  .flight-hero__actions .btn {
+    flex: 1 1 auto;
+    justify-content: center;
+    height: 44px;
+    padding-inline: var(--space-4);
+  }
+
+  .flight-instruments {
+    position: relative;
+    inset: auto;
+  }
+
+  .flight-instrument--meta,
+  .flight-instruments__cue {
+    display: none;
+  }
+
+  .flight-instruments__list {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .flight-tape,
+  .flight-reticle__tag,
+  .flight-reticle__lock {
+    display: none;
+  }
+
+  /* Detalles: lista en fila, tarjeta abajo, "Ver catálogo" arriba a la derecha. */
+  .flight-inspect {
+    min-height: 600px;
+  }
+
+  .flight-inspect__ui {
+    inset: calc(var(--header-height) + var(--space-2)) var(--page-edge) var(--space-4);
+  }
+
+  /* Deja sitio al botón "Ver catálogo" de la esquina. */
+  .flight-inspect__head {
+    right: 11.5rem;
+    gap: var(--space-2);
+  }
+
+  .flight-inspect__head .hud-label,
+  .flight-inspect__status {
+    display: none;
+  }
+
+  .flight-inspect__title {
+    font-size: clamp(1.25rem, 5.6vw, 1.75rem);
+  }
+
+  .flight-launch {
+    left: auto;
+    right: 0;
+    top: 0;
+    bottom: auto;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: flex-end;
+    gap: var(--space-2);
+    translate: none;
+  }
+
+  .flight-launch .btn {
+    height: 40px;
+    padding-inline: var(--space-4);
+  }
+
+  /* En móvil el estado no se ve: la etiqueta lo dice una sola vez. */
+  .flight-done__title {
+    display: none;
+  }
+
+  .flight-done__label {
+    display: inline-flex;
+  }
+
+  .flight-inspect__rail {
+    bottom: 13.25rem;
+    right: 0;
+    width: auto;
+  }
+
+  .flight-rail__head {
+    padding-bottom: var(--space-2);
+    border-bottom: 0;
+  }
+
+  .flight-rail__hint {
+    display: none;
+  }
+
+  .flight-rail__body {
+    padding: 0;
+  }
+
+  .flight-rail__track {
+    display: none;
+  }
+
+  .flight-rail {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+
+  .flight-rail__item {
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+    gap: var(--space-2);
+    min-height: 44px;
+    padding: var(--space-2);
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    border-top: 2px solid var(--color-line-strong);
+    transition:
+      color var(--duration-ui) var(--ease-out),
+      background-color var(--duration-ui) var(--ease-out),
+      border-color var(--duration-ui) var(--ease-out);
+  }
+
+  .flight-rail__item.is-active,
+  .flight-rail__item.is-done {
+    border-top-color: var(--color-primary);
+  }
+
+  .flight-rail__copy {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .flight-rail__check {
+    width: 16px;
+    height: 16px;
+  }
+
+  .flight-specs {
+    left: 0;
+    right: 0;
+    bottom: 10rem;
+    width: auto;
+    display: flex;
+    gap: var(--space-6);
+  }
+
+  .flight-spec {
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+    border-top: 0;
+    padding: 0;
+  }
+
+  .flight-spec dd {
+    white-space: nowrap;
+  }
+
+  .flight-spec--text {
+    display: none;
+  }
+
+  .flight-card {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+    min-height: 8.75rem;
+    padding: var(--space-4);
+    background: var(--color-surface);
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+      opacity var(--duration-ui) var(--ease-out),
+      transform var(--duration-ui) var(--ease-out);
+  }
+
+  .flight-card.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  .flight-card__title {
+    font-family: var(--font-display);
+    font-stretch: var(--font-stretch-display);
+    font-weight: 750;
+    font-size: 1.25rem;
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
+
+  .flight-card__text {
+    font-size: var(--text-sm);
+    line-height: 1.45;
+    color: var(--color-text-muted);
+  }
+
+  .flight-leader,
+  .flight-labels {
+    display: none;
+  }
+
+}
+
+/* Escritorio bajo (por ejemplo 1280x720 o 1720x816): todo más compacto. */
+@media (min-width: 861px) and (max-height: 860px) {
+  .flight-inspect__ui {
+    inset: calc(var(--header-height) + var(--space-4)) var(--page-edge) var(--space-6);
+  }
+
+  .flight-rail__hint {
+    display: none;
+  }
+
+  .flight-rail__item {
+    min-height: 34px;
+    padding-block: 6px;
+  }
+
+  .flight-spec {
+    padding-block: var(--space-2);
+  }
+
+  .flight-label {
+    padding: var(--space-3) var(--space-4);
+  }
+}
+
+/* ---------- Secuencia de arranque ---------- */
+
+.flight-boot {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  overflow: hidden;
+  color: var(--color-text);
+}
+
+.flight-boot__panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50.2%;
+  background: var(--color-background);
+  will-change: transform;
+}
+
+.flight-boot__panel--top {
+  top: 0;
+}
+
+.flight-boot__panel--bottom {
+  bottom: 0;
+}
+
+.flight-boot__edge {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--color-primary);
+  opacity: 0;
+}
+
+.flight-boot__panel--top .flight-boot__edge {
+  bottom: 0.2vh;
+}
+
+.flight-boot__panel--bottom .flight-boot__edge {
+  top: 0.2vh;
+}
+
+.flight-boot__seam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--color-primary);
+  transform: scaleX(0);
+}
+
+.flight-boot__body {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.flight-boot__corner {
+  position: absolute;
+  margin: 0;
+}
+
+.flight-boot__corner--tl {
+  top: var(--space-6);
+  left: var(--page-edge);
+}
+
+.flight-boot__corner--tr {
+  top: var(--space-6);
+  right: var(--page-edge);
+}
+
+.flight-boot__corner--bl {
+  bottom: var(--space-8);
+  left: var(--page-edge);
+}
+
+.flight-boot__corner--br {
+  bottom: var(--space-8);
+  right: var(--page-edge);
+}
+
+.flight-boot__corner .mono {
+  color: var(--color-text);
+}
+
+.flight-boot__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+  width: min(22rem, calc(100vw - 2 * var(--gutter)));
+}
+
+.flight-boot__radar {
+  position: relative;
+  width: clamp(168px, 24vh, 232px);
+  aspect-ratio: 1;
+}
+
+.flight-boot__radar-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.flight-boot__ring {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-primary) 42%, transparent);
+  stroke-width: 0.8;
+}
+
+.flight-boot__ring:first-child {
+  stroke: color-mix(in srgb, var(--color-primary) 70%, transparent);
+}
+
+.flight-boot__axis {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-primary) 22%, transparent);
+  stroke-width: 0.6;
+}
+
+.flight-boot__ticks {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-primary) 60%, transparent);
+  stroke-width: 0.7;
+}
+
+.flight-boot__blip,
+.flight-boot__core {
+  fill: var(--color-primary);
+}
+
+.flight-boot__sweep {
+  position: absolute;
+  inset: 2%;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg 285deg,
+    color-mix(in srgb, var(--color-primary) 30%, transparent) 360deg
+  );
+  will-change: transform;
+}
+
+.flight-boot__sweep::after {
+  content: '';
+  position: absolute;
+  left: calc(50% - 0.5px);
+  top: 0;
+  width: 1px;
+  height: 50%;
+  background: var(--color-primary);
+}
+
+.flight-boot__mark {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35em;
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 850;
+  font-size: clamp(1.75rem, 1.2rem + 1.8vw, 2.5rem);
+  line-height: 1;
+  letter-spacing: 0.04em;
+}
+
+.flight-boot__mark-air {
+  white-space: nowrap;
+}
+
+.flight-boot__mark-wear {
+  font-stretch: var(--font-stretch-body);
+  font-weight: 600;
+  font-size: 0.72em;
+  letter-spacing: 0.02em;
+  color: var(--color-primary);
+}
+
+.flight-boot__checks {
+  display: grid;
+  gap: var(--space-2);
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flight-boot__check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.flight-boot__check-name {
+  white-space: nowrap;
+  color: var(--color-text);
+}
+
+.flight-boot__check-leader {
+  flex: 1;
+  height: 0;
+  border-top: 1px dotted var(--color-line-strong);
+}
+
+.flight-boot__check-state {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.flight-boot__check--model .flight-boot__check-state {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.flight-boot__check--model .flight-boot__check-state.is-ok {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.flight-boot__progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--color-line);
+}
+
+.flight-boot__progress-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--color-primary);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+
+@media (max-width: 600px) {
+  .flight-boot__corner--tr,
+  .flight-boot__corner--br {
+    display: none;
+  }
+}

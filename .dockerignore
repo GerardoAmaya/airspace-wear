@@ -1,0 +1,44 @@
+# Contexto de build de las imágenes de Docker (apps/api/Dockerfile y
+# apps/web/Dockerfile se construyen desde la raíz del monorepo).
+
+# Secretos: nunca entran a una imagen (llegan como variables al ejecutar).
+.env
+.env.*
+!.env.example
+
+# Dependencias y builds locales: la imagen instala y compila lo suyo.
+**/node_modules
+**/.next
+**/dist
+**/coverage
+**/.turbo
+**/*.tsbuildinfo
+**/next-env.d.ts
+apps/api/src/generated
+
+# Modelos 3D originales (pesados, solo para el pipeline).
+assets/models/raw
+
+# Carpetas de trabajo y resultados de pruebas.
+**/tmp
+**/.tmp
+**/scratch
+**/scratchpad
+**/test-results
+**/playwright-report
+**/blob-report
+**/.playwright
+**/*.log
+
+# Repositorio, editores y material que no va en ninguna imagen.
+.git
+.gitignore
+.claude
+.idea
+.vscode
+**/.DS_Store
+design
+docs
+docker-compose.yml
+**/Dockerfile
+.dockerignore

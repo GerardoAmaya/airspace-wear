@@ -1,0 +1,208 @@
+{
+  "Metadata": {
+    "title": "AIRSPACE Wear",
+    "description": "Sneakers, ropa y balones de las marcas que amas, para ver en 3D antes de comprar.",
+    "titleTemplate": "%s · AIRSPACE Wear"
+  },
+  "Brand": {
+    "name": "AIRSPACE",
+    "suffix": "Wear",
+    "homeLabel": "AIRSPACE Wear, inicio"
+  },
+  "LocaleSwitch": {
+    "label": "Idioma",
+    "es": "Español",
+    "en": "English",
+    "optionLabel": ", {language}"
+  },
+  "Footer": {
+    "disclaimer": "Proyecto de portafolio. Sin afiliación con ninguna marca mostrada.",
+    "navLabel": "Pie de página",
+    "catalog": "Catálogo",
+    "balls": "Balones",
+    "credits": "Créditos",
+    "legal": "Aviso legal",
+    "hangar": "Hangar 360°",
+    "stylist": "Estilista IA"
+  },
+  "Layout": {
+    "skipToContent": "Saltar al contenido"
+  },
+  "Header": {
+    "navLabel": "Principal",
+    "catalog": "Catálogo",
+    "balls": "Balones",
+    "menuOpen": "Abrir menú",
+    "menuClose": "Cerrar menú",
+    "hangar": "Hangar 360°",
+    "stylist": "Estilista IA"
+  },
+  "Theme": {
+    "night": "Noche",
+    "day": "Día",
+    "toLight": "Noche, cambiar a modo claro",
+    "toDark": "Día, cambiar a modo oscuro"
+  },
+  "Cart": {
+    "title": "Carrito",
+    "buttonLabel": "Carrito {count, plural, =0 {0 productos} one {# producto} other {# productos}}",
+    "close": "Cerrar carrito",
+    "empty": "Todavía no agregas nada. Elige un par o un balón del catálogo.",
+    "remove": "Quitar",
+    "removeLabel": " {name}",
+    "lineDetail": "{detail} · Talla {size}",
+    "total": "Total",
+    "note": "El pago llega con una próxima versión. El carrito se guarda en este navegador.",
+    "clear": "Vaciar carrito"
+  },
+  "Availability": {
+    "new": "Nuevo",
+    "available": "Disponible",
+    "low_stock": "Últimos pares",
+    "coming_soon": "Próximamente"
+  },
+  "Catalog": {
+    "metaTitle": "Catálogo",
+    "metaDescription": "Sneakers y balones de las marcas que amas, con modelo 3D de cada par.",
+    "kicker": "Sneakers y balones · Temporada 26",
+    "title": "Catálogo",
+    "lead": "Elige un par o un balón y míralo de cerca: cada uno tiene su modelo 3D.",
+    "loading": "Cargando catálogo",
+    "filtersLabel": "Filtros",
+    "categoryLabel": "Categoría",
+    "brandLabel": "Marca",
+    "allCategories": "Todo",
+    "allBrands": "Todas las marcas",
+    "comingSoon": "Próximamente",
+    "category": {
+      "sneaker": "Sneakers",
+      "ball": "Balones",
+      "apparel": "Ropa"
+    },
+    "resultCount": "{count, plural, =0 {Sin resultados} one {# producto} other {# productos}}",
+    "empty": "No hay productos con estos filtros.",
+    "resetFilters": "Ver todo el catálogo",
+    "reference": "Ref. {reference}",
+    "has3d": "3D",
+    "posterAlt": "{name}, vista de perfil",
+    "sizeRange": "Tallas EU {min} a {max}"
+  },
+  "Product": {
+    "breadcrumbLabel": "Ruta",
+    "backToCatalog": "Volver al catálogo",
+    "reference": "Ref. {reference}",
+    "posterAlt": "{name}, vista de perfil",
+    "chooseSize": "Elige tu talla (EU)",
+    "pickSizeFirst": "Elige una talla",
+    "addToCart": "Agregar al carrito",
+    "added": "Agregado al carrito",
+    "addedAnnouncement": "Producto agregado al carrito",
+    "soldOut": "Agotado",
+    "stock": {
+      "low": "Pocas unidades",
+      "out": "Agotada",
+      "in_stock": "Disponible"
+    },
+    "tagsLabel": "Etiquetas",
+    "spec": {
+      "weight": "Peso",
+      "grams": "{value} g",
+      "stack": "Altura de suela",
+      "millimeters": "{value} mm",
+      "panels": "Paneles",
+      "year": "Año",
+      "upper": "Parte superior",
+      "sole": "Suela",
+      "finish": "Acabado"
+    },
+    "viewer": {
+      "posterAlt": "{name}, vista de perfil",
+      "sliderLabel": "Gira el {name}: arrastra o usa las flechas",
+      "turnValue": "Giro {degrees}°",
+      "dragHint": "Arrastra para girar",
+      "loading": "Cargando modelo 3D",
+      "detailsTitle": "Detalles en 3D",
+      "overview": "Vista general"
+    },
+    "ar": {
+      "button": "Ver en tu espacio",
+      "loading": "Preparando la vista",
+      "unsupported": "Abre esta página en tu teléfono para ver el {name} en tu espacio, a tamaño real."
+    }
+  },
+  "Credits": {
+    "metaTitle": "Créditos",
+    "metaDescription": "Modelos 3D, fuentes y librerías de terceros que usa AIRSPACE Wear, con su autor y licencia.",
+    "kicker": "Créditos",
+    "title": "Hecho con trabajo de muchos",
+    "lead": "AIRSPACE Wear es un proyecto de portafolio. Aquí están los modelos 3D, las fuentes y las librerías de terceros que usa, con su autor, su licencia y los cambios que les hicimos.",
+    "group": {
+      "model": "Modelos 3D",
+      "font": "Fuentes",
+      "library": "Librerías"
+    },
+    "count": "{count, plural, one {# recurso} other {# recursos}}",
+    "column": {
+      "name": "Nombre",
+      "source": "Original",
+      "author": "Autor",
+      "license": "Licencia",
+      "changes": "Cambios"
+    },
+    "change": {
+      "kept_one_shoe": "se conservó un solo zapato del par",
+      "reoriented_rescaled": "reorientado y escalado a tamaño real",
+      "meshes_merged": "mallas combinadas",
+      "mesh_simplified": "malla simplificada",
+      "textures_webp": "texturas convertidas a WebP",
+      "meshopt_compression": "compresión Meshopt"
+    },
+    "changesSeparator": ", ",
+    "modelsNote": "Todos los modelos vienen de Sketchfab y se optimizaron para la web con el proceso de este proyecto. Cada uno se publica en dos versiones: una completa y otra liviana para equipos modestos.",
+    "licenseNote": "{name}: {terms}.",
+    "nonCommercial": "solo uso no comercial",
+    "shareAlike": "la versión modificada se comparte con la misma licencia ({license})",
+    "termsSeparator": "; ",
+    "opensNewTab": " (se abre en otra pestaña)"
+  },
+  "Legal": {
+    "metaTitle": "Aviso legal",
+    "metaDescription": "AIRSPACE Wear es un proyecto de portafolio sin afiliación con ninguna marca.",
+    "kicker": "Aviso legal",
+    "title": "Lo que hay que saber",
+    "lead": "AIRSPACE Wear es un proyecto de portafolio: una tienda de demostración, no una tienda real.",
+    "affiliation": {
+      "title": "Sin afiliación",
+      "body": "Este proyecto no está afiliado, respaldado ni patrocinado por Nike, Adidas, New Balance ni ninguna otra marca que aparezca. Los nombres, logos y diseños de los productos pertenecen a sus dueños y se muestran solo para ilustrar el proyecto."
+    },
+    "prices": {
+      "title": "Precios y existencias ilustrativos",
+      "body": "Los precios, tallas, existencias y datos técnicos son de ejemplo. No se vende nada: el carrito vive solo en tu navegador y no hay pago."
+    },
+    "models": {
+      "title": "Modelos 3D y licencias",
+      "body": "Los modelos 3D son obras de terceros publicadas en Sketchfab con licencias Creative Commons. Cada uno se acredita con su autor, su licencia y los cambios que se le hicieron. Uno de ellos (Adidas Samba) es de uso no comercial."
+    },
+    "ai": {
+      "title": "Estilista con IA",
+      "body": "El estilista usa un modelo de inteligencia artificial que solo recomienda productos de este catálogo. Sus respuestas pueden equivocarse. Las conversaciones no se guardan."
+    },
+    "data": {
+      "title": "Tus datos",
+      "body": "El sitio no pide cuentas ni datos personales. Tu tema, tu idioma y tu carrito se guardan solo en tu navegador, y puedes borrarlos cuando quieras."
+    },
+    "creditsLink": "Los autores y licencias de cada recurso están en <link>Créditos</link>."
+  },
+  "NotFound": {
+    "kicker": "Error 404",
+    "title": "No encontramos esta página",
+    "lead": "Puede que el producto ya no esté en el catálogo o que el enlace tenga un error.",
+    "cta": "Ir al catálogo"
+  },
+  "Pages": {
+    "ballsTitle": "Balones",
+    "ballsDescription": "Los balones oficiales de cinco Mundiales, del Telstar de 1970 al Trionda de 2026, en 3D.",
+    "clubTitle": "Club",
+    "clubDescription": "La tarjeta de miembro de AIRSPACE Wear: lanzamientos antes que nadie."
+  }
+}

@@ -1,0 +1,208 @@
+{
+  "Metadata": {
+    "title": "AIRSPACE Wear",
+    "description": "Sneakers, apparel and balls from the brands you love, to explore in 3D before you buy.",
+    "titleTemplate": "%s · AIRSPACE Wear"
+  },
+  "Brand": {
+    "name": "AIRSPACE",
+    "suffix": "Wear",
+    "homeLabel": "AIRSPACE Wear, home"
+  },
+  "LocaleSwitch": {
+    "label": "Language",
+    "es": "Español",
+    "en": "English",
+    "optionLabel": ", {language}"
+  },
+  "Footer": {
+    "disclaimer": "Portfolio project. Not affiliated with any brand shown.",
+    "navLabel": "Footer",
+    "catalog": "Catalog",
+    "balls": "Balls",
+    "credits": "Credits",
+    "legal": "Legal notice",
+    "hangar": "Hangar 360°",
+    "stylist": "AI stylist"
+  },
+  "Layout": {
+    "skipToContent": "Skip to content"
+  },
+  "Header": {
+    "navLabel": "Main",
+    "catalog": "Catalog",
+    "balls": "Balls",
+    "menuOpen": "Open menu",
+    "menuClose": "Close menu",
+    "hangar": "Hangar 360°",
+    "stylist": "AI stylist"
+  },
+  "Theme": {
+    "night": "Night",
+    "day": "Day",
+    "toLight": "Night, switch to light mode",
+    "toDark": "Day, switch to dark mode"
+  },
+  "Cart": {
+    "title": "Cart",
+    "buttonLabel": "Cart {count, plural, =0 {0 items} one {# item} other {# items}}",
+    "close": "Close cart",
+    "empty": "You haven't added anything yet. Pick a pair or a ball from the catalog.",
+    "remove": "Remove",
+    "removeLabel": " {name}",
+    "lineDetail": "{detail} · Size {size}",
+    "total": "Total",
+    "note": "Checkout arrives in a future version. Your cart is saved in this browser.",
+    "clear": "Empty cart"
+  },
+  "Availability": {
+    "new": "New",
+    "available": "Available",
+    "low_stock": "Last pairs",
+    "coming_soon": "Coming soon"
+  },
+  "Catalog": {
+    "metaTitle": "Catalog",
+    "metaDescription": "Sneakers and balls from the brands you love, with a 3D model of every pair.",
+    "kicker": "Sneakers and balls · Season 26",
+    "title": "Catalog",
+    "lead": "Pick a pair or a ball and take a close look: each one has its own 3D model.",
+    "loading": "Loading catalog",
+    "filtersLabel": "Filters",
+    "categoryLabel": "Category",
+    "brandLabel": "Brand",
+    "allCategories": "All",
+    "allBrands": "All brands",
+    "comingSoon": "Coming soon",
+    "category": {
+      "sneaker": "Sneakers",
+      "ball": "Balls",
+      "apparel": "Apparel"
+    },
+    "resultCount": "{count, plural, =0 {No results} one {# product} other {# products}}",
+    "empty": "No products match these filters.",
+    "resetFilters": "See the whole catalog",
+    "reference": "Ref. {reference}",
+    "has3d": "3D",
+    "posterAlt": "{name}, side view",
+    "sizeRange": "EU sizes {min} to {max}"
+  },
+  "Product": {
+    "breadcrumbLabel": "Breadcrumb",
+    "backToCatalog": "Back to catalog",
+    "reference": "Ref. {reference}",
+    "posterAlt": "{name}, side view",
+    "chooseSize": "Choose your size (EU)",
+    "pickSizeFirst": "Choose a size",
+    "addToCart": "Add to cart",
+    "added": "Added to cart",
+    "addedAnnouncement": "Product added to cart",
+    "soldOut": "Sold out",
+    "stock": {
+      "low": "Few left",
+      "out": "Sold out",
+      "in_stock": "Available"
+    },
+    "tagsLabel": "Tags",
+    "spec": {
+      "weight": "Weight",
+      "grams": "{value} g",
+      "stack": "Sole height",
+      "millimeters": "{value} mm",
+      "panels": "Panels",
+      "year": "Year",
+      "upper": "Upper",
+      "sole": "Sole",
+      "finish": "Finish"
+    },
+    "viewer": {
+      "posterAlt": "{name}, side view",
+      "sliderLabel": "Rotate the {name}: drag or use the arrow keys",
+      "turnValue": "Rotation {degrees}°",
+      "dragHint": "Drag to rotate",
+      "loading": "Loading 3D model",
+      "detailsTitle": "3D details",
+      "overview": "Overview"
+    },
+    "ar": {
+      "button": "View in your space",
+      "loading": "Getting the view ready",
+      "unsupported": "Open this page on your phone to see the {name} in your space, at real size."
+    }
+  },
+  "Credits": {
+    "metaTitle": "Credits",
+    "metaDescription": "Third-party 3D models, fonts and libraries used by AIRSPACE Wear, with their author and license.",
+    "kicker": "Credits",
+    "title": "Made with the work of many",
+    "lead": "AIRSPACE Wear is a portfolio project. Here are the third-party 3D models, fonts and libraries it uses, with their author, their license and the changes we made.",
+    "group": {
+      "model": "3D models",
+      "font": "Fonts",
+      "library": "Libraries"
+    },
+    "count": "{count, plural, one {# resource} other {# resources}}",
+    "column": {
+      "name": "Name",
+      "source": "Original",
+      "author": "Author",
+      "license": "License",
+      "changes": "Changes"
+    },
+    "change": {
+      "kept_one_shoe": "kept one shoe of the original pair",
+      "reoriented_rescaled": "reoriented and rescaled to real size",
+      "meshes_merged": "meshes merged",
+      "mesh_simplified": "mesh simplified",
+      "textures_webp": "textures converted to WebP",
+      "meshopt_compression": "Meshopt compression"
+    },
+    "changesSeparator": ", ",
+    "modelsNote": "All models come from Sketchfab and were optimized for the web with this project's pipeline. Each one is published in two versions: a full one and a lighter one for low-end devices.",
+    "licenseNote": "{name}: {terms}.",
+    "nonCommercial": "non-commercial use only",
+    "shareAlike": "the modified version is shared under the same license ({license})",
+    "termsSeparator": "; ",
+    "opensNewTab": " (opens in a new tab)"
+  },
+  "Legal": {
+    "metaTitle": "Legal notice",
+    "metaDescription": "AIRSPACE Wear is a portfolio project, not affiliated with any brand.",
+    "kicker": "Legal notice",
+    "title": "Good to know",
+    "lead": "AIRSPACE Wear is a portfolio project: a demo store, not a real one.",
+    "affiliation": {
+      "title": "No affiliation",
+      "body": "This project is not affiliated with, endorsed by or sponsored by Nike, Adidas, New Balance or any other brand shown. Product names, logos and designs belong to their owners and appear only to illustrate the project."
+    },
+    "prices": {
+      "title": "Illustrative prices and stock",
+      "body": "Prices, sizes, stock and technical data are examples. Nothing is for sale: the cart lives only in your browser and there is no checkout."
+    },
+    "models": {
+      "title": "3D models and licenses",
+      "body": "The 3D models are third-party works published on Sketchfab under Creative Commons licenses. Each one is credited with its author, its license and the changes made to it. One of them (Adidas Samba) is for non-commercial use only."
+    },
+    "ai": {
+      "title": "AI stylist",
+      "body": "The stylist uses an artificial intelligence model that only recommends products from this catalog. Its answers can be wrong. Conversations are not stored."
+    },
+    "data": {
+      "title": "Your data",
+      "body": "The site does not ask for accounts or personal data. Your theme, language and cart are stored only in your browser, and you can clear them at any time."
+    },
+    "creditsLink": "The authors and licenses of every resource are listed in <link>Credits</link>."
+  },
+  "NotFound": {
+    "kicker": "Error 404",
+    "title": "We couldn't find this page",
+    "lead": "The product may no longer be in the catalog, or the link may be wrong.",
+    "cta": "Go to the catalog"
+  },
+  "Pages": {
+    "ballsTitle": "Balls",
+    "ballsDescription": "The official balls of five World Cups, from the 1970 Telstar to the 2026 Trionda, in 3D.",
+    "clubTitle": "Club",
+    "clubDescription": "The AIRSPACE Wear member card: new releases before anyone else."
+  }
+}

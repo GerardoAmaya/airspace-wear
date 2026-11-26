@@ -1,0 +1,17 @@
+/* Solo se ve la imagen del tema activo. La regla de ocultar va con
+   !important: así ningún estilo del contenedor (por ejemplo un
+   "img { display: block }") puede volver a mostrar la del otro tema y
+   duplicar el zapato o el balón. */
+.dark,
+.light {
+  height: auto;
+}
+
+.light,
+:global(:root[data-theme='light']) .dark {
+  display: none !important;
+}
+
+:global(:root[data-theme='light']) .light {
+  display: block !important;
+}

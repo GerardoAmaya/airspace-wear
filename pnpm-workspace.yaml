@@ -1,0 +1,23 @@
+packages:
+  - apps/*
+  - packages/*
+
+# pnpm 11 bloquea los scripts de instalación: solo corren los que hacen falta.
+# Prisma descarga su motor de migraciones; @swc/core, @parcel/watcher y esbuild ya
+# traen binarios precompilados como dependencias opcionales.
+allowBuilds:
+  '@parcel/watcher': false
+  '@prisma/engines': true
+  '@swc/core': false
+  esbuild: false
+  prisma: true
+
+# Versiones fijadas en el plan del paso 2 que se publicaron hace menos del
+# tiempo mínimo que pnpm exige por defecto.
+minimumReleaseAgeExclude:
+  - '@nestjs/common@12.6.2'
+  - '@nestjs/core@12.6.2'
+  - '@nestjs/platform-express@12.6.2'
+  - '@nestjs/testing@12.6.2'
+  - '@types/react@19.3.3'
+  - next-intl@4.16.2

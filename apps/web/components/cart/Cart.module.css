@@ -1,0 +1,225 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 30px;
+  padding-inline: 10px 12px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color var(--duration-ui) var(--ease-out);
+}
+
+.button:hover,
+.button[aria-expanded='true'] {
+  border-color: var(--color-primary);
+}
+
+.button svg {
+  width: 14px;
+  height: 14px;
+  color: var(--color-primary);
+}
+
+.count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding-inline: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--color-line);
+  font-size: 0.625rem;
+  letter-spacing: 0;
+}
+
+.button[data-has-items] .count {
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+}
+
+/* Fondo detrás del panel: oscurece sin desenfoque (CLAUDE.md: sin blur). */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: color-mix(in srgb, var(--color-background) 60%, transparent);
+}
+
+.panel {
+  position: fixed;
+  inset: 0 0 0 auto;
+  z-index: calc(var(--z-overlay) + 1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: min(420px, 100vw);
+  padding: var(--space-6);
+  overflow-y: auto;
+  background: var(--color-surface);
+  border-left: 1px solid var(--color-line-strong);
+  box-shadow: var(--shadow-elevated);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 800;
+  font-size: var(--text-lg);
+  text-transform: uppercase;
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.close:hover {
+  color: var(--color-text);
+}
+
+.close svg {
+  width: 16px;
+  height: 16px;
+}
+
+.empty,
+.note {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Dos filas: nombre y precio; detalle y "Quitar". */
+.item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: var(--space-4);
+  padding-block: var(--space-3);
+  border-top: 1px solid var(--color-line);
+}
+
+.brand {
+  grid-column: 1 / -1;
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.name {
+  font-weight: 600;
+}
+
+.price {
+  justify-self: end;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+.detail {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.remove {
+  justify-self: end;
+  border: 0;
+  background: none;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.remove:hover {
+  color: var(--color-secondary);
+}
+
+.foot {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: auto;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-line-strong);
+}
+
+.total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.totalLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.totalValue {
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+}
+
+.clear {
+  justify-self: start;
+  height: 40px;
+  padding-inline: var(--space-6);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  font-weight: 700;
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.clear:hover {
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+}
+
+@media (max-width: 520px) {
+  .button {
+    padding-inline: 8px;
+  }
+
+  .buttonLabel {
+    display: none;
+  }
+}
