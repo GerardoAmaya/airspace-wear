@@ -32,3 +32,14 @@ All models were downloaded from Sketchfab and optimized for the web with this re
 
 - Adidas Samba: non-commercial use only; the modified version is shared under the same license (CC BY-NC-SA 4.0).
 <!-- models:end -->
+
+## Avatar (Hangar 360°)
+
+| Asset | Source | Author | License | Changes |
+| --- | --- | --- | --- | --- |
+| Y Bot character | [Mixamo](https://www.mixamo.com/#/?type=Character) | Adobe Mixamo | [Mixamo terms (Adobe)](https://helpx.adobe.com/creative-cloud/faq/mixamo-faq.html) | Converted from FBX to GLB, rescaled to 1.75 m, feet trimmed under the shoes, mesh simplified, matte material applied at runtime, Meshopt compression. |
+| Animations: idle, walk, turn and pose | [Mixamo](https://www.mixamo.com/#/?type=Motion%2CMotionPack) | Adobe Mixamo | [Mixamo terms (Adobe)](https://helpx.adobe.com/creative-cloud/faq/mixamo-faq.html) | Merged into the character file, root motion removed where needed, keyframes resampled, Meshopt compression. |
+
+**License notes**
+
+- Mixamo's terms allow using the character and animations in personal and commercial projects, but not redistributing the original files on their own. That is why the avatar files are not in this public repository: `pnpm avatar:build` creates them from the Mixamo downloads and `pnpm avatar:upload` publishes them to Vercel Blob, where the site loads them.

@@ -41,6 +41,10 @@
   --color-primary-soft: color-mix(in srgb, var(--color-primary-fill) 12%, transparent);
   --color-secondary-soft: color-mix(in srgb, var(--color-secondary-fill) 14%, transparent);
   --shadow-elevated: 0 24px 60px -20px rgb(0 0 0 / 0.6);
+  /* Maniquí del Hangar 360° (material mate del avatar, lo lee la escena 3D):
+     grafito neutro, para que el sneaker sea el protagonista. */
+  --color-mannequin: #3a3a41;
+  --color-mannequin-joint: #26262b;
 }
 
 /* Vuelo diurno: se aplica con data-theme="light" (lo decide el script del <head>). */
@@ -61,6 +65,8 @@
   --color-primary-soft: color-mix(in srgb, var(--color-primary-fill) 30%, transparent);
   --color-secondary-soft: color-mix(in srgb, var(--color-secondary-fill) 16%, transparent);
   --shadow-elevated: 0 24px 60px -24px rgb(14 14 16 / 0.28);
+  --color-mannequin: #d6d1c7; /* crema gris cálido */
+  --color-mannequin-joint: #bdb7ab;
 }
 
 :root {

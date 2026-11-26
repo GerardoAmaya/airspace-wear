@@ -15,7 +15,7 @@ import { LOCAL_DATABASE_URL } from '../../src/config/env.js';
 import { loadWorkspaceEnv } from '../../src/config/load-env.js';
 import { hotspotViewSchema, LOCALES } from '@airspace/contracts';
 import { BRANDS, FEATURED, PRODUCTS, type SeedProduct } from './catalog.js';
-import { describeChanges, type ManifestModel, STATIC_CREDITS } from './credits.js';
+import { AVATAR_CREDITS, describeChanges, type ManifestModel, MIXAMO, STATIC_CREDITS } from './credits.js';
 import { HOTSPOTS } from './hotspots.js';
 
 const LATERAL_SIDE = { '+z': 'plus_z', '-z': 'minus_z' } as const;
@@ -76,6 +76,13 @@ export async function seed(prisma: PrismaClient, log: (line: string) => void = c
   let order = 0;
   for (const credit of STATIC_CREDITS) {
     const data = { ...credit, sourceTitle: null, commercialUse: true, shareAlike: false, changes: [], sortOrder: 100 + order++ };
+    await prisma.assetCredit.upsert({ where: { key: credit.key }, update: data, create: data });
+  }
+
+  // Avatar del Hangar 360° (Mixamo): después de los modelos, antes de las fuentes.
+  order = 0;
+  for (const credit of AVATAR_CREDITS) {
+    const data = { ...MIXAMO, ...credit, sortOrder: 50 + order++ };
     await prisma.assetCredit.upsert({ where: { key: credit.key }, update: data, create: data });
   }
 

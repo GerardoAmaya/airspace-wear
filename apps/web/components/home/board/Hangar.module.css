@@ -166,15 +166,6 @@
   color: var(--color-text-muted);
 }
 
-.ctaChip {
-  padding: 3px 8px;
-  border-radius: var(--radius-pill);
-  background: var(--color-primary-fill);
-  color: var(--color-on-primary);
-  font-size: 0.625rem;
-  letter-spacing: 0.08em;
-}
-
 .actions .note {
   font-size: 0.625rem;
   color: var(--color-text-faint);

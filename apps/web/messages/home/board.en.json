@@ -14,11 +14,11 @@
     "hangar": {
       "sectionLabel": "Hangar 360°",
       "kicker": "Hangar · H-01",
-      "soon": "Coming soon",
+      "soon": "New",
       "titleTop": "Hangar",
       "titleBottom": "360°",
-      "lead": "Coming soon: pick an avatar, put any pair on it and watch it walk in 360°.",
-      "featuresLabel": "What the hangar brings",
+      "lead": "Pick a pair and see it on an avatar that walks, turns and poses, in 360°.",
+      "featuresLabel": "What Hangar 360° brings",
       "features": {
         "avatar": {
           "title": "Animated avatar",
@@ -33,8 +33,8 @@
           "text": "See it from any angle, just like in the store."
         }
       },
-      "cta": "Enter the hangar",
-      "ctaNote": "Arriving next season",
+      "cta": "Open Hangar 360°",
+      "ctaNote": "Every sneaker in the catalog",
       "onPlatform": "On the platform",
       "loading": "Loading 3D model...",
       "waiting": "Waiting for the model",

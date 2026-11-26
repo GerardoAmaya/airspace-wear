@@ -4,7 +4,9 @@ import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 import { type KeyboardEvent, type RefObject, useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { ThemedPoster } from '@/components/catalog/ThemedPoster';
+import { Link } from '@/i18n/navigation';
 import { accentProps } from '@/lib/accent';
+import { HANGAR_ENABLED } from '@/lib/avatar/avatar';
 import { HOME_ANCHORS } from '@/lib/home';
 import { gsap, ScrollTrigger, useGSAP } from '@/lib/motion/gsap';
 import { SplitText } from '@/lib/motion/split-text';
@@ -286,9 +288,20 @@ export function HangarTeaser({ product, spin, lite, reducedMotion }: { product: 
             ))}
           </ul>
           <div className={styles.actions} data-h-reveal="">
-            <button className={`${ui.btn} ${ui.btnGhost} ${styles.cta}`} type="button" disabled aria-describedby={`${ids}-note`}>
-              {t('cta')} <span className={styles.ctaChip}>{t('soon')}</span>
-            </button>
+            {/* Sin avatar publicado (producción sin NEXT_PUBLIC_AVATAR_URL) el
+                botón queda desactivado: la página /hangar respondería 404. */}
+            {HANGAR_ENABLED ? (
+              <Link href="/hangar" className={`${ui.btn} ${ui.btnPrimary} ${styles.cta}`} aria-describedby={`${ids}-note`}>
+                {t('cta')}
+                <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+                  <path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+            ) : (
+              <button className={`${ui.btn} ${ui.btnGhost} ${styles.cta}`} type="button" disabled aria-describedby={`${ids}-note`}>
+                {t('cta')}
+              </button>
+            )}
             <p className={`${ui.hudLabel} ${styles.note}`} id={`${ids}-note`}>
               {t('ctaNote')}
             </p>

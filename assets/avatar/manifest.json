@@ -1,0 +1,210 @@
+{
+  "source": {
+    "provider": "mixamo",
+    "character": "Y Bot",
+    "url": "https://www.mixamo.com",
+    "license": "Adobe Mixamo terms: use in projects allowed, no redistribution of the raw files"
+  },
+  "builtAt": "2026-11-26",
+  "heightMeters": 1.75,
+  "facing": "+z",
+  "pose": {
+    "turnDegrees": 0,
+    "scale": 0.96726,
+    "dimensionsCm": {
+      "height": 175,
+      "width": 174.6,
+      "depth": 31
+    }
+  },
+  "bones": {
+    "hips": {
+      "gltfName": "mixamorig:Hips",
+      "threeName": "mixamorigHips",
+      "rest": {
+        "translation": [
+          0,
+          1.00895,
+          0
+        ],
+        "rotation": [
+          0.006458,
+          0,
+          0,
+          0.999979
+        ],
+        "scale": [
+          0.009673,
+          0.009673,
+          0.009673
+        ]
+      }
+    },
+    "leftFoot": {
+      "gltfName": "mixamorig:LeftFoot",
+      "threeName": "mixamorigLeftFoot",
+      "rest": {
+        "translation": [
+          0.07939,
+          0.08478,
+          -0.04156
+        ],
+        "rotation": [
+          0,
+          0.429104,
+          0.903255,
+          0
+        ],
+        "scale": [
+          0.009673,
+          0.009673,
+          0.009673
+        ]
+      }
+    },
+    "rightFoot": {
+      "gltfName": "mixamorig:RightFoot",
+      "threeName": "mixamorigRightFoot",
+      "rest": {
+        "translation": [
+          -0.07939,
+          0.08478,
+          -0.04156
+        ],
+        "rotation": [
+          0,
+          0.429104,
+          0.903255,
+          0
+        ],
+        "scale": [
+          0.009673,
+          0.009673,
+          0.009673
+        ]
+      }
+    },
+    "leftToe": {
+      "gltfName": "mixamorig:LeftToeBase",
+      "threeName": "mixamorigLeftToeBase",
+      "rest": {
+        "translation": [
+          0.07939,
+          0.00035,
+          0.06204
+        ],
+        "rotation": [
+          0,
+          0.707081,
+          0.707133,
+          0
+        ],
+        "scale": [
+          0.009673,
+          0.009673,
+          0.009673
+        ]
+      }
+    },
+    "rightToe": {
+      "gltfName": "mixamorig:RightToeBase",
+      "threeName": "mixamorigRightToeBase",
+      "rest": {
+        "translation": [
+          -0.07939,
+          0.00035,
+          0.06203
+        ],
+        "rotation": [
+          0,
+          0.707081,
+          0.707133,
+          0
+        ],
+        "scale": [
+          0.009673,
+          0.009673,
+          0.009673
+        ]
+      }
+    }
+  },
+  "foot": {
+    "ankleHeightMeters": 0.0848,
+    "ankleToToeBaseMeters": 0.1336
+  },
+  "footTrim": {
+    "bones": [
+      "LeftFoot",
+      "LeftToeBase",
+      "RightFoot",
+      "RightToeBase"
+    ],
+    "minWeight": 0.5,
+    "removedTriangles": 6312
+  },
+  "clips": [
+    {
+      "name": "idle",
+      "durationSeconds": 9.933,
+      "rootMotionRemoved": true
+    },
+    {
+      "name": "walk",
+      "durationSeconds": 1.033,
+      "rootMotionRemoved": false
+    },
+    {
+      "name": "turn",
+      "durationSeconds": 1,
+      "rootMotionRemoved": true
+    },
+    {
+      "name": "pose",
+      "durationSeconds": 0.033,
+      "rootMotionRemoved": false
+    }
+  ],
+  "variants": {
+    "hero": {
+      "file": "avatar.glb",
+      "bytes": 310516,
+      "sha256": "e92f91fe83b3aa34c9203a964b1dede1d384fb8d6e2f7e1e56632dc84a1d1012",
+      "triangles": 24998,
+      "simplifiedFrom": 42800,
+      "animationChannels": 392,
+      "droppedStaticChannels": 232,
+      "budget": {
+        "triangles": 25000,
+        "bytes": 1500000
+      },
+      "withinBudget": true,
+      "validation": {
+        "errors": 0,
+        "warnings": 2,
+        "errorMessages": []
+      },
+      "url": "https://bskvmb2tfu0nx2oe.public.blob.vercel-storage.com/avatar/avatar-e92f91fe83b3.glb"
+    },
+    "lite": {
+      "file": "avatar-lite.glb",
+      "bytes": 208120,
+      "sha256": "6a67f4309029cf9a35eba7e19a11dd98683b2e472813a2bca422fc959433f567",
+      "triangles": 11998,
+      "simplifiedFrom": 42800,
+      "animationChannels": 392,
+      "droppedStaticChannels": 232,
+      "budget": {
+        "triangles": 25000,
+        "bytes": 700000
+      },
+      "withinBudget": true,
+      "validation": {
+        "errors": 0,
+        "warnings": 2,
+        "errorMessages": []
+      },
+      "url": "https://bskvmb2tfu0nx2oe.public.blob.vercel-storage.com/avatar/avatar-lite-6a67f4309029.glb"
+    }
+  }
+}

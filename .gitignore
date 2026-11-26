@@ -13,6 +13,8 @@ node_modules/
 /assets/avatar/raw/
 # Avatar convertido y optimizado: se publica en Vercel Blob (pnpm avatar:upload)
 /assets/avatar/out/
+# Copia local del avatar para pnpm dev (NEXT_PUBLIC_AVATAR_URL la usa por defecto)
+/apps/web/public/avatar-local/
 
 # Builds, caché y código generado
 next-env.d.ts

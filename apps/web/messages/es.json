@@ -166,12 +166,13 @@
       "meshopt_compression": "compresión Meshopt"
     },
     "changesSeparator": ", ",
-    "modelsNote": "Todos los modelos vienen de Sketchfab y se optimizaron para la web con el proceso de este proyecto. Cada uno se publica en dos versiones: una completa y otra liviana para equipos modestos.",
+    "modelsNote": "Los modelos de sneakers y balones vienen de Sketchfab y se optimizaron para la web con el proceso de este proyecto. Cada uno se publica en dos versiones: una completa y otra liviana para equipos modestos.",
     "licenseNote": "{name}: {terms}.",
     "nonCommercial": "solo uso no comercial",
     "shareAlike": "la versión modificada se comparte con la misma licencia ({license})",
     "termsSeparator": "; ",
-    "opensNewTab": " (se abre en otra pestaña)"
+    "opensNewTab": " (se abre en otra pestaña)",
+    "avatarNote": "El avatar del Hangar 360° (Y Bot) y sus animaciones son de Mixamo, de Adobe. Sus condiciones permiten usarlos en proyectos, pero no redistribuir los archivos originales: por eso no están en el repositorio público y el sitio los carga desde su propio almacenamiento."
   },
   "Legal": {
     "metaTitle": "Aviso legal",
@@ -212,5 +213,35 @@
     "ballsDescription": "Los balones oficiales de cinco Mundiales, del Telstar de 1970 al Trionda de 2026, en 3D.",
     "clubTitle": "Club",
     "clubDescription": "La tarjeta de miembro de AIRSPACE Wear: lanzamientos antes que nadie."
+  },
+  "Hangar": {
+    "metaTitle": "Hangar 360°",
+    "metaDescription": "Elige un sneaker y míralo puesto en un avatar animado, en 360°.",
+    "kicker": "Hangar 360°",
+    "title": "Pruébatelos en 360°",
+    "lead": "Elige un par y míralo puesto en el avatar: reposo, caminar, girar o pose. Arrastra para verlo desde cualquier ángulo.",
+    "wearing": "Lleva puesto",
+    "pickerLabel": "Elige el par",
+    "pickerItem": "Ponerle {name}",
+    "clipsLabel": "Animación",
+    "clips": {
+      "idle": "Reposo",
+      "walk": "Caminar",
+      "turn": "Girar",
+      "pose": "Pose"
+    },
+    "viewLabel": "Encuadre",
+    "views": {
+      "full": "Cuerpo entero",
+      "feet": "Zapatos"
+    },
+    "stageLabel": "Avatar con {name}: arrastra o usa las flechas para girar",
+    "stageValue": "{degrees} grados",
+    "loading": "Cargando avatar",
+    "error": "No se pudo cargar el avatar",
+    "dragHint": "Arrastra para girar",
+    "touchHint": "Desliza para girar",
+    "rotation": "ROT {degrees}°",
+    "viewProduct": "Ver ficha"
   }
 }

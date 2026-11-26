@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "lift": 0.02,
+  "mirrorLeft": true,
+  "right": {
+    "position": [
+      -0.0794,
+      0,
+      0.03
+    ],
+    "rotation": [
+      0,
+      0,
+      0
+    ],
+    "scale": 0.92
+  },
+  "left": {
+    "position": [
+      0.0794,
+      0,
+      0.03
+    ],
+    "rotation": [
+      0,
+      0,
+      0
+    ],
+    "scale": 0.92
+  },
+  "models": {}
+}

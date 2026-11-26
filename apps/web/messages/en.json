@@ -166,12 +166,13 @@
       "meshopt_compression": "Meshopt compression"
     },
     "changesSeparator": ", ",
-    "modelsNote": "All models come from Sketchfab and were optimized for the web with this project's pipeline. Each one is published in two versions: a full one and a lighter one for low-end devices.",
+    "modelsNote": "The sneaker and ball models come from Sketchfab and were optimized for the web with this project's pipeline. Each one is published in two versions: a full one and a lighter one for low-end devices.",
     "licenseNote": "{name}: {terms}.",
     "nonCommercial": "non-commercial use only",
     "shareAlike": "the modified version is shared under the same license ({license})",
     "termsSeparator": "; ",
-    "opensNewTab": " (opens in a new tab)"
+    "opensNewTab": " (opens in a new tab)",
+    "avatarNote": "The Hangar 360° avatar (Y Bot) and its animations come from Adobe's Mixamo. Its terms allow using them in projects but not redistributing the original files, so they are not in the public repository and the site loads them from its own storage."
   },
   "Legal": {
     "metaTitle": "Legal notice",
@@ -212,5 +213,35 @@
     "ballsDescription": "The official balls of five World Cups, from the 1970 Telstar to the 2026 Trionda, in 3D.",
     "clubTitle": "Club",
     "clubDescription": "The AIRSPACE Wear member card: new releases before anyone else."
+  },
+  "Hangar": {
+    "metaTitle": "Hangar 360°",
+    "metaDescription": "Pick a sneaker and see it on an animated avatar, in 360°.",
+    "kicker": "Hangar 360°",
+    "title": "Try them on in 360°",
+    "lead": "Pick a pair and see it on the avatar: idle, walk, turn or pose. Drag to see it from any angle.",
+    "wearing": "Wearing",
+    "pickerLabel": "Pick the pair",
+    "pickerItem": "Put on {name}",
+    "clipsLabel": "Animation",
+    "clips": {
+      "idle": "Idle",
+      "walk": "Walk",
+      "turn": "Turn",
+      "pose": "Pose"
+    },
+    "viewLabel": "Framing",
+    "views": {
+      "full": "Full body",
+      "feet": "Sneakers"
+    },
+    "stageLabel": "Avatar wearing {name}: drag or use the arrow keys to turn",
+    "stageValue": "{degrees} degrees",
+    "loading": "Loading avatar",
+    "error": "The avatar could not be loaded",
+    "dragHint": "Drag to turn",
+    "touchHint": "Swipe to turn",
+    "rotation": "ROT {degrees}°",
+    "viewProduct": "View product"
   }
 }

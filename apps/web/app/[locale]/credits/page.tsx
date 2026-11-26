@@ -46,6 +46,7 @@ export default async function CreditsPage({ params }: PageProps<'/[locale]/credi
           {kind === 'model' && (
             <>
               <p className={styles.note}>{t('modelsNote')}</p>
+              {items.some((item) => item.key.startsWith('avatar:')) && <p className={styles.note}>{t('avatarNote')}</p>}
               {restricted.map((item) => (
                 <p key={item.key} className={styles.note}>
                   {t('licenseNote', {

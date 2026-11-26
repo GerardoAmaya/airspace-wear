@@ -1,0 +1,205 @@
+/* Herramienta de calibración del avatar (solo desarrollo). */
+
+.tool {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  min-height: calc(100svh - var(--header-height));
+  padding-top: var(--header-height);
+  background: var(--color-background);
+}
+
+.stageWrap {
+  position: relative;
+  min-height: 60svh;
+}
+
+.stage {
+  position: sticky;
+  top: var(--header-height);
+  height: calc(100svh - var(--header-height));
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.stage[data-dragging] {
+  cursor: grabbing;
+}
+
+.halo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(80%, 720px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--color-text) 13%, transparent), color-mix(in srgb, var(--color-text) 5%, transparent) 55%, transparent);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* Escenario vacío mientras carga; el avatar entra con un fundido, ya animado. */
+.canvas {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.stage[data-ready] .canvas {
+  opacity: 1;
+  transition: opacity var(--duration-reveal) var(--ease-out);
+}
+
+.badge {
+  position: absolute;
+  left: var(--space-4);
+  bottom: var(--space-4);
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.panel {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+  max-height: calc(100svh - var(--header-height));
+  overflow: auto;
+  padding: var(--space-4);
+  border-left: 1px solid var(--color-line);
+  background: var(--color-surface);
+  font-size: var(--text-sm);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-hud);
+}
+
+.group {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+}
+
+.group legend {
+  padding: 0 var(--space-1);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-hud);
+  color: var(--color-primary);
+}
+
+.group:disabled {
+  opacity: 0.5;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--space-2);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.panel button,
+.panel select {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.panel button[aria-pressed='true'] {
+  border-color: var(--color-primary-fill);
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.range {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr 4.5rem;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+}
+
+.range input[type='number'] {
+  width: 100%;
+  padding: 2px var(--space-1);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-background);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.range input[type='range'] {
+  width: 100%;
+  accent-color: var(--color-primary-fill);
+}
+
+.save {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.panel .primary {
+  border-color: var(--color-primary-fill);
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+  font-weight: 600;
+}
+
+.json {
+  margin: 0;
+  max-height: 16rem;
+  overflow: auto;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-background);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+}
+
+@media (max-width: 860px) {
+  .tool {
+    grid-template-columns: 1fr;
+  }
+
+  .stage {
+    position: relative;
+    top: 0;
+    height: 62svh;
+  }
+
+  .panel {
+    max-height: none;
+    border-left: 0;
+    border-top: 1px solid var(--color-line);
+  }
+}

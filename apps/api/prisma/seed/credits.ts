@@ -64,3 +64,42 @@ export const STATIC_CREDITS: StaticCredit[] = [
   { key: 'library:meshoptimizer', kind: 'library', name: 'meshoptimizer', author: 'Arseny Kapoulkine', authorUrl: 'https://github.com/zeux', sourceUrl: 'https://github.com/zeux/meshoptimizer', ...MIT },
   { key: 'library:gltf-transform', kind: 'library', name: 'glTF Transform', author: 'Don McCurdy', authorUrl: 'https://www.donmccurdy.com', sourceUrl: 'https://github.com/donmccurdy/glTF-Transform', ...MIT },
 ];
+
+// Avatar del Hangar 360° (Mixamo, de Adobe). Su licencia permite usar el
+// personaje y las animaciones en proyectos, también comerciales, pero no
+// redistribuir los archivos tal cual: por eso el avatar no se versiona y se
+// sirve desde Vercel Blob. Van en el grupo de modelos, después de los sneakers.
+export interface AvatarCredit {
+  key: string;
+  name: string;
+  sourceTitle: string;
+  sourceUrl: string;
+  changes: CreditChange[];
+}
+
+export const MIXAMO = {
+  kind: 'model' as const,
+  author: 'Adobe Mixamo',
+  authorUrl: 'https://www.mixamo.com',
+  licenseName: 'Mixamo terms (Adobe)',
+  licenseUrl: 'https://helpx.adobe.com/creative-cloud/faq/mixamo-faq.html',
+  commercialUse: true,
+  shareAlike: false,
+};
+
+export const AVATAR_CREDITS: AvatarCredit[] = [
+  {
+    key: 'avatar:y-bot',
+    name: 'Hangar 360° avatar (Y Bot)',
+    sourceTitle: 'Y Bot',
+    sourceUrl: 'https://www.mixamo.com/#/?type=Character',
+    changes: ['reoriented_rescaled', 'mesh_simplified', 'meshopt_compression'],
+  },
+  {
+    key: 'avatar:animations',
+    name: 'Hangar 360° animations (idle, walk, turn, pose)',
+    sourceTitle: 'Mixamo animations',
+    sourceUrl: 'https://www.mixamo.com/#/?type=Motion%2CMotionPack',
+    changes: ['meshopt_compression'],
+  },
+];
