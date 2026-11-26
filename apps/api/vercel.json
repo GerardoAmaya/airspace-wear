@@ -1,5 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nestjs",
-  "buildCommand": "pnpm --filter @airspace/contracts build && DATABASE_URL=\"${DATABASE_URL_UNPOOLED:-$DATABASE_URL}\" pnpm exec prisma migrate deploy && pnpm build"
+  "framework": null,
+  "buildCommand": "pnpm --filter @airspace/contracts build && DATABASE_URL=\"${DATABASE_URL_UNPOOLED:-$DATABASE_URL}\" pnpm exec prisma migrate deploy && pnpm exec prisma generate && mkdir -p .vercel-static && echo AIRSPACE Wear API > .vercel-static/.keep",
+  "outputDirectory": ".vercel-static",
+  "functions": {
+    "api/index.ts": { "maxDuration": 300 }
+  },
+  "rewrites": [{ "source": "/(.*)", "destination": "/api" }]
 }
