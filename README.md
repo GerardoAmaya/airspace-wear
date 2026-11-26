@@ -2,6 +2,8 @@
 
 A multi-brand store for sneakers, apparel and soccer balls, built around 3D. Every pair has its own model: you turn it, look at the details up close, place it in your room with AR and ask an AI stylist which one fits your plans.
 
+**Live:** https://airspace-wear-web.vercel.app
+
 > **Portfolio project. Not affiliated with any brand shown.** Nike, Adidas, New Balance and every other name, logo and design belong to their owners and appear only to illustrate the project. Prices, sizes and stock are sample data, and nothing is sold.
 
 ## Features
@@ -210,6 +212,35 @@ docker build -f apps/web/Dockerfile \
 ```
 
 The tools image runs `prisma migrate deploy` by default. For the seed, override the command with `./node_modules/.bin/tsx prisma/seed/index.ts`. Pass `DATABASE_URL` and the other variables with `--env-file` or your platform's secret store, never as plain command-line values.
+
+## Deploying to Vercel
+
+The live site runs on two Vercel projects (Hobby plan) connected to this repository, plus a Neon Postgres database from the Vercel Marketplace. Every push to `main` deploys both.
+
+| Project | Root directory | URL |
+| --- | --- | --- |
+| `airspace-wear-api` | `apps/api` | https://airspace-wear-api.vercel.app |
+| `airspace-wear-web` | `apps/web` | https://airspace-wear-web.vercel.app |
+
+**API.**
+- `apps/api/vercel.json` builds the contracts, runs `prisma migrate deploy` against Neon's direct connection (`DATABASE_URL_UNPOOLED`) and generates the Prisma client.
+- The API then runs as one plain function, `apps/api/api/index.ts`, that boots Nest once per instance; every path is rewritten to it.
+- Vercel's automatic NestJS launcher is not used because it failed to start Nest 12, which is ESM-only.
+
+**Web.**
+- `apps/web/vercel.json` builds the contracts, then Next.
+- The build prerenders the catalog against the live API, so deploy the API first when both change in ways that depend on each other.
+
+**Environment variables.** Set them in each project, never in the repository:
+
+| Project | Variables |
+| --- | --- |
+| API | `DATABASE_URL` and `DATABASE_URL_UNPOOLED` (added by the Neon integration), `ANTHROPIC_API_KEY`, `INTERNAL_API_KEY`, `WEB_ORIGIN`, `TRUST_PROXY=1`, `STYLIST_DAILY_BUDGET_USD`, `ENABLE_EXPERIMENTAL_COREPACK=1` |
+| Web | `API_URL`, `NEXT_PUBLIC_API_URL`, `SITE_URL`, `INTERNAL_API_KEY` (same value as the API), `REVALIDATE_SECRET`, `ENABLE_EXPERIMENTAL_COREPACK=1` |
+
+**Seeding.** Seed the Neon database once from your machine. Point `DATABASE_URL` at Neon's direct connection for that run only (for example from `vercel env pull` into a file outside the repository), then run `pnpm db:seed`. Delete the pulled file afterwards.
+
+**Hosting cost.** Both projects and Neon run on free plans. The only running cost is the AI stylist, capped by `STYLIST_DAILY_BUDGET_USD`.
 
 ## Project layout
 
