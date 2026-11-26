@@ -41,6 +41,13 @@ export function ArButton({ model, name }: { model: Model3D; name: string }) {
     // Primero se pregunta si el equipo puede abrir AR (no depende del modelo):
     // en escritorio se avisa al instante sin descargar nada más.
     await viewer.updateComplete;
+    // En Android, model-viewer decide el modo AR de forma asíncrona (primero
+    // pregunta si hay WebXR), y updateComplete llega antes de esa respuesta:
+    // se espera hasta 2 s. En iPhone y escritorio la respuesta es inmediata.
+    if (!viewer.canActivateAR && /android/i.test(navigator.userAgent)) {
+      const deadline = performance.now() + 2000;
+      while (!viewer.canActivateAR && performance.now() < deadline) await new Promise((resolve) => setTimeout(resolve, 50));
+    }
     if (!viewer.canActivateAR) {
       setState('unsupported');
       viewer.remove();
