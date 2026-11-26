@@ -1,7 +1,6 @@
 // Operaciones geométricas del pipeline: separar un zapato de un par y llevar
 // cada modelo a la pose canónica (punta a +X, suela en y = 0, escala real).
 
-import { getBounds } from '@gltf-transform/core';
 import { compactPrimitive } from '@gltf-transform/functions';
 import { MeshoptSimplifier } from 'meshoptimizer';
 
@@ -234,6 +233,35 @@ function findYawCorrection(samples, rangeDegrees = 30, stepDegrees = 0.25) {
   return best.degrees;
 }
 
+// Caja de la escena medida sobre los vértices transformados a mundo (solo los
+// que usan los triángulos). No depende de cómo calcule la caja la librería:
+// una caja hecha con el mínimo y el máximo de cada malla, transformada como
+// caja, queda holgada tras un giro que no es recto y el zapato saldría corto.
+function measureWorldBounds(scene) {
+  const min = [Infinity, Infinity, Infinity];
+  const max = [-Infinity, -Infinity, -Infinity];
+  const vertex = [0, 0, 0];
+  scene.traverse((node) => {
+    const mesh = node.getMesh();
+    if (!mesh) return;
+    const matrix = node.getWorldMatrix();
+    for (const primitive of mesh.listPrimitives()) {
+      const position = primitive.getAttribute('POSITION');
+      if (!position) continue;
+      const indices = primitive.getIndices();
+      const count = indices ? indices.getCount() : position.getCount();
+      for (let i = 0; i < count; i++) {
+        const world = toWorld(matrix, position.getElement(indices ? indices.getScalar(i) : i, vertex));
+        for (let axis = 0; axis < 3; axis++) {
+          if (world[axis] < min[axis]) min[axis] = world[axis];
+          if (world[axis] > max[axis]) max[axis] = world[axis];
+        }
+      }
+    }
+  });
+  return { min, max };
+}
+
 // Envuelve la escena en un nodo raíz y lo transforma hasta la pose canónica.
 // Devuelve los datos aplicados para registrarlos en el manifest.
 export function normalizePose(document, { rotation = [0, 0, 0], lengthMeters, autoYaw = true }) {
@@ -253,16 +281,16 @@ export function normalizePose(document, { rotation = [0, 0, 0], lengthMeters, au
   const yawDegrees = autoYaw ? findYawCorrection(sampleWorldPositions(scene, 60_000)) : 0;
   pivot.setRotation(multiplyQuaternions(quaternionFromEuler([0, yawDegrees, 0]), baseRotation));
 
-  // 3. Escala a tamaño real según el largo en X.
-  let { min, max } = getBounds(scene);
+  // 3. Escala a tamaño real según el largo en X, medido en los vértices.
+  let { min, max } = measureWorldBounds(scene);
   const scale = lengthMeters / (max[0] - min[0]);
   pivot.setScale([scale, scale, scale]);
 
   // 4. Centra en X y Z y apoya la suela en y = 0.
-  ({ min, max } = getBounds(scene));
+  ({ min, max } = measureWorldBounds(scene));
   pivot.setTranslation([-(min[0] + max[0]) / 2, -min[1], -(min[2] + max[2]) / 2]);
 
-  ({ min, max } = getBounds(scene));
+  ({ min, max } = measureWorldBounds(scene));
   const toCentimeters = (value) => Math.round(value * 1000) / 10;
   return {
     rotation,

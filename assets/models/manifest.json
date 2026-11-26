@@ -34,6 +34,7 @@
         ]
       },
       "pose": {
+        "category": "sneaker",
         "foot": "right",
         "lateralSideFacing": "+z",
         "extractedFromPair": true,
@@ -225,6 +226,7 @@
         ]
       },
       "pose": {
+        "category": "sneaker",
         "foot": "left",
         "lateralSideFacing": "-z",
         "extractedFromPair": false,
@@ -320,6 +322,7 @@
         ]
       },
       "pose": {
+        "category": "sneaker",
         "foot": "left",
         "lateralSideFacing": "-z",
         "extractedFromPair": false,
