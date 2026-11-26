@@ -7,6 +7,10 @@ export const HOME_HERO = {
   headline: ['Jordan 4', 'Travis Scott'] as const,
 };
 
+// Par que gira en el Hangar 360° de la home (elegido por el dueño del
+// proyecto). Si no está en el catálogo, se usa el primer destacado.
+export const HOME_HANGAR_SLUG = 'jordan-4-university-blue';
+
 // Anclas de las secciones de la home (en español, ver COPY.md).
 export const HOME_ANCHORS = {
   hero: 'inicio',

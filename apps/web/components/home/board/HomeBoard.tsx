@@ -4,7 +4,7 @@ import { ProductCard } from '@/components/catalog/ProductCard';
 import { Reveal } from '@/components/motion/Reveal';
 import { Link } from '@/i18n/navigation';
 import { getProducts } from '@/lib/api';
-import { HOME_ANCHORS } from '@/lib/home';
+import { HOME_ANCHORS, HOME_HANGAR_SLUG } from '@/lib/home';
 import { FeaturedHead } from './FeaturedHead';
 import styles from './Featured.module.css';
 import { HangarMount } from './HangarMount';
@@ -28,8 +28,8 @@ export async function HomeBoard({ locale }: { locale: Locale }) {
   const brands = [...new Map(sneakers.items.map((item) => [item.brand.slug, item.brand.name])).values()];
   const total = all.items.length;
 
-  // El hangar gira el primer destacado (antes, el par elegido por defecto).
-  const first = featured[0];
+  // El hangar gira el par elegido en lib/home.ts (o el primer destacado).
+  const first = sneakers.items.find((item) => item.slug === HOME_HANGAR_SLUG) ?? featured[0];
   const hangarProduct: BoardProduct = {
     slug: first.slug,
     reference: first.reference,
