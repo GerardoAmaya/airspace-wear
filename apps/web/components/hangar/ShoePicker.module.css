@@ -396,3 +396,12 @@
     transition: none;
   }
 }
+
+/* Teléfono: sin panel que se desplace por dentro, los filtros quedan en su
+   lugar (pegados se encimarían con el encabezado fijo del sitio). */
+@media (max-width: 720px) {
+  .filters {
+    position: static;
+    margin-top: 0;
+  }
+}

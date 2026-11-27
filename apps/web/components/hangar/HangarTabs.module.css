@@ -71,6 +71,17 @@
   overscroll-behavior: contain;
 }
 
+/* Teléfono: el panel crece con su contenido y no se desplaza por dentro. Un
+   contenedor de scroll con overscroll-behavior: contain (aunque no tenga nada
+   que desplazar) atrapa el gesto vertical en Chrome Android y la página no
+   sube ni baja al deslizar sobre los filtros o las tarjetas. */
+@media (max-width: 720px) {
+  .panel {
+    overflow: visible;
+    overscroll-behavior: auto;
+  }
+}
+
 .panel:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
