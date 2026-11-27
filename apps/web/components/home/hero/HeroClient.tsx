@@ -96,11 +96,12 @@ const ENTRANCE = {
 const TAN_HALF_FOV = Math.tan((FOV * Math.PI) / 360);
 
 // Decide si toca la entrada con humo (en cada carga que empieza en la
-// portada, a pedido del dueño del proyecto). Sin ella, la entrada normal:
-// movimiento reducido, modo liviano o enlace directo a una sección. Las
-// recargas más abajo se saltan aparte (la escena no está en la portada).
+// portada, también en modo liviano, con el atlas liviano: decisión del dueño
+// del proyecto). Sin ella, la entrada normal: movimiento reducido o enlace
+// directo a una sección. Las recargas más abajo se saltan aparte (la escena
+// no está en la portada).
 function planEntrance(reduced: boolean): boolean {
-  return !(reduced || document.documentElement.classList.contains('lite') || window.location.hash);
+  return !(reduced || window.location.hash);
 }
 
 const YAW_PER_PX = 0.009;
@@ -249,7 +250,7 @@ export function HeroClient({ content }: { content: HeroContent }) {
       const entrancePlan = !shown && planEntrance(reduced);
       setEntrance(entrancePlan);
       // El atlas del humo se descarga junto con el modelo (solo red).
-      if (entrancePlan) void fetch(SMOKE_ATLAS.hero).catch(() => {});
+      if (entrancePlan) void fetch(document.documentElement.classList.contains('lite') ? SMOKE_ATLAS.lite : SMOKE_ATLAS.hero).catch(() => {});
       let entranceTimeline: gsap.core.Timeline | null = null;
       // Centro y escala del halo en la pose de portada (sin flotación): ahí
       // esperan halo y retícula mientras el zapato llega volando.

@@ -109,7 +109,7 @@ Rules:
 - Durations and easings are motion tokens defined once and shared by GSAP, Motion and CSS.
 - `prefers-reduced-motion`: no smooth anchor jumps, no autoplay or loops, sequences become static states, keep only short opacity fades.
 - Lite mode: an inline script in `<head>` adds a `lite` class to `<html>` before hydration on low-end devices (`hardwareConcurrency <= 4`, `deviceMemory <= 4`, Save-Data, or a 2g/3g connection). Lite mode loads the `-lite.glb` models, caps DPR at 1, disables postprocessing and swaps the 3D canvas for a poster image where needed.
-- The home hero intro (fly-in landing with smoke) plays on every load that starts at the top of the home (owner decision 2026-11-26), and is skipped on deep links, reloads below the hero, lite mode and with reduced motion.
+- The home hero intro (fly-in landing with smoke) plays on every load that starts at the top of the home, also in lite mode with the lite smoke atlas (owner decisions 2026-11-26), and is skipped on deep links, reloads below the hero and with reduced motion.
 - Reload (Cmd+R) must land where the user was and in a correct state: set `history.scrollRestoration = 'manual'` in `<head>`, save the position on `pagehide`, restore it after every section is mounted, and set `overflow-anchor: none` on `html` (moving nodes, such as a 3D canvas changing slots, otherwise shifts the restored position). Every element that starts hidden is hidden in CSS, not only in JS. Test reloads at several scroll positions and at short viewports (the user's window is about 1720x816).
 - Content never depends on an animation finishing to be readable or focusable.
 - Budget: 60 fps on a mid-range phone, LCP under 2.5 s, INP under 200 ms. Test on a real phone.

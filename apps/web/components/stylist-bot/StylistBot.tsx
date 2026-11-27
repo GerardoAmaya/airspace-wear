@@ -27,15 +27,16 @@ export function StylistBot() {
   // Una vez abierto queda montado, para que la salida se anime.
   if (open && !panelMounted) setPanelMounted(true);
 
-  // El robot llega cuando el navegador está libre: no compite con el primer
-  // pintado ni con la entrada de la página.
+  // El robot llega cuando el navegador está libre (como mucho 1,2 s después
+  // de montar): no compite con el primer pintado, pero tampoco se hace
+  // esperar en teléfonos, donde el navegador casi nunca queda libre.
   useEffect(() => {
     const show = () => void loadRobot().then(() => setRobotReady(true));
     if ('requestIdleCallback' in window) {
-      const id = requestIdleCallback(show, { timeout: 3000 });
+      const id = requestIdleCallback(show, { timeout: 1200 });
       return () => cancelIdleCallback(id);
     }
-    const id = setTimeout(show, 1500);
+    const id = setTimeout(show, 400);
     return () => clearTimeout(id);
   }, []);
 
