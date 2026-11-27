@@ -135,6 +135,14 @@ function TestCard() {
                 <svg className={styles.contactless} viewBox="0 0 24 24">
                   <path d="M7 8.5a5 5 0 0 1 0 7M11 6a8.5 8.5 0 0 1 0 12M15 3.5a12 12 0 0 1 0 17" />
                 </svg>
+                {/* Pista visible: la tarjeta se toca para copiar el número. */}
+                <span className={styles.copyHint} aria-hidden="true">
+                  <svg viewBox="0 0 16 16">
+                    <rect x="5" y="5" width="8.5" height="8.5" rx="1.5" />
+                    <path d="M3 10.5V3.8A1.3 1.3 0 0 1 4.3 2.5H11" />
+                  </svg>
+                  {t('copyHint')}
+                </span>
               </span>
               <span className={styles.number}>{CARD_NUMBER}</span>
               <span className={styles.meta}>

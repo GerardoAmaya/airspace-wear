@@ -589,8 +589,9 @@
   "Checkout": {
     "testModeLabel": "Test mode notice",
     "testMode": "<strong>Test mode:</strong> no real money is charged.",
-    "testModeHint": "Pay with this card, any future date and any CVC. Tap or click it to copy the number.",
+    "testModeHint": "Pay with this card, any future date and any CVC.",
     "testCard": {
+      "copyHint": "Copy",
       "copy": "Copy the test card number",
       "description": "Test card {number}, any future expiry date, any CVC.",
       "tag": "Test",

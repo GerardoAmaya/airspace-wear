@@ -171,6 +171,29 @@
   margin-top: auto;
 }
 
+.copyHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.4cqi;
+  margin-left: auto;
+  padding: 1cqi 2.6cqi;
+  border: 1px solid color-mix(in srgb, var(--color-on-primary) 55%, transparent);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 3.8cqi;
+  font-weight: 700;
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+}
+
+.copyHint svg {
+  width: 4.4cqi;
+  height: 4.4cqi;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
 /* Chip: relleno lima mezclado con el naranja, trazos oscuros. */
 .chip {
   width: 15cqi;

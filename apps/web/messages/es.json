@@ -589,8 +589,9 @@
   "Checkout": {
     "testModeLabel": "Aviso de modo de prueba",
     "testMode": "<strong>Modo de prueba:</strong> no se cobra dinero real.",
-    "testModeHint": "Paga con esta tarjeta, cualquier fecha futura y cualquier CVC. Tócala o haz clic para copiar el número.",
+    "testModeHint": "Paga con esta tarjeta, cualquier fecha futura y cualquier CVC.",
     "testCard": {
+      "copyHint": "Copiar",
       "copy": "Copiar el número de la tarjeta de prueba",
       "description": "Tarjeta de prueba {number}, vence en cualquier fecha futura, cualquier CVC.",
       "tag": "Prueba",
