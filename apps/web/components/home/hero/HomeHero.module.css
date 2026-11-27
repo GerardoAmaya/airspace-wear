@@ -475,7 +475,7 @@
 /* ---------- Marcas, guías y etiquetas de los detalles (ocultas al inicio) ---------- */
 
 .lines,
-.marks,
+.spots,
 .labels {
   position: absolute;
   inset: 0;
@@ -504,15 +504,122 @@
 /* Compuerta: los rótulos de "Pieza por pieza" solo pueden verse con la escena
    en modo detalle (data-callouts, lo pone HeroClient). En la pose de portada
    quedan ocultos aunque una animación interrumpida dejara opacidad en línea. */
-.stage:not([data-callouts]) :is(.lines, .marks, .labels) {
+.stage:not([data-callouts]) :is(.lines, .spots, .labels) {
   visibility: hidden;
+}
+
+/* Puntos sobre el zapato: botones de 44 px (área táctil transparente) que
+   HeroClient mueve con transform en cada cuadro. Todos se ven en la zona de
+   detalles (data-spots) con el modelo ya dibujado; fuera de ella no reciben
+   clics ni foco (visibility, con retardo para que la marca activa termine
+   su fundido). */
+.spots {
+  pointer-events: none;
+}
+
+.spot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  visibility: hidden;
+  -webkit-tap-highlight-color: transparent;
+  will-change: transform;
+  transition: visibility 0s linear var(--duration-ui);
+}
+
+/* Solo con el 3D a la vista (data-shown): antes no hay posiciones. */
+.stage[data-spots][data-shown] .spot {
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+/* De espaldas a la cámara: apagado (opacidad por cuadro) y sin clics. */
+.spot[data-occluded] {
+  pointer-events: none;
+}
+
+.spot:focus-visible {
+  outline: 1px dashed var(--color-primary);
+  outline-offset: -4px;
+}
+
+/* Punto inactivo: más chico que la marca activa, con un aro suave y un
+   pulso lento (solo con la sección a la vista; base.css lo corta con
+   movimiento reducido). */
+.spotIdle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: var(--color-primary-fill);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-on-primary) 45%, transparent);
+  opacity: 0;
+  transform: scale(0.4);
+  transition:
+    opacity var(--duration-ui) var(--ease-out),
+    transform var(--duration-ui) var(--ease-out);
+}
+
+.spotIdle::before,
+.spotIdle::after {
+  content: '';
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 55%, transparent);
+}
+
+.spotIdle::after {
+  border-color: var(--color-primary);
+  opacity: 0;
+}
+
+.stage[data-spots][data-shown] .spotIdle {
+  opacity: 1;
+  transform: none;
+}
+
+.stage[data-spots] .spot:is(:hover, [data-hover]) .spotIdle {
+  transform: scale(1.35);
+}
+
+/* El activo muestra la marca grande (la anima GSAP) en lugar del punto chico. */
+.stage[data-spots] .spot[data-active] .spotIdle {
+  opacity: 0;
+  transform: scale(0.4);
+}
+
+.hero[data-live] .stage[data-spots] .spot:not([data-active]) .spotIdle::after {
+  animation: spot-pulse 2.4s var(--ease-out) infinite;
+}
+
+@keyframes spot-pulse {
+  from {
+    transform: scale(0.8);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(1.8);
+    opacity: 0;
+  }
 }
 
 .mark {
   position: absolute;
-  top: 0;
-  left: 0;
-  will-change: transform;
+  top: 50%;
+  left: 50%;
 }
 
 .markDot,
@@ -1036,6 +1143,7 @@
 }
 
 .railItem {
+  position: relative;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
@@ -1055,9 +1163,27 @@
     background-color var(--duration-ui) var(--ease-out);
 }
 
-.railItem:hover {
+.railItem:is(:hover, [data-hover]) {
   color: var(--color-text);
   background: color-mix(in srgb, var(--color-text) 6%, transparent);
+}
+
+/* Fila activa: barra de acento a la izquierda (crece con transform). */
+.railItem::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--color-primary);
+  transform: scaleY(0);
+  transition: transform var(--duration-ui) var(--ease-out);
+}
+
+.railItem[data-active]::before {
+  transform: scaleY(1);
 }
 
 .railItem[data-done] {
@@ -1099,41 +1225,21 @@
   white-space: nowrap;
 }
 
-.railCheck {
-  display: grid;
-  place-items: center;
-  width: 18px;
-  height: 18px;
-  border: 1px solid var(--color-line-strong);
-  border-radius: 4px;
+.railSeen {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  opacity: 0;
+  transform: scale(0.3);
   transition:
-    background-color var(--duration-ui) var(--ease-out),
-    border-color var(--duration-ui) var(--ease-out);
+    opacity var(--duration-ui) var(--ease-out),
+    transform var(--duration-ui) var(--ease-out);
 }
 
-.railCheck svg {
-  width: 12px;
-  height: 12px;
-}
-
-.railCheck path {
-  fill: none;
-  stroke: var(--color-on-primary);
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 12;
-  stroke-dashoffset: 12;
-  transition: stroke-dashoffset var(--duration-ui) var(--ease-out) 80ms;
-}
-
-.railItem[data-done] .railCheck {
-  background: var(--color-primary-fill);
-  border-color: var(--color-primary-fill);
-}
-
-.railItem[data-done] .railCheck path {
-  stroke-dashoffset: 0;
+.railItem[data-done] .railSeen {
+  opacity: 1;
+  transform: none;
 }
 
 .specs {
@@ -1439,9 +1545,17 @@
       border-color var(--duration-ui) var(--ease-out);
   }
 
-  .railItem[data-active],
+  /* Móvil: el borde superior hace de acento (visto: tenue; activo: pleno). */
   .railItem[data-done] {
+    border-top-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
+  }
+
+  .railItem[data-active] {
     border-top-color: var(--color-primary);
+  }
+
+  .railItem::before {
+    display: none;
   }
 
   .railCopy {
@@ -1452,10 +1566,6 @@
     clip-path: inset(50%);
   }
 
-  .railCheck {
-    width: 16px;
-    height: 16px;
-  }
 
   .specs {
     left: 0;

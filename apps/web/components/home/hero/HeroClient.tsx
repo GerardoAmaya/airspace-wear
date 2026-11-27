@@ -110,6 +110,23 @@ const MAX_TILT = (12 * Math.PI) / 180;
 const KEY_STEP = (15 * Math.PI) / 180;
 const TAU = Math.PI * 2;
 
+// Normal aproximada de la superficie en un punto del zapato: la de un
+// elipsoide con sus medidas (largo, alto y ancho), centrado a media altura.
+// Sirve para saber si un punto queda de espaldas a la cámara.
+function surfaceNormal([x, y, z]: Vec3, shoe: ShoeDims): Vec3 {
+  const a = shoe.length / 2;
+  const b = shoe.height / 2;
+  const c = shoe.halfWidth;
+  const normal: Vec3 = [x / (a * a), (y - b) / (b * b), z / (c * c)];
+  const length = Math.hypot(normal[0], normal[1], normal[2]) || 1;
+  return [normal[0] / length, normal[1] / length, normal[2] / length];
+}
+
+// Visibilidad de un punto según cuánto mira a la cámara (ver facing en el
+// rig): de canto todavía se ve (está en el borde de la silueta); de
+// espaldas se apaga del todo.
+const FACING = { hidden: -0.4, shown: -0.15 };
+
 const zeroPose = (): Pose => ({ x: 0, y: 0, z: 0, yaw: 0, pitch: 0, bank: 0, scale: 1, idle: 0, rim: 1, shadow: 1, cx: 0, cy: 0, cz: 1, tx: 0, ty: 0, tz: 0 });
 const zeroIntro = () => ({ x: 0, y: 0, z: 0, yaw: 0, pitch: 0, bank: 0 });
 
@@ -199,6 +216,7 @@ export function HeroClient({ content }: { content: HeroContent }) {
       const poster = q('poster');
       const leaders = qa<SVGPathElement>('leader');
       const marks = qa('mark');
+      const spots = qa<HTMLButtonElement>('spot');
       const labels = qa('label');
 
       const reduced = !document.documentElement.classList.contains('motion-ok');
@@ -223,6 +241,7 @@ export function HeroClient({ content }: { content: HeroContent }) {
       // Estado DOM que no maneja React: se reinicia por si el efecto corre de nuevo.
       section.dataset.slot = 'hero';
       stage.removeAttribute('data-callouts');
+      stage.removeAttribute('data-spots');
 
       // Si el modelo ya estaba listo (useGLTF en caché, efecto repetido), se
       // usan sus medidas sin esperar a que la escena avise otra vez.
@@ -257,6 +276,13 @@ export function HeroClient({ content }: { content: HeroContent }) {
       const rest = { x: 0, y: 0, scale: 1 };
       const reticleBox = { width: 0, height: 0, tape: 0 };
       const anchors = hotspots.map(() => ({ x: 0, y: 0, side: 1 }));
+      // Puntos sobre el zapato: normal de cada uno (se recalcula con las
+      // medidas del modelo), última opacidad escrita y si está tapado.
+      let normals = hotspots.map((spot) => surfaceNormal(spot.position as Vec3, dims));
+      const spotOpacity = hotspots.map(() => -1);
+      const spotHidden = hotspots.map(() => false);
+      // Todos los puntos a la vista (modo detalle y zona alineada).
+      let spotsOn = false;
       const leaderDraw = hotspots.map(() => ({ value: 0 }));
       // Rótulos de los detalles. live: los que se muestran (o están entrando);
       // tracked: los que todavía hay que posicionar (incluye los que salen).
@@ -337,6 +363,7 @@ export function HeroClient({ content }: { content: HeroContent }) {
         layout = { width, height, aspect: width / height, mobile: window.matchMedia(MOBILE_QUERY).matches, free: null };
         layout.free = measureFree();
         poses = computePoses(layout, dims, orientation, hotspots);
+        normals = hotspots.map((spot) => surfaceNormal(spot.position as Vec3, dims));
         section!.toggleAttribute('data-mobile', layout.mobile);
         const box = heroBox(poses, layout, dims);
         // Móvil: el texto de la portada empieza debajo de la retícula.
@@ -395,7 +422,35 @@ export function HeroClient({ content }: { content: HeroContent }) {
         path.style.strokeDashoffset = (length * (1 - leaderDraw[index].value)).toFixed(1);
       }
 
-      state.onFrame = (project, distance) => {
+      // Un punto de espaldas a la cámara se apaga y deja de recibir clics y
+      // foco. Solo se escribe al DOM cuando el valor cambia de verdad.
+      function applyFacing(index: number, facing: number) {
+        const amount = Math.min(1, Math.max(0, (facing - FACING.hidden) / (FACING.shown - FACING.hidden)));
+        const opacity = amount * amount * (3 - 2 * amount);
+        if (Math.abs(opacity - spotOpacity[index]) > 0.02 || (opacity !== spotOpacity[index] && (opacity === 0 || opacity === 1))) {
+          spotOpacity[index] = opacity;
+          spots[index].style.opacity = opacity.toFixed(2);
+        }
+        const hidden = opacity < 0.5;
+        if (hidden === spotHidden[index]) return;
+        spotHidden[index] = hidden;
+        const spot = spots[index];
+        spot.toggleAttribute('data-occluded', hidden);
+        spot.tabIndex = hidden ? -1 : 0;
+        if (hidden) spot.setAttribute('aria-hidden', 'true');
+        else spot.removeAttribute('aria-hidden');
+      }
+
+      // Muestra u oculta todos los puntos (compuerta data-spots del CSS).
+      function syncSpots() {
+        const on = mode === 'inspect' && aligned;
+        if (on === spotsOn) return;
+        spotsOn = on;
+        stage!.toggleAttribute('data-spots', on);
+        requestRender();
+      }
+
+      state.onFrame = (project, distance, facing) => {
         const center = project([0, dims.height / 2, 0]);
         let cx = center.x;
         let cy = center.y;
@@ -417,12 +472,19 @@ export function HeroClient({ content }: { content: HeroContent }) {
         }
         updateTurn();
         if (dragging || document.activeElement === grip || gsap.isTweening(state.spin)) updateAria();
-        for (const index of tracked) {
-          const point = project(hotspots[index].position as Vec3);
+        // Cada punto sigue al zapato (también el activo, con su guía).
+        if (!spotsOn && tracked.size === 0) return;
+        for (let index = 0; index < spots.length; index++) {
+          const isTracked = tracked.has(index);
+          if (!spotsOn && !isTracked) continue;
+          const position = hotspots[index].position as Vec3;
+          const point = project(position);
           const x = point.x;
           const y = point.y;
-          marks[index].style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
-          if (!layout.mobile) drawLeader(index, x, y);
+          if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
+          spots[index].style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+          if (isTracked && !layout.mobile) drawLeader(index, x, y);
+          applyFacing(index, facing(position, normals[index]));
         }
       };
 
@@ -518,6 +580,7 @@ export function HeroClient({ content }: { content: HeroContent }) {
       const poseFor = (index: number) => (aboveAlign && !layout.mobile && poses.transit ? 'transit' : `spot${index}`);
 
       function present({ entrance = false, instant = false } = {}) {
+        syncSpots();
         if (mode !== 'inspect' || current < 0) return;
         const name = poseFor(current);
         const showCallout = aligned;
@@ -544,6 +607,7 @@ export function HeroClient({ content }: { content: HeroContent }) {
         if (isAligned === aligned && isAbove === aboveAlign) return;
         aligned = isAligned;
         aboveAlign = isAbove;
+        syncSpots();
         if (mode !== 'inspect') {
           if (!aligned) calloutsOut();
           return;
@@ -646,6 +710,7 @@ export function HeroClient({ content }: { content: HeroContent }) {
         if (mode === 'hero') return;
         const instant = settling || reduced;
         mode = 'hero';
+        syncSpots();
         stage!.removeAttribute('data-poster-off');
         updateSlot(instant);
         // En la portada nunca hay rótulos: se cortan de inmediato (y la
@@ -662,6 +727,7 @@ export function HeroClient({ content }: { content: HeroContent }) {
       // El bloque de detalles quedó atrás: la deriva se pausa.
       function leaveDown() {
         mode = 'away';
+        syncSpots();
         drift?.pause();
       }
 
@@ -1070,6 +1136,7 @@ export function HeroClient({ content }: { content: HeroContent }) {
         aligned = alignTrigger.isActive;
         aboveAlign = alignTrigger.progress === 0 && !alignTrigger.isActive;
         if (mode === 'inspect') present({ instant: true });
+        syncSpots();
         updateSlot(true);
       }
 
@@ -1189,6 +1256,19 @@ export function HeroClient({ content }: { content: HeroContent }) {
     event.preventDefault();
     scrollToElement(target);
   };
+
+  // Pasar el puntero (o el foco) por un punto resalta su fila y viceversa:
+  // solo un atributo en el DOM, sin estado de React.
+  const linkHover = (index: number, on: boolean) => {
+    root.current?.querySelectorAll(`[data-detail="${index}"]`).forEach((element) => element.toggleAttribute('data-hover', on));
+  };
+  const hoverProps = (index: number) => ({
+    'data-detail': index,
+    onPointerEnter: () => linkHover(index, true),
+    onPointerLeave: () => linkHover(index, false),
+    onFocus: () => linkHover(index, true),
+    onBlur: () => linkHover(index, false),
+  });
 
   // Foco itinerante en la lista: flechas, Inicio y Fin mueven el foco entre filas.
   const onRailKey = (event: KeyboardEvent<HTMLOListElement>) => {
@@ -1314,14 +1394,6 @@ export function HeroClient({ content }: { content: HeroContent }) {
             <path key={spot.key} className={styles.leader} data-part="leader" />
           ))}
         </svg>
-        <div className={styles.marks} aria-hidden="true">
-          {hotspots.map((spot) => (
-            <div key={spot.key} className={styles.mark} data-part="mark">
-              <span className={styles.markRing} />
-              <span className={styles.markDot} />
-            </div>
-          ))}
-        </div>
         <div className={styles.labels} aria-hidden="true">
           {hotspots.map((spot, index) => (
             <div
@@ -1349,6 +1421,31 @@ export function HeroClient({ content }: { content: HeroContent }) {
           aria-valuenow={0}
           aria-valuetext={t('gripValue', { degrees: 0 })}
         />
+        {/* Puntos sobre el zapato: todos a la vista en los detalles; cada uno es
+            un botón que elige su detalle, igual que su fila de la lista. Van
+            después del área de arrastre para quedar por encima de ella. */}
+        <div className={styles.spots}>
+          {hotspots.map((spot, index) => (
+            <button
+              key={spot.key}
+              type="button"
+              className={styles.spot}
+              data-part="spot"
+              aria-label={t('details.spotLabel', { current: pad(index + 1), total: pad(total), title: spot.title })}
+              aria-pressed={index === activeIndex}
+              data-active={index === activeIndex || undefined}
+              data-done={visited.includes(index) || undefined}
+              onClick={() => api.current?.select(index)}
+              {...hoverProps(index)}
+            >
+              <span className={styles.spotIdle} aria-hidden="true" />
+              <span className={styles.mark} data-part="mark" aria-hidden="true">
+                <span className={styles.markRing} />
+                <span className={styles.markDot} />
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
       </div>
 
@@ -1401,6 +1498,7 @@ export function HeroClient({ content }: { content: HeroContent }) {
                       data-active={index === activeIndex || undefined}
                       data-done={visited.includes(index) || undefined}
                       onClick={() => api.current?.select(index)}
+                      {...hoverProps(index)}
                     >
                       <span className={`${styles.railIndex} ${styles.mono}`}>
                         <span className="visually-hidden">{t('details.jumpTo')} </span>
@@ -1410,11 +1508,9 @@ export function HeroClient({ content }: { content: HeroContent }) {
                         <span className={styles.railName}>{spot.title}</span>
                         <span className={styles.railText}>{spot.text}</span>
                       </span>
-                      <span className={styles.railCheck} aria-hidden="true">
-                        <svg viewBox="0 0 12 12">
-                          <path d="M2.6 6.3 5 8.6 9.6 3.7" />
-                        </svg>
-                      </span>
+                      {/* Marca de visto: un punto pequeño (el texto, para lectores de pantalla). */}
+                      <span className={styles.railSeen} aria-hidden="true" />
+                      {visited.includes(index) && <span className="visually-hidden"> {t('details.seen')}</span>}
                     </button>
                   </li>
                 ))}

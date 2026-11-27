@@ -66,7 +66,7 @@ function Sneaker({ model, lite, baseYaw, rig, onReady, entrance }: SceneProps) {
   const shadowMesh = useRef<Mesh<PlaneGeometry, MeshBasicMaterial>>(null);
   const theme = useThemeStore((state) => state.theme);
   const invalidate = useThree((state) => state.invalidate);
-  const scratch = useMemo(() => ({ vector: new Vector3(), out: { x: 0, y: 0 } }), []);
+  const scratch = useMemo(() => ({ vector: new Vector3(), normal: new Vector3(), view: new Vector3(), out: { x: 0, y: 0 } }), []);
 
   const get = useThree((state) => state.get);
   // Cuadros ya dibujados: el aviso de "listo" espera al segundo, cuando los
@@ -169,8 +169,18 @@ function Sneaker({ model, lite, baseYaw, rig, onReady, entrance }: SceneProps) {
         scratch.out.y = ((1 - vector.y) / 2) * height;
         return scratch.out;
       };
+      // Orientación de una superficie respecto de la cámara: la normal pasa a
+      // espacio del mundo (escala uniforme) y se compara con la dirección
+      // desde el punto hasta la cámara.
+      const facing = (point: Vec3, normal: Vec3) => {
+        const world = scratch.view.set(point[0], point[1], point[2]);
+        model3d.localToWorld(world);
+        const toCamera = world.subVectors(camera.position, world).normalize();
+        const direction = scratch.normal.set(normal[0], normal[1], normal[2]).transformDirection(model3d.matrixWorld);
+        return direction.dot(toCamera);
+      };
       const distance = camera.position.distanceTo(group.position);
-      onFrame(project, distance);
+      onFrame(project, distance, facing);
     }
   });
 

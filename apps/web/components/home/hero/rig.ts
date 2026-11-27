@@ -23,7 +23,9 @@ export interface HeroRig {
   reducedMotion: boolean;
   // La escena llama a esto después de mover cámara y zapato en cada cuadro:
   // project lleva un punto del modelo (metros) a píxeles del lienzo.
-  onFrame: ((project: (point: Vec3) => { x: number; y: number }, distance: number) => void) | null;
+  // facing dice cuánto mira hacia la cámara una superficie del modelo (punto
+  // y normal en espacio del modelo): 1 de frente, 0 de canto, -1 de espaldas.
+  onFrame: ((project: (point: Vec3) => { x: number; y: number }, distance: number, facing: (point: Vec3, normal: Vec3) => number) => void) | null;
   // Pide un cuadro (movimiento reducido: la escena solo dibuja a demanda).
   invalidate: (() => void) | null;
 }
