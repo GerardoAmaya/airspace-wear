@@ -6,7 +6,7 @@ import { type HangarGarment, HangarStudio, type HangarProduct } from '@/componen
 import { pageLocale } from '@/i18n/locale';
 import { getProduct, getProducts } from '@/lib/api';
 import { HANGAR_ENABLED } from '@/lib/avatar/avatar';
-import { isFitted } from '@/lib/avatar/catalog-fit';
+import { isHangarWearable } from '@/lib/avatar/catalog-fit';
 import { localeAlternates } from '@/lib/seo';
 
 // Hangar 360° (paso 3): el avatar de Mixamo con el par elegido, en 360°.
@@ -26,8 +26,8 @@ export default async function HangarPage({ params }: PageProps<'/[locale]/hangar
   const { items } = await getProducts({ locale });
   const withModel = items.filter((item) => isWearable(item.category) && item.model?.foot);
   // Ropa que se puede poner en el maniquí: con lugar en el avatar y ya
-  // ajustada (pnpm avatar:fit).
-  const wearable = items.filter((item) => item.avatarSlot && isFitted(item.slug));
+  // ajustada (pnpm avatar:fit) y en la lista del Hangar (hangar-features.ts).
+  const wearable = items.filter((item) => item.avatarSlot && isHangarWearable(item.slug));
   // Las tallas vienen en el detalle (lecturas en la caché de Next).
   const [details, garmentDetails] = await Promise.all([
     Promise.all(withModel.map((item) => getProduct(item.slug, locale))),

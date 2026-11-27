@@ -4,7 +4,9 @@ import type { AvatarSlot } from '@airspace/contracts';
 import { useSyncExternalStore } from 'react';
 import { create } from 'zustand';
 import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware';
+import { HANGAR_FEATURES } from '@/lib/avatar/hangar-features';
 import {
+  BARE_OUTFIT,
   type Bottoms,
   type ColorSlot,
   DEFAULT_OUTFIT,
@@ -46,7 +48,10 @@ const safeStorage: StateStorage = {
 export const HANGAR_TABS = ['shoes', 'wear', 'colors'] as const;
 export type HangarTab = (typeof HANGAR_TABS)[number];
 const DEFAULT_TAB: HangarTab = 'shoes';
-const sanitizeTab = (value: unknown): HangarTab => (HANGAR_TABS.includes(value as HangarTab) ? (value as HangarTab) : DEFAULT_TAB);
+// Pestañas que el Hangar ofrece hoy: "Colores" solo con su bandera
+// (lib/avatar/hangar-features.ts). Una pestaña oculta guardada vuelve a "Zapatos".
+const SHOWN_TABS: readonly HangarTab[] = HANGAR_TABS.filter((tab) => tab !== 'colors' || (HANGAR_FEATURES.colorsTab && HANGAR_FEATURES.baseOutfit));
+const sanitizeTab = (value: unknown): HangarTab => (SHOWN_TABS.includes(value as HangarTab) ? (value as HangarTab) : DEFAULT_TAB);
 
 // Filtros de la pestaña "Zapatos" (se recuerdan como la pestaña): texto
 // buscado, marca (su nombre, o "Jordan") y tipo de calzado.
@@ -85,6 +90,8 @@ interface OutfitState extends OutfitChoice {
   // "Combinar con el zapato": la gorra y las franjas de las medias toman el
   // acento del par (y se ponen).
   matchSneaker(): void;
+  // "Restablecer": el maniquí sin ropa (HANGAR_FEATURES.resetToBare) o el
+  // look de fábrica. El par no cambia (no vive en este store).
   reset(): void;
 }
 
@@ -126,7 +133,10 @@ export const useOutfitStore = create<OutfitState>()(
           stripes: true,
           colors: { ...state.colors, ...Object.fromEntries(MATCH_SLOTS.map((slot) => [slot, 'match'])) },
         })),
-      reset: () => set({ ...DEFAULT_OUTFIT, colors: {}, wear: { ...DEFAULT_OUTFIT.wear } }),
+      reset: () => {
+        const target = HANGAR_FEATURES.resetToBare ? BARE_OUTFIT : DEFAULT_OUTFIT;
+        set({ ...target, colors: {}, wear: { ...target.wear } });
+      },
     }),
     {
       name: 'airspace-hangar-outfit',

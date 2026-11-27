@@ -1,4 +1,5 @@
 import { type CatalogWear, sanitizeWear } from './catalog-fit';
+import { HANGAR_FEATURES } from './hangar-features';
 import rulesFile from './outfit-rules.json';
 
 // Vestuario del maniquí del Hangar 360°: qué prendas lleva y de qué color.
@@ -59,6 +60,11 @@ export const DEFAULT_OUTFIT: OutfitChoice = {
   wear: sanitizeWear({ head: 'gorra-ny-59fifty-marino', top: 'anorak-gris', bottom: 'pants-anorak-gris' }),
 };
 
+// "Restablecer" con HANGAR_FEATURES.resetToBare: el maniquí sin prendas del
+// catálogo y, si el vestuario base está a la vista, sin gorra, lentes ni
+// calcetines (la camiseta y la parte de abajo base no se pueden quitar).
+export const BARE_OUTFIT: OutfitChoice = { ...DEFAULT_OUTFIT, cap: false, glasses: false, socks: false, colors: {}, wear: {} };
+
 // Par que lleva el maniquí al abrir el Hangar (si está en la lista de
 // calzables; si no, el primero de la vitrina).
 export const DEFAULT_PAIR = 'air-jordan-1';
@@ -96,7 +102,8 @@ export function resolveLook(choice: OutfitChoice, theme: 'dark' | 'light', accen
       tank: choice.shirt === 'tank',
       shorts: choice.bottoms === 'shorts',
       pants: choice.bottoms === 'pants',
-      socks: choice.socks,
+      // Calcetines ocultos con HANGAR_FEATURES.socks en false (y sus franjas).
+      socks: choice.socks && HANGAR_FEATURES.socks,
     },
     accessories: { cap: choice.cap, glasses: choice.glasses },
     colors: {
@@ -132,7 +139,9 @@ export function sanitizeChoice(raw: unknown): OutfitChoice {
     socks: typeof data.socks === 'boolean' ? data.socks : DEFAULT_OUTFIT.socks,
     stripes: typeof data.stripes === 'boolean' ? data.stripes : DEFAULT_OUTFIT.stripes,
     colors,
-    wear: sanitizeWear(data.wear),
+    // Lo guardado con prendas que el Hangar ya no ofrece vuelve a la de
+    // fábrica de ese lugar.
+    wear: sanitizeWear(data.wear, DEFAULT_OUTFIT.wear),
   };
 }
 

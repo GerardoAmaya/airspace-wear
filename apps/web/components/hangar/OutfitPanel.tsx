@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { type CSSProperties, useId, useState } from 'react';
 import { ThemedPoster } from '@/components/catalog/ThemedPoster';
 import { fitUrl, WEAR_SLOTS } from '@/lib/avatar/catalog-fit';
+import { HANGAR_FEATURES } from '@/lib/avatar/hangar-features';
 import {
   BOTTOMS,
   COLOR_SLOTS,
@@ -26,6 +27,10 @@ import { prefetch } from './prefetch';
 // Contenido de las pestañas "Ropa" y "Colores" del Hangar 360°. Botones con
 // aria-pressed, como los chips de animación.
 
+// Muestras de "Colores" de los calcetines y sus franjas: solo con
+// HANGAR_FEATURES.socks (si no, no hay calcetines que pintar).
+const SOCK_SLOTS: readonly ColorSlot[] = ['socks', 'stripes'];
+
 // Colores que dejan de aplicarse cuando una prenda del catálogo ocupa su
 // lugar (las del catálogo conservan sus colores).
 const REPLACED_COLORS: Record<AvatarSlot, ColorSlot> = { top: 'shirt', bottom: 'bottoms', head: 'cap', eyes: 'glasses' };
@@ -33,7 +38,9 @@ const REPLACED_COLORS: Record<AvatarSlot, ColorSlot> = { top: 'shirt', bottom: '
 // "Ropa": prendas reales del catálogo ajustadas al maniquí (chips con póster
 // por lugar; "Base" vuelve a la pieza generada) y, debajo, el vestuario base
 // (camiseta con o sin mangas, short o pantalón y extras). Sin vestuario base
-// (base = false) solo se ofrece el catálogo.
+// (base = false, como hoy por HANGAR_FEATURES.baseOutfit) solo se ofrece el
+// catálogo: el primer chip de cada lugar es "Ninguna" (quita la prenda y se
+// ve el maniquí) y pulsar la prenda puesta también la quita.
 export function WearPanel({ garments, lite, base }: { garments: HangarGarment[]; lite: boolean; base: boolean }) {
   const t = useTranslations('Hangar.outfit');
   const choice = useOutfitChoice();
@@ -62,21 +69,22 @@ export function WearPanel({ garments, lite, base }: { garments: HangarGarment[];
               </span>
               <div className={styles.options} role="group" aria-labelledby={`${id}-wear-${slot}`}>
                 <button type="button" className={styles.option} aria-pressed={!choice.wear[slot]} onClick={() => setWear(slot, null)}>
-                  {t('catalog.base')}
+                  {base ? t('catalog.base') : t('catalog.none')}
                 </button>
                 {garments
                   .filter((item) => item.slot === slot)
                   .map((item) => {
                     const url = fitUrl(item.slug, lite);
+                    const worn = choice.wear[slot] === item.slug;
                     return (
                       <button
                         key={item.slug}
                         type="button"
                         className={styles.garment}
-                        aria-pressed={choice.wear[slot] === item.slug}
+                        aria-pressed={worn}
                         aria-label={t('catalog.wearItem', { name: item.name })}
                         title={item.name}
-                        onClick={() => setWear(slot, item.slug)}
+                        onClick={() => setWear(slot, worn && !base ? null : item.slug)}
                         onPointerEnter={() => url && prefetch(url)}
                         onFocus={() => url && prefetch(url)}
                       >
@@ -132,25 +140,35 @@ export function WearPanel({ garments, lite, base }: { garments: HangarGarment[];
               <button type="button" className={styles.option} aria-pressed={choice.glasses} onClick={() => setGlasses(!choice.glasses)}>
                 {t('glasses')}
               </button>
-              <button type="button" className={styles.option} aria-pressed={choice.socks} onClick={() => setSocks(!choice.socks)}>
-                {t('socks')}
-              </button>
-              <button
-                type="button"
-                className={styles.option}
-                aria-pressed={choice.socks && choice.stripes}
-                disabled={!choice.socks}
-                onClick={() => setStripes(!choice.stripes)}
-              >
-                {t('stripes')}
-              </button>
+              {HANGAR_FEATURES.socks && (
+                <>
+                  <button type="button" className={styles.option} aria-pressed={choice.socks} onClick={() => setSocks(!choice.socks)}>
+                    {t('socks')}
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.option}
+                    aria-pressed={choice.socks && choice.stripes}
+                    disabled={!choice.socks}
+                    onClick={() => setStripes(!choice.stripes)}
+                  >
+                    {t('stripes')}
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </section>
       )}
 
       <div className={styles.actions}>
-        <button type="button" className={styles.reset} onClick={reset}>
+        {/* Con HANGAR_FEATURES.resetToBare deja el maniquí sin ropa: el nombre accesible lo dice. */}
+        <button
+          type="button"
+          className={styles.reset}
+          aria-label={HANGAR_FEATURES.resetToBare ? t('resetBare') : undefined}
+          onClick={reset}
+        >
           {t('reset')}
         </button>
       </div>
@@ -170,7 +188,7 @@ export function ColorPanel() {
   const hintId = useId();
 
   const replaced = new Set(WEAR_SLOTS.filter((slot) => choice.wear[slot]).map((slot) => REPLACED_COLORS[slot]));
-  const colorSlots = COLOR_SLOTS.filter((slot) => !replaced.has(slot));
+  const colorSlots = COLOR_SLOTS.filter((slot) => !replaced.has(slot) && (HANGAR_FEATURES.socks || !SOCK_SLOTS.includes(slot)));
   const shownTarget = colorSlots.includes(target) ? target : (colorSlots[0] ?? target);
   const current: GarmentColor =
     choice.colors[shownTarget] ?? (shownTarget === 'shirt' ? themeShirt(theme) : DEFAULT_COLORS[shownTarget]);

@@ -5,8 +5,8 @@ import { type KeyboardEvent, type ReactNode, useId, useRef } from 'react';
 import { type HangarTab, useHangarTab, useOutfitStore } from './outfit-store';
 import styles from './HangarTabs.module.css';
 
-// Panel derecho del Hangar 360°: pestañas "Zapatos", "Ropa" y "Colores"
-// (patrón de pestañas de WAI-ARIA, activación automática). Las flechas,
+// Panel derecho del Hangar 360°: pestañas "Zapatos" y "Ropa" ("Colores"
+// oculta, ver lib/avatar/hangar-features.ts) (patrón de pestañas de WAI-ARIA, activación automática). Las flechas,
 // Inicio y Fin mueven la pestaña elegida; la última se recuerda en el store.
 // Los paneles ocultos quedan montados con `hidden` (sin animación de alto).
 export function HangarTabs({ panels }: { panels: Array<{ tab: HangarTab; content: ReactNode }> }) {

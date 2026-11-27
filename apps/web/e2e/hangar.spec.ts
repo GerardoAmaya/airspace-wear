@@ -1,10 +1,12 @@
 import type { Locator, Page } from '@playwright/test';
 import boardEs from '../messages/home/board.es.json' with { type: 'json' };
+import { HANGAR_CLIPS, HANGAR_FEATURES, HANGAR_WEAR_ALLOWLIST } from '../lib/avatar/hangar-features';
 import { es, expect, test, translate, waitForApp } from './fixtures';
 
 // Hangar 360°: el avatar con el par elegido. Un solo lienzo; la pestaña
-// "Zapatos" cambia el par, los chips cambian la animación, "Ropa" y
-// "Colores" visten al maniquí y "Lleva puesto" agrega el look al carrito.
+// "Zapatos" cambia el par, los chips cambian la animación, "Ropa" viste al
+// maniquí con la lista corta de prendas (lib/avatar/hangar-features.ts) y
+// "Lleva puesto" agrega el look al carrito.
 
 const cartLabel = (count: number) => translate('es', 'Cart.buttonLabel', { count });
 const h = es.Hangar;
@@ -65,11 +67,15 @@ test('hangar loads one canvas, switches the pair and the clip, and adds the look
   await expect(worn(page).getByRole('heading', { level: 3, name })).toBeVisible();
   await expect(stage).toHaveAccessibleName(translate('es', 'Hangar.stageLabel', { name }));
 
-  // Chips de animación: uno activo a la vez.
+  // Chips de animación: Pose, Girar y Caminar (sin Reposo), Pose al abrir y
+  // uno activo a la vez.
   const clips = page.getByRole('group', { name: h.clipsLabel });
+  await expect(clips.getByRole('button')).toHaveText(HANGAR_CLIPS.map((clip) => h.clips[clip]));
+  await expect(clips.getByRole('button', { name: h.clips.idle })).toHaveCount(0);
+  await expect(clips.getByRole('button', { name: h.clips.pose })).toHaveAttribute('aria-pressed', 'true');
   await clips.getByRole('button', { name: h.clips.walk }).click();
   await expect(clips.getByRole('button', { name: h.clips.walk })).toHaveAttribute('aria-pressed', 'true');
-  await expect(clips.getByRole('button', { name: h.clips.idle })).toHaveAttribute('aria-pressed', 'false');
+  await expect(clips.getByRole('button', { name: h.clips.pose })).toHaveAttribute('aria-pressed', 'false');
 
   // Giro con el teclado: la lectura para lectores de pantalla cambia.
   await stage.focus();
@@ -115,10 +121,13 @@ test('hangar loads one canvas, switches the pair and the clip, and adds the look
   expect(consoleErrors, consoleErrors.join('\n')).toEqual([]);
 });
 
-// Pestañas: flechas del teclado, y la última elegida se recuerda.
+// Pestañas: solo "Zapatos" y "Ropa" ("Colores" oculta), flechas del
+// teclado, y la última elegida se recuerda.
 test('the panel tabs move with the arrow keys and remember the last one', async ({ page }) => {
+  test.skip(HANGAR_FEATURES.colorsTab && HANGAR_FEATURES.baseOutfit, 'Con "Colores" a la vista hay tres pestañas.');
   await openHangar(page);
   const tablist = page.getByRole('tablist', { name: h.tabs.label });
+  await expect(tablist.getByRole('tab')).toHaveText([h.tabs.shoes, h.tabs.wear]);
   const shoes = tablist.getByRole('tab', { name: h.tabs.shoes, exact: true });
   await expect(shoes).toHaveAttribute('aria-selected', 'true');
   await shoes.focus();
@@ -126,18 +135,35 @@ test('the panel tabs move with the arrow keys and remember the last one', async 
   const wear = tablist.getByRole('tab', { name: h.tabs.wear, exact: true });
   await expect(wear).toBeFocused();
   await expect(wear).toHaveAttribute('aria-selected', 'true');
-  await page.keyboard.press('End');
-  const colors = tablist.getByRole('tab', { name: h.tabs.colors, exact: true });
-  await expect(colors).toHaveAttribute('aria-selected', 'true');
-  await expect(page.getByRole('tabpanel', { name: h.tabs.colors })).toBeVisible();
   await page.keyboard.press('ArrowRight');
   await expect(shoes).toHaveAttribute('aria-selected', 'true');
-  await page.keyboard.press('ArrowLeft');
-  await expect(colors).toHaveAttribute('aria-selected', 'true');
+  await page.keyboard.press('End');
+  await expect(wear).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('tabpanel', { name: h.tabs.wear })).toBeVisible();
 
   await page.reload();
   await waitForApp(page);
-  await expect(colors).toHaveAttribute('aria-selected', 'true');
+  await expect(wear).toHaveAttribute('aria-selected', 'true');
+});
+
+// Lo guardado por una versión anterior (pestaña "Colores", prendas que el
+// Hangar ya no ofrece) se limpia: vuelve "Zapatos" y la prenda de fábrica de
+// ese lugar.
+test('old saved state with hidden tabs or garments is sanitized', async ({ page }) => {
+  test.skip(HANGAR_FEATURES.colorsTab, 'La pestaña "Colores" está a la vista.');
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'airspace-hangar-outfit',
+      JSON.stringify({
+        state: { tab: 'colors', wear: { top: 'sudadera-nike-club-fleece', eyes: 'lentes-sol-negros', head: 'gorra-adidas-negra' } },
+        version: 1,
+      }),
+    );
+  });
+  const stage = await openHangar(page);
+  const tablist = page.getByRole('tablist', { name: h.tabs.label });
+  await expect(tablist.getByRole('tab', { name: h.tabs.shoes, exact: true })).toHaveAttribute('aria-selected', 'true');
+  await expect(stage).toHaveAttribute('data-wear', `gorra-adidas-negra,${DEFAULT_TOP}`, { timeout: 30_000 });
 });
 
 // Filtros de "Zapatos": búsqueda sin acentos ni mayúsculas, chip de marca,
@@ -231,7 +257,10 @@ test.describe('shoes tab filters', () => {
 // Vestuario base: prendas, accesorios y colores; lo elegido sobrevive a la
 // recarga. Necesita el vestuario local (pnpm avatar:build y la copia en
 // public/avatar-local/); sin él, el Hangar va sin ropa base.
+// Oculto hoy (HANGAR_FEATURES.baseOutfit y colorsTab en false): corre solo si
+// se vuelven a encender.
 test('the base outfit toggles garments, picks colors and remembers them', async ({ page, consoleErrors }) => {
+  test.skip(!HANGAR_FEATURES.baseOutfit || !HANGAR_FEATURES.colorsTab || !HANGAR_FEATURES.socks || HANGAR_FEATURES.resetToBare, 'Vestuario base oculto (hangar-features.ts).');
   const o = h.outfit;
   const stage = await openHangar(page);
   await expect(stage).not.toHaveAttribute('data-outfit', 'loading');
@@ -341,72 +370,108 @@ test('the home Hangar 360° section links to the hangar page', async ({ page }) 
   await expect(link).toHaveAttribute('href', '/es/hangar');
 });
 
-// Prendas del catálogo ajustadas al maniquí (pnpm avatar:fit): se ponen desde
-// "Ropa", reemplazan su pieza base, aparecen en "Lleva puesto" con enlace a
-// su ficha y talla, y "Base" las quita.
-test('a catalog top can be worn, links to its product and is removed with Base', async ({ page, consoleErrors }) => {
+// "Ropa": solo la lista corta (gorras, anorak y pants). Cada prenda se pone y
+// se quita (con "Ninguna" o pulsándola otra vez), aparece en "Lleva puesto"
+// con enlace a su ficha, y "Restablecer" deja el maniquí sin ropa con el par.
+test('the wear tab offers only the allowlist, garments come off and reset leaves the bare mannequin', async ({ page, consoleErrors }) => {
+  test.skip(HANGAR_FEATURES.baseOutfit || !HANGAR_FEATURES.resetToBare, 'Con vestuario base, "Ropa" cambia.');
   const c = h.outfit.catalog;
   const stage = await openHangar(page);
+  await expect(stage).not.toHaveAttribute('data-outfit');
   const panel = await openTab(page, h.tabs.wear);
-  const torso = panel.getByRole('group', { name: c.slots.top, exact: true });
-  // Por defecto lleva el anorak del catálogo, no la camiseta generada.
-  await expect(torso.getByRole('button', { name: c.base, exact: true })).toHaveAttribute('aria-pressed', 'false');
+  await expect(panel.getByRole('heading', { name: h.outfit.baseTitle, exact: true })).toHaveCount(0);
+  await expect(panel.getByRole('button', { name: h.outfit.socks })).toHaveCount(0);
+  await expect(panel.getByRole('button', { name: c.base, exact: true })).toHaveCount(0);
   await expect(stage).toHaveAttribute('data-wear', DEFAULT_WEAR, { timeout: 30_000 });
+
+  // Solo las prendas de la lista, en sus lugares (sin "Ojos": los lentes no están).
   const wearPrefix = translate('es', 'Hangar.outfit.catalog.wearItem', { name: '' });
-  // La primera prenda que no lleva puesta (el localizador se fija por nombre).
-  const free = torso.getByRole('button', { name: new RegExp(`^${wearPrefix}`), pressed: false }).first();
-  const name = ((await free.getAttribute('aria-label')) ?? '').replace(wearPrefix, '').trim();
-  const chip = torso.getByRole('button', { name: translate('es', 'Hangar.outfit.catalog.wearItem', { name }), exact: true });
+  const chips = panel.getByRole('button', { name: new RegExp(`^${wearPrefix}`) });
+  await expect(chips).toHaveCount(HANGAR_WEAR_ALLOWLIST?.length ?? 0);
+  await expect(panel.getByRole('group', { name: c.slots.eyes, exact: true })).toHaveCount(0);
+  const head = panel.getByRole('group', { name: c.slots.head, exact: true });
+  const torso = panel.getByRole('group', { name: c.slots.top, exact: true });
+  const legs = panel.getByRole('group', { name: c.slots.bottom, exact: true });
+  await expect(head.getByRole('button', { name: new RegExp(`^${wearPrefix}`) })).toHaveCount(3);
+  await expect(torso.getByRole('button', { name: new RegExp(`^${wearPrefix}`) })).toHaveCount(1);
+  await expect(legs.getByRole('button', { name: new RegExp(`^${wearPrefix}`) })).toHaveCount(1);
+
+  // Otra gorra: reemplaza a la NY 59FIFTY y aparece en "Lleva puesto".
+  const other = head.getByRole('button', { name: new RegExp(`^${wearPrefix}`), pressed: false }).first();
+  const name = ((await other.getAttribute('aria-label')) ?? '').replace(wearPrefix, '').trim();
+  const chip = head.getByRole('button', { name: translate('es', 'Hangar.outfit.catalog.wearItem', { name }), exact: true });
   await chip.hover();
   await chip.click();
   await expect(chip).toHaveAttribute('aria-pressed', 'true');
-  await expect(torso.getByRole('button', { name: c.base, exact: true })).toHaveAttribute('aria-pressed', 'false');
+  await expect(stage).toHaveAttribute('data-wear', new RegExp(`^(?!${DEFAULT_CAP})[a-z0-9-]+,${DEFAULT_TOP},${DEFAULT_BOTTOM}$`), { timeout: 30_000 });
+  const capSlug = ((await stage.getAttribute('data-wear')) ?? '').split(',')[0];
+  await expect(worn(page).getByRole('link', { name, exact: true })).toHaveAttribute('href', `/es/products/${capSlug}`);
 
-  // El GLB ajustado llega y la prenda queda a la vista (en lugar del anorak);
-  // la gorra y los pants siguen puestos.
-  await expect(stage).not.toHaveAttribute('data-wear', new RegExp(`,${DEFAULT_TOP},`), { timeout: 30_000 });
-  await expect(stage).toHaveAttribute('data-wear', new RegExp(`^${DEFAULT_CAP},[a-z0-9-]+,${DEFAULT_BOTTOM}$`));
-  const slug = ((await stage.getAttribute('data-wear')) ?? '').split(',')[1];
+  // Pulsar la gorra puesta la quita; "Ninguna" queda elegida.
+  await chip.click();
+  await expect(chip).toHaveAttribute('aria-pressed', 'false');
+  await expect(head.getByRole('button', { name: c.none, exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(stage).toHaveAttribute('data-wear', `${DEFAULT_TOP},${DEFAULT_BOTTOM}`);
+  await expect(worn(page).getByRole('link', { name, exact: true })).toHaveCount(0);
 
-  // "Lleva puesto": enlace a la ficha de la prenda y su talla (S a XL).
-  const link = worn(page).getByRole('link', { name, exact: true });
-  await expect(link).toHaveAttribute('href', `/es/products/${slug}`);
-  const size = worn(page).getByRole('combobox', { name: translate('es', 'Hangar.look.sizeLabel', { name }) });
-  await expect(size.locator('option:not([value=""])')).toHaveText(['S', 'M', 'L', 'XL']);
+  // "Ninguna" quita el anorak.
+  await torso.getByRole('button', { name: c.none, exact: true }).click();
+  await expect(stage).toHaveAttribute('data-wear', DEFAULT_BOTTOM);
 
-  // Base: vuelve la camiseta generada y la prenda sale de "Lleva puesto"
-  // (quedan la gorra y los pants del catálogo).
-  await torso.getByRole('button', { name: c.base, exact: true }).click();
-  await expect(stage).toHaveAttribute('data-wear', `${DEFAULT_CAP},${DEFAULT_BOTTOM}`);
-  await expect(link).toHaveCount(0);
+  // "Restablecer": el maniquí sin ropa, con el mismo par.
+  await panel.getByRole('button', { name: h.outfit.resetBare }).click();
+  await expect(stage).not.toHaveAttribute('data-wear');
+  for (const group of [head, torso, legs]) await expect(group.getByRole('button', { name: c.none, exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(worn(page).getByRole('heading', { level: 3 })).toHaveCount(1);
+  await expect(worn(page).locator(`a[href="/es/products/${DEFAULT_PAIR}"]`)).toHaveCount(1);
+
+  // Se recuerda tras recargar.
+  await page.reload();
+  await waitForApp(page);
+  await expect(stage).toHaveAttribute('data-ready', 'true', { timeout: 30_000 });
+  await expect(stage).not.toHaveAttribute('data-wear');
+  await expect(page.getByRole('tabpanel', { name: h.tabs.wear, exact: true })).toBeVisible();
 
   expect(consoleErrors, consoleErrors.join('\n')).toEqual([]);
 });
 
 test('the product page of a fitted garment opens the hangar with it preselected', async ({ page, consoleErrors }) => {
-  // La sudadera Nike (el anorak ya viene puesto por defecto).
-  await page.goto('/es/products/sudadera-nike-club-fleece');
+  // La gorra Adidas (la NY 59FIFTY ya viene puesta por defecto).
+  const slug = 'gorra-adidas-negra';
+  await page.goto(`/es/products/${slug}`);
   await waitForApp(page);
   const tryOn = page.getByRole('link', { name: es.Product.tryInHangar });
-  await expect(tryOn).toHaveAttribute('href', '/es/hangar?wear=sudadera-nike-club-fleece');
+  await expect(tryOn).toHaveAttribute('href', `/es/hangar?wear=${slug}`);
 
   await tryOn.click();
-  await expect(page).toHaveURL(/\/es\/hangar\?wear=sudadera-nike-club-fleece$/);
+  await expect(page).toHaveURL(new RegExp(`/es/hangar\\?wear=${slug}$`));
   const stage = page.getByRole('slider', { name: /Avatar/ });
   await expect(stage).toHaveAttribute('data-ready', 'true', { timeout: 30_000 });
-  // La sudadera reemplaza al anorak; la gorra y los pants siguen puestos.
-  await expect(stage).toHaveAttribute('data-wear', `${DEFAULT_CAP},sudadera-nike-club-fleece,${DEFAULT_BOTTOM}`, { timeout: 30_000 });
+  // La gorra Adidas reemplaza a la NY; el anorak y los pants siguen puestos.
+  await expect(stage).toHaveAttribute('data-wear', `${slug},${DEFAULT_TOP},${DEFAULT_BOTTOM}`, { timeout: 30_000 });
 
-  // Se abre la pestaña "Ropa" con la prenda elegida (y "Base" no).
+  // Se abre la pestaña "Ropa" con la prenda elegida.
   const panel = page.getByRole('tabpanel', { name: h.tabs.wear, exact: true });
   await expect(panel).toBeVisible();
-  const torso = panel.getByRole('group', { name: h.outfit.catalog.slots.top, exact: true });
-  await expect(torso.getByRole('button', { pressed: true })).toHaveCount(1);
-  await expect(torso.getByRole('button', { name: h.outfit.catalog.base, exact: true })).toHaveAttribute('aria-pressed', 'false');
-  await expect(worn(page).locator('a[href="/es/products/sudadera-nike-club-fleece"]')).toHaveCount(1);
-  await expect(worn(page).locator('a[href="/es/products/anorak-gris"]')).toHaveCount(0);
+  const head = panel.getByRole('group', { name: h.outfit.catalog.slots.head, exact: true });
+  await expect(head.getByRole('button', { pressed: true })).toHaveCount(1);
+  await expect(worn(page).locator(`a[href="/es/products/${slug}"]`)).toHaveCount(1);
+  await expect(worn(page).locator(`a[href="/es/products/${DEFAULT_CAP}"]`)).toHaveCount(0);
 
   expect(consoleErrors, consoleErrors.join('\n')).toEqual([]);
+});
+
+// Prendas ajustadas fuera de la lista del Hangar (la sudadera Nike): su ficha
+// no enlaza al Hangar y ?wear= no la pone.
+test('a fitted garment outside the hangar allowlist has no hangar link', async ({ page }) => {
+  test.skip(HANGAR_WEAR_ALLOWLIST === null || HANGAR_WEAR_ALLOWLIST.includes('sudadera-nike-club-fleece'), 'La sudadera está en la lista.');
+  await page.goto('/es/products/sudadera-nike-club-fleece');
+  await waitForApp(page);
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await expect(page.getByRole('link', { name: es.Product.tryInHangar })).toHaveCount(0);
+
+  const stage = await openHangar(page, '/es/hangar?wear=sudadera-nike-club-fleece');
+  await expect(stage).toHaveAttribute('data-wear', DEFAULT_WEAR, { timeout: 30_000 });
 });
 
 test('a product without avatar fit has no hangar link', async ({ page }) => {
@@ -433,6 +498,12 @@ test('"Girar" turns the avatar a full lap and the reading follows', async ({ pag
 
 test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
+
+  test('opens on the static pose', async ({ page }) => {
+    await openHangar(page);
+    const clips = page.getByRole('group', { name: h.clipsLabel });
+    await expect(clips.getByRole('button', { name: h.clips.pose })).toHaveAttribute('aria-pressed', 'true');
+  });
 
   test('"Girar" stays still', async ({ page }) => {
     const stage = await openHangar(page);

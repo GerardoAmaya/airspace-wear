@@ -6,9 +6,10 @@ import dynamic from 'next/dynamic';
 import { type KeyboardEvent, type ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createSpin, keySpin, turnOf, useSpinDrag } from '@/components/home/board/rig';
 import ui from '@/components/home/board/ui.module.css';
-import { type Clip, CLIPS, OUTFIT_LITE_URL, OUTFIT_URL } from '@/lib/avatar/avatar';
+import { type Clip, OUTFIT_LITE_URL, OUTFIT_URL } from '@/lib/avatar/avatar';
 import { CATALOG_FIT, fitUrl, WEAR_SLOTS } from '@/lib/avatar/catalog-fit';
 import { FITTING } from '@/lib/avatar/fitting';
+import { DEFAULT_CLIP, HANGAR_CLIPS, HANGAR_FEATURES } from '@/lib/avatar/hangar-features';
 import { DEFAULT_PAIR, resolveLook } from '@/lib/avatar/outfit';
 import { accentProps } from '@/lib/accent';
 import { useMotionStore } from '@/lib/motion/store';
@@ -81,7 +82,8 @@ const TICKS = Array.from({ length: 36 }, (_, index) => {
 // prendas del catálogo con talla, total del look y "Agregar look completo");
 // al centro, solo el escenario (avatar en la plataforma, marco HUD, giro por
 // arrastre o flechas) con los chips de animación y de encuadre debajo; a la
-// derecha, pestañas "Zapatos", "Ropa" y "Colores". En pantallas angostas:
+// derecha, pestañas "Zapatos" y "Ropa" ("Colores" y el vestuario base quedan
+// ocultos tras sus banderas en lib/avatar/hangar-features.ts). En pantallas angostas:
 // escenario, pestañas y "Lleva puesto". Nada se mueve con el scroll.
 export function HangarStudio({ products, garments }: { products: HangarProduct[]; garments: HangarGarment[] }) {
   const t = useTranslations('Hangar');
@@ -96,7 +98,7 @@ export function HangarStudio({ products, garments }: { products: HangarProduct[]
   useStageZoom(stage, zoom, spin);
 
   const [slug, setSlug] = useState(() => (products.find((item) => item.slug === DEFAULT_PAIR) ?? products[0])?.slug ?? '');
-  const [clip, setClip] = useState<Clip>('idle');
+  const [clip, setClip] = useState<Clip>(DEFAULT_CLIP);
   const [view, setView] = useState<AvatarView>('full');
   const [ready, setReady] = useState(false);
   const [status, setStatus] = useState<AvatarStatus>('loading');
@@ -108,9 +110,10 @@ export function HangarStudio({ products, garments }: { products: HangarProduct[]
   }, [view, clip, zoom]);
   const product = products.find((item) => item.slug === slug) ?? products[0];
 
-  // Vestuario: sin URL (producción antes de subirlo) o si el GLB no carga, el
-  // maniquí va sin ropa y el panel no se muestra.
-  const outfitUrl = lite ? OUTFIT_LITE_URL : OUTFIT_URL;
+  // Vestuario base: sin URL (producción antes de subirlo), si el GLB no carga
+  // o con HANGAR_FEATURES.baseOutfit apagado, el maniquí no lleva capa base
+  // (solo las prendas del catálogo) y su sección no se muestra.
+  const outfitUrl = HANGAR_FEATURES.baseOutfit ? (lite ? OUTFIT_LITE_URL : OUTFIT_URL) : '';
   const [outfitStatus, setOutfitStatus] = useState<OutfitStatus>('loading');
   const choice = useOutfitChoice();
   const theme = useThemeStore((state) => state.theme);
@@ -224,7 +227,7 @@ export function HangarStudio({ products, garments }: { products: HangarProduct[]
     { tab: 'shoes', content: <ShoePicker products={products} current={product.slug} onSelect={setSlug} /> },
   ];
   if (baseOutfit || garments.length) panels.push({ tab: 'wear', content: <WearPanel garments={garments} lite={lite} base={baseOutfit} /> });
-  if (baseOutfit) panels.push({ tab: 'colors', content: <ColorPanel /> });
+  if (baseOutfit && HANGAR_FEATURES.colorsTab) panels.push({ tab: 'colors', content: <ColorPanel /> });
 
   return (
     <div className={styles.page} {...accentProps(product.accent)}>
@@ -322,7 +325,7 @@ export function HangarStudio({ products, garments }: { products: HangarProduct[]
           </button>
           <div className={styles.controls}>
             <div className={styles.chips} role="group" aria-label={t('clipsLabel')}>
-              {CLIPS.map((name) => (
+              {HANGAR_CLIPS.map((name) => (
                 <button key={name} type="button" className={styles.chip} aria-pressed={clip === name} onClick={() => setClip(name)}>
                   {t(`clips.${name}`)}
                 </button>

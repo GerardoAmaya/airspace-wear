@@ -374,9 +374,11 @@
       "match": "Match the sneaker",
       "matchHint": "The cap and the sock stripes take the pair's color and follow it when you switch pairs.",
       "reset": "Reset",
+      "resetBare": "Reset, remove all clothes",
       "catalog": {
         "title": "From the catalog",
         "base": "Base",
+        "none": "None",
         "wearItem": "Put on {name}",
         "slots": {
           "top": "Torso",
@@ -393,7 +395,7 @@
     "button": "Open the AI stylist",
     "bubbles": [
       "Looking for sneakers for your outfit? Ask my AI.",
-      "A wedding, a concert or the gym? I'll tell you what to wear.",
+      "A concert, the office or the gym? I'll tell you what to wear.",
       "Tell me your style and I'll put the outfit together.",
       "Not sure what goes with your sneakers? I can help."
     ],

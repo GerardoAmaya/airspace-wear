@@ -25,16 +25,6 @@
       "Bash(code *.env*)",
       "Bash(printenv*)",
       "Bash(env)"
-    ],
-    "ask": [
-      "Bash(rm *)",
-      "Bash(rmdir *)",
-      "Bash(unlink *)",
-      "Bash(trash *)",
-      "Bash(find * -delete*)",
-      "Bash(git rm *)",
-      "Bash(git clean *)",
-      "Bash(git push*)"
     ]
   }
 }

@@ -374,9 +374,11 @@
       "match": "Combinar con el zapato",
       "matchHint": "La gorra y las franjas de los calcetines toman el color del par y lo siguen al cambiar de par.",
       "reset": "Restablecer",
+      "resetBare": "Restablecer, quitar toda la ropa",
       "catalog": {
         "title": "Del catálogo",
         "base": "Base",
+        "none": "Ninguna",
         "wearItem": "Ponerle {name}",
         "slots": {
           "top": "Torso",
@@ -393,7 +395,7 @@
     "button": "Abrir el estilista IA",
     "bubbles": [
       "¿Buscas tenis para tu outfit? Pregúntale a mi IA.",
-      "¿Una boda, un concierto o el gym? Te digo qué ponerte.",
+      "¿Un concierto, la oficina o el gym? Te digo qué ponerte.",
       "Cuéntame tu estilo y te armo el outfit.",
       "¿No sabes con qué combinar tus sneakers? Te ayudo."
     ],

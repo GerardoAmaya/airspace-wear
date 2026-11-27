@@ -1,5 +1,6 @@
 import type { AvatarSlot } from '@airspace/contracts';
 import fitFile from './catalog-fit.json';
+import { allowedInHangar } from './hangar-features';
 import type { OutfitCut, OutfitHole } from './outfit';
 
 // Prendas del catálogo ajustadas al maniquí del Hangar 360° (pnpm avatar:fit,
@@ -39,6 +40,10 @@ export const CATALOG_FIT = (fitFile as unknown as { items: Record<string, Catalo
 
 export const isFitted = (slug: string): boolean => Object.hasOwn(CATALOG_FIT, slug);
 
+// Ajustada y además ofrecida en el Hangar (HANGAR_WEAR_ALLOWLIST en
+// hangar-features.ts). Lo usan la página del Hangar y el enlace de la ficha.
+export const isHangarWearable = (slug: string): boolean => isFitted(slug) && allowedInHangar(slug);
+
 // GLB ajustado de una prenda según el modo liviano. Los archivos se guardan
 // un día en el navegador con el mismo nombre; la versión (bytes y triángulos
 // del archivo generado) cambia la URL en cada reajuste para no servir uno viejo.
@@ -55,13 +60,18 @@ export const WEAR_SLOTS: readonly AvatarSlot[] = ['head', 'eyes', 'top', 'bottom
 // Prendas del catálogo puestas, por lugar (slug).
 export type CatalogWear = Partial<Record<AvatarSlot, string>>;
 
-// Limpia lo guardado: solo prendas ajustadas y en su lugar.
-export function sanitizeWear(raw: unknown): CatalogWear {
+// Limpia lo guardado: solo prendas ajustadas, ofrecidas en el Hangar y en su
+// lugar. Una prenda ajustada que el Hangar ya no ofrece (fuera de la lista)
+// cede su lugar a la de `fallback` (el look de fábrica), así una visita que
+// la tenía puesta no queda con esa zona vacía de golpe.
+export function sanitizeWear(raw: unknown, fallback: CatalogWear = {}): CatalogWear {
   const data = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
   const wear: CatalogWear = {};
   for (const slot of WEAR_SLOTS) {
     const slug = data[slot];
-    if (typeof slug === 'string' && CATALOG_FIT[slug]?.slot === slot) wear[slot] = slug;
+    if (typeof slug !== 'string' || CATALOG_FIT[slug]?.slot !== slot) continue;
+    const kept = allowedInHangar(slug) ? slug : fallback[slot];
+    if (kept) wear[slot] = kept;
   }
   return wear;
 }

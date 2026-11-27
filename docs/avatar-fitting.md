@@ -159,3 +159,14 @@ El maniquí ya no mete los pies en el sneaker: la pierna termina en la parte baj
 - **Medias:** terminan en el corte con dos franjas del color de las franjas del puño (en el shader), además de las dos de arriba, solo si queda media a la vista (del corte a las franjas de arriba o al ruedo del pantalón) para que no se amontonen: con una caña alta (Jordan 4, Uptempo) quedan solo las de arriba (`BAND_ROOM`, 3,5 cm). Con pantalón (base o del catálogo), la media y sus franjas se ocultan desde 2 cm sobre el ruedo (`SOCK_TUCK`): lo que queda dentro de la tela nunca asoma a través de ella. Ya no hay relleno del tobillo (`AnkleFill.tsx` queda sin uso).
 - **Caminar:** el primer plano de los zapatos se abre al caminar (de punta a talón hay hasta 1,2 m de perfil) para que los dos queden en cuadro en todo el ciclo. El clip es en el lugar, así que bajo el maniquí corre una cinta de líneas HUD (`WalkBelt.tsx`) hacia atrás a la velocidad del pie apoyado (1,5 m/s en el tiempo del clip, por la velocidad del clip), colgada de la plataforma; aparece y se va con el peso del clip y no se dibuja con movimiento reducido.
 - **Pantalones:** si el ruedo queda por encima del corte no cambian; si llega más abajo (los pants del catálogo con una caña alta), se cortan a la altura del corte con su tapa.
+
+## 12. Hangar centrado en los zapatos (funciones ocultas)
+
+El Hangar muestra solo "Zapatos" y "Ropa", los chips Pose, Girar y Caminar (Pose al abrir) y una lista corta de prendas: las tres gorras, el anorak y sus pants. Lo demás no se borró: queda oculto tras las banderas de `apps/web/lib/avatar/hangar-features.ts`, cada una con su comentario de cómo volver a encenderla.
+
+- `HANGAR_FEATURES.baseOutfit`: el vestuario base de la sección 9 (outfit.glb). Apagado, no hay capa base: al quitar una prenda del catálogo se ve el cuerpo del maniquí (BodyMask libera su capa) y la tapa del corte usa el material de las articulaciones.
+- `HANGAR_FEATURES.socks`: los calcetines y sus franjas (sección 11). Solo cuenta con el vestuario base.
+- `HANGAR_FEATURES.colorsTab`: la pestaña "Colores".
+- `HANGAR_FEATURES.resetToBare`: "Restablecer" deja el maniquí sin ropa con el mismo par.
+- `HANGAR_CLIPS` y `DEFAULT_CLIP`: chips de animación y el clip inicial. El clip `idle` sigue en el GLB: "Girar" gira sobre él.
+- `HANGAR_WEAR_ALLOWLIST`: prendas ofrecidas. Las demás ajustadas siguen en el catálogo, pero su ficha no enlaza al Hangar y lo guardado con ellas vuelve a la prenda de fábrica de ese lugar.

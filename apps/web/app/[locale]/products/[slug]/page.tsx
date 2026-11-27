@@ -13,7 +13,7 @@ import { routing } from '@/i18n/routing';
 import { ThemedPoster } from '@/components/catalog/ThemedPoster';
 import { getProduct, getProducts } from '@/lib/api';
 import { HANGAR_ENABLED } from '@/lib/avatar/avatar';
-import { isFitted } from '@/lib/avatar/catalog-fit';
+import { isHangarWearable } from '@/lib/avatar/catalog-fit';
 import { formatPrice } from '@/lib/price';
 import { localeAlternates } from '@/lib/seo';
 import styles from './product.module.css';
@@ -140,7 +140,7 @@ async function ProductContent({ params }: { params: PageProps<'/[locale]/product
           <AddToCart slug={product.slug} sizes={product.sizes} />
           {product.model && <ArButton model={product.model} name={product.name} />}
           {/* Prenda ajustada al maniquí: abre el Hangar 360° con ella puesta. */}
-          {HANGAR_ENABLED && product.avatarSlot && isFitted(product.slug) && (
+          {HANGAR_ENABLED && product.avatarSlot && isHangarWearable(product.slug) && (
             <Link href={{ pathname: '/hangar', query: { wear: product.slug } }} className={styles.tryOn}>
               {t('tryInHangar')}
             </Link>
