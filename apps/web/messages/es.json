@@ -213,6 +213,13 @@
     "tryInHangar": "Pruébalo en el Hangar 360°"
   },
   "Credits": {
+    "pager": {
+      "nav": "Páginas de los créditos",
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "pageLink": "Página {page}",
+      "pageOf": "Página {page} de {total}"
+    },
     "metaTitle": "Créditos",
     "metaDescription": "Modelos 3D, fuentes y librerías de terceros que usa AIRSPACE Wear, con su autor y licencia.",
     "kicker": "Créditos",
@@ -237,7 +244,8 @@
       "meshes_merged": "mallas combinadas",
       "mesh_simplified": "malla simplificada",
       "textures_webp": "texturas convertidas a WebP",
-      "meshopt_compression": "compresión Meshopt"
+      "meshopt_compression": "compresión Meshopt",
+      "own_work": "obra propia: modelado sobre el avatar del Hangar y texturizado por este proyecto"
     },
     "changesSeparator": ", ",
     "modelsNote": "Los modelos de sneakers y balones vienen de Sketchfab y se optimizaron para la web con el proceso de este proyecto. Cada uno se publica en dos versiones: una completa y otra liviana para equipos modestos.",

@@ -163,3 +163,20 @@
 .sectionPage {
   padding-top: var(--header-height);
 }
+
+/* Paginador de los créditos: separado de la lista. */
+.pagedNav {
+  margin-top: var(--space-6);
+}
+
+.pagedNav button {
+  cursor: pointer;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+
+.pagedNav button:not([aria-current]):not(:disabled):hover {
+  border-color: var(--color-primary);
+}

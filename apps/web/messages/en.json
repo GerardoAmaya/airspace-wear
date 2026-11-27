@@ -213,6 +213,13 @@
     "tryInHangar": "Try it in the Hangar 360°"
   },
   "Credits": {
+    "pager": {
+      "nav": "Credits pages",
+      "previous": "Previous",
+      "next": "Next",
+      "pageLink": "Page {page}",
+      "pageOf": "Page {page} of {total}"
+    },
     "metaTitle": "Credits",
     "metaDescription": "Third-party 3D models, fonts and libraries used by AIRSPACE Wear, with their author and license.",
     "kicker": "Credits",
@@ -237,7 +244,8 @@
       "meshes_merged": "meshes merged",
       "mesh_simplified": "mesh simplified",
       "textures_webp": "textures converted to WebP",
-      "meshopt_compression": "Meshopt compression"
+      "meshopt_compression": "Meshopt compression",
+      "own_work": "own work: modeled on the Hangar avatar and textured by this project"
     },
     "changesSeparator": ", ",
     "modelsNote": "The sneaker and ball models come from Sketchfab and were optimized for the web with this project's pipeline. Each one is published in two versions: a full one and a lighter one for low-end devices.",

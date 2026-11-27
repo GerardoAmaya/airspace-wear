@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getCredits } from '@/lib/api';
 import { Reveal } from '@/components/motion/Reveal';
+import { PagedRows } from '@/components/content/PagedRows';
 import styles from '@/components/content/content.module.css';
 import { localeAlternates } from '@/lib/seo';
 import { pageLocale } from '@/i18n/locale';
@@ -38,11 +39,23 @@ export default async function CreditsPage({ params }: PageProps<'/[locale]/credi
             </h2>
             <span className={styles.panelCount}>{t('count', { count: items.length })}</span>
           </div>
-          <ul className={styles.rows}>
-            {items.map((item) => (
-              <CreditRow key={item.key} credit={item} t={t} />
-            ))}
-          </ul>
+          {kind === 'model' ? (
+            // Los modelos son muchos (más de 80): se paginan de 12 en 12.
+            <PagedRows
+              pageSize={12}
+              labels={{ nav: t('pager.nav'), previous: t('pager.previous'), next: t('pager.next'), pageLink: t.raw('pager.pageLink') as string, pageOf: t.raw('pager.pageOf') as string }}
+            >
+              {items.map((item) => (
+                <CreditRow key={item.key} credit={item} t={t} />
+              ))}
+            </PagedRows>
+          ) : (
+            <ul className={styles.rows}>
+              {items.map((item) => (
+                <CreditRow key={item.key} credit={item} t={t} />
+              ))}
+            </ul>
+          )}
           {kind === 'model' && (
             <>
               <p className={styles.note}>{t('modelsNote')}</p>
