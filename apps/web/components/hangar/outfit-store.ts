@@ -155,7 +155,7 @@ export const useOutfitStore = create<OutfitState>()(
         shoeFilter,
       }),
       // Sin nada guardado (visita nueva), zustand igual llama a merge: se
-      // quedan los valores de fábrica (con el anorak puesto).
+      // quedan los valores de fábrica (con el hoodie Nike Air negro puesto).
       merge: (persisted, current) => (persisted == null ? current : {
         ...current,
         ...sanitizeChoice(persisted),

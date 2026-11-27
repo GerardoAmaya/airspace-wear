@@ -125,6 +125,18 @@ export const LICENSES = {
   },
 };
 
+// Origen de las prendas propias del proyecto (pnpm garments): sin autor de
+// terceros ni licencia externa. ownWork hace que los créditos lo digan así.
+const OWN_HOODIE = {
+  provider: 'local',
+  ownWork: true,
+  title: 'AIRSPACE Wear hoodie (scripts/garments)',
+  url: '',
+  author: 'AIRSPACE Wear',
+  authorUrl: '',
+  license: { slug: 'own-work', name: 'Own work', url: '', commercialUse: true, shareAlike: false },
+};
+
 // Catálogo de modelos.
 //
 // Pose canónica de todos los modelos optimizados: suela apoyada en y = 0,
@@ -967,6 +979,29 @@ export const MODELS = [
     // Con 90k triángulos y el color en calidad 64 el hero pesaba 1,23 MB: baja
     // a 70k y las texturas de datos a calidad 85.
     variantOverrides: { hero: { targetTriangles: 70_000, dataTextureQuality: 85 } },
+    transform: { rotation: [0, 0, 0] },
+  },
+  {
+    slug: 'hoodie-nike-blanco',
+    displayName: 'Hoodie Nike blanco',
+    brand: 'Nike',
+    category: 'apparel',
+    // Obra propia: modelado sobre el cuerpo del maniquí y texturizado por
+    // pnpm garments (scripts/garments), que escribe el original en
+    // assets/models/raw. Mismo hoodie que hoodie-nike-air-negro, otro color.
+    source: OWN_HOODIE,
+    // Alto de la pose de exhibición (capucha a ruedo): sale de
+    // scripts/garments (layout.json, display.height), ya en escala real.
+    size: { axis: 'y', meters: 0.73 },
+    transform: { rotation: [0, 0, 0] },
+  },
+  {
+    slug: 'hoodie-nike-air-negro',
+    displayName: 'Hoodie Nike Air negro',
+    brand: 'Nike',
+    category: 'apparel',
+    source: OWN_HOODIE,
+    size: { axis: 'y', meters: 0.73 },
     transform: { rotation: [0, 0, 0] },
   },
   {

@@ -5562,6 +5562,192 @@
         "downloadedAt": "2026-11-26"
       }
     },
+    "hoodie-nike-blanco": {
+      "slug": "hoodie-nike-blanco",
+      "displayName": "Hoodie Nike blanco",
+      "brand": "Nike",
+      "source": {
+        "provider": "local",
+        "ownWork": true,
+        "title": "AIRSPACE Wear hoodie (scripts/garments)",
+        "url": "",
+        "author": "AIRSPACE Wear",
+        "authorUrl": "",
+        "license": {
+          "slug": "own-work",
+          "name": "Own work",
+          "url": "",
+          "commercialUse": true,
+          "shareAlike": false
+        }
+      },
+      "raw": {
+        "bytes": 8808916,
+        "triangles": 39156,
+        "drawCalls": 2,
+        "meshes": 1,
+        "materials": 2,
+        "textures": 3,
+        "maxTextureSize": 2048,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 1.15249,
+        "dimensionsCm": {
+          "width": 97.1,
+          "height": 73,
+          "depth": 42.7
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/hoodie-nike-blanco.glb",
+          "bytes": 867712,
+          "triangles": 39156,
+          "drawCalls": 2,
+          "meshes": 1,
+          "materials": 2,
+          "textures": 3,
+          "maxTextureSize": 2048,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 1,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/hoodie-nike-blanco-lite.glb",
+          "bytes": 215048,
+          "triangles": 19998,
+          "drawCalls": 2,
+          "meshes": 1,
+          "materials": 2,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 1,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "hoodie-nike-air-negro": {
+      "slug": "hoodie-nike-air-negro",
+      "displayName": "Hoodie Nike Air negro",
+      "brand": "Nike",
+      "source": {
+        "provider": "local",
+        "ownWork": true,
+        "title": "AIRSPACE Wear hoodie (scripts/garments)",
+        "url": "",
+        "author": "AIRSPACE Wear",
+        "authorUrl": "",
+        "license": {
+          "slug": "own-work",
+          "name": "Own work",
+          "url": "",
+          "commercialUse": true,
+          "shareAlike": false
+        }
+      },
+      "raw": {
+        "bytes": 7223416,
+        "triangles": 39156,
+        "drawCalls": 2,
+        "meshes": 1,
+        "materials": 2,
+        "textures": 3,
+        "maxTextureSize": 2048,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 1.15249,
+        "dimensionsCm": {
+          "width": 97.1,
+          "height": 73,
+          "depth": 42.7
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/hoodie-nike-air-negro.glb",
+          "bytes": 741704,
+          "triangles": 39156,
+          "drawCalls": 2,
+          "meshes": 1,
+          "materials": 2,
+          "textures": 3,
+          "maxTextureSize": 2048,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 1,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/hoodie-nike-air-negro-lite.glb",
+          "bytes": 209960,
+          "triangles": 19998,
+          "drawCalls": 2,
+          "meshes": 1,
+          "materials": 2,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 1,
+            "errorMessages": []
+          }
+        }
+      }
+    },
     "chaqueta-adidas-negra": {
       "slug": "chaqueta-adidas-negra",
       "displayName": "Chaqueta Adidas negra",

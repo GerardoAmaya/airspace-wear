@@ -15,6 +15,8 @@ node_modules/
 /assets/avatar/out/
 # Copia local del avatar para pnpm dev (NEXT_PUBLIC_AVATAR_URL la usa por defecto)
 /apps/web/public/avatar-local/
+# Prendas propias generadas (pnpm garments): geometría, texturas y GLB intermedios
+/assets/garments/out/
 # Caché de Python de los scripts de Blender
 __pycache__/
 

@@ -200,6 +200,7 @@ export const CREDIT_CHANGES = [
   'mesh_simplified',
   'textures_webp',
   'meshopt_compression',
+  'own_work',
 ] as const;
 
 export const creditSchema = z.object({

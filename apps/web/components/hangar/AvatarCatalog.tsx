@@ -4,13 +4,66 @@ import type { AvatarSlot } from '@airspace/contracts';
 import { useGLTF } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import { Component, type ReactNode, Suspense, useEffect, useMemo, useState } from 'react';
-import { type Bone, Group, type Material, type Matrix4, type Mesh, type MeshStandardMaterial, type Object3D, Skeleton, SkinnedMesh } from 'three';
+import { type Bone, BufferAttribute, Group, type Material, type Matrix4, type Mesh, type MeshStandardMaterial, type Object3D, Skeleton, SkinnedMesh } from 'three';
 import { CATALOG_FIT, WEAR_SLOTS } from '@/lib/avatar/catalog-fit';
-import type { BodyMask } from './body-mask';
+import { type BodyMask, restPositions } from './body-mask';
 import { addLegCut, type LegFrame, makeCuttable } from './leg-cut';
 
-// Intensidad del entorno en la tela del catálogo (la misma de la tela base).
-const GARMENT_ENV_INTENSITY = 0.65;
+// Intensidad del entorno en la tela del catálogo con esqueleto: baja, para
+// que una felpa clara no se queme con el reflejo del estudio ni la luz de borde.
+const GARMENT_ENV_INTENSITY = 0.45;
+
+// Cara interior de la tela (gl_FrontFacing falso con doble cara) más oscura:
+// por dentro la manga y el ruedo reciben menos luz que por fuera.
+const INSIDE_SHADE = 0.45;
+
+// Pantalón bajo una prenda de ruedo ajustado (hidesBottoms): no se dibuja por
+// encima del ruedo más este margen (m), así la cintura, más ancha que el
+// ruedo, nunca asoma a través de la tela. Solo se oculta la cintura que
+// sigue a la cadera; el pantalón visible llega unos centímetros por dentro
+// de la banda del ruedo. Un solo Hangar dibuja a la vez:
+// basta un uniform del módulo. 10: sin prenda, no oculta nada.
+const HEM_TUCK = 0.03;
+// Peso máximo de los muslos (UpLeg) para que un vértice del pantalón se
+// pueda ocultar: lo que sigue a la pierna nunca se corta (al dar el paso,
+// un corte a altura fija se vería como un borde recto sobre el muslo).
+const LEG_WEIGHT_LIMIT = 0.25;
+const TOP_HEM = { value: 10 };
+
+function hideAboveHem(material: Material) {
+  if (material.userData.hideAboveHem) return;
+  material.userData.hideAboveHem = true;
+  const previous = material.onBeforeCompile.bind(material);
+  const previousKey = material.customProgramCacheKey.bind(material);
+  material.onBeforeCompile = (shader, renderer) => {
+    previous(shader, renderer);
+    shader.uniforms.topHem = TOP_HEM;
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', '#include <common>\nattribute float restY;\nvarying float vRestY;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvRestY = restY;');
+    shader.fragmentShader = shader.fragmentShader
+      .replace('#include <common>', '#include <common>\nuniform float topHem;\nvarying float vRestY;')
+      .replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\nif (vRestY > topHem) discard;');
+  };
+  material.customProgramCacheKey = () => `${previousKey()}|hem`;
+  material.needsUpdate = true;
+}
+
+function shadeInside(material: Material) {
+  if (material.userData.shadeInside) return;
+  material.userData.shadeInside = true;
+  const previous = material.onBeforeCompile.bind(material);
+  const previousKey = material.customProgramCacheKey.bind(material);
+  material.onBeforeCompile = (shader, renderer) => {
+    previous(shader, renderer);
+    shader.fragmentShader = shader.fragmentShader.replace(
+      '#include <color_fragment>',
+      `#include <color_fragment>\nif (!gl_FrontFacing) diffuseColor.rgb *= ${INSIDE_SHADE.toFixed(2)};`,
+    );
+  };
+  material.customProgramCacheKey = () => `${previousKey()}|inside`;
+  material.needsUpdate = true;
+}
 
 // Prendas del catálogo puestas en el maniquí (pnpm avatar:fit). Cada GLB
 // ajustado trae el esqueleto del avatar (solo huesos) y la prenda: las
@@ -33,6 +86,8 @@ interface Prepared {
   parts: Array<{ object: Object3D; parent: Object3D }>;
   cover: Uint8Array[] | null;
   materials: Material[];
+  // Altura en reposo del ruedo (prendas de arriba con hidesBottoms).
+  hem: number | null;
 }
 
 // Esqueleto en reposo y ejes de las canillas (para el corte de las piernas).
@@ -50,6 +105,7 @@ function prepare(source: Object3D, slug: string, avatar: Object3D, mask: BodyMas
   });
   const parts: Prepared['parts'] = [];
   const materials = new Set<Material>();
+  let hem: number | null = null;
   if (item.kind === 'skinned') {
     const holder = new Group();
     holder.name = `Catalog_${slug}`;
@@ -68,12 +124,34 @@ function prepare(source: Object3D, slug: string, avatar: Object3D, mask: BodyMas
       // prendas que no llegan a la canilla no llevan el atributo.
       makeCuttable(copy, rest.bones, rest.frames, 'catalog');
       if (copy.userData.legCut) for (const material of [mesh.material].flat()) addLegCut(material);
+      // Alto en reposo de cada vértice: el ruedo de una prenda de arriba
+      // (su punto más bajo) y, en los pantalones, qué queda por encima de él.
+      const points = restPositions(copy, copy.geometry, rest.bones);
+      if (item.slot === 'top' && item.rules?.hidesBottoms) {
+        for (let index = 1; index < points.length; index += 3) hem = Math.min(hem ?? Infinity, points[index]);
+      }
+      if (item.slot === 'bottom') {
+        const heights = new Float32Array(points.length / 3);
+        const skinIndex = copy.geometry.getAttribute('skinIndex');
+        const skinWeight = copy.geometry.getAttribute('skinWeight');
+        const legBones = new Set(copy.skeleton.bones.flatMap((bone, index) => (/UpLeg|Leg$/.test(bone.name) ? [index] : [])));
+        for (let index = 0; index < heights.length; index++) {
+          let leg = 0;
+          for (let k = 0; k < 4; k++) if (legBones.has(skinIndex.getComponent(index, k))) leg += skinWeight.getComponent(index, k);
+          // Los vértices que siguen a la pierna nunca se ocultan.
+          heights[index] = leg > LEG_WEIGHT_LIMIT ? -10 : points[index * 3 + 1];
+        }
+        copy.geometry.setAttribute('restY', new BufferAttribute(heights, 1));
+        for (const material of [mesh.material].flat()) hideAboveHem(material);
+      }
       holder.add(copy);
       for (const material of [mesh.material].flat()) {
-        // Tela: el reflejo del entorno de estudio a la misma intensidad que el
-        // vestuario base (AvatarOutfit), así una prenda clara no se quema con
-        // la luz de borde. Solo la ropa con esqueleto (no zapatos, gorras ni maniquí).
+        // Tela: reflejo del entorno de estudio atenuado, así una prenda clara
+        // no se quema con la luz de borde. Solo la ropa con esqueleto (no
+        // zapatos, gorras ni maniquí). La cara interior (mangas, ruedo,
+        // capucha) se oscurece: el forro no se ve como un tubo gris claro.
         if ('envMapIntensity' in material) (material as MeshStandardMaterial).envMapIntensity = GARMENT_ENV_INTENSITY;
+        shadeInside(material);
         materials.add(material);
       }
     });
@@ -93,7 +171,7 @@ function prepare(source: Object3D, slug: string, avatar: Object3D, mask: BodyMas
     }
   }
   if (!parts.length) throw new Error(`${slug}: el GLB ajustado no coincide con el esqueleto del avatar`);
-  return { slug, slot: item.slot, parts, cover: item.rules ? mask.cover(item.rules) : null, materials: [...materials] };
+  return { slug, slot: item.slot, parts, cover: item.rules ? mask.cover(item.rules) : null, materials: [...materials], hem };
 }
 
 function GarmentLoader({
@@ -122,12 +200,14 @@ function MountedGarment({ entry, mask }: { entry: Prepared; mask: BodyMask }) {
   useEffect(() => {
     for (const part of entry.parts) part.parent.add(part.object);
     mask.setLayer(`catalog-${entry.slot}`, entry.cover);
+    if (entry.hem !== null) TOP_HEM.value = entry.hem + HEM_TUCK;
     // Compila los materiales nuevos antes de mostrarlos.
     const { gl, scene, camera } = get();
     gl.compile(scene, camera);
     return () => {
       for (const part of entry.parts) part.parent.remove(part.object);
       mask.setLayer(`catalog-${entry.slot}`, null);
+      if (entry.hem !== null) TOP_HEM.value = 10;
     };
   }, [entry, mask, get]);
   return null;

@@ -16,6 +16,9 @@ export interface GarmentRule {
   bones: string[];
   cuts: OutfitCut[];
   holes: OutfitHole[];
+  // Prenda de arriba con ruedo ajustado (hoodies propios): mientras está
+  // puesta, el pantalón no se dibuja por encima de su ruedo.
+  hidesBottoms?: boolean;
 }
 
 export interface CatalogFitFile {

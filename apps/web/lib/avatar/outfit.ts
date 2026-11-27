@@ -55,9 +55,10 @@ export const DEFAULT_OUTFIT: OutfitChoice = {
   stripes: true,
   colors: {},
   // Prendas del catálogo puestas por defecto (visitas nuevas y "Restablecer"):
-  // la gorra NY 59FIFTY de visera plana, el anorak y sus pants. Lo ya
-  // guardado no cambia.
-  wear: sanitizeWear({ head: 'gorra-ny-59fifty-marino', top: 'anorak-gris', bottom: 'pants-anorak-gris' }),
+  // la gorra NY 59FIFTY de visera plana, el hoodie Nike Air negro (prenda
+  // propia, pnpm garments) y los pants grises. Lo ya guardado no cambia: un
+  // anorak o un hoodie blanco guardados siguen puestos.
+  wear: sanitizeWear({ head: 'gorra-ny-59fifty-marino', top: 'hoodie-nike-air-negro', bottom: 'pants-anorak-gris' }),
 };
 
 // "Restablecer" con HANGAR_FEATURES.resetToBare: el maniquí sin prendas del

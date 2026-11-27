@@ -9,8 +9,9 @@
 //   lentes, maletas, mochilas y relojes, { system: 'ONE' } (talla única);
 // - avatarSlot solo si la prenda ya se ajustó al avatar del Hangar 360°
 //   (top, bottom, head o eyes); sin él, la prenda es solo de catálogo. Hoy
-//   lo llevan 4 pilotos de la fase 3, las 3 gorras AS-A35 a AS-A37 y el
-//   hoodie Adidas arena (AS-A38);
+//   lo llevan 4 pilotos de la fase 3, las 3 gorras AS-A35 a AS-A37, el
+//   hoodie Adidas arena (AS-A38) y los dos hoodies Nike propios (AS-A40 y
+//   AS-A41, modelados sobre el maniquí con pnpm garments);
 // - model: slug del manifest (pnpm models) si tiene 3D. Si el modelo todavía
 //   no está en el manifest, el seed la publica sin 3D y avisa.
 //
@@ -791,6 +792,73 @@ export const APPAREL_PRODUCTS: SeedProduct[] = [
         description: 'A black heathered hoodie with a white hood and white long sleeves that peek out from short sleeves with the three stripes. The Adidas logo sits on the chest, with ribbed cuffs and hem.',
         materials: { fabric: 'Fleece' },
         tags: ['hoodie', 'three stripes', 'sporty'],
+      },
+    },
+  },
+  {
+    // Prenda propia (pnpm garments): modelada sobre el cuerpo del maniquí,
+    // así que calza en el avatar sin retoques. Mismo hoodie que AS-A41 (la
+    // parte de arriba por defecto del Hangar), otro color y estampado.
+    slug: 'hoodie-nike-blanco',
+    reference: 'AS-A40',
+    category: 'apparel',
+    subcategory: 'sweatshirt',
+    avatarSlot: 'top',
+    brand: 'nike',
+    priceCents: 8000,
+    availability: 'new',
+    sizes: ALPHA,
+    attributes: {},
+    model: 'hoodie-nike-blanco',
+    text: {
+      es: {
+        name: 'Hoodie Nike Swoosh',
+        colorway: 'Blanco, negro y lima',
+        tagline: 'Blanco y holgado, con el swoosh lima al frente.',
+        description: 'Hoodie blanco de corte holgado con hombro caído. Al frente, un panel negro con borde y swoosh en lima; atrás, un swoosh negro grande con "SWOOSH BY NIKE". Capucha con cordones y ojales de metal, bolsillo canguro y puños y ruedo de canalé.',
+        materials: { fabric: 'Felpa de algodón' },
+        tags: ['capucha', 'holgado', 'urbano'],
+      },
+      en: {
+        name: 'Nike Swoosh Hoodie',
+        colorway: 'White, black and lime',
+        tagline: 'Roomy and white, with a lime swoosh up front.',
+        description: 'A relaxed white hoodie with dropped shoulders. The chest carries a black panel with a lime outline and swoosh, and the back a big black swoosh over "SWOOSH BY NIKE". Drawstring hood with metal eyelets, kangaroo pocket, ribbed cuffs and hem.',
+        materials: { fabric: 'Cotton fleece' },
+        tags: ['hoodie', 'relaxed fit', 'streetwear'],
+      },
+    },
+  },
+  {
+    // Mismo hoodie propio que AS-A40, en negro con bandas blancas en las
+    // mangas. Es la parte de arriba por defecto del Hangar.
+    slug: 'hoodie-nike-air-negro',
+    reference: 'AS-A41',
+    category: 'apparel',
+    subcategory: 'sweatshirt',
+    avatarSlot: 'top',
+    brand: 'nike',
+    priceCents: 8500,
+    availability: 'new',
+    sizes: ALPHA,
+    attributes: {},
+    model: 'hoodie-nike-air-negro',
+    text: {
+      es: {
+        name: 'Hoodie Nike Air',
+        colorway: 'Negro y blanco',
+        tagline: 'Negro, con el logo Nike Air y bandas blancas en los hombros.',
+        description: 'Hoodie negro de corte holgado con bandas blancas en diagonal sobre los hombros. Al frente, NIKE con el swoosh, "AIR" y una fila de franjas grises; en el puño izquierdo, una etiqueta tejida. Capucha con cordones, bolsillo canguro y puños y ruedo de canalé.',
+        materials: { fabric: 'Felpa de algodón' },
+        tags: ['capucha', 'retro', 'urbano'],
+      },
+      en: {
+        name: 'Nike Air Hoodie',
+        colorway: 'Black and white',
+        tagline: 'Black, with the Nike Air logo and white shoulder panels.',
+        description: 'A relaxed black hoodie with white diagonal panels across the shoulders. The chest reads NIKE over a swoosh, "AIR" and a row of grey stripes, with a woven label on the left cuff. Drawstring hood, kangaroo pocket, ribbed cuffs and hem.',
+        materials: { fabric: 'Cotton fleece' },
+        tags: ['hoodie', 'retro', 'streetwear'],
       },
     },
   },

@@ -23,6 +23,10 @@ ${END_MARKER}
 
 // Describe qué se cambió respecto del original (lo exigen las licencias CC BY).
 function describeChanges(model) {
+  // Prendas propias (pnpm garments): no hay original de terceros que modificar.
+  if (model.source.ownWork) {
+    return "Own work: modeled on the Hangar avatar's body and textured with this repository's scripts (`pnpm garments`), textures converted to WebP, Meshopt compression.";
+  }
   const changes = [];
   if (model.pose?.extractedFromPair && model.pose?.category !== 'apparel') changes.push('kept one shoe of the original pair');
   changes.push(...(model.edits ?? []));
@@ -61,14 +65,19 @@ const notes = models
     return `- ${model.displayName}: ${terms.join('; ')}.`;
   });
 
-const origin = models.every((model) => model.source.provider === 'sketchfab')
-  ? 'All models were downloaded from Sketchfab and optimized'
+const thirdParty = models.filter((model) => !model.source.ownWork);
+const origin = thirdParty.every((model) => model.source.provider === 'sketchfab')
+  ? 'All third-party models were downloaded from Sketchfab and optimized'
   : 'All models were optimized';
+const ownWork = models.filter((model) => model.source.ownWork).map((model) => model.displayName);
 
 const section = [
   markdownTable(['Product', 'Original model', 'Author', 'License', 'Changes'], rows),
   '',
   `${origin} for the web with this repository's pipeline (\`pnpm models\`). Each one is published in two versions: a full version and a lighter one for low-end devices.`,
+  ...(ownWork.length
+    ? ['', `${ownWork.join(' and ')} are this project's own work (geometry and textures). The brand logos on them only illustrate this portfolio project, which is not affiliated with the brand.`]
+    : []),
   ...(notes.length ? ['', '**License notes**', '', ...notes] : []),
 ].join('\n');
 

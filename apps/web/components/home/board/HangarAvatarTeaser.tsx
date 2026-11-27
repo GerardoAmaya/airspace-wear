@@ -91,7 +91,7 @@ const subscribeVisibility = (callback: () => void) => {
 };
 
 // Adelanto del Hangar 360° con el maniquí: camina en su lugar con el look de
-// fábrica (gorra, anorak, pants y el par) sobre la plataforma, que gira
+// fábrica (gorra, hoodie Nike Air negro, pants y el par) sobre la plataforma, que gira
 // despacio. Es un bucle por tiempo mientras se ve (nunca ligado al scroll) y
 // el canvas solo dibuja si el director de render lo elige y la pestaña está
 // visible. La plataforma se gira con arrastre (inercia; en táctil solo el

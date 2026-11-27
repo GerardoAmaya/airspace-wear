@@ -67,6 +67,140 @@
         }
       }
     },
+    "hoodie-nike-blanco": {
+      "slot": "top",
+      "kind": "skinned",
+      "node": "Fit_hoodie_nike_blanco",
+      "hides": [
+        "shirt",
+        "tank"
+      ],
+      "rules": {
+        "bones": [
+          "Hips",
+          "Spine",
+          "Spine1",
+          "Spine2",
+          "LeftShoulder",
+          "RightShoulder",
+          "LeftArm",
+          "RightArm",
+          "LeftForeArm",
+          "RightForeArm"
+        ],
+        "cuts": [
+          {
+            "from": "Hips",
+            "to": "Spine",
+            "keep": "above",
+            "t": -1.167
+          },
+          {
+            "from": "LeftForeArm",
+            "to": "LeftHand",
+            "keep": "below",
+            "t": 0.972
+          },
+          {
+            "from": "RightForeArm",
+            "to": "RightHand",
+            "keep": "below",
+            "t": 0.972
+          }
+        ],
+        "holes": [
+          {
+            "from": "Neck",
+            "to": "Head",
+            "radius": 0.066,
+            "forward": 0.01,
+            "minT": -0.6
+          }
+        ],
+        "hidesBottoms": true
+      },
+      "files": {
+        "hero": {
+          "url": "/avatar-fit/hoodie-nike-blanco.glb",
+          "bytes": 175420,
+          "triangles": 11998,
+          "sha256": "8fa221da5eb39be4"
+        },
+        "lite": {
+          "url": "/avatar-fit/hoodie-nike-blanco-lite.glb",
+          "bytes": 79176,
+          "triangles": 4998,
+          "sha256": "f1acceff94cbb2c0"
+        }
+      }
+    },
+    "hoodie-nike-air-negro": {
+      "slot": "top",
+      "kind": "skinned",
+      "node": "Fit_hoodie_nike_air_negro",
+      "hides": [
+        "shirt",
+        "tank"
+      ],
+      "rules": {
+        "bones": [
+          "Hips",
+          "Spine",
+          "Spine1",
+          "Spine2",
+          "LeftShoulder",
+          "RightShoulder",
+          "LeftArm",
+          "RightArm",
+          "LeftForeArm",
+          "RightForeArm"
+        ],
+        "cuts": [
+          {
+            "from": "Hips",
+            "to": "Spine",
+            "keep": "above",
+            "t": -1.167
+          },
+          {
+            "from": "LeftForeArm",
+            "to": "LeftHand",
+            "keep": "below",
+            "t": 0.972
+          },
+          {
+            "from": "RightForeArm",
+            "to": "RightHand",
+            "keep": "below",
+            "t": 0.972
+          }
+        ],
+        "holes": [
+          {
+            "from": "Neck",
+            "to": "Head",
+            "radius": 0.066,
+            "forward": 0.01,
+            "minT": -0.6
+          }
+        ],
+        "hidesBottoms": true
+      },
+      "files": {
+        "hero": {
+          "url": "/avatar-fit/hoodie-nike-air-negro.glb",
+          "bytes": 161508,
+          "triangles": 11998,
+          "sha256": "a2f7f3a5b8a02032"
+        },
+        "lite": {
+          "url": "/avatar-fit/hoodie-nike-air-negro-lite.glb",
+          "bytes": 77688,
+          "triangles": 4998,
+          "sha256": "f50ad5a6a26a1d26"
+        }
+      }
+    },
     "anorak-gris": {
       "slot": "top",
       "kind": "skinned",

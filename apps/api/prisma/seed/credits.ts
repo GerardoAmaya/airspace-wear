@@ -23,6 +23,8 @@ export interface ManifestModel {
     author: string;
     authorUrl?: string;
     license: { name: string; url?: string; commercialUse: boolean; shareAlike: boolean };
+    // Obra propia del proyecto (scripts/garments): autor AIRSPACE Wear.
+    ownWork?: boolean;
   };
   raw?: { drawCalls?: number };
   pose?: { foot?: 'left' | 'right'; lateralSideFacing?: string; extractedFromPair?: boolean };
@@ -30,6 +32,8 @@ export interface ManifestModel {
 }
 
 export function describeChanges(model: ManifestModel): CreditChange[] {
+  // Prendas propias (pnpm garments): sin original de terceros que modificar.
+  if (model.source.ownWork) return ['own_work', 'textures_webp', 'meshopt_compression'];
   const changes: CreditChange[] = [];
   if (model.pose?.extractedFromPair) changes.push('kept_one_shoe');
   changes.push('reoriented_rescaled');

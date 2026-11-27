@@ -80,8 +80,11 @@ describe('Contenidos y estado (integración)', () => {
       const known = new Set<string>(CREDIT_CHANGES);
       for (const credit of items) {
         expect(credit.changes.every((change) => known.has(change))).toBe(true);
-        // Los modelos 3D pasan por el proceso completo; el avatar no.
-        if (credit.key.startsWith('model:'))
+        // Los modelos 3D pasan por el proceso completo; el avatar no. Las
+        // prendas propias (pnpm garments) no tienen original que reorientar.
+        if (credit.key.startsWith('model:') && credit.changes.includes('own_work'))
+          expect(credit.changes).toEqual(['own_work', 'textures_webp', 'meshopt_compression']);
+        else if (credit.key.startsWith('model:'))
           expect(credit.changes).toEqual(
             expect.arrayContaining([
               'reoriented_rescaled',

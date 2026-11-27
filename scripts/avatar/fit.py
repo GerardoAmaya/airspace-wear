@@ -392,6 +392,59 @@ def layer_outside(body, bm, trees, gap, reach, neighbours, rounds=3):
             vert.co += offset * 1.3
 
 
+def cover_band(body, bm, trees, gap, bins=72):
+    # Banda del ruedo por fuera de los pantalones: por ángulo alrededor del
+    # eje vertical de la cadera, el radio de la prenda en la banda (del ruedo
+    # a 6 cm arriba, y 3 cm por debajo, donde el pantalón ya se ensancha)
+    # debe superar al del pantalón más `gap`. El factor se
+    # suaviza entre ángulos y se apaga hacia arriba (hasta 18 cm): la banda
+    # se abre de a poco, sin escalones.
+    hips = body.heads["Hips"]
+    axis = Vector((hips.x, hips.y, 0))
+    hem = min(vert.co.z for vert in bm.verts)
+    band, fade = body.m(0.06), body.m(0.18)
+    bm.normal_update()
+    own = BVHTree.FromBMesh(bm)
+    far = body.m(1.0)
+
+    def radius(tree, angle, z):
+        direction = Vector((math.cos(angle), math.sin(angle), 0))
+        origin = Vector((axis.x, axis.y, z)) + direction * far
+        hit = tree.ray_cast(origin, -direction, far)
+        return (Vector((hit[0].x, hit[0].y, 0)) - axis).length if hit[0] else None
+
+    factors = []
+    for b in range(bins):
+        angle = 2 * math.pi * b / bins
+        need = 1.0
+        for step in range(7):
+            z = hem - body.m(0.03) + (band + body.m(0.03)) * step / 6
+            mine = radius(own, angle, z)
+            if not mine:
+                continue
+            for tree in trees:
+                theirs = radius(tree, angle, z)
+                if theirs:
+                    need = max(need, (theirs + gap) / mine)
+        factors.append(need)
+    for _ in range(3):
+        factors = [max(factors[i], (factors[i - 1] + 2 * factors[i] + factors[(i + 1) % bins]) / 4) for i in range(bins)]
+    for vert in bm.verts:
+        height = vert.co.z - hem
+        if height > band + fade:
+            continue
+        ramp = 1.0 if height <= band else 1 - (height - band) / fade
+        ramp = ramp * ramp * (3 - 2 * ramp)
+        radial = Vector((vert.co.x - axis.x, vert.co.y - axis.y, 0))
+        angle = math.atan2(radial.y, radial.x) % (2 * math.pi)
+        position = angle / (2 * math.pi) * bins
+        low = int(position) % bins
+        mix = position - int(position)
+        factor = factors[low] * (1 - mix) + factors[(low + 1) % bins] * mix
+        vert.co += radial * ((factor - 1) * ramp)
+    log(f"banda del ruedo: se abre hasta {max(factors):.3f}x para cubrir los pantalones")
+
+
 def layer_under(body, bm, trees, gap, reach, neighbours, region=None, rounds=3):
     # La prenda queda por dentro de otra (la cintura del pantalón bajo la
     # camiseta base): al menos `gap` más cerca del cuerpo que la capa de
@@ -540,7 +593,17 @@ def build_skinned(body, item, layers):
         if layers["under_bottoms"]:
             layer_outside(body, bm, layers["under_bottoms"], gap, reach, neighbours)
     elif item["slot"] == "top" and layers["under_tops"]:
-        layer_outside(body, bm, layers["under_tops"], gap, reach, neighbours)
+        if spec.get("hidesBottoms"):
+            # Prendas propias de ruedo ajustado (pnpm garments): no se
+            # deforman para pasar por fuera de los pantalones, que son más
+            # anchos en la cadera (el ruedo se abría como una campana). En la
+            # web, el pantalón no se dibuja por encima del ruedo mientras la
+            # prenda está puesta (AvatarCatalog, hidesBottoms en catalog-fit.json).
+            # Solo la banda del ruedo se abre lo justo para cubrir la cintura
+            # del pantalón (así el corte del pantalón nunca queda a la vista).
+            cover_band(body, bm, layers["under_tops"], body.m(spec.get("bandGap", 0.006)))
+        else:
+            layer_outside(body, bm, layers["under_tops"], gap, reach, neighbours)
     # La holgura con el cuerpo manda sobre las capas.
     push_clear(body.collision_tree(), bm, body.m(spec.get("clearance", 0.008)) * 0.6)
     bm.normal_update()
@@ -553,6 +616,8 @@ def build_skinned(body, item, layers):
         blend_shoulders(body, obj, spec["shoulderBlend"])
     finish_skinned(body, obj, name)
     rules = measure_rules(body, obj, item["rules"])
+    if spec.get("hidesBottoms"):
+        rules["hidesBottoms"] = True
     log(f"{item['slug']}: {len(obj.data.polygons)} caras, {moved} vértices separados del cuerpo")
     return obj, rules
 

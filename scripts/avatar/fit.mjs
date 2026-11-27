@@ -115,8 +115,13 @@ for (const slug of [...selected, ...layerOnly]) {
   const item = fitConfig.items[slug];
   const slot = fitConfig.slots[item.slot];
   if (!slot) fail(`${slug}: lugar desconocido ${item.slot}.`);
-  const source = path.join(MODELS_DIR, `${slug}.glb`);
-  if (!(await exists(source))) fail(`${slug}: falta ${path.relative(ROOT_DIR, source)}. Ejecuta pnpm models:optimize.`);
+  // Las prendas propias (pnpm garments) se ajustan desde su malla en reposo
+  // (T-pose del maniquí, sin pose que deshacer); las demás, desde el modelo
+  // optimizado del catálogo.
+  const source = item.source ? path.join(ROOT_DIR, item.source) : path.join(MODELS_DIR, `${slug}.glb`);
+  if (!(await exists(source))) {
+    fail(`${slug}: falta ${path.relative(ROOT_DIR, source)}. Ejecuta ${item.source ? 'pnpm garments' : 'pnpm models:optimize'}.`);
+  }
   items.push({
     slug,
     slot: item.slot,

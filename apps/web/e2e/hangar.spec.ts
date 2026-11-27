@@ -30,11 +30,11 @@ async function openTab(page: Page, name: string): Promise<Locator> {
 const worn = (page: Page) => page.getByRole('region', { name: h.wearing, exact: true });
 
 // Look por defecto (DEFAULT_PAIR y DEFAULT_OUTFIT.wear): Air Jordan 1, gorra
-// NY 59FIFTY, anorak y sus pants. data-wear lista las prendas en el orden de
+// NY 59FIFTY, hoodie Nike Air negro y los pants grises. data-wear lista las prendas en el orden de
 // los lugares (cabeza, ojos, torso, piernas).
 const DEFAULT_PAIR = 'air-jordan-1';
 const DEFAULT_CAP = 'gorra-ny-59fifty-marino';
-const DEFAULT_TOP = 'anorak-gris';
+const DEFAULT_TOP = 'hoodie-nike-air-negro';
 const DEFAULT_BOTTOM = 'pants-anorak-gris';
 const DEFAULT_WEAR = `${DEFAULT_CAP},${DEFAULT_TOP},${DEFAULT_BOTTOM}`;
 
@@ -95,14 +95,14 @@ test('hangar loads one canvas, switches the pair and the clip, and adds the look
   await expect(size).toBeFocused();
   await expect(cartButton).toHaveAccessibleName(cartLabel(0));
 
-  // Con talla del par, del anorak y de los pants (puestos por defecto), agrega
-  // el look entero: el par, el anorak, los pants y la gorra NY 59FIFTY (talla
+  // Con talla del par, del hoodie y de los pants (puestos por defecto), agrega
+  // el look entero: el par, el hoodie, los pants y la gorra NY 59FIFTY (talla
   // única, también puesta por defecto).
   const option = await size.locator('option:not([disabled])').first().getAttribute('value');
   await size.selectOption(option ?? '');
   await expect(addLook).toHaveAttribute('aria-disabled', 'true');
-  const anorak = worn(page).getByRole('combobox', { name: /anorak/i });
-  await anorak.selectOption('M');
+  const hoodie = worn(page).getByRole('combobox', { name: /nike air/i });
+  await hoodie.selectOption('M');
   await expect(addLook).toHaveAttribute('aria-disabled', 'true');
   const pants = worn(page).getByRole('combobox', { name: /pants/i });
   await pants.selectOption('M');
@@ -370,7 +370,7 @@ test('the home Hangar 360° section links to the hangar page', async ({ page }) 
   await expect(link).toHaveAttribute('href', '/es/hangar');
 });
 
-// "Ropa": solo la lista corta (gorras, anorak y pants). Cada prenda se pone y
+// "Ropa": solo la lista corta (gorras, hoodies Nike, anorak y pants). Cada prenda se pone y
 // se quita (con "Ninguna" o pulsándola otra vez), aparece en "Lleva puesto"
 // con enlace a su ficha, y "Restablecer" deja el maniquí sin ropa con el par.
 test('the wear tab offers only the allowlist, garments come off and reset leaves the bare mannequin', async ({ page, consoleErrors }) => {
@@ -393,7 +393,7 @@ test('the wear tab offers only the allowlist, garments come off and reset leaves
   const torso = panel.getByRole('group', { name: c.slots.top, exact: true });
   const legs = panel.getByRole('group', { name: c.slots.bottom, exact: true });
   await expect(head.getByRole('button', { name: new RegExp(`^${wearPrefix}`) })).toHaveCount(3);
-  await expect(torso.getByRole('button', { name: new RegExp(`^${wearPrefix}`) })).toHaveCount(1);
+  await expect(torso.getByRole('button', { name: new RegExp(`^${wearPrefix}`) })).toHaveCount(3);
   await expect(legs.getByRole('button', { name: new RegExp(`^${wearPrefix}`) })).toHaveCount(1);
 
   // Otra gorra: reemplaza a la NY 59FIFTY y aparece en "Lleva puesto".
@@ -414,7 +414,7 @@ test('the wear tab offers only the allowlist, garments come off and reset leaves
   await expect(stage).toHaveAttribute('data-wear', `${DEFAULT_TOP},${DEFAULT_BOTTOM}`);
   await expect(worn(page).getByRole('link', { name, exact: true })).toHaveCount(0);
 
-  // "Ninguna" quita el anorak.
+  // "Ninguna" quita el hoodie.
   await torso.getByRole('button', { name: c.none, exact: true }).click();
   await expect(stage).toHaveAttribute('data-wear', DEFAULT_BOTTOM);
 
@@ -447,7 +447,7 @@ test('the product page of a fitted garment opens the hangar with it preselected'
   await expect(page).toHaveURL(new RegExp(`/es/hangar\\?wear=${slug}$`));
   const stage = page.getByRole('slider', { name: /Avatar/ });
   await expect(stage).toHaveAttribute('data-ready', 'true', { timeout: 30_000 });
-  // La gorra Adidas reemplaza a la NY; el anorak y los pants siguen puestos.
+  // La gorra Adidas reemplaza a la NY; el hoodie y los pants siguen puestos.
   await expect(stage).toHaveAttribute('data-wear', `${slug},${DEFAULT_TOP},${DEFAULT_BOTTOM}`, { timeout: 30_000 });
 
   // Se abre la pestaña "Ropa" con la prenda elegida.

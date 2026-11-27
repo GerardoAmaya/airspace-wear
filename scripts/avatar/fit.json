@@ -26,6 +26,50 @@
         ]
       }
     },
+    "hoodie-nike-blanco": {
+      "slot": "top",
+      "kind": "skinned",
+      "source": "assets/garments/out/hoodie-nike-blanco-rest.glb",
+      "fit": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "scale": 1.0,
+        "clearance": 0.009,
+        "maxGap": 0.2,
+        "weightSmooth": 24,
+        "shoulderBlend": [
+          -0.2,
+          0.75
+        ],
+        "hidesBottoms": true,
+        "bandGap": 0.02
+      }
+    },
+    "hoodie-nike-air-negro": {
+      "slot": "top",
+      "kind": "skinned",
+      "source": "assets/garments/out/hoodie-nike-air-negro-rest.glb",
+      "fit": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "scale": 1.0,
+        "clearance": 0.009,
+        "maxGap": 0.2,
+        "weightSmooth": 24,
+        "shoulderBlend": [
+          -0.2,
+          0.75
+        ],
+        "hidesBottoms": true,
+        "bandGap": 0.02
+      }
+    },
     "anorak-gris": {
       "slot": "top",
       "kind": "skinned",
