@@ -178,7 +178,11 @@
       "dragHint": "Drag to rotate",
       "loading": "Loading 3D model",
       "detailsTitle": "3D details",
-      "overview": "Overview"
+      "overview": "Overview",
+      "platform": "Turntable",
+      "rotation": "ROT {degrees}°",
+      "turntableValue": "{degrees} degrees",
+      "touchHint": "Swipe to rotate"
     },
     "ar": {
       "button": "View in your space",

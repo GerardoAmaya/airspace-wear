@@ -6,6 +6,7 @@ import { AddToCart } from '@/components/cart/AddToCart';
 import { ArButton } from '@/components/product/ArButton';
 import { MediaSkeleton } from '@/components/product/MediaSkeleton';
 import { ProductTour } from '@/components/product/ProductTour';
+import { ProductTurntable } from '@/components/product/ProductTurntable';
 import { ProductViewer } from '@/components/product/ProductViewer';
 import { pageLocale } from '@/i18n/locale';
 import { Link } from '@/i18n/navigation';
@@ -15,6 +16,7 @@ import { getProduct, getProducts } from '@/lib/api';
 import { HANGAR_ENABLED } from '@/lib/avatar/avatar';
 import { isHangarWearable } from '@/lib/avatar/catalog-fit';
 import { formatPrice } from '@/lib/price';
+import { productViewerFor } from '@/lib/product-viewer';
 import { localeAlternates } from '@/lib/seo';
 import styles from './product.module.css';
 
@@ -105,7 +107,11 @@ async function ProductContent({ params }: { params: PageProps<'/[locale]/product
 
       <div className={styles.layout}>
         <div className={styles.media}>
-          {product.model ? (
+          {/* Visor 3D según lib/product-viewer.ts: plataforma giratoria
+              (sneakers, tacos y balones) o el visor de órbita (ropa). */}
+          {product.model && productViewerFor(product.category) === 'turntable' ? (
+            <ProductTurntable model={product.model} hotspots={product.hotspots} name={product.name} slug={product.slug} accent={product.accent} />
+          ) : product.model ? (
             <ProductViewer model={product.model} category={product.category} hotspots={product.hotspots} name={product.name} slug={product.slug} accent={product.accent} />
           ) : (
             <div className={styles.mediaFrame}>

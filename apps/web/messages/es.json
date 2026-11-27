@@ -178,7 +178,11 @@
       "dragHint": "Arrastra para girar",
       "loading": "Cargando modelo 3D",
       "detailsTitle": "Detalles en 3D",
-      "overview": "Vista general"
+      "overview": "Vista general",
+      "platform": "Plataforma giratoria",
+      "rotation": "ROT {degrees}°",
+      "turntableValue": "{degrees} grados",
+      "touchHint": "Desliza para girar"
     },
     "ar": {
       "button": "Ver en tu espacio",

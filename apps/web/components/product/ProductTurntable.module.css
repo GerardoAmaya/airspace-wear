@@ -1,0 +1,293 @@
+/*
+ * Visor de la ficha con la plataforma giratoria del Hangar 360°. Mismo marco
+ * que el visor de órbita (ProductViewer.module.css: 4:3, borde y retícula) y
+ * los anillos de components/three/turntable. Nada ligado al scroll.
+ */
+
+.viewer {
+  /* Acento del producto (lib/accent.ts pone data-accent). Tinta para líneas
+     y textos sobre el fondo; sin acento, el lima de la marca. El halo sin
+     acento queda neutro (separa zapatos negros del fondo oscuro y blancos
+     del claro). */
+  --turntable-ink: var(--accent-ink, var(--color-primary));
+  --turntable-fill: var(--accent-ink, var(--color-primary-fill));
+  --turntable-glow: color-mix(in srgb, var(--color-text) 13%, transparent);
+  --turntable-glow-soft: color-mix(in srgb, var(--color-text) 5%, transparent);
+  position: relative;
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background-image:
+    linear-gradient(var(--color-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: center;
+  overflow: hidden;
+}
+
+.viewer[data-accent] {
+  --turntable-glow: color-mix(in srgb, var(--accent-ink) 20%, transparent);
+  --turntable-glow-soft: color-mix(in srgb, var(--accent-ink) 6%, transparent);
+}
+
+/* Base del canvas: se arrastra en horizontal o se gira con flechas. Un
+   deslizamiento vertical sigue desplazando la página (pan-y). */
+.stage {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.stage[data-dragging] {
+  cursor: grabbing;
+}
+
+.stage:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -4px;
+  border-radius: var(--radius-md);
+}
+
+.halo {
+  position: absolute;
+  top: 41%;
+  left: 50%;
+  width: min(78%, 620px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(closest-side, var(--turntable-glow), var(--turntable-glow-soft) 55%, transparent);
+  transform: translate(-50%, -50%);
+}
+
+.rings {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 50% 50%;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* Oculto hasta que el modelo está listo (dos cuadros ya dibujados): la
+     plataforma queda vacía mientras carga y el lienzo entra con un fundido,
+     con el producto ya girando. */
+  opacity: 0;
+}
+
+.stage[data-ready] .canvas {
+  opacity: 1;
+  transition: opacity var(--duration-reveal) var(--ease-out);
+}
+
+/* Con el póster de respaldo a la vista: primero se apaga el póster y después
+   aparece el lienzo; nunca se ven los dos a la vez. */
+.stage[data-ready][data-poster] .canvas {
+  transition: opacity var(--duration-ui) var(--ease-out) var(--duration-ui);
+}
+
+/* Póster de respaldo sobre el centro de la plataforma: solo aparece si el
+   modelo tarda (data-poster) y se apaga al llegar. */
+.poster {
+  position: absolute;
+  top: 41%;
+  left: 50%;
+  width: 54%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity var(--duration-reveal) var(--ease-out);
+}
+
+.stage[data-poster] .poster {
+  opacity: 1;
+}
+
+/* Sin display propio: ThemedPoster oculta la imagen del otro tema. */
+.poster img {
+  width: 100%;
+  height: auto;
+  vertical-align: top;
+}
+
+.stage[data-ready] .poster {
+  opacity: 0;
+  transition-duration: var(--duration-ui);
+}
+
+/* ---------- Detalles 3D ---------- */
+
+.markers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Cada marcador se ubica con transform y su opacidad la escribe la escena
+   (visible solo de cara a la cámara). Empieza oculto en CSS. */
+.marker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+}
+
+.dot {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border: 2px solid var(--turntable-ink);
+  border-radius: 50%;
+  background: var(--color-background);
+}
+
+.marker[data-active] .dot {
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  background: transparent;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--turntable-ink) 22%, transparent);
+}
+
+/* Solo el detalle elegido muestra su etiqueta. */
+.label {
+  position: absolute;
+  top: -12px;
+  left: 18px;
+  display: grid;
+  gap: 2px;
+  width: max-content;
+  max-width: 220px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  opacity: 0;
+  transition: opacity var(--duration-ui) var(--ease-out);
+}
+
+.marker[data-active] .label {
+  opacity: 1;
+}
+
+.marker[data-side='left'] .label {
+  left: auto;
+  right: 18px;
+}
+
+.label strong {
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+/* ---------- Rótulos HUD ---------- */
+
+.hudLabel {
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-size: var(--text-hud);
+  font-weight: 500;
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.hudTop {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-4);
+  pointer-events: none;
+}
+
+.hudBottom {
+  position: absolute;
+  right: var(--space-4);
+  bottom: var(--space-3);
+  left: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  pointer-events: none;
+}
+
+.rot {
+  font-family: var(--font-mono);
+  font-stretch: var(--font-stretch-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-lg);
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--turntable-ink);
+}
+
+.progress {
+  display: block;
+  flex: none;
+  width: 120px;
+  height: 2px;
+  background: var(--color-line-strong);
+}
+
+.progress > span {
+  display: block;
+  height: 100%;
+  background: var(--turntable-fill);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.hint {
+  margin-left: auto;
+  color: var(--turntable-ink);
+  white-space: nowrap;
+}
+
+.hintTouch {
+  display: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .hintMouse {
+    display: none;
+  }
+
+  .hintTouch {
+    display: inline;
+  }
+}
+
+@media (max-width: 520px) {
+  .label {
+    max-width: 150px;
+  }
+
+  .rot {
+    font-size: var(--text-base);
+  }
+
+  /* En el teléfono la barra no cabe junto a la lectura y la pista del gesto. */
+  .progress {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .label {
+    transition: none;
+  }
+}
