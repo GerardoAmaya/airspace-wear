@@ -7,7 +7,8 @@ import styles from './ArButton.module.css';
 
 // "Ver en tu espacio": abre la vista de realidad aumentada del teléfono (WebXR
 // en Android, Quick Look en iOS, que genera el USDZ desde el GLB). Los
-// modelos ya están a tamaño real, así que la escala queda fija.
+// modelos ya están a tamaño real: aparecen a escala 1:1 y, si la persona
+// quiere verlos de cerca, puede agrandarlos con dos dedos (ar-scale auto).
 //
 // Los navegadores solo abren AR en respuesta directa a un toque: si antes del
 // activateAR() hay esperas largas (descargar model-viewer, el modelo, decidir
@@ -39,7 +40,8 @@ async function createViewer(model: Model3D, name: string): Promise<ModelViewerEl
   // falla al leer el archivo y vuelve al navegador. Queda solo como respaldo
   // para teléfonos sin WebXR. Quick Look (iOS) convierte la escena ya cargada.
   viewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
-  viewer.setAttribute('ar-scale', 'fixed');
+  // Escala inicial 1:1 (tamaño real); con dos dedos se agranda o se achica.
+  viewer.setAttribute('ar-scale', 'auto');
   viewer.setAttribute('alt', name);
   viewer.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;';
   document.body.append(viewer);
