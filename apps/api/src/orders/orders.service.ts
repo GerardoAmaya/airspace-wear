@@ -247,6 +247,9 @@ export class OrdersService {
     const image = (url: string | null) => (url && web.startsWith('https://') ? [new URL(url, web).toString()] : undefined);
     return {
       mode: 'payment',
+      // Solo tarjeta (y las billeteras que la usan, como Apple Pay): en una
+      // demo de prueba los demás métodos (cripto, banco, Klarna) solo estorban.
+      allowed_payment_method_types: ['card'],
       submit_type: 'pay',
       client_reference_id: orderId,
       customer_email: user.email,
