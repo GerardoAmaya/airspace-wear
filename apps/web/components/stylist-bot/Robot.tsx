@@ -12,7 +12,8 @@
  * se acerca y saluda con el brazo, celebran el clic con estrellas, giran
  * mientras el estilista piensa y se adormecen tras un minuto sin nadie.
  *
- * De vez en cuando habla: un globo con una frase corta, que se cierra solo y
+ * De vez en cuando habla (solo después de que la persona hace algo en la
+ * página): un globo con una frase corta, que se cierra solo y
  * abre el chat si se toca. El mismo globo sale al pasarle el mouse por encima
  * o al llegar con el teclado, porque dice qué hace el botón. Se arrastra con
  * mouse o dedo, se pega al borde más cercano y recuerda dónde lo dejaron. Con
@@ -162,6 +163,7 @@ export function Robot({
   thinking,
   label,
   bubbles,
+  interacted,
   plate,
   closeLabel,
   lift = 0,
@@ -175,6 +177,8 @@ export function Robot({
   label: string;
   /** Frases del globo, ya traducidas; se van turnando */
   bubbles: string[];
+  /** La persona ya hizo algo en la página: hasta entonces no sale ningún globo solo */
+  interacted: boolean;
   /** Texto de la placa del pecho ("IA" o "AI") */
   plate: string;
   /** Nombre accesible de la X que cierra el globo */
@@ -364,13 +368,15 @@ export function Robot({
   }, [reduced]);
 
   // El globo del turno: de vez en cuando, nunca con el chat abierto ni con
-  // movimiento reducido, y solo con la pestaña a la vista.
+  // movimiento reducido, y solo con la pestaña a la vista. Tampoco antes de
+  // la primera interacción con la página (first-interaction.ts): el reloj del
+  // primer globo, y el saludo tras la entrada, empiezan a contar desde ella.
   const bubblesRef = useRef(bubbles);
   useEffect(() => {
     bubblesRef.current = bubbles;
   }, [bubbles]);
   useEffect(() => {
-    if (reduced || open || !entered) return;
+    if (reduced || open || !entered || !interacted) return;
     let index = 0;
     let show: ReturnType<typeof setTimeout>;
     let hide: ReturnType<typeof setTimeout>;
@@ -396,7 +402,7 @@ export function Robot({
       // Al abrir el chat, el globo que estuviera se va.
       setBubble(null);
     };
-  }, [reduced, open, entered]);
+  }, [reduced, open, entered, interacted]);
 
   // Las esperas del clic se cancelan si el robot se desmonta.
   useEffect(() => () => timers.current.forEach(clearTimeout), []);

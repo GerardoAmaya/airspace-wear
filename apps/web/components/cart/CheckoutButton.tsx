@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { signInWithGoogle } from '@/components/account/account-actions';
+import { WARM_ON_INTENT } from '@/lib/auth/warm';
 import { useMotionStore } from '@/lib/motion/store';
 import { DURATION, EASE } from '@/lib/motion/tokens';
 import { startCheckout } from '@/lib/orders/actions';
@@ -74,6 +75,8 @@ export function CheckoutButton({ items, onIssues }: { items: CartItem[]; onIssue
       <motion.button
         type="button"
         className={styles.pay}
+        // Despierta la base antes del clic (lib/auth/warm.ts): pagar lee la sesión.
+        {...WARM_ON_INTENT}
         onClick={pay}
         disabled={busy}
         aria-busy={busy || undefined}

@@ -142,6 +142,20 @@ test('the home console shows what was asked in the panel (shared conversation)',
   await expect(dialog.getByRole('log', { name: es.StylistBot.logLabel })).toContainText(QUESTION);
 });
 
+test('the timed bubble waits for the first interaction with the page', async ({ page }) => {
+  // Visita repetida (sin entrada): el primer globo sale unos segundos después
+  // de la primera interacción, nunca antes.
+  test.setTimeout(90_000);
+  await page.goto('/es/catalog');
+  await waitForApp(page);
+  await expect(robotButton(page, 'es')).toBeVisible();
+  await page.waitForTimeout(11_000);
+  await expect(page.locator('[data-stylist-bubble]')).toHaveCount(0);
+  await page.mouse.move(400, 400);
+  await page.mouse.wheel(0, 200);
+  await expect(page.locator('[data-stylist-bubble]')).toBeVisible({ timeout: 15_000 });
+});
+
 test('the waving arm stays attached to the body while hovering and dragging', async ({ page }) => {
   await page.goto('/es/catalog');
   await waitForApp(page);
@@ -223,8 +237,13 @@ test.describe('first visit entrance', () => {
     await page.waitForSelector('[data-stylist-robot]', { state: 'attached' });
     // Fuera de la pantalla hasta que empieza a caminar.
     expect(await robotInView(page)).toBe(false);
-    // Llega a su esquina, gira (frente y espalda) y saluda con su primer globo.
+    // Llega a su esquina y gira (frente y espalda). Sin ninguna interacción
+    // con la página, el saludo espera (Lighthouse lo medía como LCP).
     await expect.poll(() => robotInView(page), { timeout: 15_000 }).toBe(true);
+    await page.waitForTimeout(1500);
+    await expect(page.locator('[data-stylist-bubble]')).toHaveCount(0);
+    // La persona mueve el mouse (lejos del robot): ahí saluda con su primer globo.
+    await page.mouse.move(400, 400);
     await expect(page.locator('[data-stylist-bubble]')).toBeVisible({ timeout: 10_000 });
     expect(await page.evaluate((key) => localStorage.getItem(key), INTRO_KEY)).toBe('1');
 

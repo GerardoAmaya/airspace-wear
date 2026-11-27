@@ -1,7 +1,7 @@
 import { betterAuth } from 'better-auth';
 import { nextCookies } from 'better-auth/next-js';
-import { Pool } from 'pg';
-import { AUTH_BASE_URL, AUTH_DATABASE_URL, AUTH_ENABLED } from './config';
+import { AUTH_BASE_URL, AUTH_ENABLED } from './config';
+import { getAuthPool } from './pool';
 
 // Primer nombre y primer apellido. Si Google no trae los campos separados, se
 // usa el nombre completo tal cual.
@@ -47,9 +47,8 @@ function createAuth() {
     appName: 'AIRSPACE Wear',
     secret: process.env.BETTER_AUTH_SECRET,
     baseURL,
-    // Pocas conexiones por instancia: en Vercel cada función abre su Pool y
-    // Neon ya agrupa conexiones del lado del servidor.
-    database: new Pool({ connectionString: AUTH_DATABASE_URL, max: 3, idleTimeoutMillis: 10_000 }),
+    // El Pool compartido con /api/warm (lib/auth/pool.ts).
+    database: getAuthPool(),
     socialProviders: google,
     // En desarrollo también se puede abrir el sitio en 127.0.0.1. En
     // producción solo vale el origen de baseURL: callbackURL y errorCallbackURL

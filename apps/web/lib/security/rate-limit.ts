@@ -28,6 +28,9 @@ export const RATE_RULES = {
   stylistContext: { limit: 60, windowMs: 60_000 },
   // Botón "Pagar" (acción de servidor): la API también limita por usuario.
   checkout: { limit: 20, windowMs: 60_000 },
+  // Despertar la base (/api/warm): el navegador lo pide como mucho una vez
+  // cada 4 minutos; esto frena a quien lo llame en bucle.
+  warm: { limit: 10, windowMs: 60_000 },
   // Refrescar la caché: lo llama el seed una vez por corrida.
   revalidate: { limit: 5, windowMs: 60_000 },
 } satisfies Record<string, RateRule>;

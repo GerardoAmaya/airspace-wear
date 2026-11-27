@@ -48,6 +48,32 @@ test.describe('cuenta: sin sesión', () => {
     expect(state?.sameSite).toBe('Lax');
   });
 
+  test('pasar el cursor por Iniciar sesión despierta la base una sola vez cada 4 minutos', async ({ page }) => {
+    test.skip(!GOOGLE_LOGIN_ENABLED, 'Sin claves de Google no hay botón de entrar');
+    const warms: string[] = [];
+    page.on('request', (request) => {
+      if (new URL(request.url()).pathname === '/api/warm') warms.push(request.method());
+    });
+    await page.goto('/es/catalog');
+    await waitForApp(page);
+    // Cargar la página no despierta la base: solo la intención.
+    await page.waitForTimeout(500);
+    expect(warms).toEqual([]);
+    const signInButton = page.getByRole('banner').getByRole('button', { name: es.Account.signInLabel });
+    const response = page.waitForResponse((res) => new URL(res.url()).pathname === '/api/warm');
+    await signInButton.hover();
+    expect((await response).status()).toBe(204);
+    expect(warms).toEqual(['POST']);
+    // Otro paso del cursor (y una recarga, misma pestaña) dentro de los 4 minutos: nada.
+    await page.mouse.move(10, 400);
+    await signInButton.hover();
+    await page.reload();
+    await waitForApp(page);
+    await signInButton.hover();
+    await page.waitForTimeout(500);
+    expect(warms).toEqual(['POST']);
+  });
+
   test('la página de cuenta explica un error de Google', async ({ page }) => {
     await page.goto('/es/account?error=access_denied');
     await expect(page.getByRole('alert', { name: es.Account.errorTitle })).toContainText(es.Account.errorCancelled);

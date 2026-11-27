@@ -29,7 +29,11 @@ export function SiteHeader() {
     catalog: <NavLink href="/catalog">{t('catalog')}</NavLink>,
     hangar: HANGAR_ENABLED ? <NavLink href="/hangar">{t('hangar')}</NavLink> : <Link href={{ pathname: '/', hash: HOME_ANCHORS.hangar }}>{t('hangar')}</Link>,
     balls: <Link href={{ pathname: '/', hash: HOME_ANCHORS.balls }}>{t('balls')}</Link>,
-    orders: <NavLink href="/orders">{t('orders')}</NavLink>,
+    orders: (
+      <NavLink href="/orders" warmOnIntent>
+        {t('orders')}
+      </NavLink>
+    ),
     stylist: <StylistLink>{t('stylist')}</StylistLink>,
   };
   const nav = HEADER_LINKS.map((id) => <Fragment key={id}>{links[id]}</Fragment>);

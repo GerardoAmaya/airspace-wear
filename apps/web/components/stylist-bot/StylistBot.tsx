@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSessionStore } from '@/lib/auth/session-store';
+import { useFirstInteraction } from './first-interaction';
 import { loadStylistContext } from './stylist-context';
 import { openStylist, useStylistStore } from './stylist-store';
 
@@ -25,6 +26,8 @@ export function StylistBot() {
   const thinking = useStylistStore((state) => state.busy);
   const [robotReady, setRobotReady] = useState(false);
   const [panelMounted, setPanelMounted] = useState(false);
+  // Los globos automáticos esperan a que la persona haga algo en la página.
+  const interacted = useFirstInteraction();
   // Una vez abierto queda montado, para que la salida se anime.
   if (open && !panelMounted) setPanelMounted(true);
 
@@ -81,6 +84,7 @@ export function StylistBot() {
           onIntent={prefetch}
           label={t('button')}
           bubbles={bubbles}
+          interacted={interacted}
           plate={t('plate')}
           closeLabel={t('closeBubble')}
         />

@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { Link, useRouter } from '@/i18n/navigation';
 import { scheduleSession, useSessionStore } from '@/lib/auth/session-store';
+import { WARM_ON_INTENT } from '@/lib/auth/warm';
 import { HEADER_LINKS } from '@/lib/nav';
 import { signInWithGoogle, signOut } from './account-actions';
 import { Avatar } from './Avatar';
@@ -49,6 +50,8 @@ function SignInButton() {
     <button
       type="button"
       className={styles.signIn}
+      // Despierta la base mientras la persona se decide (lib/auth/warm.ts).
+      {...WARM_ON_INTENT}
       aria-label={busy ? t('signingIn') : t('signInLabel')}
       aria-busy={busy || undefined}
       disabled={busy}
@@ -93,6 +96,7 @@ function AccountEntries({ googleEnabled }: { googleEnabled: boolean }) {
         <button
           type="button"
           className={styles.entryButton}
+          {...WARM_ON_INTENT}
           disabled={busy}
           onClick={async () => {
             setBusy(true);

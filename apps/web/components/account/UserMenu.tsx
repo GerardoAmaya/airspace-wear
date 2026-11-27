@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { type KeyboardEvent, useEffect, useId, useRef, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import type { SessionUser } from '@/lib/auth/session-store';
+import { WARM_ON_INTENT } from '@/lib/auth/warm';
 import { useMotionStore } from '@/lib/motion/store';
 import { DURATION, EASE } from '@/lib/motion/tokens';
 import { signOut } from './account-actions';
@@ -88,6 +89,8 @@ export function UserMenu({ user }: { user: SessionUser }) {
         ref={button}
         type="button"
         className={styles.userButton}
+        // Despierta la base antes de abrir el menú (lib/auth/warm.ts).
+        {...WARM_ON_INTENT}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? id : undefined}
