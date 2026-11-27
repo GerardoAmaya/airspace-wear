@@ -97,7 +97,9 @@ export function BallShowcase({ balls }: { balls: Ball[] }) {
   useEffect(() => {
     const element = section.current?.querySelector('[data-scene]');
     if (!element) return;
-    const observer = new IntersectionObserver(([entry]) => setLive(entry.isIntersecting));
+    // Margen negativo: un borde que apenas toca la ventana cuenta como
+    // "intersecting" y dejaba la banda girando con la sección ya fuera de vista.
+    const observer = new IntersectionObserver(([entry]) => setLive(entry.isIntersecting), { rootMargin: '-24px 0px' });
     observer.observe(element);
     return () => observer.disconnect();
   }, []);
