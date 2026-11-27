@@ -3,6 +3,15 @@ import { nextCookies } from 'better-auth/next-js';
 import { Pool } from 'pg';
 import { AUTH_BASE_URL, AUTH_DATABASE_URL, AUTH_ENABLED } from './config';
 
+// Primer nombre y primer apellido. Si Google no trae los campos separados, se
+// usa el nombre completo tal cual.
+export function shortName(given?: string, family?: string, full?: string): string {
+  const first = given?.trim().split(/\s+/)[0];
+  const last = family?.trim().split(/\s+/)[0];
+  if (first && last) return `${first} ${last}`;
+  return first ?? full?.trim() ?? '';
+}
+
 // Better Auth en el servidor de la web (docs/plan-paso-5.md, fase 1): login
 // con Google y sesiones guardadas en Postgres (tablas de la migración
 // auth_tables de la API). Usa su adaptador de Postgres con un Pool de pg:
@@ -24,6 +33,13 @@ function createAuth() {
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
             // Siempre muestra el selector de cuentas (útil con varias cuentas).
             prompt: 'select_account' as const,
+            // Solo primer nombre y primer apellido ("Gerardo Amaya" en vez del
+            // nombre completo de Google). Google los entrega por separado.
+            mapProfileToUser: (profile: { given_name?: string; family_name?: string; name?: string }) => ({
+              name: shortName(profile.given_name, profile.family_name, profile.name),
+            }),
+            // En cada inicio de sesión se actualizan nombre y foto desde Google.
+            overrideUserInfoOnSignIn: true,
           },
         }
       : {};
