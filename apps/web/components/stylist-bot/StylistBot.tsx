@@ -3,7 +3,7 @@
 import type { Locale } from '@airspace/contracts';
 import dynamic from 'next/dynamic';
 import { useLocale, useTranslations } from 'next-intl';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { loadStylistContext } from './stylist-context';
 import { openStylist, useStylistStore } from './stylist-store';
 
@@ -40,6 +40,27 @@ export function StylistBot() {
     return () => clearTimeout(id);
   }, []);
 
+  // Globo de pedidos: solo si la persona tiene al menos un pedido pagado. Se
+  // pregunta una vez, cuando el robot ya llegó (sin sesión responde false).
+  const [hasOrders, setHasOrders] = useState(false);
+  useEffect(() => {
+    if (!robotReady) return;
+    let alive = true;
+    fetch('/api/stylist/orders-hint', { cache: 'no-store' })
+      .then((response) => (response.ok ? response.json() : { hasOrders: false }))
+      .then((body: { hasOrders?: boolean }) => {
+        if (alive) setHasOrders(body.hasOrders === true);
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [robotReady]);
+  const bubbles = useMemo(() => {
+    const base = t.raw('bubbles') as string[];
+    return hasOrders ? [t('orderBubble'), ...base] : base;
+  }, [t, hasOrders]);
+
   // Precarga al acercarse: el código del panel y sus datos.
   const prefetch = useCallback(() => {
     void loadPanel();
@@ -55,7 +76,7 @@ export function StylistBot() {
           onOpen={openStylist}
           onIntent={prefetch}
           label={t('button')}
-          bubbles={t.raw('bubbles') as string[]}
+          bubbles={bubbles}
           plate={t('plate')}
           closeLabel={t('closeBubble')}
         />
