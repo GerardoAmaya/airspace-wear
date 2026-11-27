@@ -454,6 +454,10 @@
   scrollbar-color: var(--color-line-strong) transparent;
   padding-inline: var(--console-pad);
   mask-image: linear-gradient(to bottom, transparent 0, transparent 4px, var(--color-background) 34px, var(--color-background) calc(100% - 12px), transparent);
+  /* Alto fijo y ancho dado por la consola: el registro es su propia raíz de
+     layout y pintura. Cada palabra o letra que llega recalcula solo el
+     registro, no toda la home. */
+  contain: strict;
 }
 
 .log:focus-visible {
@@ -554,6 +558,19 @@
 /* Las palabras que escribe la consola llegan como spans (ver StylistConsole). */
 .replyText span {
   display: inline-block;
+}
+
+/* Entrada de cada palabra escrita: CSS (transform y opacidad), así corre en
+   el compositor y no cuesta trabajo por cuadro en el hilo principal. */
+.word {
+  animation: stylist-word 0.5s var(--ease-out) backwards;
+}
+
+@keyframes stylist-word {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
 }
 
 .replyText .highlight {

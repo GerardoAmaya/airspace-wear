@@ -874,166 +874,160 @@ function RobotDrawing({
         ? { animate: { rotate: [0, 9 * direction, 0, 5 * direction, 0], y: 0 }, transition: { duration: 0.7, ease: 'easeInOut' as const } }
         : { animate: { rotate: 0, y: 0 }, transition: { duration: 0.2 } };
 
+  const headTilt = waving ? -8 : mood === 'asleep' && !reduced ? 6 : 0;
+
   return (
-    <svg viewBox="0 0 80 100" className={styles.drawing} aria-hidden="true">
-      <defs>
-        <linearGradient id={id('body')} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor={BODY_TOP} />
-          <stop offset="0.55" stopColor={BODY_MID} />
-          <stop offset="1" stopColor={BODY_BOTTOM} />
-        </linearGradient>
-        <linearGradient id={id('hoodie')} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="var(--color-robot-hoodie-top)" />
-          <stop offset="0.5" stopColor="var(--color-robot-hoodie)" />
-          <stop offset="1" stopColor="var(--color-robot-hoodie-bottom)" />
-        </linearGradient>
-        <linearGradient id={id('cap')} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="var(--color-robot-cap-top)" />
-          <stop offset="1" stopColor="var(--color-robot-cap)" />
-        </linearGradient>
-        <radialGradient id={id('light')}>
-          <stop offset="0" stopColor="var(--color-robot-light)" />
-          <stop offset="1" stopColor={ACCENT} />
-        </radialGradient>
-        <radialGradient id={id('pupil')} cx="0.4" cy="0.35" r="0.75">
-          <stop offset="0" stopColor="var(--color-robot-eye-light)" />
-          <stop offset="0.55" stopColor={EYE} />
-          <stop offset="1" stopColor="var(--color-robot-eye-deep)" />
-        </radialGradient>
-        <radialGradient id={id('visor')} cx="0.5" cy="0.3" r="0.9">
-          <stop offset="0" stopColor="var(--color-robot-visor-top)" />
-          <stop offset="1" stopColor="var(--color-robot-visor)" />
-        </radialGradient>
-        <clipPath id={id('clip')}>
-          <rect x="18" y="29" width="44" height="22" rx="11" />
-        </clipPath>
-      </defs>
+    <>
+      <svg viewBox="0 0 80 100" className={styles.drawing} aria-hidden="true">
+        <defs>
+          <linearGradient id={id('body')} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor={BODY_TOP} />
+            <stop offset="0.55" stopColor={BODY_MID} />
+            <stop offset="1" stopColor={BODY_BOTTOM} />
+          </linearGradient>
+          <linearGradient id={id('hoodie')} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="var(--color-robot-hoodie-top)" />
+            <stop offset="0.5" stopColor="var(--color-robot-hoodie)" />
+            <stop offset="1" stopColor="var(--color-robot-hoodie-bottom)" />
+          </linearGradient>
+          <linearGradient id={id('cap')} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="var(--color-robot-cap-top)" />
+            <stop offset="1" stopColor="var(--color-robot-cap)" />
+          </linearGradient>
+          <radialGradient id={id('pupil')} cx="0.4" cy="0.35" r="0.75">
+            <stop offset="0" stopColor="var(--color-robot-eye-light)" />
+            <stop offset="0.55" stopColor={EYE} />
+            <stop offset="1" stopColor="var(--color-robot-eye-deep)" />
+          </radialGradient>
+          <radialGradient id={id('visor')} cx="0.5" cy="0.3" r="0.9">
+            <stop offset="0" stopColor="var(--color-robot-visor-top)" />
+            <stop offset="1" stopColor="var(--color-robot-visor)" />
+          </radialGradient>
+          <clipPath id={id('clip')}>
+            <rect x="18" y="29" width="44" height="22" rx="11" />
+          </clipPath>
+        </defs>
 
-      {/* Piernas cortas de metal, que entran en los tenis */}
-      <rect x="27.6" y="78" width="5.5" height="9" rx="2.2" fill={`url(#${id('body')})`} stroke={BODY_EDGE} strokeWidth="0.8" />
-      <rect x="46.9" y="78" width="5.5" height="9" rx="2.2" fill={`url(#${id('body')})`} stroke={BODY_EDGE} strokeWidth="0.8" />
+        {/* Piernas cortas de metal, que entran en los tenis */}
+        <rect x="27.6" y="78" width="5.5" height="9" rx="2.2" fill={`url(#${id('body')})`} stroke={BODY_EDGE} strokeWidth="0.8" />
+        <rect x="46.9" y="78" width="5.5" height="9" rx="2.2" fill={`url(#${id('body')})`} stroke={BODY_EDGE} strokeWidth="0.8" />
 
-      {/* Tenis altos de frente, con la punta hacia quien mira y un poco
-          abiertos hacia afuera. El izquierdo es el derecho espejado (su
-          swoosh queda en el borde de afuera). Cada uno se mueve desde la suela. */}
-      <motion.g style={{ originX: '30.3px', originY: '98px', transformBox: 'view-box' }} {...shoeMotion(-1)}>
-        <g transform="translate(30.3 98) scale(-0.92 0.92) rotate(-7)">
-          <Sneaker />
-        </g>
-      </motion.g>
-      <motion.g style={{ originX: '49.7px', originY: '98px', transformBox: 'view-box' }} {...shoeMotion(1)}>
-        <g transform="translate(49.7 98) scale(0.92) rotate(-7)">
-          <Sneaker />
-        </g>
-      </motion.g>
+        {/* Tenis altos de frente, con la punta hacia quien mira y un poco
+            abiertos hacia afuera. El izquierdo es el derecho espejado (su
+            swoosh queda en el borde de afuera). Cada uno se mueve desde la suela. */}
+        <motion.g style={{ originX: '30.3px', originY: '98px', transformBox: 'view-box' }} {...shoeMotion(-1)}>
+          <g transform="translate(30.3 98) scale(-0.92 0.92) rotate(-7)">
+            <Sneaker />
+          </g>
+        </motion.g>
+        <motion.g style={{ originX: '49.7px', originY: '98px', transformBox: 'view-box' }} {...shoeMotion(1)}>
+          <g transform="translate(49.7 98) scale(0.92) rotate(-7)">
+            <Sneaker />
+          </g>
+        </motion.g>
 
-      {/* Brazo izquierdo, quieto: manga de la sudadera con su puño */}
-      <rect x="11" y="58" width="8" height="16" rx="4" fill={`url(#${id('hoodie')})`} stroke={HOODIE_EDGE} strokeWidth="0.8" />
-      <rect x="11" y="70.5" width="8" height="3.5" rx="1.75" fill={HOODIE_SHADE} />
-      {/* Brazo derecho: saluda. Gira desde el hombro */}
-      <motion.g
-        style={{ originX: '66px', originY: '60px', transformBox: 'view-box' }}
-        data-robot-arm=""
-        animate={waving ? { rotate: [0, -150, -120, -150, -130] } : { rotate: 0 }}
-        transition={waving ? { duration: 1.1, ease: 'easeInOut' } : { duration: 0.3 }}
-      >
-        <rect x="61" y="58" width="8" height="16" rx="4" fill={`url(#${id('hoodie')})`} stroke={HOODIE_EDGE} strokeWidth="0.8" />
-        <rect x="61" y="70.5" width="8" height="3.5" rx="1.75" fill={HOODIE_SHADE} />
-      </motion.g>
+        {/* Brazo izquierdo, quieto: manga de la sudadera con su puño */}
+        <rect x="11" y="58" width="8" height="16" rx="4" fill={`url(#${id('hoodie')})`} stroke={HOODIE_EDGE} strokeWidth="0.8" />
+        <rect x="11" y="70.5" width="8" height="3.5" rx="1.75" fill={HOODIE_SHADE} />
+        {/* Brazo derecho: saluda. Gira desde el hombro */}
+        <motion.g
+          style={{ originX: '66px', originY: '60px', transformBox: 'view-box' }}
+          data-robot-arm=""
+          animate={waving ? { rotate: [0, -150, -120, -150, -130] } : { rotate: 0 }}
+          transition={waving ? { duration: 1.1, ease: 'easeInOut' } : { duration: 0.3 }}
+        >
+          <rect x="61" y="58" width="8" height="16" rx="4" fill={`url(#${id('hoodie')})`} stroke={HOODIE_EDGE} strokeWidth="0.8" />
+          <rect x="61" y="70.5" width="8" height="3.5" rx="1.75" fill={HOODIE_SHADE} />
+        </motion.g>
 
-      {/* Sudadera: cuerpo, bolsillo canguro y resorte de la cintura */}
-      <rect x="18" y="54" width="44" height="28" rx="12" fill={`url(#${id('hoodie')})`} stroke={HOODIE_EDGE} strokeWidth="0.8" />
-      {back ? (
-        // De espaldas: la capucha cae sobre la espalda.
-        <path d="M26 55 Q 40 52 54 55 Q 54 69 40 70 Q 26 69 26 55 Z" fill={HOODIE_SHADE} stroke={HOODIE_EDGE} strokeWidth="0.8" />
-      ) : (
-        <>
-          <path d="M27.5 80.5 L 29.5 74 L 50.5 74 L 52.5 80.5" fill="none" stroke={HOODIE_EDGE} strokeWidth="0.8" strokeLinejoin="round" />
-          {/* Capucha: asoma detrás del cuello, a los lados de la cabeza */}
-          <ellipse cx="40" cy="54.5" rx="25" ry="6.5" fill="var(--color-robot-hoodie-top)" stroke={HOODIE_EDGE} strokeWidth="0.8" />
-          <ellipse cx="40" cy="56" rx="16" ry="3.6" fill={HOODIE_SHADE} />
-          {/* Cordones con sus puntas */}
-          <path d="M35.5 56 L 35 61.5 M44.5 56 L 45 61.5" stroke={LIGHT} strokeWidth="1" strokeLinecap="round" />
-          <circle cx="35" cy="62" r="0.9" fill={LIGHT} />
-          <circle cx="45" cy="62" r="0.9" fill={LIGHT} />
-          {/* "IA" en lima al centro del pecho: la marca principal */}
-          <text x="40" y="71.6" textAnchor="middle" fontSize="9.5" fontWeight="800" fill="var(--color-primary-fill)" letterSpacing="0.5" style={{ fontFamily: 'var(--font-display)' }}>
-            {plate}
-          </text>
-          {/* Trébol claro en el pecho (izquierda de quien la lleva), secundario */}
-          <Trefoil x={54.6} y={61.4} />
-        </>
-      )}
-
-      {/* La cabeza: ladea al saludar y cabecea cuando duerme */}
-      <motion.g
-        style={{ originX: '40px', originY: '52px', transformBox: 'view-box' }}
-        animate={{ rotate: waving ? -8 : mood === 'asleep' && !reduced ? 6 : 0 }}
-        transition={{ type: 'spring', stiffness: 220, damping: 14 }}
-      >
-        {/* Antena con su luz: sale del botón de la gorra, destella, y más
-            cuando alguien se acerca */}
-        <line x1="40" y1="11" x2="40" y2="6" stroke="var(--color-text)" strokeWidth="1.6" strokeLinecap="round" />
-        <motion.circle
-          cx="40"
-          cy="5"
-          r="3.2"
-          fill={`url(#${id('light')})`}
-          // Se agranda con el radio y no con scale: dentro de un SVG el origen
-          // del scale se calcula aparte y la luz se despegaba de la antena.
-          animate={reduced ? {} : happy ? { r: [3.2, 4.8, 3.9], opacity: 1 } : mood === 'asleep' ? { opacity: 0.35, r: 3.2 } : { opacity: [1, 0.45, 1], r: 3.2 }}
-          transition={reduced ? {} : happy ? { duration: 0.35 } : { duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        {!reduced && mood !== 'asleep' ? (
-          <motion.circle
-            cx="40"
-            cy="5"
-            r="3.2"
-            fill="none"
-            stroke={ACCENT}
-            strokeWidth="1"
-            animate={{ r: [3.2, happy ? 10 : 7.5], opacity: [0.8, 0] }}
-            transition={{ duration: happy ? 0.9 : 1.8, repeat: Infinity, ease: 'easeOut' }}
-          />
-        ) : null}
-
-        {/* Cabeza */}
-        <rect x="14" y="17" width="52" height="38" rx="19" fill={`url(#${id('body')})`} stroke={BODY_EDGE} />
-
-        {/* Gorra 59FIFTY: copa con costuras, botón arriba y "NY" al frente */}
-        <path d="M15.5 27.5 C 15.5 7, 64.5 7, 64.5 27.5 Z" fill={`url(#${id('cap')})`} stroke={CAP_EDGE} strokeWidth="0.6" />
-        <path d="M40 12 L 31 26.5 M40 12 L 49 26.5" stroke={CAP_EDGE} strokeWidth="0.5" strokeOpacity="0.7" fill="none" />
-        <circle cx="40" cy="11.6" r="1.6" fill={`url(#${id('cap')})`} stroke={CAP_EDGE} strokeWidth="0.5" />
+        {/* Sudadera: cuerpo, bolsillo canguro y resorte de la cintura */}
+        <rect x="18" y="54" width="44" height="28" rx="12" fill={`url(#${id('hoodie')})`} stroke={HOODIE_EDGE} strokeWidth="0.8" />
         {back ? (
-          // Por detrás: la copa baja más y no hay visera, ni "NY", ni cara.
-          <path d="M15.5 27.5 Q 40 33 64.5 27.5 L 64.5 25 Q 40 30 15.5 25 Z" fill="var(--color-robot-cap)" stroke={CAP_EDGE} strokeWidth="0.6" />
+          // De espaldas: la capucha cae sobre la espalda.
+          <path d="M26 55 Q 40 52 54 55 Q 54 69 40 70 Q 26 69 26 55 Z" fill={HOODIE_SHADE} stroke={HOODIE_EDGE} strokeWidth="0.8" />
         ) : (
           <>
-        <NyMark />
-        {/* Visera casi plana, hacia adelante */}
-        <path d="M13.5 26.8 Q 40 22.4 66.5 26.8 Q 67.5 30.4 63.5 30.6 Q 40 27.6 16.5 30.6 Q 12.5 30.4 13.5 26.8 Z" fill="var(--color-robot-cap)" stroke={CAP_EDGE} strokeWidth="0.6" />
-        <path d="M17 27.6 Q 40 24 63 27.6" stroke="var(--color-robot-cap-mark)" strokeOpacity="0.28" strokeWidth="0.6" fill="none" />
-
-        {/* Visor oscuro con los ojos */}
-        <rect x="18" y="29" width="44" height="22" rx="11" fill={`url(#${id('visor')})`} />
-        <g clipPath={`url(#${id('clip')})`}>
-          <Eyes mood={mood} blink={blink} eyeX={eyeX} eyeY={eyeY} reduced={reduced} id={id} />
-        </g>
-        {/* Brillo del visor, encima de todo */}
-        <path d="M23 33.5 Q 26 31.5 31 31.5" stroke={GLINT} strokeOpacity="0.22" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-        {/* Mejillas que se encienden cuando está feliz */}
-        <AnimatePresence>
-          {happy ? (
-            <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <ellipse cx="22" cy="49" rx="3" ry="1.6" fill={STAR} opacity="0.55" />
-              <ellipse cx="58" cy="49" rx="3" ry="1.6" fill={STAR} opacity="0.55" />
-            </motion.g>
-          ) : null}
-        </AnimatePresence>
+            <path d="M27.5 80.5 L 29.5 74 L 50.5 74 L 52.5 80.5" fill="none" stroke={HOODIE_EDGE} strokeWidth="0.8" strokeLinejoin="round" />
+            {/* Capucha: asoma detrás del cuello, a los lados de la cabeza */}
+            <ellipse cx="40" cy="54.5" rx="25" ry="6.5" fill="var(--color-robot-hoodie-top)" stroke={HOODIE_EDGE} strokeWidth="0.8" />
+            <ellipse cx="40" cy="56" rx="16" ry="3.6" fill={HOODIE_SHADE} />
+            {/* Cordones con sus puntas */}
+            <path d="M35.5 56 L 35 61.5 M44.5 56 L 45 61.5" stroke={LIGHT} strokeWidth="1" strokeLinecap="round" />
+            <circle cx="35" cy="62" r="0.9" fill={LIGHT} />
+            <circle cx="45" cy="62" r="0.9" fill={LIGHT} />
+            {/* "IA" en lima al centro del pecho: la marca principal */}
+            <text x="40" y="71.6" textAnchor="middle" fontSize="9.5" fontWeight="800" fill="var(--color-primary-fill)" letterSpacing="0.5" style={{ fontFamily: 'var(--font-display)' }}>
+              {plate}
+            </text>
+            {/* Trébol claro en el pecho (izquierda de quien la lleva), secundario */}
+            <Trefoil x={54.6} y={61.4} />
           </>
         )}
-      </motion.g>
-    </svg>
+
+        {/* La cabeza: ladea al saludar y cabecea cuando duerme */}
+        <motion.g style={{ originX: '40px', originY: '52px', transformBox: 'view-box' }} animate={{ rotate: headTilt }} transition={HEAD_SPRING}>
+          {/* Antena: sale del botón de la gorra. Su luz va en AntennaLight,
+              fuera del SVG. */}
+          <line x1="40" y1="11" x2="40" y2="6" stroke="var(--color-text)" strokeWidth="1.6" strokeLinecap="round" />
+
+          {/* Cabeza */}
+          <rect x="14" y="17" width="52" height="38" rx="19" fill={`url(#${id('body')})`} stroke={BODY_EDGE} />
+
+          {/* Gorra 59FIFTY: copa con costuras, botón arriba y "NY" al frente */}
+          <path d="M15.5 27.5 C 15.5 7, 64.5 7, 64.5 27.5 Z" fill={`url(#${id('cap')})`} stroke={CAP_EDGE} strokeWidth="0.6" />
+          <path d="M40 12 L 31 26.5 M40 12 L 49 26.5" stroke={CAP_EDGE} strokeWidth="0.5" strokeOpacity="0.7" fill="none" />
+          <circle cx="40" cy="11.6" r="1.6" fill={`url(#${id('cap')})`} stroke={CAP_EDGE} strokeWidth="0.5" />
+          {back ? (
+            // Por detrás: la copa baja más y no hay visera, ni "NY", ni cara.
+            <path d="M15.5 27.5 Q 40 33 64.5 27.5 L 64.5 25 Q 40 30 15.5 25 Z" fill="var(--color-robot-cap)" stroke={CAP_EDGE} strokeWidth="0.6" />
+          ) : (
+            <>
+          <NyMark />
+          {/* Visera casi plana, hacia adelante */}
+          <path d="M13.5 26.8 Q 40 22.4 66.5 26.8 Q 67.5 30.4 63.5 30.6 Q 40 27.6 16.5 30.6 Q 12.5 30.4 13.5 26.8 Z" fill="var(--color-robot-cap)" stroke={CAP_EDGE} strokeWidth="0.6" />
+          <path d="M17 27.6 Q 40 24 63 27.6" stroke="var(--color-robot-cap-mark)" strokeOpacity="0.28" strokeWidth="0.6" fill="none" />
+
+          {/* Visor oscuro con los ojos */}
+          <rect x="18" y="29" width="44" height="22" rx="11" fill={`url(#${id('visor')})`} />
+          <g clipPath={`url(#${id('clip')})`}>
+            <Eyes mood={mood} blink={blink} eyeX={eyeX} eyeY={eyeY} reduced={reduced} id={id} />
+          </g>
+          {/* Brillo del visor, encima de todo */}
+          <path d="M23 33.5 Q 26 31.5 31 31.5" stroke={GLINT} strokeOpacity="0.22" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+          {/* Mejillas que se encienden cuando está feliz */}
+          <AnimatePresence>
+            {happy ? (
+              <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <ellipse cx="22" cy="49" rx="3" ry="1.6" fill={STAR} opacity="0.55" />
+                <ellipse cx="58" cy="49" rx="3" ry="1.6" fill={STAR} opacity="0.55" />
+              </motion.g>
+            ) : null}
+          </AnimatePresence>
+            </>
+          )}
+        </motion.g>
+      </svg>
+      <AntennaLight tilt={headTilt} mood={happy ? 'happy' : mood === 'asleep' ? 'asleep' : 'normal'} reduced={reduced} />
+    </>
+  );
+}
+
+const HEAD_SPRING = { type: 'spring', stiffness: 220, damping: 14 } as const;
+
+/**
+ * La luz de la antena: destella sin parar, más grande y rápida cuando el
+ * robot está feliz, y tenue cuando duerme. Va en HTML sobre el dibujo (no
+ * dentro del SVG) para que sus bucles sean animaciones CSS de transform y
+ * opacidad que corren en el compositor: animar el radio de un círculo SVG
+ * obligaba a recalcular el layout y repintar en cada cuadro, en todas las
+ * páginas. La capa gira con la cabeza (mismo resorte y mismo eje).
+ */
+function AntennaLight({ tilt, mood, reduced }: { tilt: number; mood: 'normal' | 'happy' | 'asleep'; reduced: boolean }) {
+  return (
+    <motion.span className={styles.antenna} data-mood={mood} data-reduced={reduced || undefined} aria-hidden="true" animate={{ rotate: tilt }} transition={HEAD_SPRING}>
+      <span className={styles.antennaLight} />
+      {!reduced && mood !== 'asleep' ? <span className={styles.antennaRing} /> : null}
+    </motion.span>
   );
 }
 

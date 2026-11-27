@@ -88,42 +88,112 @@ function createRandom(seed: number) {
   };
 }
 
-// Barra de forma de onda: un único callback del ticker escribe scaleY en
-// cada barra (solo escrituras). "level" sube cuando el estilista responde.
+// Barra de forma de onda. Cada barra sigue un ruido periódico (WAVE_PERIOD
+// segundos, muestreado en una tabla) multiplicado por "level", que sube
+// cuando el estilista responde.
+// Rendimiento: con el nivel quieto (casi siempre) el bucle es una animación
+// de transform por barra que corre en el compositor, sin trabajo en el hilo
+// principal. Solo mientras el nivel cambia (medio segundo al empezar y al
+// terminar una respuesta) el ticker de GSAP escribe cada barra. Los dos
+// caminos leen la misma tabla, así el paso de uno a otro no salta.
+const WAVE_PERIOD = 4;
+const WAVE_SAMPLES = 80;
+
 function createWave(bars: HTMLElement[], reduced: boolean) {
-  const setters = bars.map((bar) => gsap.quickSetter(bar, 'scaleY') as (value: number) => void);
   const envelope = bars.map((_, index) => Math.pow(Math.sin((Math.PI * (index + 0.5)) / bars.length), 0.8));
-  const state = { level: 0.08 };
-  let elapsed = 0;
-  let running = false;
-  const render = () => {
-    for (let index = 0; index < bars.length; index++) {
-      const noise = Math.abs(Math.sin(elapsed * 8.7 + index * 0.83) * Math.cos(elapsed * 3.9 + index * 0.29)) * 0.8 + Math.abs(Math.sin(elapsed * 15.3 + index * 1.7)) * 0.35;
-      setters[index](0.06 + state.level * envelope[index] * Math.min(1, noise));
-    }
-  };
-  const tick = (_time: number, deltaTime: number) => {
-    elapsed += deltaTime / 1000;
-    render();
+  const write = (index: number, value: number) => {
+    bars[index].style.transform = `scaleY(${value.toFixed(4)})`;
   };
   if (reduced) {
     // Estado estático: una silueta de onda serena.
-    bars.forEach((_, index) => setters[index](0.12 + 0.5 * envelope[index] * Math.abs(Math.sin(index * 0.9))));
+    bars.forEach((_, index) => write(index, 0.12 + 0.5 * envelope[index] * Math.abs(Math.sin(index * 0.9))));
     return { speak() {}, start() {}, stop() {} };
   }
+
+  // El ruido original no es periódico: se mezcla con su copia desplazada un
+  // periodo para que el final empalme con el principio.
+  const noise = (time: number, index: number) => Math.abs(Math.sin(time * 8.7 + index * 0.83) * Math.cos(time * 3.9 + index * 0.29)) * 0.8 + Math.abs(Math.sin(time * 15.3 + index * 1.7)) * 0.35;
+  const tables = bars.map((_, index) =>
+    Array.from({ length: WAVE_SAMPLES + 1 }, (_, sample) => {
+      const time = (sample / WAVE_SAMPLES) * WAVE_PERIOD;
+      const mix = time / WAVE_PERIOD;
+      return Math.min(1, noise(time, index) * (1 - mix) + noise(time - WAVE_PERIOD, index) * mix);
+    }),
+  );
+  const valueAt = (index: number, level: number, phase: number) => {
+    const position = (phase / WAVE_PERIOD) * WAVE_SAMPLES;
+    const sample = Math.floor(position);
+    const table = tables[index];
+    const unit = table[sample] + (table[sample + 1] - table[sample]) * (position - sample);
+    return 0.06 + level * envelope[index] * unit;
+  };
+
+  const state = { level: 0.08 };
+  // Fase del ciclo en segundos (0 a WAVE_PERIOD).
+  let phase = 0;
+  let running = false;
+  let loops: Animation[] = [];
+  let tween: gsap.core.Tween | null = null;
+
+  const render = () => {
+    for (let index = 0; index < bars.length; index++) write(index, valueAt(index, state.level, phase));
+  };
+  const tick = (_time: number, deltaTime: number) => {
+    phase = (phase + deltaTime / 1000) % WAVE_PERIOD;
+    render();
+  };
+  // La fase actual, leída de las animaciones del compositor si están activas.
+  const syncPhase = () => {
+    const time = loops[0]?.currentTime;
+    if (typeof time === 'number') phase = (time / 1000) % WAVE_PERIOD;
+  };
+  const dropLoops = () => {
+    syncPhase();
+    loops.forEach((loop) => loop.cancel());
+    loops = [];
+  };
+  // Bucle en el compositor con el nivel actual, desde la fase actual.
+  const buildLoops = () => {
+    dropLoops();
+    loops = bars.map((bar, index) => {
+      const frames = tables[index].map((unit) => ({ transform: `scaleY(${(0.06 + state.level * envelope[index] * unit).toFixed(4)})` }));
+      const loop = bar.animate(frames, { duration: WAVE_PERIOD * 1000, iterations: Infinity, easing: 'linear' });
+      loop.currentTime = phase * 1000;
+      if (!running) loop.pause();
+      return loop;
+    });
+  };
+
   render();
+  buildLoops();
   return {
     speak(level: number) {
-      gsap.to(state, { level, duration: level > 0.3 ? 0.5 : 0.9, ease: 'power2.out', overwrite: true });
+      dropLoops();
+      render();
+      gsap.ticker.remove(tick);
+      if (running) gsap.ticker.add(tick);
+      tween = gsap.to(state, {
+        level,
+        duration: level > 0.3 ? 0.5 : 0.9,
+        ease: 'power2.out',
+        overwrite: true,
+        onComplete: () => {
+          tween = null;
+          gsap.ticker.remove(tick);
+          buildLoops();
+        },
+      });
     },
     start() {
       if (running) return;
       running = true;
-      gsap.ticker.add(tick);
+      if (tween) gsap.ticker.add(tick);
+      else loops.forEach((loop) => loop.play());
     },
     stop() {
       running = false;
       gsap.ticker.remove(tick);
+      loops.forEach((loop) => loop.pause());
     },
   };
 }
@@ -131,7 +201,7 @@ function createWave(bars: HTMLElement[], reduced: boolean) {
 // Máquina de escribir: recibe el texto en trozos (como el streaming de la
 // IA) y lo muestra palabra por palabra. Solo escribe palabras completas y
 // nunca corta un nombre resaltado a la mitad.
-function createTyper(target: HTMLElement, { add, random, onFirstWord, highlightClass }: { add: (fn: () => void) => void; random: () => number; onFirstWord: () => void; highlightClass: string }) {
+function createTyper(target: HTMLElement, { add, random, onFirstWord, highlightClass, wordClass }: { add: (fn: () => void) => void; random: () => number; onFirstWord: () => void; highlightClass: string; wordClass: string }) {
   let buffer = '';
   let queued = 0;
   let ended = false;
@@ -152,14 +222,16 @@ function createTyper(target: HTMLElement, { add, random, onFirstWord, highlightC
       onFirstWord();
     }
     if (token.space) target.append(' ');
+    // La entrada de cada palabra es una animación CSS (opacidad y transform,
+    // en el compositor): con decenas de palabras en vuelo, un tween de GSAP
+    // por palabra repintaba y recalculaba el layout en cada cuadro.
     const word = document.createElement('span');
     word.textContent = token.word;
-    if (token.highlight) word.className = highlightClass;
+    word.className = token.highlight ? `${wordClass} ${highlightClass}` : wordClass;
     target.append(word);
     const last = token.word.at(-1);
     const delay = 0.032 + random() * 0.04 + (last === ',' || last === ':' ? 0.12 : 0) + (last === '.' || last === '!' || last === '?' ? 0.26 : 0);
     add(() => {
-      gsap.fromTo(word, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.5, ease: EASE.out.gsap, clearProps: 'transform' });
       gsap.delayedCall(delay, step);
     });
   };
@@ -435,6 +507,7 @@ export function StylistSection({
       },
       random: createRandom(current.question.length * 104729 + current.key),
       highlightClass: styles.highlight,
+      wordClass: styles.word,
       onFirstWord: () => {
         if (thinkingRef.current) thinkingRef.current.style.display = 'none';
       },

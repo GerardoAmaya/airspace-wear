@@ -125,6 +125,105 @@
   overflow: visible;
 }
 
+/* Luz de la antena, sobre el dibujo (caja de 80 x 100, la misma del SVG):
+   1 unidad del dibujo = 1.25cqw. Gira con la cabeza alrededor de (40, 52).
+   Solo transform y opacidad en CSS: corre en el compositor. */
+.antenna {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+  transform-origin: 50% 52%;
+  pointer-events: none;
+}
+
+.antennaLight,
+.antennaRing {
+  position: absolute;
+  left: 50%;
+  top: 5%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  translate: -50% -50%;
+}
+
+/* Radio 3.2: el punto de luz, del tono claro al acento. */
+.antennaLight {
+  width: 8cqw;
+  background: radial-gradient(closest-side, var(--color-robot-light), var(--color-robot-accent));
+  animation: robot-antenna-pulse 1.8s cubic-bezier(0.42, 0, 0.58, 1) infinite;
+  transition: opacity var(--duration-ui) var(--ease-out);
+}
+
+.antenna[data-mood='happy'] .antennaLight {
+  animation: robot-antenna-pop 0.35s cubic-bezier(0.42, 0, 0.58, 1) forwards;
+}
+
+.antenna[data-mood='asleep'] .antennaLight {
+  animation: none;
+  opacity: 0.35;
+}
+
+@keyframes robot-antenna-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* De radio 3.2 a 4.8 y se asienta en 3.9. */
+@keyframes robot-antenna-pop {
+  50% {
+    transform: scale(1.5);
+  }
+  to {
+    transform: scale(1.22);
+  }
+}
+
+/* El anillo que se expande: caja de radio 10, escalada (3.2 / 10 = 0.32). */
+.antennaRing {
+  width: 25cqw;
+  border: 2cqw solid var(--color-robot-accent);
+  opacity: 0;
+  animation: robot-antenna-ring 1.8s cubic-bezier(0, 0, 0.58, 1) infinite;
+}
+
+.antenna[data-mood='happy'] .antennaRing {
+  animation: robot-antenna-ring-happy 0.9s cubic-bezier(0, 0, 0.58, 1) infinite;
+}
+
+@keyframes robot-antenna-ring {
+  from {
+    transform: scale(0.32);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(0.75);
+    opacity: 0;
+  }
+}
+
+@keyframes robot-antenna-ring-happy {
+  from {
+    transform: scale(0.32);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.antenna[data-reduced] .antennaLight {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .antennaLight,
+  .antennaRing {
+    animation: none;
+  }
+}
+
 /* Sombra en el suelo: una elipse con degradado (sin blur). */
 .shadowTrack {
   position: absolute;
@@ -268,6 +367,7 @@
 }
 
 .mini {
+  position: relative;
   display: inline-block;
   flex-shrink: 0;
   width: 32px;
