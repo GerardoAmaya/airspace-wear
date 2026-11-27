@@ -267,7 +267,8 @@ async function buildVariant(model, geometry, variantName) {
   });
 
   let result;
-  for (const quality of TEXTURE_QUALITY_STEPS) {
+  // Calidades a probar: las del modelo si las define (textureQualitySteps).
+  for (const quality of variant.textureQualitySteps ?? TEXTURE_QUALITY_STEPS) {
     const candidate = cloneDocument(simplification.document);
     await compressTextures(candidate, variant, quality);
     await candidate.transform(dedup(), prune(), meshopt({ encoder: MeshoptEncoder, level: 'high' }));

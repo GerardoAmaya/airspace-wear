@@ -18,17 +18,19 @@ export const GARMENT_PATHS = {
   rawModelsDir: path.join(ROOT_DIR, 'assets/models/raw'),
 };
 
-// Hoodie holgado de felpa: hombro caído, mangas con volumen que se juntan en
-// el puño de canalé, ruedo bajo (cubre la cadera) con una banda de canalé
-// suelta, capucha baja apoyada detrás del cuello, bolsillo canguro y cordones
-// con ojales de metal.
+// Hoodie de felpa de corte regular, cerca del cuerpo (la silueta del anorak
+// gris del catálogo): hombro apenas caído, mangas que se afinan hacia el puño
+// de canalé, ruedo en la cadera con una banda de canalé que la abraza, capucha
+// baja y delgada apoyada detrás del cuello, bolsillo canguro y cordones con
+// ojales de metal. El dueño pidió que no se vea holgado ni inflado: sin
+// simulación de tela, el volumen extra se ve rígido al caminar.
 export const HOODIE = {
   heightMeters: 1.75,
   shell: {
     // Piezas del cuerpo que forman la base de la prenda (torso y brazos).
     bones: ['Hips', 'Spine', 'Spine1', 'Spine2', 'LeftShoulder', 'RightShoulder', 'LeftArm', 'RightArm', 'LeftForeArm', 'RightForeArm'],
     // Inflado inicial sobre el cuerpo y remallado de vóxeles.
-    offset: 0.022,
+    offset: 0.012,
     voxelMeters: 0.007,
     smoothIterations: 30,
     // Suavizado final, después de dar forma (borra el ruido del remallado).
@@ -45,36 +47,39 @@ export const HOODIE = {
     hemGather: 0.012,
     // Holgura del torso: casi igual del pecho al ruedo (corte regular, sin
     // vuelo abajo: sin simulación de tela, un ruedo con vuelo se ve rígido al caminar).
-    torsoEase: { chest: 0.012, hem: 0.014 },
+    torsoEase: { chest: 0.003, hem: 0.004 },
     // Mangas: punto del corte sobre el eje del brazo (0 hombro, 1 mano),
     // holgura y puño de canalé (largo y holgura sobre la muñeca).
     sleeveEnd: 0.985,
-    sleeveEase: 0.004,
+    sleeveEase: 0,
+    // Arrastre del radio de arriba hacia la muñeca (por tramo de 1/40 de la
+    // manga): 0,96 afina la manga hacia el antebrazo como la del anorak.
+    sleeveTaper: 0.96,
     cuffLength: 0.065,
     cuffEase: 0.002,
     // Volumen que cae sobre el puño (tela que se junta antes del canalé).
-    cuffBunch: 0.008,
+    cuffBunch: 0.003,
     // Costura del hombro caído: a cuántos metros del hueso del brazo.
     shoulderSeam: 0.045,
     neckHole: { radius: 0.078, forward: 0.012, minT: -0.6 },
     // Holgura mínima con el cuerpo en reposo.
-    clearance: 0.014,
+    clearance: 0.01,
     // Canto del ruedo y los puños (solidify solo borde, hacia adentro).
     hem: 0.005,
     // Pliegues suaves (amplitud en metros): codos, espalda baja, sobre los
     // puños y ondas verticales del ruedo.
-    folds: { elbow: 0.004, lowerBack: 0.003, cuff: 0.004, hem: 0.007 },
+    folds: { elbow: 0.003, lowerBack: 0.002, cuff: 0.002, hem: 0.004 },
   },
   // Capucha baja: un rollo cerrado alrededor del cuello que cae sobre la espalda.
   hood: {
     segments: 72,
     profile: 13,
     // Alto del cuello de la capucha sobre el escote (adelante, atrás).
-    stand: [0.022, 0.05],
+    stand: [0.016, 0.034],
     // Caída sobre el cuerpo desde el escote (adelante, costados, atrás).
-    drop: [0.018, 0.09, 0.165],
+    drop: [0.015, 0.07, 0.13],
     // Grosor del rollo (adelante, atrás).
-    thickness: [0.014, 0.05],
+    thickness: [0.01, 0.028],
     // La tela se abre hacia los costados al caer sobre la espalda.
     spread: 0.9,
     gap: 0.004,
@@ -102,15 +107,21 @@ export const HOODIE = {
   // Pose de exhibición del modelo del catálogo (brazos abajo, en grados).
   displayPose: { arms: { down: 62, forward: 8 }, forearms: { down: 4, forward: 10 } },
   // Atlas de textura (fracciones de la imagen: x0, y0, x1, y1, origen arriba a
-  // la izquierda). Una sola textura para toda la tela.
+  // la izquierda). Una sola textura para toda la tela. El frente y la espalda
+  // (donde van los estampados con letras chicas) se llevan casi tres cuartos
+  // de la imagen: cada uno ocupa media columna a lo ancho, que es su lado
+  // limitante (unos 2400 px por metro en 2048 px). Las mangas (solo bandas y
+  // una etiqueta) quedan a la misma densidad de antes; la capucha y los
+  // cordones son tela lisa y el bolsillo es relieve de la malla con su
+  // contorno dibujado en el frente, así que su isla casi no se usa.
   atlas: {
-    front: [0, 0, 0.5, 0.6],
-    back: [0.5, 0, 1, 0.6],
-    sleeveL: [0, 0.6, 0.5, 0.85],
-    sleeveR: [0.5, 0.6, 1, 0.85],
-    hood: [0, 0.85, 0.6, 1],
-    pocket: [0.6, 0.85, 0.82, 1],
-    cords: [0.82, 0.85, 1, 1],
+    front: [0, 0, 0.5, 0.74],
+    back: [0.5, 0, 1, 0.74],
+    sleeveL: [0, 0.74, 0.38, 1],
+    sleeveR: [0.38, 0.74, 0.76, 1],
+    hood: [0.76, 0.74, 1, 0.94],
+    pocket: [0.76, 0.94, 0.88, 1],
+    cords: [0.88, 0.94, 1, 1],
   },
   textureSize: 2048,
 };

@@ -127,6 +127,14 @@ export const LICENSES = {
 
 // Origen de las prendas propias del proyecto (pnpm garments): sin autor de
 // terceros ni licencia externa. ownWork hace que los créditos lo digan así.
+// Estampados con letras chicas (NIKE, AIR, SWOOSH BY NIKE, etiquetas): el
+// color del hero queda en 2048 px y prueba primero una calidad WebP más alta
+// (bordes de letra nítidos de cerca). El relieve y la rugosidad de la felpa
+// son ruido suave: a 1024 px no se nota y deja los bytes al color.
+const OWN_HOODIE_VARIANTS = {
+  hero: { textureQualitySteps: [94, 90, 88, 80], textureSizeBySlot: { normalTexture: 1024, metallicRoughnessTexture: 1024 } },
+};
+
 const OWN_HOODIE = {
   provider: 'local',
   ownWork: true,
@@ -182,7 +190,8 @@ const OWN_HOODIE = {
 //   máximo solo para esa variante) y lockAround ({ materials, hosts, radius }:
 //   fija los vértices de los materiales hosts a menos de radius metros de los
 //   materials, para que la simplificación no mueva el cuero bajo una
-//   calcomanía). Documentar la razón al lado.
+//   calcomanía), textureQualitySteps (calidades WebP del color a probar en
+//   orden, en lugar de TEXTURE_QUALITY_STEPS). Documentar la razón al lado.
 export const MODELS = [
   {
     slug: 'air-jordan-1',
@@ -990,10 +999,11 @@ export const MODELS = [
     // pnpm garments (scripts/garments), que escribe el original en
     // assets/models/raw. Mismo hoodie que hoodie-nike-air-negro, otro color.
     source: OWN_HOODIE,
-    // Alto de la pose de exhibición (capucha a ruedo): sale de
-    // scripts/garments (layout.json, display.height), ya en escala real.
+    // Alto real de exhibición (capucha a ruedo, talla M). La malla del
+    // maniquí mide unos 0,61 m (layout.json, display.height) y se escala.
     size: { axis: 'y', meters: 0.73 },
     transform: { rotation: [0, 0, 0] },
+    variantOverrides: OWN_HOODIE_VARIANTS,
   },
   {
     slug: 'hoodie-nike-air-negro',
@@ -1003,6 +1013,7 @@ export const MODELS = [
     source: OWN_HOODIE,
     size: { axis: 'y', meters: 0.73 },
     transform: { rotation: [0, 0, 0] },
+    variantOverrides: OWN_HOODIE_VARIANTS,
   },
   {
     slug: 'chaqueta-adidas-negra',

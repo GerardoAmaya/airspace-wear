@@ -64,6 +64,28 @@ const VARIANTS = {
   lite: { suffix: '-lite', maxTriangles: 5_000, maxTextureSize: 512, quality: 72, budget: { bytes: 160_000, triangles: 7_000 } },
 };
 
+// Ajustes por prenda sobre VARIANTS. Los hoodies propios (pnpm garments)
+// llevan estampados con letras chicas (NIKE, AIR, SWOOSH BY NIKE y las
+// etiquetas tejidas) que a 1024 px se veían borrosos de cerca en el teléfono:
+// el hero conserva la textura de color de 2048 px y el lite sube a 1024 px,
+// con más calidad WebP en el color (bordes de letra limpios). Los mapas de
+// datos siguen a la mitad. Por eso su presupuesto de bytes es mayor que el
+// de las demás prendas (solo estos dos).
+const HD_PRINTS = {
+  hero: { maxTextureSize: 2048, colorQuality: 90, budget: { bytes: 520_000 } },
+  lite: { maxTextureSize: 1024, colorQuality: 85, budget: { bytes: 200_000 } },
+};
+const VARIANT_OVERRIDES = {
+  'hoodie-nike-blanco': HD_PRINTS,
+  'hoodie-nike-air-negro': HD_PRINTS,
+};
+
+function variantFor(slug, variantName) {
+  const base = VARIANTS[variantName];
+  const extra = VARIANT_OVERRIDES[slug]?.[variantName] ?? {};
+  return { ...base, ...extra, budget: { ...base.budget, ...extra.budget } };
+}
+
 function fail(message) {
   console.error(`\n${message}\n`);
   process.exit(1);
@@ -210,7 +232,7 @@ async function compressTextures(document, variant) {
         encoder: sharp,
         targetFormat: 'webp',
         resize: [size, size],
-        quality: variant.quality,
+        quality: data.has(texture) ? variant.quality : (variant.colorQuality ?? variant.quality),
         effort: 100,
       });
     }),
@@ -228,7 +250,7 @@ async function validate(glb) {
 }
 
 async function buildVariant(source, slug, kind, variantName) {
-  const variant = VARIANTS[variantName];
+  const variant = variantFor(slug, variantName);
   const document = cloneDocument(source);
   await document.transform(weld());
   const initial = countTriangles(document);
@@ -276,7 +298,7 @@ for (const item of items.filter((entry) => !entry.layerOnly)) {
     if (!ok) problems++;
     console.log(
       `  ${item.slug.padEnd(28)} ${variantName.padEnd(4)} ${formatThousands(output.triangles).padStart(6)} tris, ` +
-        `${(output.bytes / 1000).toFixed(0).padStart(4)} KB (máx. ${VARIANTS[variantName].budget.bytes / 1000} KB), ` +
+        `${(output.bytes / 1000).toFixed(0).padStart(4)} KB (máx. ${variantFor(item.slug, variantName).budget.bytes / 1000} KB), ` +
         `validador ${output.validation.errors} errores / ${output.validation.warnings} avisos  [${ok ? 'OK' : 'REVISAR'}]`,
     );
     for (const message of output.validation.errorMessages) console.log(`       ${message}`);

@@ -5582,8 +5582,8 @@
         }
       },
       "raw": {
-        "bytes": 8808916,
-        "triangles": 39156,
+        "bytes": 8736456,
+        "triangles": 39097,
         "drawCalls": 2,
         "meshes": 1,
         "materials": 2,
@@ -5603,18 +5603,18 @@
           0
         ],
         "yawCorrection": 0,
-        "scale": 1.15249,
+        "scale": 1.19802,
         "dimensionsCm": {
-          "width": 97.1,
+          "width": 100.4,
           "height": 73,
-          "depth": 42.7
+          "depth": 40.3
         }
       },
       "variants": {
         "hero": {
           "file": "/models/hoodie-nike-blanco.glb",
-          "bytes": 867712,
-          "triangles": 39156,
+          "bytes": 762672,
+          "triangles": 39097,
           "drawCalls": 2,
           "meshes": 1,
           "materials": 2,
@@ -5623,7 +5623,7 @@
           "textureFormats": [
             "webp"
           ],
-          "textureQuality": 88,
+          "textureQuality": 94,
           "simplified": false,
           "withinBudget": true,
           "validation": {
@@ -5634,8 +5634,8 @@
         },
         "lite": {
           "file": "/models/hoodie-nike-blanco-lite.glb",
-          "bytes": 215048,
-          "triangles": 19998,
+          "bytes": 214060,
+          "triangles": 19999,
           "drawCalls": 2,
           "meshes": 1,
           "materials": 2,
@@ -5675,8 +5675,8 @@
         }
       },
       "raw": {
-        "bytes": 7223416,
-        "triangles": 39156,
+        "bytes": 7252584,
+        "triangles": 39097,
         "drawCalls": 2,
         "meshes": 1,
         "materials": 2,
@@ -5696,18 +5696,18 @@
           0
         ],
         "yawCorrection": 0,
-        "scale": 1.15249,
+        "scale": 1.19802,
         "dimensionsCm": {
-          "width": 97.1,
+          "width": 100.4,
           "height": 73,
-          "depth": 42.7
+          "depth": 40.3
         }
       },
       "variants": {
         "hero": {
           "file": "/models/hoodie-nike-air-negro.glb",
-          "bytes": 741704,
-          "triangles": 39156,
+          "bytes": 502984,
+          "triangles": 39097,
           "drawCalls": 2,
           "meshes": 1,
           "materials": 2,
@@ -5716,7 +5716,7 @@
           "textureFormats": [
             "webp"
           ],
-          "textureQuality": 88,
+          "textureQuality": 94,
           "simplified": false,
           "withinBudget": true,
           "validation": {
@@ -5727,8 +5727,8 @@
         },
         "lite": {
           "file": "/models/hoodie-nike-air-negro-lite.glb",
-          "bytes": 209960,
-          "triangles": 19998,
+          "bytes": 208652,
+          "triangles": 19999,
           "drawCalls": 2,
           "meshes": 1,
           "materials": 2,

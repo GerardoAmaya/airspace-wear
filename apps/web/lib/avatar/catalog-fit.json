@@ -93,19 +93,19 @@
             "from": "Hips",
             "to": "Spine",
             "keep": "above",
-            "t": -1.167
+            "t": -1.165
           },
           {
             "from": "LeftForeArm",
             "to": "LeftHand",
             "keep": "below",
-            "t": 0.972
+            "t": 0.979
           },
           {
             "from": "RightForeArm",
             "to": "RightHand",
             "keep": "below",
-            "t": 0.972
+            "t": 0.973
           }
         ],
         "holes": [
@@ -122,15 +122,15 @@
       "files": {
         "hero": {
           "url": "/avatar-fit/hoodie-nike-blanco.glb",
-          "bytes": 175420,
-          "triangles": 11998,
-          "sha256": "8fa221da5eb39be4"
+          "bytes": 416496,
+          "triangles": 11999,
+          "sha256": "6160884f1d820585"
         },
         "lite": {
           "url": "/avatar-fit/hoodie-nike-blanco-lite.glb",
-          "bytes": 79176,
-          "triangles": 4998,
-          "sha256": "f1acceff94cbb2c0"
+          "bytes": 128412,
+          "triangles": 4999,
+          "sha256": "dfc64a342d89bf8f"
         }
       }
     },
@@ -160,19 +160,19 @@
             "from": "Hips",
             "to": "Spine",
             "keep": "above",
-            "t": -1.167
+            "t": -1.165
           },
           {
             "from": "LeftForeArm",
             "to": "LeftHand",
             "keep": "below",
-            "t": 0.972
+            "t": 0.979
           },
           {
             "from": "RightForeArm",
             "to": "RightHand",
             "keep": "below",
-            "t": 0.972
+            "t": 0.973
           }
         ],
         "holes": [
@@ -189,15 +189,15 @@
       "files": {
         "hero": {
           "url": "/avatar-fit/hoodie-nike-air-negro.glb",
-          "bytes": 161508,
-          "triangles": 11998,
-          "sha256": "a2f7f3a5b8a02032"
+          "bytes": 257464,
+          "triangles": 11999,
+          "sha256": "5ba370f478628308"
         },
         "lite": {
           "url": "/avatar-fit/hoodie-nike-air-negro-lite.glb",
-          "bytes": 77688,
-          "triangles": 4998,
-          "sha256": "f50ad5a6a26a1d26"
+          "bytes": 96248,
+          "triangles": 4999,
+          "sha256": "f7be5858611ce90a"
         }
       }
     },

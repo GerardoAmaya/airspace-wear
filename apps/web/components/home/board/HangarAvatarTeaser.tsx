@@ -52,8 +52,6 @@ const WEAR_GRACE = 5;
 const START_ANGLE = -Math.PI / 6;
 // Diámetro de la plataforma (m): el SVG de anillos mide 600 unidades.
 const PLATFORM = 1.2;
-// Teléfonos y tabletas táctiles: variantes livianas del avatar, la ropa y el par.
-const PHONE_QUERY = '(max-width: 860px), (hover: none) and (pointer: coarse)';
 
 // Marcas de la plataforma (mismo dibujo que el adelanto del zapato).
 const TICKS = Array.from({ length: 72 }, (_, index) => {
@@ -80,11 +78,6 @@ const FEATURES = [
 ] as const;
 
 // Suscripciones del navegador (sin estado por cuadro).
-const subscribeMedia = (callback: () => void) => {
-  const query = window.matchMedia(PHONE_QUERY);
-  query.addEventListener('change', callback);
-  return () => query.removeEventListener('change', callback);
-};
 const subscribeVisibility = (callback: () => void) => {
   document.addEventListener('visibilitychange', callback);
   return () => document.removeEventListener('visibilitychange', callback);
@@ -106,7 +99,6 @@ export function HangarAvatarTeaser({ look, lite, reducedMotion }: { look: Teaser
   const [stage, setStage] = useState<HTMLDivElement | null>(null);
   const tabVisible = useSyncExternalStore(subscribeVisibility, () => document.visibilityState === 'visible', () => true);
   const active = useStageActivity(stage) && tabVisible;
-  const phone = useSyncExternalStore(subscribeMedia, () => window.matchMedia(PHONE_QUERY).matches, () => false);
 
   // Cerca de la pantalla: recién ahí se descargan el canvas y los modelos.
   const [near, setNear] = useState(false);
@@ -121,11 +113,14 @@ export function HangarAvatarTeaser({ look, lite, reducedMotion }: { look: Teaser
   // Modo liviano y movimiento reducido: solo la foto fija (sin 3D).
   const still = lite || reducedMotion;
   const live = near && !still;
-  const small = lite || phone;
+  // Solo el modo liviano (equipos de gama baja) baja la resolución y usa las
+  // prendas livianas. Los teléfonos normales dibujan como el Hangar (DPR 1,5 y
+  // prendas con texturas completas): con DPR 1 en una pantalla de 3x el avatar
+  // y los estampados se veían borrosos.
   // El par va siempre en su -lite.glb: de cuerpo entero mide unos 50 px y
   // el hero (texturas de 2048 px) pesaría más del doble sin verse distinto.
   const shoe = useMemo(() => ({ slug: look.pair.slug, url: look.pair.liteUrl, foot: look.pair.foot }), [look.pair]);
-  const wear = useMemo(() => look.wear.map((item) => ({ slug: item.slug, slot: item.slot, url: small ? item.liteUrl : item.url })), [look.wear, small]);
+  const wear = useMemo(() => look.wear.map((item) => ({ slug: item.slug, slot: item.slot, url: lite ? item.liteUrl : item.url })), [look.wear, lite]);
 
   // Listo: avatar y par dibujados y las prendas a la vista (o pasó el margen).
   const [ready, setReady] = useState(false);
@@ -357,7 +352,7 @@ export function HangarAvatarTeaser({ look, lite, reducedMotion }: { look: Teaser
               {live && (
                 <AvatarScene
                   active={active}
-                  lite={small}
+                  lite={lite}
                   reducedMotion={false}
                   shoe={shoe}
                   clip="walk"

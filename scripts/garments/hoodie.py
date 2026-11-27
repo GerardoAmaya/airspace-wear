@@ -230,9 +230,13 @@ def shape_sleeves(body, frame, bm, spec):
             if t >= seam_t * 1.5:
                 table[slice_index][bin_index] = max(table[slice_index][bin_index], radial.length)
             chosen.append((vert, t, angle, radial, slice_index, bin_index))
+        # Cuánto del radio de arriba se arrastra hacia la muñeca (por tramo):
+        # cerca de 1 la manga cae recta y ancha; más bajo, se afina hacia el
+        # antebrazo como una manga entallada.
+        taper = spec.get("sleeveTaper", 0.982)
         for s in range(1, slices):
             for b in range(bins):
-                table[s][b] = max(table[s][b], table[s - 1][b] * 0.982)
+                table[s][b] = max(table[s][b], table[s - 1][b] * taper)
         for s in range(slices):
             row = table[s]
             table[s] = [max(row[i], (row[i - 1] + 2 * row[i] + row[(i + 1) % bins]) / 4) for i in range(bins)]
