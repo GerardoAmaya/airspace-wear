@@ -1,6 +1,8 @@
 'use server';
 
 import { type CheckoutIssue, type Locale, localeSchema } from '@airspace/contracts';
+import { headers } from 'next/headers';
+import { consume } from '@/lib/security/rate-limit';
 import { createCheckout } from './api';
 
 // Acción del botón "Pagar" del carrito: reenvía el carrito (solo producto,
@@ -23,7 +25,15 @@ function cleanItems(raw: unknown): { slug: string; size?: string; quantity: numb
   return items;
 }
 
+// Solo URLs de Stripe Checkout (https://checkout.stripe.com/...). Antes se
+// aceptaba cualquier host que terminara en "stripe.com", como evilstripe.com.
+function isStripeCheckoutUrl(url: URL): boolean {
+  return url.protocol === 'https:' && url.hostname === 'checkout.stripe.com' && !url.username && !url.password;
+}
+
 export async function startCheckout(locale: Locale, rawItems: unknown): Promise<CheckoutResult> {
+  // Límite por IP (la API además limita por usuario).
+  if (consume('checkout', await headers()) !== null) return { ok: false, error: 'rate_limited' };
   const parsedLocale = localeSchema.safeParse(locale);
   // Solo los tres campos que la API acepta; el resto (si lo hubiera) no viaja.
   const items = cleanItems(rawItems);
@@ -31,8 +41,8 @@ export async function startCheckout(locale: Locale, rawItems: unknown): Promise<
   const result = await createCheckout(parsedLocale.data, items);
   if (result.ok) {
     // Solo se redirige a Stripe (nunca a otra parte).
-    const url = new URL(result.data.url);
-    if (url.protocol !== 'https:' || !url.hostname.endsWith('stripe.com')) return { ok: false, error: 'unavailable' };
+    const url = URL.parse(result.data.url);
+    if (!url || !isStripeCheckoutUrl(url)) return { ok: false, error: 'unavailable' };
     return { ok: true, url: url.toString() };
   }
   switch (result.error) {

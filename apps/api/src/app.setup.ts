@@ -24,15 +24,37 @@ const helmet = resolveHelmet(helmetModule);
 // en request.rawBody: el webhook de Stripe verifica su firma sobre ellos.
 export const APP_OPTIONS = { rawBody: true } as const;
 
+// Cabeceras de seguridad de una API que solo responde JSON: ningún recurso
+// se carga desde sus respuestas (CSP 'none'), nadie la enmarca, HSTS de dos
+// años listo para preload y sin Referer. El resto, los valores de helmet.
+export const HELMET_OPTIONS: HelmetOptions = {
+  contentSecurityPolicy: { useDefaults: false, directives: { defaultSrc: ["'none'"], baseUri: ["'none'"], formAction: ["'none'"], frameAncestors: ["'none'"] } },
+  frameguard: { action: 'deny' },
+  strictTransportSecurity: { maxAge: 63_072_000, includeSubDomains: true, preload: true },
+  referrerPolicy: { policy: 'no-referrer' },
+};
+
+// Tamaño máximo de un cuerpo JSON. El más grande es el del estilista
+// (STYLIST_LIMITS.totalChars, unos 24.000 caracteres): 100 kB sobran
+// aun con caracteres de varios bytes. Lo que pase responde 413.
+export const JSON_BODY_LIMIT = '100kb';
+
 // Configuración HTTP compartida por main.ts y las pruebas e2e, para que las
 // pruebas corran contra la misma app que producción. Llamar antes de init().
 export function configureApp(app: INestApplication, config: Pick<AppConfig, 'webOrigins'> & Partial<Pick<AppConfig, 'trustProxy'>>): void {
   // Detrás de un proxy, la IP real del visitante (para el límite de peticiones).
-  if (config.trustProxy) (app as NestExpressApplication).set('trust proxy', config.trustProxy);
-  app.use(helmet());
+  const express = app as NestExpressApplication;
+  if (config.trustProxy) express.set('trust proxy', config.trustProxy);
+  // Sin X-Powered-By (helmet también lo quita) y con límites explícitos.
+  express.disable('x-powered-by');
+  express.useBodyParser('json', { limit: JSON_BODY_LIMIT });
+  express.useBodyParser('urlencoded', { limit: '16kb', extended: false });
+  app.use(helmet(HELMET_OPTIONS));
   // Solo la web puede llamar a la API desde el navegador.
   // Solo los métodos que la API usa (catálogo y contenidos GET, estilista POST).
-  app.enableCors({ origin: config.webOrigins, methods: ['GET', 'HEAD', 'POST'] });
+  // Sin credenciales: la sesión viaja en Authorization desde el servidor de
+  // la web, nunca como cookie del navegador hacia la API.
+  app.enableCors({ origin: config.webOrigins, methods: ['GET', 'HEAD', 'POST'], credentials: false, maxAge: 600 });
   // Rutas versionadas (/v1/...), salvo el chequeo de estado.
   app.setGlobalPrefix('v1', { exclude: ['health'] });
   app.enableShutdownHooks();

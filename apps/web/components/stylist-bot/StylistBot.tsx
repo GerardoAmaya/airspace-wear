@@ -4,6 +4,7 @@ import type { Locale } from '@airspace/contracts';
 import dynamic from 'next/dynamic';
 import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSessionStore } from '@/lib/auth/session-store';
 import { loadStylistContext } from './stylist-context';
 import { openStylist, useStylistStore } from './stylist-store';
 
@@ -41,10 +42,13 @@ export function StylistBot() {
   }, []);
 
   // Globo de pedidos: solo si la persona tiene al menos un pedido pagado. Se
-  // pregunta una vez, cuando el robot ya llegó (sin sesión responde false).
+  // pregunta una vez, cuando el robot ya llegó y solo con sesión (la sesión
+  // la pide el encabezado, lib/auth/session-store.ts): sin sesión no hay
+  // pedidos y no se gasta una llamada al servidor.
+  const signedIn = useSessionStore((state) => state.user !== null);
   const [hasOrders, setHasOrders] = useState(false);
   useEffect(() => {
-    if (!robotReady) return;
+    if (!robotReady || !signedIn) return;
     let alive = true;
     fetch('/api/stylist/orders-hint', { cache: 'no-store' })
       .then((response) => (response.ok ? response.json() : { hasOrders: false }))
@@ -55,11 +59,11 @@ export function StylistBot() {
     return () => {
       alive = false;
     };
-  }, [robotReady]);
+  }, [robotReady, signedIn]);
   const bubbles = useMemo(() => {
     const base = t.raw('bubbles') as string[];
-    return hasOrders ? [t('orderBubble'), ...base] : base;
-  }, [t, hasOrders]);
+    return hasOrders && signedIn ? [t('orderBubble'), ...base] : base;
+  }, [t, hasOrders, signedIn]);
 
   // Precarga al acercarse: el código del panel y sus datos.
   const prefetch = useCallback(() => {

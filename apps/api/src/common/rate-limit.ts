@@ -1,4 +1,5 @@
-import { type CanActivate, type ExecutionContext, HttpException, HttpStatus, Inject, Injectable, SetMetadata } from '@nestjs/common';
+import { type CanActivate, type ExecutionContext, HttpException, HttpStatus, Inject, Injectable, Logger, SetMetadata } from '@nestjs/common';
+import type { ApiError } from '@airspace/contracts';
 import { Reflector } from '@nestjs/core';
 import { APP_CONFIG, type AppConfig } from '../config/config.module.js';
 import { shouldSkipThrottle } from './throttle-skip.js';
@@ -24,6 +25,25 @@ export const RateLimit = (options: RateLimitOptions) => SetMetadata(RATE_LIMIT_K
 // Rutas sin límite (el chequeo de estado).
 export const SkipRateLimit = () => SetMetadata(SKIP_RATE_LIMIT_KEY, true);
 
+// 429 { code: 'rate_limited' } con la espera en segundos: ApiExceptionFilter
+// la pone en Retry-After. Lo usan también los límites por usuario o por
+// visitante (pago, lecturas de pedidos, estilista).
+export class RateLimitedException extends HttpException {
+  constructor(readonly retryAfterSeconds: number) {
+    super({ code: 'rate_limited' } satisfies ApiError, HttpStatus.TOO_MANY_REQUESTS);
+  }
+}
+
+// Segundos que faltan para que se abra la ventana (al menos 1).
+export const secondsUntil = (resetAt: number, now: number) => Math.max(1, Math.ceil((resetAt - now) / 1000));
+
+// IP para los registros: sin el último bloque (v4) o con solo los primeros
+// grupos (v6). Basta para ver un abuso sin guardar la IP completa.
+export function maskIp(ip: string): string {
+  if (ip.includes('.')) return ip.replace(/\.\d+$/, '.x');
+  return `${ip.split(':').slice(0, 3).join(':')}:x`;
+}
+
 interface Window {
   count: number;
   resetAt: number;
@@ -41,6 +61,7 @@ interface RateLimitResponse {
 
 @Injectable()
 export class RateLimitGuard implements CanActivate {
+  private readonly logger = new Logger('RateLimit');
   private readonly windows = new Map<string, Window>();
 
   constructor(

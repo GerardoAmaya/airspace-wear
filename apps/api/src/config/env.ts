@@ -18,7 +18,9 @@ const envSchema = z
     VERCEL: z.string().optional(),
     // Detrás de un proxy (Railway, Docker con balanceador): número de saltos
     // de confianza, para que el límite de peticiones use la IP real.
-    TRUST_PROXY: z.coerce.number().int().min(0).default(0),
+    // En Vercel, si falta, vale 1: Vercel reemplaza X-Forwarded-For por la IP
+    // real del visitante, así que un salto de confianza es lo correcto.
+    TRUST_PROXY: z.coerce.number().int().min(0).optional(),
     // Orígenes de la web permitidos por CORS, separados por coma. Se normalizan
     // al origen (sin barra final ni ruta), que es lo que compara el navegador.
     WEB_ORIGIN: z
@@ -64,7 +66,7 @@ const envSchema = z
       nodeEnv: env.NODE_ENV,
       port: env.API_PORT ?? env.PORT ?? 4000,
       host: env.API_HOST ?? (env.VERCEL ? '0.0.0.0' : '127.0.0.1'),
-      trustProxy: env.TRUST_PROXY,
+      trustProxy: env.TRUST_PROXY ?? (env.VERCEL ? 1 : 0),
       webOrigins: env.WEB_ORIGIN,
       databaseUrl: env.DATABASE_URL ?? LOCAL_DATABASE_URL,
       internalApiKey: env.INTERNAL_API_KEY || null,

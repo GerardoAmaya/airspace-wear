@@ -111,7 +111,14 @@ export default async function proxy(request: NextRequest) {
   }
   const match = PRODUCT_PATH.exec(pathname);
   if (match) {
-    const slug = decodeURIComponent(match[2]!);
+    // Un % mal formado (/es/products/%E0%A4%A) hacía fallar el proxy con un
+    // 500: responde 400, como Next con cualquier otra ruta mal codificada.
+    let slug: string;
+    try {
+      slug = decodeURIComponent(match[2]!);
+    } catch {
+      return new NextResponse(null, { status: 400 });
+    }
     let known = await knownSlugs();
     const fetchedAt = lists.get(routing.defaultLocale)?.fetchedAt;
     if (known && !known.has(slug) && fetchedAt && Date.now() - fetchedAt > SLUGS_RECHECK_MS) known = await knownSlugs(true);

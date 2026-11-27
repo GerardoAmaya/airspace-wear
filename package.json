@@ -32,8 +32,10 @@
     "avatar:build": "node --env-file-if-exists=.env scripts/avatar/build.mjs",
     "avatar:upload": "node --env-file=.env scripts/avatar/upload.mjs",
     "avatar:fit": "node --env-file-if-exists=.env scripts/avatar/fit.mjs",
+    "garments": "node scripts/garments/build.mjs",
     "design:preview": "node scripts/design/serve.mjs",
-    "fx:smoke": "node scripts/fx/smoke-atlas.mjs"
+    "fx:smoke": "node scripts/fx/smoke-atlas.mjs",
+    "security:check": "node scripts/security/check-headers.mjs"
   },
   "devDependencies": {
     "@gltf-transform/cli": "4.5.1",

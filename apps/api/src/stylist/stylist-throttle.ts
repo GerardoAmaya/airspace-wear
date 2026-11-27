@@ -1,5 +1,5 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import type { ApiError } from '@airspace/contracts';
+import { Inject, Injectable } from '@nestjs/common';
+import { RateLimitedException, secondsUntil } from '../common/rate-limit.js';
 import { APP_CONFIG, type AppConfig } from '../config/config.module.js';
 import { CLIENT_IP_HEADER, type InternalRequest, isWebServerRequest } from '../common/throttle-skip.js';
 
@@ -32,7 +32,7 @@ export class StylistThrottle {
       this.windows.set(ip, window);
     }
     window.count += 1;
-    if (window.count > STYLIST_LIMIT.limit) throw new HttpException({ code: 'rate_limited' } satisfies ApiError, HttpStatus.TOO_MANY_REQUESTS);
+    if (window.count > STYLIST_LIMIT.limit) throw new RateLimitedException(secondsUntil(window.resetAt, now));
   }
 
   // Solo para pruebas.

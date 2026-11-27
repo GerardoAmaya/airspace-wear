@@ -96,7 +96,7 @@ apps/web  (Next.js)  ──server fetch──▶  apps/api  (NestJS)  ──Pris
 - NestJS modules for the catalog (`/v1/products`, `/v1/brands`, `/v1/categories`), content (`/v1/credits`), health (`/health`), the stylist (`/v1/stylist/status`, `/v1/stylist/chat`) and the signed-in user (`/v1/me`).
 - Requests and responses are validated with the zod schemas from `packages/contracts`. Errors are returned as `{ code }`, which the web translates.
 - Prisma 7 with the `prisma-client` generator (ESM, output in `src/generated`) and the `pg` driver adapter, so no query engine binary ships at runtime.
-- Helmet, CORS limited to `WEB_ORIGIN`, and a global rate limit (120 requests per minute per IP and route).
+- Helmet (strict settings for a JSON-only API), CORS limited to `WEB_ORIGIN`, a 100 kB JSON body limit, and a global rate limit (120 requests per minute per IP and route), plus per-user limits for checkout and order reads. Security review, headers and how to re-run the checks: [security.md](security.md).
 
 ### Contracts (`packages/contracts`)
 

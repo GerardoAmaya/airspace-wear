@@ -1,6 +1,8 @@
 import type { StylistEvent } from '@airspace/contracts';
 import type { NextRequest } from 'next/server';
 import { sessionAuthorization } from '@/lib/auth/api-session';
+import { clientIp } from '@/lib/security/client-ip';
+import { limitResponse } from '@/lib/security/rate-limit';
 
 // Puente del estilista: el navegador pregunta aquí (mismo origen) y este
 // servidor reenvía a la API (POST /v1/stylist/chat) con la sesión del
@@ -27,20 +29,20 @@ function unavailable(): Response {
   return new Response(`event: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`, { status: 200, headers: SSE_HEADERS });
 }
 
-// IP del visitante: la primera de x-forwarded-for (la pone Vercel o el proxy
-// de desarrollo). Sin ella, la API cuenta a todos juntos ("web").
-function clientIp(request: NextRequest): string | null {
-  const forwarded = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
-  return forwarded || request.headers.get('x-real-ip') || null;
-}
-
 export async function POST(request: NextRequest): Promise<Response> {
+  const limited = limitResponse('stylistChat', request);
+  if (limited) return limited;
+  // Solo JSON: un formulario de otro sitio (text/plain, sin preflight) no
+  // puede usar este puente con la sesión del visitante.
+  if (!request.headers.get('content-type')?.toLowerCase().startsWith('application/json')) return Response.json({ code: 'invalid_request' }, { status: 415 });
   const declared = Number(request.headers.get('content-length') ?? 0);
   if (declared > MAX_BODY_BYTES) return Response.json({ code: 'invalid_request' }, { status: 413 });
   const body = await request.text();
   if (body.length > MAX_BODY_BYTES) return Response.json({ code: 'invalid_request' }, { status: 413 });
 
-  const ip = clientIp(request);
+  // IP del visitante solo si hay un proxy de confianza (Vercel o TRUST_PROXY,
+  // lib/security/client-ip.ts). Sin ella, la API cuenta a todos juntos ("web").
+  const ip = clientIp(request.headers);
   // Si no se puede leer la sesión (base caída), se pregunta sin ella.
   const authorization = await sessionAuthorization().catch(() => null);
   let upstream: Response;
@@ -66,7 +68,11 @@ export async function POST(request: NextRequest): Promise<Response> {
 
   // Errores con JSON (429, 400): mismo estado y cuerpo, el panel los traduce.
   if (!upstream.ok || !upstream.body) {
-    return new Response(await upstream.text(), { status: upstream.status, headers: { 'Content-Type': upstream.headers.get('content-type') ?? 'application/json', 'Cache-Control': 'no-store' } });
+    const retryAfter = upstream.headers.get('retry-after');
+    return new Response(await upstream.text(), {
+      status: upstream.status,
+      headers: { 'Content-Type': upstream.headers.get('content-type') ?? 'application/json', 'Cache-Control': 'no-store', ...(retryAfter ? { 'Retry-After': retryAfter } : {}) },
+    });
   }
   return new Response(upstream.body, { status: 200, headers: SSE_HEADERS });
 }

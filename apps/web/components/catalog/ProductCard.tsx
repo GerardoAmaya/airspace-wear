@@ -11,7 +11,9 @@ import { ThemedPoster } from './ThemedPoster';
 // nombre, detalle, precio, disponibilidad y tallas. Todo el bloque es el enlace.
 // headingLevel: h2 en /catalog (bajo el h1 de la página); h3 en secciones con
 // su propio h2, como "Destacados" de la home.
-export function ProductCard({ product, headingLevel: Heading = 'h2' }: { product: ProductCardData; headingLevel?: 'h2' | 'h3' }) {
+// eager: la primera fila de /catalog, ya a la vista al llegar. Su póster es
+// el LCP de la página: se pide de entrada en vez de esperar a la carga diferida.
+export function ProductCard({ product, headingLevel: Heading = 'h2', eager = false }: { product: ProductCardData; headingLevel?: 'h2' | 'h3'; eager?: boolean }) {
   const t = useTranslations('Catalog');
   const availability = useTranslations('Availability');
   const locale = useLocale();
@@ -43,7 +45,7 @@ export function ProductCard({ product, headingLevel: Heading = 'h2' }: { product
             // eslint-disable-next-line @next/next/no-img-element
             <img src={product.imageUrl} alt={t('posterAlt', { name: product.name })} className={styles.poster} loading="lazy" decoding="async" />
           ) : poster ? (
-            <ThemedPoster poster={poster} alt={t('posterAlt', { name: product.name })} className={styles.poster} sizes="(max-width: 600px) 50vw, 300px" />
+            <ThemedPoster poster={poster} alt={t('posterAlt', { name: product.name })} className={styles.poster} sizes="(max-width: 600px) 50vw, 300px" eager={eager} />
           ) : (
             <span className={styles.placeholder} aria-hidden="true">
               {product.brand.name}

@@ -72,6 +72,8 @@ export function createApiEngine({ endpoint = STYLIST_CHAT_ENDPOINT, catalog, fal
       history.push({ role: 'user', content: question });
       // Solo las últimas conversaciones caben en el límite de la API.
       while (history.filter((entry) => entry.role === 'user').length > STYLIST_LIMITS.userMessages) history.splice(0, 2);
+      // Y en el tope de caracteres de todo el historial (se quitan las más viejas).
+      while (history.length > 1 && history.reduce((sum, entry) => sum + entry.content.length, 0) > STYLIST_LIMITS.totalChars) history.splice(0, 2);
 
       let response: Response;
       try {
@@ -124,7 +126,8 @@ export function createApiEngine({ endpoint = STYLIST_CHAT_ENDPOINT, catalog, fal
           yield { type: 'text', text };
         }
       }
-      if (answer) history.push({ role: 'assistant', content: answer });
+      // La API acepta respuestas de hasta 4.000 caracteres en el historial.
+      if (answer) history.push({ role: 'assistant', content: answer.slice(0, 4000) });
       else history.pop();
       yield { type: 'done' };
     },

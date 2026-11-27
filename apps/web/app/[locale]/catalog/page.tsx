@@ -327,9 +327,9 @@ async function CatalogResults({ locale, searchParams }: CatalogBoundaryProps) {
         // key: cada página (y cada filtro) monta su rejilla, así las
         // tarjetas nuevas hacen su entrada en vez de aparecer de golpe.
         <Reveal key={`${state.q}-${state.category}-${state.subcategory}-${state.brand}-${state.sort}-${page}`} as="ul" className={styles.grid} stagger={0.04} leadOnLoad>
-          {visible.map((product) => (
+          {visible.map((product, index) => (
             <li key={product.slug}>
-              <ProductCard product={product} />
+              <ProductCard product={product} eager={index < 4} />
             </li>
           ))}
         </Reveal>

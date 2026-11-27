@@ -1,7 +1,11 @@
 'use client';
 
 import { type RefObject, useEffect } from 'react';
-import { MathUtils } from 'three';
+// clamp y damp locales (los mismos de three): importar three aquí lo metía
+// en el JS inicial de todas las páginas (el enlace al Hangar del encabezado
+// precarga esta ruta).
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+const damp = (from: number, to: number, lambda: number, dt: number) => from + (to - from) * (1 - Math.exp(-lambda * dt));
 import { now, RESUME_DELAY, type Spin } from '@/components/home/board/rig';
 import type { AvatarView, StagePose } from './rig';
 
@@ -50,12 +54,12 @@ export const createZoom = (): StageZoom => ({
 // escala (en 1x, ninguno): de cerca, los zapatos del borde inferior entran
 // enteros. Visible en x: de −x / s a (W − x) / s, en píxeles del encuadre base.
 function clampOffset(zoom: StageZoom) {
-  zoom.scale = MathUtils.clamp(zoom.scale, 1, zoom.max);
+  zoom.scale = clamp(zoom.scale, 1, zoom.max);
   const s = zoom.scale;
   const mx = zoom.width * MARGIN * (s - 1);
   const my = zoom.height * MARGIN * (s - 1);
-  zoom.x = MathUtils.clamp(zoom.x, zoom.width - (zoom.width + mx) * s, mx * s);
-  zoom.y = MathUtils.clamp(zoom.y, zoom.height - (zoom.height + my) * s, my * s);
+  zoom.x = clamp(zoom.x, zoom.width - (zoom.width + mx) * s, mx * s);
+  zoom.y = clamp(zoom.y, zoom.height - (zoom.height + my) * s, my * s);
 }
 
 // Tamaño del escenario (límite del desplazamiento); si cambia, se reajusta.
@@ -67,7 +71,7 @@ function measureZoom(zoom: StageZoom, element: HTMLElement) {
 
 // Escala hacia `scale` manteniendo fijo el punto (fx, fy) del canvas.
 export function zoomTo(zoom: StageZoom, scale: number, fx: number, fy: number) {
-  const next = MathUtils.clamp(scale, 1, zoom.max);
+  const next = clamp(scale, 1, zoom.max);
   const ratio = next / zoom.scale;
   zoom.x = fx - (fx - zoom.x) * ratio;
   zoom.y = fy - (fy - zoom.y) * ratio;
@@ -103,9 +107,9 @@ export function stepZoom(zoom: StageZoom, dt: number, reducedMotion: boolean) {
     shown.y = zoom.y;
     return;
   }
-  shown.scale = MathUtils.damp(shown.scale, zoom.scale, DAMPING, dt);
-  shown.x = MathUtils.damp(shown.x, zoom.x, DAMPING, dt);
-  shown.y = MathUtils.damp(shown.y, zoom.y, DAMPING, dt);
+  shown.scale = damp(shown.scale, zoom.scale, DAMPING, dt);
+  shown.x = damp(shown.x, zoom.x, DAMPING, dt);
+  shown.y = damp(shown.y, zoom.y, DAMPING, dt);
   // Cerca del objetivo, se asienta (así el atributo de prueba llega a 1 exacto).
   if (Math.abs(shown.scale - zoom.scale) < 1e-4) shown.scale = zoom.scale;
 }
@@ -168,7 +172,7 @@ export function useStageZoom(element: HTMLElement | null, zoom: RefObject<StageZ
       const current = local(event.touches);
       const z = zoom.current;
       // El punto del encuadre base que estaba bajo los dedos sigue bajo los dedos.
-      const scale = MathUtils.clamp((pinch.scale * current.distance) / pinch.distance, 1, z.max);
+      const scale = clamp((pinch.scale * current.distance) / pinch.distance, 1, z.max);
       const baseX = (pinch.mx - pinch.x) / pinch.scale;
       const baseY = (pinch.my - pinch.y) / pinch.scale;
       z.scale = scale;
@@ -214,7 +218,7 @@ export function useStageZoom(element: HTMLElement | null, zoom: RefObject<StageZ
       event.preventDefault();
       measure();
       const rect = element.getBoundingClientRect();
-      const delta = MathUtils.clamp(event.deltaMode === 1 ? event.deltaY * 16 : event.deltaY, -60, 60);
+      const delta = clamp(event.deltaMode === 1 ? event.deltaY * 16 : event.deltaY, -60, 60);
       const z = zoom.current;
       zoomTo(z, z.scale * Math.exp(-delta * 0.01), event.clientX - rect.left, event.clientY - rect.top);
     };

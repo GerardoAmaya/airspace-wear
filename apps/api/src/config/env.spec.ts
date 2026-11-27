@@ -19,6 +19,9 @@ describe('parseEnv', () => {
     const config = parseEnv({ PORT: '8080', VERCEL: '1' });
     expect(config.port).toBe(8080);
     expect(config.host).toBe('0.0.0.0');
+    // Vercel reemplaza X-Forwarded-For: un salto de confianza por defecto.
+    expect(config.trustProxy).toBe(1);
+    expect(parseEnv({ VERCEL: '1', TRUST_PROXY: '0' }).trustProxy).toBe(0);
   });
 
   it('exige DATABASE_URL en producción sin mostrar valores', () => {

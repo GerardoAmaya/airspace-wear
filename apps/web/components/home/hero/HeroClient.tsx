@@ -30,11 +30,16 @@ import {
 } from './geometry';
 import { HeroReticle, TAPE_PX_PER_DEG } from './HeroReticle';
 import styles from './HomeHero.module.css';
-import { SMOKE_ATLAS, SMOKE_LIFE } from './HeroSmoke';
+import { SMOKE_ATLAS, SMOKE_LIFE } from './smoke-config';
 import type { HeroRig } from './rig';
 
-// El lienzo 3D solo existe en el cliente y se descarga aparte.
-const HeroScene = dynamic(() => import('./HeroScene'), { ssr: false });
+// El lienzo 3D solo existe en el cliente y se descarga aparte (three y React
+// Three Fiber no entran en el JS inicial de la portada ni en el prefetch de
+// la home desde otras páginas). La descarga empieza en cuanto este módulo se
+// evalúa en el navegador, en paralelo con la hidratación, no después de ella.
+const loadHeroScene = () => import('./HeroScene');
+if (typeof window !== 'undefined') void loadHeroScene().catch(() => undefined);
+const HeroScene = dynamic(loadHeroScene, { ssr: false });
 
 export interface HeroContent {
   slug: string;

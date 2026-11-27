@@ -34,7 +34,9 @@ export interface InternalRequest {
 export function isWebServerRequest(request: InternalRequest, config: Pick<AppConfig, 'internalApiKey' | 'nodeEnv'>): boolean {
   const header = request.headers[INTERNAL_KEY_HEADER];
   if (config.internalApiKey && typeof header === 'string' && sameKey(header, config.internalApiKey)) return true;
-  return config.nodeEnv === 'development' && LOOPBACK.has(request.socket?.remoteAddress ?? '');
+  // Nunca en Vercel, aunque NODE_ENV faltara: ahí las peticiones pueden
+  // llegar desde un puente local y saltarían el límite.
+  return config.nodeEnv === 'development' && !process.env.VERCEL && LOOPBACK.has(request.socket?.remoteAddress ?? '');
 }
 
 // IP del visitante que reenvía el servidor de la web. Solo se cree si

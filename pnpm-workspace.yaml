@@ -21,3 +21,10 @@ minimumReleaseAgeExclude:
   - '@nestjs/testing@12.6.2'
   - '@types/react@19.3.3'
   - next-intl@4.16.2
+
+# Parches de seguridad de dependencias transitivas (docs/security.md).
+# effect: ReDoS en Schema.TemplateLiteral (GHSA-7589-6fvf-x4pw), llega por
+# @prisma/config, que fija 3.20.0. 3.22.4 es un cambio menor y ya cumple el
+# tiempo mínimo de publicación.
+overrides:
+  effect: 3.22.4

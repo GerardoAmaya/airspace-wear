@@ -3,6 +3,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { buildStylistData } from '@/components/home/stylist/stylist-data';
 import { routing } from '@/i18n/routing';
 import { GOOGLE_LOGIN_ENABLED } from '@/lib/auth/config';
+import { limitResponse } from '@/lib/security/rate-limit';
 
 // Datos del panel flotante del estilista (guion de respaldo, ideas sugeridas
 // y catálogo para las tarjetas) en el idioma pedido, y si se puede iniciar
@@ -11,6 +12,8 @@ import { GOOGLE_LOGIN_ENABLED } from '@/lib/auth/config';
 // así no pesan en el HTML de todo el sitio. El navegador nunca llama a la API
 // directo para leer el catálogo; esta ruta lo hace desde el servidor.
 export async function GET(request: NextRequest) {
+  const limited = limitResponse('stylistContext', request);
+  if (limited) return limited;
   const requested = request.nextUrl.searchParams.get('locale');
   const locale = hasLocale(routing.locales, requested) ? requested : routing.defaultLocale;
   try {

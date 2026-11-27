@@ -25,6 +25,7 @@ import { KEY_LIGHT_POSITION } from '@/components/three/kit/StudioLights';
 import { useThemeStore } from '@/lib/theme';
 import type { ShoeDims } from './geometry';
 import type { HeroRig } from './rig';
+import { SMOKE_ATLAS } from './smoke-config';
 
 // Humo de la primera entrada de la portada: el polvo que levanta el zapato
 // al aterrizar. Partículas propias (dos mallas instanciadas de cuadros que
@@ -56,9 +57,7 @@ import type { HeroRig } from './rig';
 // ya compila su shader) y se desmonta al terminar, liberando geometría,
 // material y textura.
 
-// Atlas del humo: 8 x 8 cuadros. El liviano (512 px) es para el modo liviano
-// (que hoy salta la entrada, pero queda listo).
-export const SMOKE_ATLAS = { hero: '/fx/smoke-atlas.webp', lite: '/fx/smoke-atlas-lite.webp' } as const;
+// Atlas del humo (SMOKE_ATLAS, en smoke-config.ts): 8 x 8 cuadros.
 const ATLAS_GRID = 8;
 
 interface Particle {
@@ -145,9 +144,6 @@ function puffParticles(side: 1 | -1, count: number, rand: () => number, shoe: Sh
   });
 }
 
-// Duración total del humo (segundos de rig.smoke.time): la vida más larga
-// de una partícula (retraso de hasta 0,18 s más 2 s).
-export const SMOKE_LIFE = 2.2;
 
 const vertexShader = /* glsl */ `
 uniform float uTime;

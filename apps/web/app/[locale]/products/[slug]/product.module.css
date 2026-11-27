@@ -201,6 +201,14 @@
 }
 
 /* Esqueleto mientras llegan los datos (sin animación: es breve). */
+/* Esqueleto mientras llega la ficha (streaming): ocupa al menos una pantalla,
+   así el pie de página no aparece arriba y luego salta hacia abajo cuando
+   llega el contenido (CLS). La ficha real siempre es más alta. */
+.page[aria-busy='true'] {
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
 .skeletonLine,
 .skeletonTitle {
   display: block;

@@ -4,10 +4,13 @@ import type { AvatarSlot } from '@airspace/contracts';
 import { useGLTF } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import { Component, type ReactNode, Suspense, useEffect, useMemo, useState } from 'react';
-import { type Bone, Group, type Material, type Matrix4, type Mesh, type Object3D, Skeleton, SkinnedMesh } from 'three';
+import { type Bone, Group, type Material, type Matrix4, type Mesh, type MeshStandardMaterial, type Object3D, Skeleton, SkinnedMesh } from 'three';
 import { CATALOG_FIT, WEAR_SLOTS } from '@/lib/avatar/catalog-fit';
 import type { BodyMask } from './body-mask';
 import { addLegCut, type LegFrame, makeCuttable } from './leg-cut';
+
+// Intensidad del entorno en la tela del catálogo (la misma de la tela base).
+const GARMENT_ENV_INTENSITY = 0.65;
 
 // Prendas del catálogo puestas en el maniquí (pnpm avatar:fit). Cada GLB
 // ajustado trae el esqueleto del avatar (solo huesos) y la prenda: las
@@ -66,7 +69,13 @@ function prepare(source: Object3D, slug: string, avatar: Object3D, mask: BodyMas
       makeCuttable(copy, rest.bones, rest.frames, 'catalog');
       if (copy.userData.legCut) for (const material of [mesh.material].flat()) addLegCut(material);
       holder.add(copy);
-      for (const material of [mesh.material].flat()) materials.add(material);
+      for (const material of [mesh.material].flat()) {
+        // Tela: el reflejo del entorno de estudio a la misma intensidad que el
+        // vestuario base (AvatarOutfit), así una prenda clara no se quema con
+        // la luz de borde. Solo la ropa con esqueleto (no zapatos, gorras ni maniquí).
+        if ('envMapIntensity' in material) (material as MeshStandardMaterial).envMapIntensity = GARMENT_ENV_INTENSITY;
+        materials.add(material);
+      }
     });
     parts.push({ object: holder, parent: avatar });
   } else {

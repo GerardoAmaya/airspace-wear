@@ -24,6 +24,15 @@ describe('shouldSkipThrottle', () => {
     expect(shouldSkipThrottle(context({}, '192.168.1.20'), config('development', null))).toBe(false);
   });
 
+  it('en Vercel la misma máquina nunca basta, aunque NODE_ENV falte', () => {
+    vi.stubEnv('VERCEL', '1');
+    try {
+      expect(shouldSkipThrottle(context({}, '127.0.0.1'), config('development', null))).toBe(false);
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
   it('en producción y en pruebas la misma máquina no basta', () => {
     expect(shouldSkipThrottle(context({}, '127.0.0.1'), config('production', null))).toBe(false);
     expect(shouldSkipThrottle(context({}, '::1'), config('test', null))).toBe(false);

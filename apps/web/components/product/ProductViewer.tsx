@@ -9,7 +9,6 @@ import { accentProps, type ProductAccent } from '@/lib/accent';
 import { useMotionStore } from '@/lib/motion/store';
 import { useStageActivity } from '@/lib/three/director';
 import { useInView } from '@/lib/in-view';
-import { MathUtils } from 'three';
 import type { SceneControls } from './ProductScene';
 import styles from './ProductViewer.module.css';
 import { useTour } from './tour-store';
@@ -21,8 +20,13 @@ const STEP = Math.PI / 12; // 15° por tecla
 // Inclinación vertical (radianes, eje horizontal de la pantalla): negativa
 // acerca la suela a la cámara (hasta unos 85°), positiva muestra un poco el
 // empeine (unos 20°). Se queda donde la deja el usuario.
-const TILT_SOLE = -MathUtils.degToRad(85);
-const TILT_TOP = MathUtils.degToRad(20);
+// Grados a radianes y tope, sin importar three aquí: este componente se
+// renderiza en el servidor y entra en el JS inicial (y en el prefetch) de la
+// ficha; three llega solo con ProductScene, que se carga aparte.
+const degToRad = (degrees: number) => (degrees * Math.PI) / 180;
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+const TILT_SOLE = -degToRad(85);
+const TILT_TOP = degToRad(20);
 const DRAG_SPEED = 0.012; // radianes por píxel de arrastre
 const POSTER_AFTER = 4; // s de carga antes de mostrar el póster de respaldo
 
@@ -86,7 +90,7 @@ export function ProductViewer({
     setTilt(Math.round((-controls.current.tilt * 180) / Math.PI));
   };
   const setTiltValue = (value: number) => {
-    controls.current.tilt = MathUtils.clamp(value, TILT_SOLE, TILT_TOP);
+    controls.current.tilt = clamp(value, TILT_SOLE, TILT_TOP);
   };
   // Al elegir un detalle la escena vuelve giro e inclinación a cero: el valor
   // para lectores de pantalla también (ajuste durante el render, sin efecto).

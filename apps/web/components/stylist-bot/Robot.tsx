@@ -724,7 +724,8 @@ export function Robot({
                 ? // Caminando: un pequeño vaivén a cada paso.
                   { y: [0, -2.5, 0], rotate: 0, scale: 1 }
                 : float
-                ? { y: [0, -6, 0], rotate: 0, scale: 1 }
+                ? // La flotación la hace la capa de adentro (floater), en el compositor.
+                  { y: 0, rotate: 0, scale: 1 }
                 : dragging && !reduced
                   ? // Agarrado: se levanta un poco, sin ladearse.
                     { y: -6, rotate: 0, scale: 1.06 }
@@ -734,11 +735,18 @@ export function Robot({
             transition={
               walking
                 ? { duration: 0.32, repeat: Infinity, ease: 'easeInOut' }
-                : float
-                  ? { duration: 3.6, repeat: Infinity, ease: 'easeInOut' }
-                  : { type: 'spring', stiffness: 420, damping: 14 }
+                : { type: 'spring', stiffness: 420, damping: 14 }
             }
           >
+            {/* Flotación en reposo: anima transform entero (no y), así Motion la
+                deja al navegador (WAAPI) y corre en el compositor, sin trabajo
+                del hilo principal en cada cuadro. Al dejar de flotar vuelve a
+                su sitio con una transición corta. */}
+            <motion.div
+              className={styles.floater}
+              animate={{ transform: float ? ['translateY(0px)', 'translateY(-6px)', 'translateY(0px)'] : 'translateY(0px)' }}
+              transition={float ? { duration: 3.6, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.25, ease: 'easeOut' }}
+            >
             <motion.div className={styles.spinner} style={{ rotateY: spin, scale: spinScale, transformPerspective: 520 }}>
               <div className={styles.face}>
                 <RobotDrawing mood={mood} blink={blink && (mood === 'normal' || mood === 'happy')} waving={hover && !reduced} walking={walking} eyeX={eyeX} eyeY={eyeY} reduced={reduced} plate={plate} />
@@ -752,12 +760,20 @@ export function Robot({
             </motion.div>
             {/* Las "z" del sueño, saliendo de la cabeza */}
             <AnimatePresence>{mood === 'asleep' && !reduced ? <Zzz /> : null}</AnimatePresence>
+            </motion.div>
           </motion.div>
           {/* La sombra en el suelo se achica cuando el robot sube */}
           <motion.span className={styles.shadowTrack} style={{ scaleX: squash }}>
           <motion.span
             className={styles.shadow}
-            animate={float ? { scaleX: [1, 0.8, 1], opacity: [0.6, 0.35, 0.6] } : dragging ? { scaleX: 1.5, opacity: 0.3 } : { scaleX: 1, opacity: 0.6 }}
+            // transform entero (no scaleX) para que también corra en el compositor.
+            animate={
+              float
+                ? { transform: ['scaleX(1)', 'scaleX(0.8)', 'scaleX(1)'], opacity: [0.6, 0.35, 0.6] }
+                : dragging
+                  ? { transform: 'scaleX(1.5)', opacity: 0.3 }
+                  : { transform: 'scaleX(1)', opacity: 0.6 }
+            }
             transition={float ? { duration: 3.6, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.2 }}
           />
           </motion.span>
@@ -776,7 +792,8 @@ function Zzz() {
           key={index}
           className={styles.z}
           style={{ fontSize: 10 + index * 3, right: index * 7 }}
-          animate={{ y: [0, -22], x: [0, 6], opacity: [0, 1, 0] }}
+          // transform entero (no x/y): el navegador la anima en el compositor.
+          animate={{ transform: ['translate(0px, 0px)', 'translate(6px, -22px)'], opacity: [0, 1, 0] }}
           transition={{ duration: 2.4, repeat: Infinity, delay: index * 0.8, ease: 'easeOut' }}
         >
           z

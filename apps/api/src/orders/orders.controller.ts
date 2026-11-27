@@ -38,6 +38,7 @@ export class OrdersController {
   @Get('orders')
   @Header('Cache-Control', 'private, no-store')
   list(@CurrentUser() user: SessionUser): Promise<OrderList> {
+    this.throttle.hitRead(user.id);
     return this.orders.list(user.id);
   }
 
@@ -45,6 +46,7 @@ export class OrdersController {
   @Get('orders/:id')
   @Header('Cache-Control', 'private, no-store')
   detail(@CurrentUser() user: SessionUser, @Param('id', { schema: orderIdSchema }) id: string, @Query({ schema: localeQuerySchema }) query: LocaleQuery): Promise<OrderDetail> {
+    this.throttle.hitRead(user.id);
     return this.orders.detail(user.id, id, query.locale);
   }
 }

@@ -1,6 +1,7 @@
 import { type ArgumentsHost, Catch, type ExceptionFilter, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import type { ApiError } from '@airspace/contracts';
 import type { Response } from 'express';
+import { RateLimitedException } from './rate-limit.js';
 
 const CODE_BY_STATUS: Record<number, ApiError['code']> = {
   [HttpStatus.BAD_REQUEST]: 'invalid_request',
@@ -24,6 +25,7 @@ export class ApiExceptionFilter implements ExceptionFilter {
     response.setHeader('Cache-Control', 'no-store');
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
+      if (exception instanceof RateLimitedException) response.setHeader('Retry-After', String(exception.retryAfterSeconds));
       if (status >= 500) this.logger.error(exception.stack ?? exception.message);
       const payload = exception.getResponse();
       const body: ApiError =

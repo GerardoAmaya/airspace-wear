@@ -295,6 +295,18 @@ describe('Pago de prueba y pedidos (e2e)', () => {
       await checkout({ locale: 'es', items: [{ slug: single.slug, quantity: 1 }] }, BOB_TOKEN).expect(503);
     });
 
+    it('las lecturas de pedidos tienen su propio tope por usuario, con Retry-After', async () => {
+      for (let attempt = 0; attempt < 60; attempt++) await api().get('/v1/orders').set(as(BOB_TOKEN)).expect(200);
+      const limited = await api().get('/v1/orders').set(as(BOB_TOKEN)).expect(429);
+      expect(apiErrorSchema.parse(limited.body)).toEqual({ code: 'rate_limited' });
+      expect(Number(limited.headers['retry-after'])).toBeGreaterThan(0);
+      // El detalle comparte el tope de lecturas; otro usuario y el pago no.
+      await api().get('/v1/orders/00000000-0000-4000-8000-000000000000').set(as(BOB_TOKEN)).expect(429);
+      await api().get('/v1/orders').set(as(ALICE_TOKEN)).expect(200);
+      stripe.paymentsOn = false;
+      await checkout({ locale: 'es', items: [{ slug: single.slug, quantity: 1 }] }, BOB_TOKEN).expect(503);
+    });
+
     it('sin la clave interna, la IP también tiene tope', async () => {
       stripe.paymentsOn = false;
       const direct = () => request(server()).post('/v1/checkout').set(as(BOB_TOKEN)).send({ locale: 'es', items: [{ slug: single.slug, quantity: 1 }] });
@@ -322,6 +334,15 @@ describe('Pago de prueba y pedidos (e2e)', () => {
       // Cuerpo alterado después de firmar: la firma ya no coincide.
       const header = Stripe.webhooks.generateTestHeaderString({ payload, secret: WEBHOOK_SECRET });
       await api().post('/v1/stripe/webhook').set('Content-Type', 'application/json').set('Stripe-Signature', header).send(payload.replace('"paid"', '"unpaid"')).expect(400);
+      expect((await prismaOf(app).order.findUniqueOrThrow({ where: { id: orderId } })).status).toBe('pending');
+    });
+
+    it('rechaza un evento bien firmado pero viejo (repetición fuera de la tolerancia de 5 minutos)', async () => {
+      const { orderId, sessionId } = await newOrder();
+      const session = stripe.settle(sessionId, { status: 'complete', payment_status: 'paid' });
+      const payload = JSON.stringify(completedEvent(session));
+      const header = Stripe.webhooks.generateTestHeaderString({ payload, secret: WEBHOOK_SECRET, timestamp: Math.floor(Date.now() / 1000) - 10 * 60 });
+      await api().post('/v1/stripe/webhook').set('Content-Type', 'application/json').set('Stripe-Signature', header).send(payload).expect(400);
       expect((await prismaOf(app).order.findUniqueOrThrow({ where: { id: orderId } })).status).toBe('pending');
     });
 

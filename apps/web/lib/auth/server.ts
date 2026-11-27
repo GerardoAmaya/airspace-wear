@@ -51,8 +51,33 @@ function createAuth() {
     // Neon ya agrupa conexiones del lado del servidor.
     database: new Pool({ connectionString: AUTH_DATABASE_URL, max: 3, idleTimeoutMillis: 10_000 }),
     socialProviders: google,
-    // En desarrollo también se puede abrir el sitio en 127.0.0.1.
+    // En desarrollo también se puede abrir el sitio en 127.0.0.1. En
+    // producción solo vale el origen de baseURL: callbackURL y errorCallbackURL
+    // a otro sitio responden 403 (sin redirecciones abiertas), y las
+    // peticiones con cookie desde otro origen se rechazan (CSRF).
     trustedOrigins: process.env.NODE_ENV === 'production' ? [] : ['http://localhost:3000', 'http://127.0.0.1:3000'],
+    // Sesiones de 7 días que se renuevan una vez al día de uso. Sin caché de
+    // sesión en cookie: cerrar sesión o "cerrar las demás" vale al instante
+    // (cada lectura va a la tabla session, igual que la API).
+    session: { expiresIn: 60 * 60 * 24 * 7, updateAge: 60 * 60 * 24 },
+    // Límite de peticiones de Better Auth (activo en producción). En memoria,
+    // por instancia de la función: frena a un cliente que insiste, no a un
+    // ataque distribuido (docs/security.md). La IP sale de X-Forwarded-For,
+    // que Vercel sobrescribe con la real. Por defecto: 100 cada 10 s, y 3
+    // cada 10 s en /sign-in/*. Aquí se ajustan las rutas sensibles.
+    rateLimit: {
+      window: 10,
+      max: 100,
+      customRules: {
+        '/sign-in/social': { window: 60, max: 10 },
+        '/callback/*': { window: 60, max: 20 },
+        '/sign-out': { window: 60, max: 20 },
+        '/revoke-other-sessions': { window: 60, max: 5 },
+        '/revoke-sessions': { window: 60, max: 5 },
+        '/revoke-session': { window: 60, max: 10 },
+        '/list-sessions': { window: 60, max: 30 },
+      },
+    },
     // Un error del flujo de Google (por ejemplo, acceso cancelado) vuelve a la
     // página de cuenta, que lo explica en el idioma del visitante (?error=...).
     onAPIError: { errorURL: '/account' },

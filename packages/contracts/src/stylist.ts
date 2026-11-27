@@ -5,8 +5,11 @@ import { orderSummarySchema } from './orders.js';
 // Estilista IA (POST /v1/stylist/chat). La conversación vive en el cliente:
 // cada pedido trae el historial completo (texto plano, sin datos personales)
 // y la API responde en streaming (SSE). Límites de abuso del plan: mensajes de
-// hasta 500 caracteres y 10 mensajes del visitante por conversación.
-export const STYLIST_LIMITS = { messageChars: 500, userMessages: 10, recommendations: 3, orders: 3 } as const;
+// hasta 500 caracteres y 10 mensajes del visitante por conversación. Además,
+// un tope para todo el historial (totalChars): las respuestas que reenvía el
+// cliente son cortas (2 a 4 frases), y sin tope una petición podía mandar
+// 20 mensajes de 4.000 caracteres al modelo (costo de cada pregunta).
+export const STYLIST_LIMITS = { messageChars: 500, userMessages: 10, totalChars: 24_000, recommendations: 3, orders: 3 } as const;
 
 export const stylistMessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
@@ -27,6 +30,8 @@ export const stylistRequestSchema = z
     for (const message of users) {
       if (message.content.length > STYLIST_LIMITS.messageChars) context.addIssue({ code: 'custom', path: ['messages'], message: 'Message too long' });
     }
+    const total = request.messages.reduce((sum, message) => sum + message.content.length, 0);
+    if (total > STYLIST_LIMITS.totalChars) context.addIssue({ code: 'custom', path: ['messages'], message: 'Conversation too long' });
   });
 export type StylistRequest = z.infer<typeof stylistRequestSchema>;
 
