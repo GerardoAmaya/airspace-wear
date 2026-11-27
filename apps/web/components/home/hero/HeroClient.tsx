@@ -124,8 +124,10 @@ function surfaceNormal([x, y, z]: Vec3, shoe: ShoeDims): Vec3 {
 
 // Visibilidad de un punto según cuánto mira a la cámara (ver facing en el
 // rig): de canto todavía se ve (está en el borde de la silueta); de
-// espaldas se apaga del todo.
-const FACING = { hidden: -0.4, shown: -0.15 };
+// espaldas queda tenue (floor), pero nunca desaparece ni deja de poder
+// tocarse: al elegirlo, el zapato gira para mostrarlo (pedido del dueño,
+// sobre todo por el punto de la suela).
+const FACING = { hidden: -0.4, shown: -0.15, floor: 0.4 };
 
 const zeroPose = (): Pose => ({ x: 0, y: 0, z: 0, yaw: 0, pitch: 0, bank: 0, scale: 1, idle: 0, rim: 1, shadow: 1, cx: 0, cy: 0, cz: 1, tx: 0, ty: 0, tz: 0 });
 const zeroIntro = () => ({ x: 0, y: 0, z: 0, yaw: 0, pitch: 0, bank: 0 });
@@ -422,23 +424,20 @@ export function HeroClient({ content }: { content: HeroContent }) {
         path.style.strokeDashoffset = (length * (1 - leaderDraw[index].value)).toFixed(1);
       }
 
-      // Un punto de espaldas a la cámara se apaga y deja de recibir clics y
-      // foco. Solo se escribe al DOM cuando el valor cambia de verdad.
+      // Un punto de espaldas a la cámara queda tenue (data-occluded), pero
+      // sigue recibiendo clics y foco. Solo se escribe al DOM cuando el valor
+      // cambia de verdad.
       function applyFacing(index: number, facing: number) {
         const amount = Math.min(1, Math.max(0, (facing - FACING.hidden) / (FACING.shown - FACING.hidden)));
-        const opacity = amount * amount * (3 - 2 * amount);
+        const opacity = FACING.floor + (1 - FACING.floor) * amount * amount * (3 - 2 * amount);
         if (Math.abs(opacity - spotOpacity[index]) > 0.02 || (opacity !== spotOpacity[index] && (opacity === 0 || opacity === 1))) {
           spotOpacity[index] = opacity;
           spots[index].style.opacity = opacity.toFixed(2);
         }
-        const hidden = opacity < 0.5;
+        const hidden = amount < 0.5;
         if (hidden === spotHidden[index]) return;
         spotHidden[index] = hidden;
-        const spot = spots[index];
-        spot.toggleAttribute('data-occluded', hidden);
-        spot.tabIndex = hidden ? -1 : 0;
-        if (hidden) spot.setAttribute('aria-hidden', 'true');
-        else spot.removeAttribute('aria-hidden');
+        spots[index].toggleAttribute('data-occluded', hidden);
       }
 
       // Muestra u oculta todos los puntos (compuerta data-spots del CSS).

@@ -544,7 +544,9 @@
 
 /* De espaldas a la cámara: apagado (opacidad por cuadro) y sin clics. */
 .spot[data-occluded] {
-  pointer-events: none;
+  /* Tenue (la opacidad la escribe el bucle) pero se puede tocar: al
+     elegirlo, el zapato gira para mostrarlo. Sin el pulso de invitación. */
+  animation: none;
 }
 
 .spot:focus-visible {
