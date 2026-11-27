@@ -5,8 +5,8 @@ import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 import styles from './ArButton.module.css';
 
-// "Ver en tu espacio": abre la vista de realidad aumentada del teléfono (Scene
-// Viewer en Android, Quick Look en iOS, que genera el USDZ desde el GLB). Los
+// "Ver en tu espacio": abre la vista de realidad aumentada del teléfono (WebXR
+// en Android, Quick Look en iOS, que genera el USDZ desde el GLB). Los
 // modelos ya están a tamaño real, así que la escala queda fija.
 //
 // Los navegadores solo abren AR en respuesta directa a un toque: si antes del
@@ -33,8 +33,12 @@ async function createViewer(model: Model3D, name: string): Promise<ModelViewerEl
   const viewer = document.createElement('model-viewer') as ModelViewerElement;
   viewer.setAttribute('src', model.heroUrl);
   viewer.setAttribute('ar', '');
-  // Scene Viewer primero en Android: es la app nativa y no depende de WebXR.
-  viewer.setAttribute('ar-modes', 'scene-viewer quick-look webxr');
+  // WebXR primero en Android: dibuja el modelo dentro del navegador con el
+  // mismo three.js de model-viewer, que sí lee Meshopt y texturas WebP. Scene
+  // Viewer descarga el GLB por su cuenta y no soporta esas extensiones: abre,
+  // falla al leer el archivo y vuelve al navegador. Queda solo como respaldo
+  // para teléfonos sin WebXR. Quick Look (iOS) convierte la escena ya cargada.
+  viewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
   viewer.setAttribute('ar-scale', 'fixed');
   viewer.setAttribute('alt', name);
   viewer.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;';
