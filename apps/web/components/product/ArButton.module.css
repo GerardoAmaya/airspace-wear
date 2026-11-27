@@ -3,6 +3,15 @@
   gap: var(--space-2);
 }
 
+/* Solo en pantallas táctiles: en una computadora (puntero fino, sin táctil)
+   no hay realidad aumentada, así que el botón no se muestra. Por CSS y no por
+   JS, para que el HTML del servidor y el del cliente sean iguales. */
+@media (hover: hover) and (pointer: fine) {
+  .block {
+    display: none;
+  }
+}
+
 .button {
   display: inline-flex;
   align-items: center;
