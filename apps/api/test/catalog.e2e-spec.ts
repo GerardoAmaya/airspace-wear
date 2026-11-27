@@ -1,15 +1,17 @@
 import {
   apiErrorSchema,
   brandListSchema,
+  CATEGORIES,
   categoryListSchema,
   type ProductDetail,
   productDetailSchema,
   type ProductList,
   productListSchema,
+  SUBCATEGORIES,
 } from '@airspace/contracts';
 import request from 'supertest';
 import { APPAREL_PRODUCTS } from '../prisma/seed/apparel.js';
-import { FEATURED, PUBLISHED_PRODUCTS as PRODUCTS } from '../prisma/seed/catalog.js';
+import { BRANDS, FEATURED, PUBLISHED_PRODUCTS as PRODUCTS } from '../prisma/seed/catalog.js';
 import {
   createTestApp,
   prismaOf,
@@ -131,7 +133,7 @@ describe('Catálogo (integración)', () => {
       const apparel = await list('?category=apparel');
       expect(apparel.items.map((item) => item.slug)).toEqual(APPAREL_PRODUCTS.map((product) => product.slug));
       const caps = await list('?category=apparel&subcategory=cap');
-      expect(caps.items.map((item) => item.slug)).toEqual(['gorra-ny-marino', 'gorra-gris-flexfit', 'gorro-gris-canale']);
+      expect(caps.items.map((item) => item.slug)).toEqual(APPAREL_PRODUCTS.filter((product) => product.subcategory === 'cap').map((product) => product.slug));
     });
 
     it('filtra los tacos (cleat) aparte de los sneakers', async () => {
@@ -219,10 +221,10 @@ describe('Catálogo (integración)', () => {
       const hoodie = await detail('sudadera-nike-club-fleece', '?locale=en');
       expect(hoodie).toMatchObject({ category: 'apparel', subcategory: 'sweatshirt', avatarSlot: 'top' });
       expect(hoodie.sizes.map((size) => `${size.system}:${size.label}`)).toEqual(['ALPHA:S', 'ALPHA:M', 'ALPHA:L', 'ALPHA:XL']);
-      const cap = await detail('gorra-ny-marino');
+      const cap = await detail('gorra-ny-59fifty-marino');
       expect(cap).toMatchObject({ subcategory: 'cap', avatarSlot: 'head' });
       expect(cap.sizes.map((size) => `${size.system}:${size.label}`)).toEqual(['ONE:OS']);
-      // Solo los 5 pilotos llevan lugar en el avatar; el resto es de catálogo.
+      // Solo las prendas ajustadas llevan lugar en el avatar; el resto es de catálogo.
       const jacket = await detail('chaqueta-varsity');
       expect(jacket.avatarSlot).toBeNull();
     });
@@ -278,44 +280,30 @@ describe('Catálogo (integración)', () => {
       const body = brandListSchema.parse(response.body);
       // Orden por nombre con la intercalación de la base (mayúsculas primero:
       // AIRSPACE va antes que Adidas).
-      expect(body.items).toEqual([
-        { slug: 'airspace', name: 'AIRSPACE', productCount: 23 },
-        { slug: 'adidas', name: 'Adidas', productCount: 16 },
-        { slug: 'converse', name: 'Converse', productCount: 1 },
-        { slug: 'dior', name: 'Dior', productCount: 2 },
-        { slug: 'flexfit', name: 'Flexfit', productCount: 1 },
-        { slug: 'geff', name: 'GEFF', productCount: 6 },
-        { slug: 'hoka', name: 'Hoka', productCount: 1 },
-        { slug: 'new-balance', name: 'New Balance', productCount: 2 },
-        { slug: 'new-york-yankees', name: 'New York Yankees', productCount: 1 },
-        { slug: 'nike', name: 'Nike', productCount: 17 },
-        { slug: 'on', name: 'On', productCount: 1 },
-        { slug: 'salomon', name: 'Salomon', productCount: 1 },
-        { slug: 'vans', name: 'Vans', productCount: 2 },
-      ]);
+      // Los conteos salen del seed: agregar productos no rompe la prueba.
+      const order = ['airspace', 'adidas', 'converse', 'dior', 'flexfit', 'geff', 'hoka', 'new-balance', 'new-york-yankees', 'nike', 'on', 'salomon', 'vans'];
+      expect(body.items).toEqual(
+        order.map((slug) => ({
+          slug,
+          name: BRANDS.find((brand) => brand.slug === slug)?.name,
+          productCount: PRODUCTS.filter((product) => product.brand === slug).length,
+        })),
+      );
     });
 
     it('GET /v1/categories cuenta cada categoría y las subcategorías de la ropa', async () => {
       const response = await get('/v1/categories').expect(200);
       expect(response.headers['cache-control']).toBe(PUBLIC_CACHE_CONTROL);
       const body = categoryListSchema.parse(response.body);
-      expect(body.items.map(({ slug, productCount }) => ({ slug, productCount }))).toEqual([
-        { slug: 'sneaker', productCount: 34 },
-        { slug: 'cleat', productCount: 1 },
-        { slug: 'apparel', productCount: 34 },
-        { slug: 'ball', productCount: 5 },
-      ]);
+      const count = (match: (product: (typeof PRODUCTS)[number]) => boolean) => PRODUCTS.filter(match).length;
+      expect(body.items.map(({ slug, productCount }) => ({ slug, productCount }))).toEqual(
+        CATEGORIES.map((slug) => ({ slug, productCount: count((product) => product.category === slug) })),
+      );
       // La ropa trae sus subcategorías con su conteo; las demás, ninguna.
       const apparel = body.items.find((item) => item.slug === 'apparel');
-      expect(apparel?.subcategories).toEqual([
-        { slug: 'tshirt', productCount: 9 },
-        { slug: 'sweatshirt', productCount: 6 },
-        { slug: 'jacket', productCount: 3 },
-        { slug: 'pants', productCount: 5 },
-        { slug: 'shorts', productCount: 3 },
-        { slug: 'cap', productCount: 3 },
-        { slug: 'accessory', productCount: 5 },
-      ]);
+      expect(apparel?.subcategories).toEqual(
+        SUBCATEGORIES.map((slug) => ({ slug, productCount: count((product) => product.category === 'apparel' && product.subcategory === slug) })),
+      );
       expect(body.items.filter((item) => item.slug !== 'apparel').every((item) => item.subcategories.length === 0)).toBe(true);
     });
   });

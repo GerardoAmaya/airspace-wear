@@ -1034,4 +1034,6 @@ def main():
     log(f"exportado {options['out']}")
 
 
-main()
+# fit.py importa las funciones de este archivo: main solo corre al ejecutarlo.
+if __name__ == "__main__":
+    main()

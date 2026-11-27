@@ -72,6 +72,7 @@
   },
   "Catalog": {
     "metaTitle": "Catalog",
+    "metaTitlePaged": "Catalog, page {page, number}",
     "metaDescription": "Sneakers, cleats, apparel and balls from the brands you love, ready to explore in 3D.",
     "kicker": "Sneakers, cleats, apparel and balls · Season 26",
     "title": "Catalog",
@@ -90,8 +91,36 @@
       "apparel": "Apparel"
     },
     "resultCount": "{count, plural, =0 {No results} one {# product} other {# products}}",
+    "resultRange": "Showing {start, number} to {end, number} of {total, plural, one {# product} other {# products}}",
+    "paginationLabel": "Catalog pages",
+    "previousPage": "Previous",
+    "nextPage": "Next",
+    "pageLink": "Page {page, number}",
+    "pageOf": "Page {page, number} of {total, number}",
     "empty": "No products match these filters.",
-    "resetFilters": "See the whole catalog",
+    "searchLabel": "Search the catalog",
+    "clearSearch": "Clear search",
+    "sortLabel": "Sort",
+    "sortOption": {
+      "featured": "Featured",
+      "priceAsc": "Price: low to high",
+      "priceDesc": "Price: high to low",
+      "name": "Name A-Z"
+    },
+    "anyBrand": "All",
+    "filtersButton": "Filters",
+    "activeCount": "{count, plural, one {# active filter} other {# active filters}}",
+    "closeFilters": "Close filters",
+    "showResults": "{count, plural, =0 {No results} one {Show # result} other {Show # results}}",
+    "clearSheet": "Clear",
+    "activeFiltersLabel": "Active filters",
+    "removeFilter": "Remove filter: {label}",
+    "queryPill": "“{q}”",
+    "clearAll": "Clear all",
+    "emptyQuery": "No results for “{q}”",
+    "clearFilters": "Clear filters",
+    "suggestions": "Or browse a category:",
+    "optionCount": "{label}, {count, plural, =0 {no products} one {# product} other {# products}}",
     "reference": "Ref. {reference}",
     "has3d": "3D",
     "posterAlt": "{name}, side view",
@@ -156,7 +185,8 @@
       "loading": "Getting the view ready",
       "unsupported": "Open this page on your phone to see the {name} in your space, at real size."
     },
-    "ogAlt": "{name} at AIRSPACE Wear, {price}"
+    "ogAlt": "{name} at AIRSPACE Wear, {price}",
+    "tryInHangar": "Try it in the Hangar 360°"
   },
   "Credits": {
     "metaTitle": "Credits",
@@ -239,10 +269,47 @@
     "metaDescription": "Pick a sneaker and see it on an animated avatar, in 360°.",
     "kicker": "Hangar 360°",
     "title": "Try them on in 360°",
-    "lead": "Pick a pair and see it on the avatar: idle, walk, turn or pose. Drag to see it from any angle.",
+    "lead": "Pick the pair and the apparel, and see them on the avatar from any angle.",
     "wearing": "Wearing",
+    "look": {
+      "sizeLabel": "Size for {name}",
+      "sizePlaceholder": "Size",
+      "oneSize": "One size",
+      "soldOut": "Sold out",
+      "base": "Mannequin base, not for sale: {pieces}.",
+      "total": "Look total",
+      "add": "Add the full look",
+      "missing": "Choose a size for {names}.",
+      "added": "Look added to the cart"
+    },
     "pickerLabel": "Pick the pair",
     "pickerItem": "Put on {name}",
+    "filters": {
+      "label": "Filter pairs",
+      "search": "Search pairs",
+      "clearSearch": "Clear search",
+      "brands": "Brand",
+      "allBrands": "All",
+      "type": "Type",
+      "types": {
+        "all": "All",
+        "sneaker": "Sneakers",
+        "cleat": "Cleats"
+      },
+      "count": "{count, plural, one {# pair} other {# pairs}}",
+      "empty": "No results",
+      "clear": "Clear filters",
+      "worn": "Wearing",
+      "outOfFilter": "Outside filter",
+      "wornAnnounce": "Wearing: {name}, moved to the start"
+    },
+    "panelLabel": "Pairs, apparel and colors",
+    "tabs": {
+      "label": "Avatar options",
+      "shoes": "Shoes",
+      "wear": "Apparel",
+      "colors": "Colors"
+    },
     "clipsLabel": "Animation",
     "clips": {
       "idle": "Idle",
@@ -262,9 +329,7 @@
     "dragHint": "Drag to turn",
     "touchHint": "Swipe to turn",
     "rotation": "ROT {degrees}°",
-    "viewProduct": "View product",
     "outfit": {
-      "title": "Outfit",
       "shirt": "Shirt",
       "shirtStyles": {
         "sleeves": "Sleeves",
@@ -305,7 +370,52 @@
       },
       "match": "Match the sneaker",
       "matchHint": "The cap and the sock stripes take the pair's color and follow it when you switch pairs.",
-      "reset": "Reset"
+      "reset": "Reset",
+      "catalog": {
+        "title": "From the catalog",
+        "base": "Base",
+        "wearItem": "Put on {name}",
+        "slots": {
+          "top": "Torso",
+          "bottom": "Legs",
+          "head": "Head",
+          "eyes": "Eyes"
+        }
+      },
+      "baseTitle": "Base",
+      "catalogColors": "Catalog pieces keep their own colors."
     }
+  },
+  "StylistBot": {
+    "button": "Open the AI stylist",
+    "bubbles": [
+      "Looking for sneakers for your outfit? Ask my AI.",
+      "A wedding, a concert or the gym? I'll tell you what to wear.",
+      "Tell me your style and I'll put the outfit together.",
+      "Not sure what goes with your sneakers? I can help."
+    ],
+    "closeBubble": "Close message",
+    "plate": "AI",
+    "status": "Online",
+    "statusThinking": "Thinking",
+    "title": "AI Stylist",
+    "subtitle": "I recommend sneakers, apparel and balls from the catalog, in your language.",
+    "welcome": "Hi! Tell me where you're going or what style you're after and I'll recommend products from the catalog.",
+    "suggestionsTitle": "Try",
+    "contextError": "I couldn't load the catalog. Check your connection and open the chat again.",
+    "logLabel": "Conversation with your stylist",
+    "inputLabel": "Type your message for the stylist",
+    "placeholder": "Ask about a style or an occasion",
+    "send": "Send message",
+    "clear": "New conversation",
+    "close": "Close the stylist",
+    "disclaimer": "Answers use AI and can be wrong. Check each product on its page.",
+    "you": "You",
+    "stylist": "Stylist",
+    "thinking": "Thinking about your outfit",
+    "listLabel": "Stylist recommendations",
+    "match": "{percent}% match",
+    "view": "View product",
+    "viewLabel": "View product: {name}"
   }
 }

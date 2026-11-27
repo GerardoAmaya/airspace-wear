@@ -2,6 +2,8 @@ import type { ProductCard } from '@airspace/contracts';
 import type { APIRequestContext } from '@playwright/test';
 import apparelEn from '../messages/home/apparel.en.json' with { type: 'json' };
 import apparelEs from '../messages/home/apparel.es.json' with { type: 'json' };
+import { pickHomeApparel } from '../lib/home-apparel';
+import { PAGE_SIZE } from '../lib/pagination';
 import { en, es, expect, test, waitForApp } from './fixtures';
 
 // Ropa (paso 4): chip "Ropa" del catálogo, tipos de prenda, sección "Ropa" de
@@ -39,8 +41,9 @@ for (const { code, messages, home } of [
     await expect(chip).not.toContainText(messages.Catalog.comingSoon);
     await chip.click();
     await expect(page).toHaveURL(new RegExp(`/${code}/catalog\\?category=apparel$`));
+    // El catálogo muestra 12 por página.
     const cards = page.getByRole('main').getByRole('article');
-    await expect(cards).toHaveCount(apparel.length);
+    await expect(cards).toHaveCount(Math.min(apparel.length, PAGE_SIZE));
 
     // Tipos de prenda: solo con dos o más tipos; cada chip filtra el suyo.
     const types = [...new Set(apparel.map((item) => item.subcategory))];
@@ -52,7 +55,7 @@ for (const { code, messages, home } of [
     const first = types[0]!;
     await typeList.getByRole('link', { name: new RegExp(`^${messages.Catalog.subcategory[first]}`) }).click();
     await expect(page).toHaveURL(new RegExp(`/${code}/catalog\\?category=apparel&subcategory=${first}$`));
-    await expect(cards).toHaveCount(apparel.filter((item) => item.subcategory === first).length);
+    await expect(cards).toHaveCount(Math.min(apparel.filter((item) => item.subcategory === first).length, PAGE_SIZE));
   });
 
   test(`home /${code}: the apparel section shows only with published apparel`, async ({ page, request }) => {
@@ -73,7 +76,7 @@ for (const { code, messages, home } of [
     const cards = section.getByRole('listitem').getByRole('link');
     await expect(cards).toHaveCount(Math.min(6, apparel.length));
     const hrefs = await cards.evaluateAll((links) => links.map((link) => new URL((link as HTMLAnchorElement).href).pathname));
-    expect(hrefs).toEqual(apparel.slice(0, 6).map((item) => `/${code}/products/${item.slug}`));
+    expect(hrefs).toEqual(pickHomeApparel(apparel).map((item) => `/${code}/products/${item.slug}`));
     const cta = section.getByRole('link', { name: home.HomeApparel.cta });
     await expect(cta).toHaveAttribute('href', `/${code}/catalog?category=apparel`);
   });

@@ -2,8 +2,9 @@
 
 import type { Locale } from '@airspace/contracts';
 import { useFormatter, useLocale, useTranslations } from 'next-intl';
-import { type FormEvent, Fragment, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { type FormEvent, Fragment, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { ThemedPoster } from '@/components/catalog/ThemedPoster';
+import { doneTurns, lazyEngine, recordTurn, sharedEngine, useStylistStore } from '@/components/stylist-bot/stylist-store';
 import { Link } from '@/i18n/navigation';
 import { HOME_ANCHORS } from '@/lib/home';
 import { gsap, ScrollTrigger, useGSAP } from '@/lib/motion/gsap';
@@ -24,21 +25,6 @@ import { countTo, fadeIn, LETTERS, revealLines, scramble } from './hud-motion';
 const WAVE_BARS = 34;
 const prefersReduced = () => !document.documentElement.classList.contains('motion-ok') || matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// Motor que se crea la primera vez que se le pregunta (import diferido).
-function lazyEngine(create: () => Promise<StylistEngine>): StylistEngine {
-  let pending: Promise<StylistEngine> | null = null;
-  return {
-    async *ask(message, options) {
-      // Si el import falla (red), el siguiente mensaje lo vuelve a intentar.
-      pending ??= create().catch((error: unknown) => {
-        pending = null;
-        throw error;
-      });
-      yield* (await pending).ask(message, options);
-    },
-  };
-}
-
 type Phase = 'typing' | 'replying' | 'done';
 type StatusKey = 'idle' | 'listening' | 'reading' | 'replying';
 type Mode = 'idle' | 'rx' | 'tx';
@@ -54,6 +40,9 @@ interface Turn {
   phase: Phase;
   answer: string;
   products: RecommendedProduct[];
+  // record: la consulta la hizo el visitante (no la demostración automática)
+  // y se anota en la conversación compartida con el panel del robot.
+  record: boolean;
 }
 
 interface Token {
@@ -220,7 +209,6 @@ interface Runtime {
   abort: AbortController | null;
   ctx: gsap.Context | null;
   wave: ReturnType<typeof createWave> | null;
-  engine: StylistEngine | null;
   scripted: StylistEngine | null;
   statusTween: gsap.core.Tween | null;
   stampTween: gsap.core.Tween | null;
@@ -266,14 +254,18 @@ export function StylistSection({
   const thinkingRef = useRef<HTMLSpanElement>(null);
   const recsRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const runtime = useRef<Runtime>({ count: 1, interacted: false, abort: null, ctx: null, wave: null, engine: null, scripted: null, statusTween: null, stampTween: null, intro: null });
+  const runtime = useRef<Runtime>({ count: 1, interacted: false, abort: null, ctx: null, wave: null, scripted: null, statusTween: null, stampTween: null, intro: null });
 
   // Primer intercambio ya resuelto en el HTML: legible sin JS y con
   // movimiento reducido. Con movimiento, la entrada lo vuelve a reproducir.
+  // Si en esta visita ya se habló con el estilista (desde el panel del robot
+  // en otra página), la consola muestra la última consulta en vez del guion.
   const first = script.scenarios[0];
-  const [turn, setTurn] = useState<Turn | null>(() =>
-    first ? { key: 1, question: first.question, typed: false, animated: false, time: null, phase: 'done', answer: first.answer, products: first.products } : null,
-  );
+  const [turn, setTurn] = useState<Turn | null>(() => {
+    const last = doneTurns(locale).at(-1);
+    if (last) return { key: 1, question: last.question, typed: false, animated: false, time: null, phase: 'done', answer: last.answer, products: last.products, record: false };
+    return first ? { key: 1, question: first.question, typed: false, animated: false, time: null, phase: 'done', answer: first.answer, products: first.products, record: false } : null;
+  });
   const [active, setActive] = useState<string | null>(first?.id ?? null);
   const [announcement, setAnnouncement] = useState('');
 
@@ -319,16 +311,20 @@ export function StylistSection({
   // IA real (fase 5) con el guion como respaldo si no está disponible. El
   // motor de la API (con los esquemas zod que validan el stream) se carga al
   // primer mensaje, no con la home.
+  // El motor es el mismo que usa el panel del robot (stylist-store): la IA
+  // recuerda lo que se habló en cualquiera de los dos.
   const engine = () =>
-    (runtime.current.engine ??= lazyEngine(async () => {
-      const { createApiEngine } = await import('./api-engine');
-      return createApiEngine({
-        apiUrl: PUBLIC_API_URL,
-        catalog,
-        fallback: createScriptedEngine(script, { latencyMs: prefersReduced() ? 0 : 700 }),
-        messages: { rateLimited: t('errors.rateLimited'), refused: t('errors.refused'), error: t('errors.generic') },
-      });
-    }));
+    sharedEngine(locale, () =>
+      lazyEngine(async () => {
+        const { createApiEngine } = await import('./api-engine');
+        return createApiEngine({
+          apiUrl: PUBLIC_API_URL,
+          catalog,
+          fallback: createScriptedEngine(script, { latencyMs: prefersReduced() ? 0 : 700 }),
+          messages: { rateLimited: t('errors.rateLimited'), refused: t('errors.refused'), error: t('errors.generic') },
+        });
+      }),
+    );
 
   // Las ideas sugeridas (y la demostración automática) responden con el guion:
   // así una visita sin preguntas propias no gasta en la IA. Solo lo que el
@@ -338,7 +334,7 @@ export function StylistSection({
 
   // ---------- Una consulta ----------
 
-  const ask = (question: string, typed: boolean) => {
+  const ask = (question: string, typed: boolean, record = true) => {
     const rt = runtime.current;
     rt.abort?.abort();
     rt.ctx?.kill();
@@ -360,7 +356,8 @@ export function StylistSection({
           else if (event.type === 'products') products.push(...event.products);
         }
         if (controller.signal.aborted) return;
-        setTurn({ key, question, typed: false, animated: false, time, phase: 'done', answer, products });
+        if (record) recordTurn(locale, { question, answer, products });
+        setTurn({ key, question, typed: false, animated: false, time, phase: 'done', answer, products, record });
         setMode('idle');
         setStatus('idle');
         announce(answer, products);
@@ -372,7 +369,7 @@ export function StylistSection({
     rt.ctx = ctx;
     rt.wave?.speak(0.08);
     const start = () => {
-      if (!controller.signal.aborted) setTurn({ key, question, typed, animated: true, time, phase: 'typing', answer: '', products: [] });
+      if (!controller.signal.aborted) setTurn({ key, question, typed, animated: true, time, phase: 'typing', answer: '', products: [], record });
     };
     // Despeja la consulta anterior antes de mostrar la nueva.
     const previous = threadRef.current ? Array.from(threadRef.current.children) : [];
@@ -380,11 +377,11 @@ export function StylistSection({
     else start();
   };
 
-  const playScenario = (index: number) => {
+  const playScenario = (index: number, record = true) => {
     const scenario = script.scenarios[index];
     if (!scenario) return;
     setActive(scenario.id);
-    ask(scenario.question, true);
+    ask(scenario.question, true, record);
   };
 
   // Fase 1: el mensaje del visitante entra y, si vino de una idea, se escribe
@@ -446,6 +443,7 @@ export function StylistSection({
     const finish = () => {
       if (signal.aborted) return;
       const answer = typer.text();
+      if (current.record) recordTurn(locale, { question: current.question, answer, products });
       rt.wave?.speak(0.08);
       announce(answer, products);
       if (!products.length) {
@@ -533,12 +531,18 @@ export function StylistSection({
         else if (rt.intro.progress() < 1) rt.intro.progress(1);
       };
 
+      // Con una conversación ya empezada (en el panel del robot), la consola
+      // la continúa: ni se borra ni arranca la demostración automática.
+      const resumed = doneTurns(locale).length > 0;
+      if (resumed) rt.interacted = true;
       if (motion) {
         // El primer intercambio se reproduce en vivo al entrar.
-        rt.count = 0;
-        setTurn(null);
-        setActive(null);
-        if (stampRef.current) stampRef.current.textContent = `${t('console.stamp', { number: pad(0) })} · --:--`;
+        if (!resumed) {
+          rt.count = 0;
+          setTurn(null);
+          setActive(null);
+          if (stampRef.current) stampRef.current.textContent = `${t('console.stamp', { number: pad(0) })} · --:--`;
+        }
         section.addEventListener('focusin', onFocusIn);
 
         void document.fonts.ready.then(
@@ -580,7 +584,7 @@ export function StylistSection({
               )
               // El guion arranca solo, salvo que el visitante ya haya tocado la consola.
               .call(() => {
-                if (!rt.interacted) playScenario(0);
+                if (!rt.interacted) playScenario(0, false);
               }, undefined, 1.15);
             rt.intro = intro;
             ScrollTrigger.create({ trigger: consoleEl, start: 'top 78%', end: 'max', once: true, onEnter: () => intro.play() });
@@ -602,6 +606,34 @@ export function StylistSection({
       };
     },
     { scope: sectionRef },
+  );
+
+  // Lo que se pregunta en el panel del robot también aparece aquí, ya
+  // resuelto (sin repetir la animación): es la misma conversación.
+  useEffect(
+    () =>
+      useStylistStore.subscribe((state, previous) => {
+        const last = state.turns.at(-1);
+        if (!last || last.source !== 'panel' || last.status !== 'done') return;
+        const before = previous.turns.find((item) => item.id === last.id);
+        if (before?.status === 'done') return;
+        const rt = runtime.current;
+        rt.abort?.abort();
+        rt.ctx?.kill();
+        rt.ctx = null;
+        rt.interacted = true;
+        rt.count += 1;
+        const time = clock();
+        setStamp(`${t('console.stamp', { number: pad(rt.count) })} · ${time}`);
+        setMode('idle');
+        setStatus('idle');
+        rt.wave?.speak(0.08);
+        setActive(null);
+        setTurn({ key: rt.count, question: last.question, typed: false, animated: false, time, phase: 'done', answer: last.answer, products: last.products, record: false });
+      }),
+    // Las funciones de arriba solo escriben en el DOM y en refs.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   );
 
   // ---------- Interacción ----------

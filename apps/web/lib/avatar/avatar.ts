@@ -30,6 +30,12 @@ export const FOOT_BONES = { left: 'mixamorigLeftFoot', right: 'mixamorigRightFoo
 export const CLIPS = ['idle', 'walk', 'turn', 'pose'] as const;
 export type Clip = (typeof CLIPS)[number];
 
+// Caminar más tranquilo: velocidad del clip de Mixamo.
+export const WALK_SPEED = 0.72;
+
+// "Girar": una vuelta completa procedural (s por vuelta), sobre el reposo.
+export const TURN_SECONDS = 4.6;
+
 // Cruce entre clips (s).
 export const CROSSFADE = 0.5;
 

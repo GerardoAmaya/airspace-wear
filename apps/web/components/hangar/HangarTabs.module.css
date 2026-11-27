@@ -1,0 +1,84 @@
+/*
+ * Pestañas del panel derecho del Hangar 360°: etiquetas mono en mayúsculas
+ * sobre una línea fina; la elegida lleva una barra con la tinta del par.
+ */
+
+.tabs {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+}
+
+.list {
+  display: flex;
+  gap: var(--space-1);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.tab {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color var(--duration-micro) var(--ease-out);
+}
+
+.tab::after {
+  content: '';
+  position: absolute;
+  right: var(--space-2);
+  bottom: -1px;
+  left: var(--space-2);
+  height: 2px;
+  background: var(--hangar-ink, var(--color-primary));
+  opacity: 0;
+  transform: scaleX(0.4);
+  transition:
+    opacity var(--duration-micro) var(--ease-out),
+    transform var(--duration-micro) var(--ease-out);
+}
+
+.tab:hover {
+  color: var(--color-text);
+}
+
+.tab[aria-selected='true'] {
+  color: var(--color-text);
+}
+
+.tab[aria-selected='true']::after {
+  opacity: 1;
+  transform: none;
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.panel {
+  min-height: 0;
+  padding-top: var(--space-4);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.panel:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab,
+  .tab::after {
+    transition: none;
+  }
+}

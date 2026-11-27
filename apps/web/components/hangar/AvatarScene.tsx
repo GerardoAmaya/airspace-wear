@@ -29,17 +29,24 @@ import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 import { StudioEnvironment } from '@/components/three/kit/StudioEnvironment';
 import { LIGHT_PRESETS } from '@/components/three/kit/StudioLights';
 import { type Spin, stepSpin } from '@/components/home/board/rig';
-import { AVATAR_LITE_URL, AVATAR_URL, type Clip, CROSSFADE, FOOT_BONES } from '@/lib/avatar/avatar';
+import { AVATAR_LITE_URL, AVATAR_URL, type Clip, CROSSFADE, FOOT_BONES, TURN_SECONDS, WALK_SPEED } from '@/lib/avatar/avatar';
 import { type Fitting, resolveFit } from '@/lib/avatar/fitting';
-import type { OutfitLook } from '@/lib/avatar/outfit';
+import { CATALOG_FIT } from '@/lib/avatar/catalog-fit';
+import { OUTFIT_RULES, type OutfitLook } from '@/lib/avatar/outfit';
 import { gsap } from '@/lib/motion/gsap';
 import { DURATION, EASE } from '@/lib/motion/tokens';
 import { type Theme, useThemeStore } from '@/lib/theme';
+import { AvatarCatalog, type WornGarment } from './AvatarCatalog';
 import { AvatarOutfit } from './AvatarOutfit';
+import { BodyMask } from './body-mask';
+import { addLegCut, heightOnShin, LEG_CUT, legFrames, makeBodyCuttable } from './leg-cut';
+import { CAP_ROUND, LegCaps } from './LegCaps';
 import { type AvatarView, FOV, type StagePose, TAN_HALF, VIEWS } from './rig';
+import { WalkBelt } from './WalkBelt';
 
 // Escena 3D del Hangar 360°: el avatar de Mixamo con el sneaker elegido en
-// los dos pies (docs/avatar-fitting.md). Un solo canvas, que dibuja solo
+// los dos pies (docs/avatar-fitting.md), en presentación de zapato flotante:
+// la pierna termina en la canilla y el par queda entero a la vista (sección 11). Un solo canvas, que dibuja solo
 // cuando el director de render lo elige (frameloop "never" fuera de vista).
 // Lo que cambia por cuadro (giro, cámara, sombras) vive en refs y se escribe
 // en useFrame; React solo se entera de cambios discretos (modelo listo).
@@ -83,6 +90,9 @@ export interface AvatarSceneProps {
   // Sin vestuario (null), el maniquí va sin ropa.
   outfit?: AvatarOutfitSpec | null;
   onOutfitStatus?(status: OutfitStatus): void;
+  // Prendas del catálogo pedidas y aviso de las que ya están a la vista (slugs).
+  wear?: WornGarment[];
+  onWear?(slugs: string[]): void;
   // Ayudas de calibración: plano del piso y ejes del zapato.
   debug?: { grid: boolean; axes: boolean };
   onReady(): void;
@@ -163,6 +173,37 @@ interface ShoeEntry {
   mirrored: Object3D;
   // Puntos más bajos de la suela (espacio del zapato), para el apoyo en el piso.
   sole: Vector3[];
+  // Abertura del cuello (espacio del zapato, m): altura y radio del borde, y
+  // el punto más alto del zapato (lengüeta o cuello).
+  collar: { height: number; radius: number; top: number } | null;
+}
+
+// Borde del cuello del zapato: los vértices más altos de la mitad de atrás
+// (la abertura del tobillo), su centro en planta y el radio medio, más el
+// punto más alto de todo el zapato. Se mide una vez al cargar; el corte de
+// la pierna lo usa para dejar el mismo hueco sobre cualquier caña.
+function collarRing(scene: Object3D): ShoeEntry['collar'] {
+  scene.updateMatrixWorld(true);
+  const point = new Vector3();
+  const rear: Vector3[] = [];
+  let highest = -Infinity;
+  scene.traverse((object) => {
+    const mesh = object as Mesh;
+    if (!mesh.isMesh) return;
+    const position = mesh.geometry.getAttribute('position');
+    for (let index = 0; index < position.count; index++) {
+      point.fromBufferAttribute(position, index).applyMatrix4(mesh.matrixWorld);
+      highest = Math.max(highest, point.y);
+      if (point.x > -0.13 && point.x < 0.02) rear.push(point.clone());
+    }
+  });
+  if (!rear.length) return null;
+  const top = Math.max(...rear.map((item) => item.y));
+  const ring = rear.filter((item) => item.y > top - 0.012);
+  const cx = ring.reduce((sum, item) => sum + item.x, 0) / ring.length;
+  const cz = ring.reduce((sum, item) => sum + item.z, 0) / ring.length;
+  const radius = ring.reduce((sum, item) => sum + Math.hypot(item.x - cx, item.z - cz), 0) / ring.length;
+  return { height: top, radius, top: highest };
 }
 
 // Muestras de la suela: el vértice más bajo en cada franja a lo largo del
@@ -220,7 +261,14 @@ function mirroredCopy(scene: Object3D): Object3D {
 function ShoeLoader({ shoe, onLoad }: { shoe: AvatarShoe; onLoad(url: string, entry: ShoeEntry): void }) {
   const { scene } = useGLTF(shoe.url);
   const entry = useMemo(
-    () => ({ slug: shoe.slug, foot: shoe.foot, original: scene.clone(true), mirrored: mirroredCopy(scene), sole: solePoints(scene) }),
+    () => ({
+      slug: shoe.slug,
+      foot: shoe.foot,
+      original: scene.clone(true),
+      mirrored: mirroredCopy(scene),
+      sole: solePoints(scene),
+      collar: collarRing(scene),
+    }),
     [scene, shoe.slug, shoe.foot],
   );
   useEffect(() => onLoad(shoe.url, entry), [onLoad, shoe.url, entry]);
@@ -241,11 +289,31 @@ interface FootMount {
 }
 
 const DEG = Math.PI / 180;
+// Zapato flotante: hueco entre la tapa de la pierna y el punto más alto del
+// zapato (m) y corte mínimo sobre el tobillo (m, a lo largo de la canilla).
+const FLOAT_GAP = 0.04;
+const MIN_CUT = 0.03;
+const TAU = Math.PI * 2;
+// "Girar": curva de cada vuelta (el frenado al salir depende de ella), rampa
+// al retomar tras un arrastre y frenado al cambiar de clip (s).
+const TURN_EASE = 'power1.inOut';
+const TURN_RAMP = 0.8;
+const TURN_STOP = 0.9;
 
 // Escrituras sobre objetos de three.js (fuera de React): visibilidad y
 // velocidad del mezclador de animaciones.
 const setVisible = (object: Object3D, visible: boolean) => void (object.visible = visible);
 const setTimeScale = (mixer: AnimationMixer, value: number) => void (mixer.timeScale = value);
+// "Girar": el ángulo de la vuelta pasa a la plataforma (el giro total no cambia).
+interface TurnState {
+  angle: number;
+  tween: gsap.core.Tween | null;
+  held: boolean;
+}
+const handOff = (spin: Spin, turn: TurnState) => {
+  spin.angle += turn.angle;
+  turn.angle = 0;
+};
 
 function useMannequinMaterials(theme: Theme) {
   const materials = useMemo(
@@ -255,6 +323,11 @@ function useMannequinMaterials(theme: Theme) {
     }),
     [],
   );
+  // Las piernas terminan en el corte de la canilla (leg-cut.ts).
+  useEffect(() => {
+    addLegCut(materials.body);
+    addLegCut(materials.joint);
+  }, [materials]);
   // Color mate por tema, leído de los tokens del CSS.
   useEffect(() => {
     materials.body.color.copy(tokenColor('--color-mannequin'));
@@ -271,6 +344,7 @@ function useMannequinMaterials(theme: Theme) {
 }
 
 function Rig({
+  active,
   lite,
   reducedMotion,
   shoe,
@@ -282,6 +356,8 @@ function Rig({
   playback,
   outfit,
   onOutfitStatus,
+  wear,
+  onWear,
   debug,
   onReady,
   onStatus,
@@ -311,6 +387,45 @@ function Rig({
     });
     return { root, left: rest('left'), right: rest('right'), bones };
   }, [scene]);
+
+  // Cuerpo bajo la ropa: se recorta lo que cubren las prendas puestas (base
+  // y catálogo). Se crea antes de colgar ropa (solo toma el cuerpo).
+  // Ejes de las canillas en reposo: el cuerpo, las medias y los pantalones
+  // se cortan a la misma altura sobre el tobillo.
+  const frames = useMemo(() => legFrames(avatar.bones), [avatar]);
+  const catalogRest = useMemo(() => ({ bones: avatar.bones, frames }), [avatar, frames]);
+  const mask = useMemo(() => {
+    const created = new BodyMask(avatar.root, avatar.bones, OUTFIT_RULES.hideInset, new Vector3(...OUTFIT_RULES.forward));
+    makeBodyCuttable(created, frames);
+    return created;
+  }, [avatar, frames]);
+  useEffect(() => {
+    mask.mount();
+    return () => mask.unmount();
+  }, [mask]);
+
+  // Prendas del catálogo a la vista: ocultan su pieza del vestuario base.
+  const [shownWear, setShownWear] = useState<Partial<Record<string, string>>>({});
+  const onShown = useMemo(
+    () => (shown: Partial<Record<string, string>>) => {
+      setShownWear(shown);
+      onWear?.(Object.values(shown).filter((slug): slug is string => !!slug));
+    },
+    [onWear],
+  );
+  const baseLook = outfit?.look;
+  const look = useMemo(() => {
+    if (!baseLook) return null;
+    const garments = { ...baseLook.garments };
+    const accessories = { ...baseLook.accessories };
+    for (const slug of Object.values(shownWear)) {
+      for (const piece of (slug && CATALOG_FIT[slug]?.hides) || []) {
+        if (piece === 'cap' || piece === 'glasses') accessories[piece] = false;
+        else garments[piece] = false;
+      }
+    }
+    return { ...baseLook, garments, accessories };
+  }, [baseLook, shownWear]);
 
   // Material mate del maniquí (en vez del rojo de Mixamo). Las mallas con
   // esqueleto no se recortan por cámara: su caja es la del reposo.
@@ -362,13 +477,16 @@ function Rig({
   const { actions, mixer } = useAnimations(animations, animated);
   const current = useRef<AnimationAction | null>(null);
   useEffect(() => {
-    const next = actions[clip];
+    // "Girar" es un giro procedural sobre el reposo (ver más abajo).
+    const next = actions[clip === 'turn' ? 'idle' : clip];
     if (!next) return;
     const previous = current.current;
     // En modo estricto el efecto de limpieza detiene todo y este vuelve a
     // correr: si la acción ya no corre, se arranca de nuevo.
     if (previous === next && next.isRunning()) return;
-    next.reset().setEffectiveWeight(1).play();
+    // Caminar más tranquilo: la velocidad va en la acción (no en el
+    // mezclador), así los cruces duran lo mismo en ambos sentidos.
+    next.reset().setEffectiveTimeScale(clip === 'walk' ? WALK_SPEED : 1).setEffectiveWeight(1).play();
     // Cruce suave entre clips; con movimiento reducido o en pausa, cambio directo.
     if (previous && previous !== next && !reducedMotion && !playback?.current.paused) next.crossFadeFrom(previous, CROSSFADE, false);
     else if (previous !== next) previous?.stop();
@@ -433,6 +551,21 @@ function Rig({
     lifted.current?.position.set(0, resolved.lift + ground.current, 0);
   }, [mounts, fitting, slug, debug?.axes]);
 
+  // Zapato flotante: la pierna termina en la canilla con una tapa y el par
+  // queda entero a la vista, con un hueco parejo sobre el punto más alto del
+  // zapato (cuello o lengüeta) en el espacio del avatar en reposo, con la
+  // calibración del pie derecho. Así una caña alta y una baja muestran el
+  // mismo hueco; el corte nunca baja del tobillo (MIN_CUT).
+  const cut = useMemo(() => {
+    if (!entry?.collar) return null;
+    const fit = resolveFit(fitting, entry.slug).right;
+    const top = fit.position[1] + Math.max(entry.collar.top, entry.collar.height) * fit.scale;
+    return Math.max(MIN_CUT, heightOnShin(frames, top + FLOAT_GAP + CAP_ROUND));
+  }, [entry, fitting, frames]);
+  useEffect(() => {
+    if (cut !== null) LEG_CUT.value = cut;
+  }, [cut]);
+
   // Herramienta de calibración: mide, en el cuadro actual, la suela de cada
   // zapato (y mínima del mundo, m) y la altura del tobillo sobre ella.
   // Solo se publica con las ayudas de calibración activas (página /hangar/dev).
@@ -488,6 +621,55 @@ function Rig({
   }, [view, wide, size.width, size.height, reducedMotion]);
   useEffect(() => () => void gsap.killTweensOf(pose.current), []);
 
+  // ---------- Girar ----------
+  // Una vuelta completa de 360° por ciclo, con entrada y salida suaves (GSAP
+  // sobre un ref, nunca estado de React). Se repite mientras "Girar" está
+  // elegido y se pausa fuera de vista; con movimiento reducido no gira. Al
+  // salir, frena con la velocidad que llevaba y el ángulo pasa a la
+  // plataforma, así no salta. El giro total es plataforma + vuelta: el
+  // arrastre mueve la plataforma y la vuelta sigue desde ahí al soltar.
+  // La plataforma no gira sola mientras tanto (autoRotate), sin doble giro.
+  const turn = useRef<TurnState>({ angle: 0, tween: null, held: false });
+  useEffect(() => {
+    if (clip !== 'turn' || reducedMotion) return;
+    const state = turn.current;
+    const platform = spin.current;
+    // Si aún frenaba de una vuelta anterior, ese giro pasa a la plataforma.
+    gsap.killTweensOf(state);
+    handOff(platform, state);
+    state.held = false;
+    const loop = gsap.to(state, { angle: TAU, duration: TURN_SECONDS, ease: TURN_EASE, repeat: -1 });
+    state.tween = loop;
+    return () => {
+      // Velocidad actual (rad/s) de la curva power1.inOut: 4·p o 4·(1 − p) por vuelta.
+      const progress = loop.progress();
+      const moving = !loop.paused() && !state.held;
+      const speed = moving ? ((TAU / TURN_SECONDS) * 4 * Math.min(progress, 1 - progress) * loop.timeScale()) : 0;
+      loop.kill();
+      gsap.killTweensOf(loop);
+      state.tween = null;
+      handOff(platform, state);
+      if (speed < 0.05) return;
+      // Frenado: power2.out arranca a 2·d/t, así que d = v·t/2 empalma la velocidad.
+      gsap.to(state, {
+        angle: (speed * TURN_STOP) / 2,
+        duration: TURN_STOP,
+        ease: 'power2.out',
+        onComplete: () => handOff(platform, state),
+      });
+    };
+  }, [clip, reducedMotion, spin]);
+  useEffect(() => {
+    const tween = turn.current.tween;
+    if (!tween) return;
+    if (active && !turn.current.held) tween.resume();
+    else tween.pause();
+  }, [active, clip]);
+  useEffect(() => {
+    const state = turn.current;
+    return () => void gsap.killTweensOf(state);
+  }, []);
+
   // ---------- Por cuadro ----------
   const turntable = useRef<Group>(null);
   const shadows = useRef<{ body: Group | null; left: Group | null; right: Group | null }>({ body: null, left: null, right: null });
@@ -511,6 +693,8 @@ function Rig({
     [outfitUrl, onOutfitStatus],
   );
   const ready = (!requestUrl || !!entry) && (!outfitUrl || outfitSettled === outfitUrl);
+  // La tapa se vuelve a medir cuando cambia la ropa que llega a la canilla.
+  const capsVersion = `${look?.garments.pants}:${look?.garments.socks}:${shownWear.bottom ?? ''}:${outfitSettled ?? ''}`;
 
   useFrame((state, delta) => {
     const width = state.size.width;
@@ -530,7 +714,25 @@ function Rig({
     // Plataforma: arrastre con inercia y, si toca, giro automático.
     const spinState = spin.current;
     stepSpin(spinState, autoRotate ? 'hangar' : 'board', dt, reducedMotion);
-    if (turntable.current) turntable.current.rotation.y = spinState.angle;
+
+    // Giro procedural: el tween corre en el ticker de GSAP. Mientras se
+    // arrastra (o justo después), se pausa; al soltar, retoma con una rampa.
+    const turnState = turn.current;
+    const turnTween = turnState.tween;
+    if (turnTween) {
+      const held = spinState.dragging || !!spinState.keyTween?.isActive() || performance.now() / 1000 < spinState.resumeAt;
+      if (held && !turnState.held) {
+        turnState.held = true;
+        gsap.killTweensOf(turnTween);
+        turnTween.pause();
+      } else if (!held && turnState.held) {
+        turnState.held = false;
+        turnTween.timeScale(0).resume();
+        gsap.to(turnTween, { timeScale: 1, duration: TURN_RAMP, ease: 'power1.in' });
+      }
+    }
+    const yaw = spinState.angle + turnState.angle;
+    if (turntable.current) turntable.current.rotation.y = yaw;
 
     // Reproducción: con movimiento reducido el clip queda en su primer
     // cuadro; en pausa (calibración), en el tiempo pedido.
@@ -584,7 +786,7 @@ function Rig({
     const body = shadows.current.body?.children[0] as unknown as { material?: { opacity: number } } | undefined;
     if (body?.material) body.material.opacity = preset.shadow * 0.5 * MathUtils.clamp((cam.target - 0.08) / 0.82, 0, 1);
 
-    onFrame?.(cam, { width, height }, spinState.angle);
+    onFrame?.(cam, { width, height }, yaw);
 
     // Listo: dos cuadros ya dibujados con el avatar y el par (shaders listos).
     if (ready && drawn.current < 2 && ++drawn.current === 2) onReady();
@@ -607,6 +809,8 @@ function Rig({
         <group ref={(node) => void (shadows.current.right = node)}>
           <Shadow scale={[0.16, 0.34, 1]} rotation-x={-Math.PI / 2} color="black" colorStop={0} opacity={0} fog={false} />
         </group>
+        {/* Cinta al caminar: el pie apoyado no patina sobre la plataforma quieta. */}
+        <WalkBelt walk={actions.walk ?? null} mixer={mixer} reducedMotion={reducedMotion} />
         {debug?.grid && <FloorGrid />}
       </group>
       {outfit && (
@@ -614,9 +818,11 @@ function Rig({
           <Suspense fallback={null}>
             <AvatarOutfit
               url={outfit.url}
-              look={outfit.look}
+              look={look ?? outfit.look}
               avatar={avatar.root}
               rest={avatar.bones}
+              mask={mask}
+              frames={frames}
               lite={lite}
               reducedMotion={reducedMotion}
               onReady={onOutfitReady}
@@ -624,6 +830,8 @@ function Rig({
           </Suspense>
         </LoadBoundary>
       )}
+      {wear && <AvatarCatalog wear={wear} avatar={avatar.root} mask={mask} rest={catalogRest} onShown={onShown} />}
+      {cut !== null && <LegCaps avatar={avatar.root} frames={frames} height={cut} bodyMaterial={materials.joint} version={capsVersion} />}
       {shoe && !entries.has(shoe.url) && failed !== shoe.url && (
         <LoadBoundary key={shoe.url} onError={() => setFailed(shoe.url)}>
           <Suspense fallback={null}>

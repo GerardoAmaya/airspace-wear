@@ -1,0 +1,616 @@
+/* Barra de filtros del catálogo (estilo HUD): buscador, categorías como
+   control segmentado y los menús Marca y Ordenar en una fila. Debajo, los
+   tipos de prenda (en la ropa) y las píldoras de los filtros puestos.
+   En anchos menores (teléfono y tableta), el buscador ocupa su fila y Marca,
+   Ordenar y los tipos de prenda pasan a la hoja "Filtros".
+   El cambio depende del ancho de la barra (container query), no de la ventana. */
+.filters {
+  container: catalog-filters / inline-size;
+  display: grid;
+  /* Sin esto, el control segmentado (que se desliza) estira la columna. */
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+  gap: var(--space-3);
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+/* --- Buscador --- */
+.search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+.searchIcon {
+  position: absolute;
+  left: var(--space-4);
+  color: var(--color-text-muted);
+  pointer-events: none;
+  transition: color var(--duration-ui) var(--ease-out);
+}
+
+.search:focus-within .searchIcon {
+  color: var(--color-primary);
+}
+
+/* Mientras llega el resultado de una búsqueda, la lupa parpadea suave. */
+.search[aria-busy='true'] .searchIcon {
+  animation: searching var(--duration-reveal) var(--ease-in-out) infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .search[aria-busy='true'] .searchIcon {
+    animation: none;
+    opacity: 0.5;
+  }
+}
+
+@keyframes searching {
+  to {
+    opacity: 0.35;
+  }
+}
+
+.searchInput {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 calc(var(--space-4) + 28px) 0 calc(var(--space-4) + 24px);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--text-sm);
+  appearance: none;
+  transition: border-color var(--duration-ui) var(--ease-out);
+}
+
+.searchInput::placeholder {
+  color: var(--color-text-muted);
+}
+
+.searchInput:hover {
+  border-color: var(--color-primary);
+}
+
+.searchInput:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-color: var(--color-primary);
+}
+
+/* Sin la cruz nativa: la barra tiene su propio botón. */
+.searchInput::-webkit-search-cancel-button,
+.searchInput::-webkit-search-decoration {
+  appearance: none;
+}
+
+.searchClear {
+  position: absolute;
+  right: var(--space-2);
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.searchClear:hover {
+  color: var(--color-text);
+  background: var(--color-line);
+}
+
+/* Reserva su lugar aunque no haya texto: aparecer no mueve nada. */
+.searchClear[data-empty] {
+  visibility: hidden;
+}
+
+/* --- Categorías: control segmentado --- */
+.segmented {
+  display: flex;
+  gap: var(--space-1);
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  padding: var(--space-1);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  list-style: none;
+  /* En el teléfono se desliza de lado. */
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.segmented::-webkit-scrollbar {
+  display: none;
+}
+
+.segmented li {
+  flex: none;
+}
+
+.segment {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 34px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--color-text);
+  transition: background-color var(--duration-ui) var(--ease-out);
+}
+
+a.segment:hover {
+  background: var(--color-line);
+}
+
+.segment[aria-current='true'] {
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+}
+
+.segment[aria-disabled='true'] {
+  color: var(--color-text-faint);
+}
+
+.segmentCount {
+  font-size: 0.625rem;
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+}
+
+.segmentSoon {
+  font-size: 0.625rem;
+  color: var(--color-secondary);
+}
+
+/* --- Menús Marca y Ordenar (escritorio) --- */
+.menus {
+  display: none;
+  gap: var(--space-2);
+  flex: none;
+}
+
+.menuRoot {
+  position: relative;
+}
+
+.menuButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color var(--duration-ui) var(--ease-out);
+}
+
+.menuButton:hover,
+.menuButton[aria-expanded='true'] {
+  border-color: var(--color-primary);
+}
+
+/* Con un valor elegido (no el de por defecto), el borde va en lima. */
+.menuButton[data-active] {
+  border-color: var(--color-primary);
+}
+
+.menuLabel {
+  color: var(--color-text-muted);
+}
+
+.menuValue {
+  max-width: 13rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menuButton[data-active] .menuValue {
+  color: var(--color-primary);
+}
+
+.menuChevron {
+  flex: none;
+  transition: transform var(--duration-ui) var(--ease-out);
+}
+
+.menuButton[aria-expanded='true'] .menuChevron {
+  transform: rotate(180deg);
+}
+
+/* Se abre encima del contenido (absoluto): no empuja la página. */
+.menu {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  /* Bajo el encabezado fijo si se cruzan. */
+  z-index: calc(var(--z-header) - 1);
+  display: grid;
+  min-width: 15rem;
+  max-height: min(24rem, 60vh);
+  padding: var(--space-2);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-elevated);
+}
+
+.menu[data-align='start'] {
+  left: 0;
+}
+
+.menu[data-align='end'] {
+  right: 0;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 36px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--color-text);
+  outline: none;
+}
+
+a.menuItem:hover,
+a.menuItem:focus-visible {
+  background: var(--color-line);
+}
+
+a.menuItem:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+
+.menuItem[aria-checked='true'] {
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+}
+
+a.menuItem[aria-checked='true']:hover,
+a.menuItem[aria-checked='true']:focus-visible {
+  background: var(--color-primary-fill);
+}
+
+a.menuItem[aria-checked='true']:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--color-on-primary);
+}
+
+.menuItem[aria-disabled='true'] {
+  color: var(--color-text-faint);
+}
+
+.menuCount {
+  font-size: 0.625rem;
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Botón y hoja "Filtros" (teléfono y tableta) --- */
+.sheetButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: none;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.sheetButton:hover {
+  border-color: var(--color-primary);
+}
+
+.sheetBadge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+  font-size: 0.625rem;
+  letter-spacing: 0;
+}
+
+.sheetBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: color-mix(in srgb, var(--color-background) 60%, transparent);
+}
+
+.sheet {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: calc(var(--z-overlay) + 1);
+  display: flex;
+  flex-direction: column;
+  max-height: min(85svh, 44rem);
+  border: 1px solid var(--color-line-strong);
+  border-bottom: 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-elevated);
+}
+
+.sheetHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--gutter) var(--space-3);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.sheetTitle {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  font-weight: 400;
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.sheetClose {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.sheetBody {
+  display: grid;
+  gap: var(--space-6);
+  padding: var(--space-4) var(--gutter);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.sheetGroup {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.sheetGroupTitle {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  font-weight: 400;
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.sheetOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sheetFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--gutter) calc(var(--space-3) + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--color-line);
+}
+
+.sheetClear {
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sheetSubmit {
+  flex: 1;
+  max-width: 20rem;
+  min-height: 48px;
+  padding: 0 var(--space-6);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+/* --- Chips (tipos de prenda, hoja y sugerencias) --- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 36px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  transition:
+    border-color var(--duration-ui) var(--ease-out),
+    background-color var(--duration-ui) var(--ease-out);
+}
+
+a.chip:hover {
+  border-color: var(--color-primary);
+}
+
+.chip[aria-current='true'] {
+  border-color: var(--color-primary-fill);
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+}
+
+.chip[aria-disabled='true'] {
+  color: var(--color-text-faint);
+  border-style: dashed;
+}
+
+.chipCount {
+  font-size: 0.625rem;
+  opacity: 0.7;
+}
+
+/* Tipos de prenda: una fila discreta, solo en escritorio (en la hoja si no). */
+.subRow {
+  display: none;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.subRow .chip {
+  min-height: 32px;
+  padding: 0 var(--space-3);
+  border-color: var(--color-line);
+}
+
+/* --- Píldoras de filtros puestos --- */
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 30px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: 0.08em;
+  color: var(--color-primary);
+  transition: background-color var(--duration-ui) var(--ease-out);
+}
+
+.pill:hover {
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+}
+
+.clearAll {
+  margin-left: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.clearAll:hover {
+  color: var(--color-text);
+}
+
+/* Escritorio: todo en una fila; Marca y Ordenar como menús. */
+@container catalog-filters (min-width: 1100px) {
+  .bar {
+    flex-wrap: nowrap;
+  }
+
+  .search {
+    flex: 0 1 22rem;
+  }
+
+  .controls {
+    flex: 1 1 auto;
+  }
+
+  .segmented {
+    flex: 0 1 auto;
+  }
+
+  .menus {
+    display: flex;
+    margin-left: auto;
+  }
+
+  .sheetButton {
+    display: none;
+  }
+
+  .subRow {
+    display: flex;
+  }
+}

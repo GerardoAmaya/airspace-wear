@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
   // Valores por defecto de Next 16.4 (plantilla oficial).
   cacheComponents: true,
   partialPrefetching: true,
-  // Modelos y pósters: se guardan un día en el navegador y se revalidan en
+  // Modelos, pósters y prendas ajustadas al maniquí (avatar-fit): se guardan un día en el navegador y se revalidan en
   // segundo plano. Así el prefetch al pasar el cursor sirve de verdad y la
   // ficha no vuelve a pedir el GLB. (Si un modelo se reoptimiza con el mismo
   // nombre, el cambio llega a más tardar al día siguiente.)
@@ -18,6 +18,7 @@ const nextConfig: NextConfig = {
     return [
       { source: '/models/:file*', headers: [cache] },
       { source: '/posters/:file*', headers: [cache] },
+      { source: '/avatar-fit/:file*', headers: [cache] },
       { source: '/vendor/:file*', headers: [cache] },
     ];
   },

@@ -1,0 +1,275 @@
+/* Robot del estilista: fijo abajo a la derecha (16 px en teléfonos, 24 px
+   desde 640 px; el mismo margen que edgeMargin() en placement.ts). Sobre el
+   contenido y bajo los paneles modales. Sin filtros de desenfoque: el halo y
+   la sombra del suelo son degradados. */
+.dock {
+  position: fixed;
+  right: 16px;
+  bottom: calc(16px + var(--robot-lift, 0px));
+  z-index: var(--z-assistant);
+}
+
+@media (min-width: 640px) {
+  .dock {
+    right: 24px;
+    bottom: calc(24px + var(--robot-lift, 0px));
+  }
+}
+
+.mover {
+  position: relative;
+}
+
+.robot {
+  position: relative;
+  display: block;
+  /* Caja del dibujo: 80 x 100. Un 20 % más grande que el robot del
+     portafolio en teléfonos y un 25 % en escritorio, para que se lea la ropa. */
+  width: 76px;
+  height: 95px;
+  padding: 0;
+  border: 0;
+  border-radius: 40%;
+  background: none;
+  color: inherit;
+  cursor: grab;
+  outline: none;
+  /* El dedo que lo toca lo arrastra, sin menú contextual ni selección al
+     mantenerlo presionado. */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (min-width: 640px) {
+  .robot {
+    width: 96px;
+    height: 120px;
+  }
+}
+
+.robot[data-dragging] {
+  cursor: grabbing;
+}
+
+.robot:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--color-background),
+    0 0 0 4px var(--color-primary);
+}
+
+/* Halo suave detrás: separa al robot de lo que tenga abajo, y crece cuando
+   alguien se acerca (solo transform y opacidad). */
+.halo {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, var(--color-robot-halo) 0%, transparent 68%);
+  transform: scale(0.82);
+  transition: transform var(--duration-ui) var(--ease-out);
+}
+
+.halo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(ellipse, var(--color-robot-halo-strong) 0%, transparent 68%);
+  opacity: 0;
+  transition: opacity var(--duration-ui) var(--ease-out);
+}
+
+.halo[data-active] {
+  transform: scale(1.08);
+}
+
+.halo[data-active]::after {
+  opacity: 1;
+}
+
+.walker {
+  position: relative;
+}
+
+.figure {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* La vuelta de la entrada: frente y espalda, cada uno visible de su lado. */
+.spinner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.back {
+  transform: rotateY(180deg);
+}
+
+.drawing {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Sombra en el suelo: una elipse con degradado (sin blur). */
+.shadowTrack {
+  position: absolute;
+  bottom: -4px;
+  left: calc(50% - 28px);
+  width: 56px;
+  height: 7px;
+  pointer-events: none;
+}
+
+.shadow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, var(--color-robot-shadow) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.zzz {
+  position: absolute;
+  top: -4px;
+  right: 4px;
+  color: var(--color-primary);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.z {
+  position: absolute;
+}
+
+/* Globo de diálogo: tarjeta clara y redondeada con sombra suave y el haz de
+   luz recorriendo su borde. Sin backdrop-filter: fondo sólido de superficie. */
+.bubble {
+  position: absolute;
+  width: max-content;
+  max-width: 15rem;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 16px;
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--color-text) 8%, transparent),
+    0 12px 32px -12px color-mix(in srgb, var(--color-text) 30%, transparent);
+}
+
+:root[data-theme='dark'] .bubble {
+  box-shadow: var(--shadow-elevated);
+}
+
+.bubbleText {
+  display: block;
+  width: 100%;
+  padding: 10px 34px 10px 14px;
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* La X: cierra el globo sin abrir el chat (área de 24 px). */
+.bubbleClose {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition:
+    color var(--duration-micro) var(--ease-out),
+    background-color var(--duration-micro) var(--ease-out);
+}
+
+.bubbleClose svg {
+  width: 12px;
+  height: 12px;
+}
+
+.bubbleClose:hover {
+  background: var(--color-line);
+  color: var(--color-text);
+}
+
+/* El globo recorta lo que sale de su borde: el anillo de foco va por dentro. */
+.bubbleText:focus-visible,
+.bubbleClose:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -3px;
+}
+
+.bubbleAbove {
+  bottom: 100%;
+  margin-bottom: 8px;
+}
+
+.bubbleBelow {
+  top: 100%;
+  margin-top: 8px;
+}
+
+/* El globo sale hacia el lado con sitio: pegado al borde del robot. */
+.bubbleToLeft {
+  right: 8px;
+}
+
+.bubbleToRight {
+  left: 8px;
+}
+
+/* La esquina que apunta al robot queda casi recta, como la cola del globo. */
+.tailBottomRight {
+  border-bottom-right-radius: 4px;
+}
+
+.tailBottomLeft {
+  border-bottom-left-radius: 4px;
+}
+
+.tailTopRight {
+  border-top-right-radius: 4px;
+}
+
+.tailTopLeft {
+  border-top-left-radius: 4px;
+}
+
+.mini {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 32px;
+  height: 40px;
+}

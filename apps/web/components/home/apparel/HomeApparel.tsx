@@ -8,11 +8,8 @@ import { Reveal } from '@/components/motion/Reveal';
 import { Link } from '@/i18n/navigation';
 import { getProducts } from '@/lib/api';
 import { HOME_ANCHORS } from '@/lib/home';
+import { pickHomeApparel } from '@/lib/home-apparel';
 import own from './Apparel.module.css';
-
-// Cuántas prendas muestra la home. La API las entrega en el orden de vitrina
-// del seed (el de prisma/seed/apparel.ts), así que basta con las primeras.
-const FEATURED_COUNT = 6;
 
 // "Ropa" de la home (plan del paso 4, fase 2): las prendas de vitrina con la
 // misma tarjeta y la misma rejilla que "Destacados", y un botón al catálogo
@@ -21,7 +18,8 @@ const FEATURED_COUNT = 6;
 // encabezado (decodificación del título) es de cliente.
 export async function HomeApparel({ locale }: { locale: Locale }) {
   const [t, format, apparel] = await Promise.all([getTranslations('HomeApparel'), getFormatter(), getProducts({ locale, category: 'apparel' })]);
-  const featured = apparel.items.slice(0, FEATURED_COUNT);
+  // Selección fija del dueño, completada con el resto (lib/home-apparel.ts).
+  const featured = pickHomeApparel(apparel.items);
   if (!featured.length) return null;
 
   const brands = [...new Map(apparel.items.map((item) => [item.brand.slug, item.brand.name])).values()];

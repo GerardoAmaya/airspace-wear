@@ -80,7 +80,6 @@ const POSTER_BOX = { left: 0.176, top: 0.155, width: 0.677, aspect: 800 / 1200 }
 // el camino normal (sin póster), en la portada, con movimiento y sin modo
 // liviano.
 const ENTRANCE = {
-  storageKey: 'airspace-hero-entrance',
   // Vuelo hasta el piso (s) y vueltas en el aire.
   flight: 1.15,
   turns: 1,
@@ -96,15 +95,12 @@ const ENTRANCE = {
 };
 const TAN_HALF_FOV = Math.tan((FOV * Math.PI) / 360);
 
-// Decide si toca la entrada con humo. Sin ella, la entrada normal.
+// Decide si toca la entrada con humo (en cada carga que empieza en la
+// portada, a pedido del dueño del proyecto). Sin ella, la entrada normal:
+// movimiento reducido, modo liviano o enlace directo a una sección. Las
+// recargas más abajo se saltan aparte (la escena no está en la portada).
 function planEntrance(reduced: boolean): boolean {
-  if (reduced || document.documentElement.classList.contains('lite') || window.location.hash) return false;
-  try {
-    return !sessionStorage.getItem(ENTRANCE.storageKey);
-  } catch {
-    // Sin almacenamiento: se trata como primera visita.
-    return true;
-  }
+  return !(reduced || document.documentElement.classList.contains('lite') || window.location.hash);
 }
 
 const YAW_PER_PX = 0.009;
@@ -1023,11 +1019,6 @@ export function HeroClient({ content }: { content: HeroContent }) {
       // línea salta a su final (lagSmoothing(0)) y onComplete deja la escena
       // en su pose, sin humo. Las partículas se desmontan al terminar.
       function playEntrance() {
-        try {
-          sessionStorage.setItem(ENTRANCE.storageKey, '1');
-        } catch {
-          // Sin almacenamiento: se volverá a ver en la próxima carga.
-        }
         // El lienzo se ve sin fundido: el zapato arranca fuera de cuadro, así
         // que el primer cuadro visible ya se mueve.
         stage!.setAttribute('data-entrance', '');

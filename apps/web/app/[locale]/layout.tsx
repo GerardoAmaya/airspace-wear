@@ -8,6 +8,7 @@ import { CartLayer } from '@/components/cart/CartLayer';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { MotionRoot } from '@/components/motion/MotionRoot';
+import { StylistBot } from '@/components/stylist-bot/StylistBot';
 import { routing } from '@/i18n/routing';
 import { localeAlternates, SITE_URL } from '@/lib/seo';
 import '@/styles/tokens.css';
@@ -103,6 +104,8 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
           <Suspense>
             <CartLayer locale={locale} />
           </Suspense>
+          {/* Estilista IA flotante (robot y panel del chat) en todas las páginas. */}
+          <StylistBot />
         </NextIntlClientProvider>
       </body>
     </html>

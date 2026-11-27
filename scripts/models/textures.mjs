@@ -8,7 +8,10 @@
 //   píxeles alrededor (la mediana; sirve en telas lisas), o fill: [r, g, b]
 //   con un color dado;
 // - copyFrom: [dx, dy] copia la zona desplazada en esas fracciones (conserva
-//   el tejido o el estampado de al lado, como un tampón de clonar).
+//   el tejido o el estampado de al lado, como un tampón de clonar);
+// - floor: [r, g, b] sube cada canal al menos a ese valor y deja igual lo que
+//   ya es más claro (un logo, una costura). Sirve para un color negro puro
+//   (0, 0, 0), que en PBR solo muestra el reflejo y se ve con bandas.
 
 import sharp from 'sharp';
 
@@ -39,6 +42,15 @@ export async function patchTextures(document, patches = []) {
       const top = Math.max(0, Math.floor(y0 * height));
       const right = Math.min(width, Math.ceil(x1 * width));
       const bottom = Math.min(height, Math.ceil(y1 * height));
+      if (patch.floor) {
+        for (let y = top; y < bottom; y++) {
+          for (let x = left; x < right; x++) {
+            const offset = (y * width + x) * channels;
+            for (let c = 0; c < 3; c++) data[offset + c] = Math.max(data[offset + c], patch.floor[c]);
+          }
+        }
+        continue;
+      }
       if (patch.copyFrom) {
         const dx = Math.round(patch.copyFrom[0] * width);
         const dy = Math.round(patch.copyFrom[1] * height);

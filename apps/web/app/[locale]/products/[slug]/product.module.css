@@ -214,3 +214,36 @@
   height: 56px;
   width: 80%;
 }
+
+/* "Pruébalo en el Hangar 360°": mismo trazo que el botón de AR. */
+.tryOn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  font-weight: 700;
+  letter-spacing: var(--tracking-hud);
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: border-color var(--duration-ui) var(--ease-out);
+}
+
+.tryOn:hover {
+  border-color: var(--color-primary);
+}
+
+.tryOn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tryOn {
+    transition: none;
+  }
+}

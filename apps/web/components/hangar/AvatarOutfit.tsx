@@ -5,14 +5,12 @@ import { useThree } from '@react-three/fiber';
 import { useEffect, useMemo } from 'react';
 import {
   type Bone,
-  BufferAttribute,
-  BufferGeometry,
   Color,
   DoubleSide,
   FrontSide,
   Group,
   type Material,
-  Matrix4,
+  type Matrix4,
   type Mesh,
   MeshStandardMaterial,
   type Object3D,
@@ -32,6 +30,8 @@ import {
 } from '@/lib/avatar/outfit';
 import { gsap } from '@/lib/motion/gsap';
 import { DURATION, EASE } from '@/lib/motion/tokens';
+import { type BodyMask, restPositions } from './body-mask';
+import { addLegCut, type LegCutData, type LegFrame, lowestOnShin, makeCuttable, SOCK_CUFF } from './leg-cut';
 
 // Vestuario del maniquí (docs/avatar-fitting.md, sección 9). El GLB del
 // vestuario trae el mismo esqueleto que el avatar: cada prenda se vuelve a
@@ -43,16 +43,12 @@ import { DURATION, EASE } from '@/lib/motion/tokens';
 const GARMENTS: readonly GarmentKey[] = ['shirt', 'tank', 'shorts', 'pants', 'socks'];
 const ACCESSORIES: readonly AccessoryKey[] = ['cap', 'glasses'];
 const SLOT_OF: Record<GarmentKey, ColorSlot> = { shirt: 'shirt', tank: 'shirt', shorts: 'bottoms', pants: 'bottoms', socks: 'socks' };
-const BIT_OF: Record<GarmentKey, number> = { shirt: 1, tank: 2, shorts: 4, pants: 8, socks: 16 };
 
 // Color de un token CSS (--color-garment-*) o de un dato (acento del producto).
 function readColor(value: string): Color {
   if (!value.startsWith('--')) return new Color(value);
   return new Color(getComputedStyle(document.documentElement).getPropertyValue(value).trim() || 'gray');
 }
-
-// Nombre base del hueso: "mixamorigLeftArm" -> "LeftArm".
-const boneBase = (name: string) => name.replace(/^mixamorig\d*/, '');
 
 // ---------- Tejido procedural ----------
 
@@ -95,161 +91,6 @@ function addKnit(material: MeshStandardMaterial, metersPerUnit: number) {
 
 const fabric = () => new MeshStandardMaterial({ roughness: 0.84, metalness: 0, side: DoubleSide, envMapIntensity: 0.65 });
 
-// ---------- Cuerpo bajo la ropa ----------
-
-interface BodyMask {
-  mesh: SkinnedMesh;
-  original: BufferGeometry;
-  wrapper: BufferGeometry;
-  triangles: ArrayLike<number>;
-  // Bits de las prendas que cubren cada vértice (BIT_OF).
-  covered: Uint8Array;
-}
-
-// Posición en reposo de cada vértice (m, espacio del avatar): skinning en la
-// CPU con las matrices de reposo de los huesos, medidas antes de animar.
-function restPositions(mesh: SkinnedMesh, geometry: BufferGeometry, rest: Map<string, Matrix4>): Float32Array {
-  const position = geometry.getAttribute('position');
-  const skinIndex = geometry.getAttribute('skinIndex');
-  const skinWeight = geometry.getAttribute('skinWeight');
-  const joint = mesh.skeleton.bones.map((bone, index) => {
-    const world = rest.get(bone.name) ?? bone.matrixWorld;
-    return new Matrix4().multiplyMatrices(world, mesh.skeleton.boneInverses[index]).multiply(mesh.bindMatrix);
-  });
-  const out = new Float32Array(position.count * 3);
-  const vertex = new Vector3();
-  const part = new Vector3();
-  const sum = new Vector3();
-  for (let i = 0; i < position.count; i++) {
-    vertex.fromBufferAttribute(position, i);
-    sum.set(0, 0, 0);
-    for (let k = 0; k < 4; k++) {
-      const weight = skinWeight.getComponent(i, k);
-      if (!weight) continue;
-      part.copy(vertex).applyMatrix4(joint[skinIndex.getComponent(i, k)]).multiplyScalar(weight);
-      sum.add(part);
-    }
-    out.set([sum.x, sum.y, sum.z], i * 3);
-  }
-  return out;
-}
-
-// Marca, por vértice, qué prendas lo cubren: el hueso dominante está en la
-// lista de la prenda y el vértice queda dentro de los cortes y fuera de las
-// aberturas con un margen (hideInset). Mismo criterio que outfit.py.
-function coverage(mesh: SkinnedMesh, geometry: BufferGeometry, rest: Map<string, Matrix4>, rules: OutfitRules): Uint8Array {
-  const points = restPositions(mesh, geometry, rest);
-  const skinIndex = geometry.getAttribute('skinIndex');
-  const skinWeight = geometry.getAttribute('skinWeight');
-  const names = mesh.skeleton.bones.map((bone) => boneBase(bone.name));
-  const restOf = new Map<string, Vector3>();
-  for (const [name, matrix] of rest) restOf.set(boneBase(name), new Vector3().setFromMatrixPosition(matrix));
-  const head = (name: string) => restOf.get(name) ?? new Vector3();
-  const hips = head('Hips');
-  const forward = new Vector3(...rules.forward);
-  const inset = rules.hideInset;
-
-  const garments = GARMENTS.map((key) => {
-    const garment = rules.garments[key];
-    return {
-      bit: BIT_OF[key],
-      bones: new Set(garment.bones),
-      cuts: garment.cuts.map((cut) => {
-        const a = head(cut.from);
-        const axis = head(cut.to).clone().sub(a);
-        const length = axis.length() || 1;
-        const side = cut.from.startsWith('Left') ? 1 : cut.from.startsWith('Right') ? -1 : 0;
-        const limit = cut.keep === 'below' ? cut.t - inset / length : cut.t + inset / length;
-        return { a, axis, lengthSq: length * length, side, keep: cut.keep, limit };
-      }),
-      holes: garment.holes.map((hole) => {
-        const a = head(hole.from);
-        const axis = head(hole.to).clone().sub(a);
-        const length = axis.length() || 1;
-        return {
-          center: a.clone().addScaledVector(forward, hole.forward ?? 0),
-          direction: axis.clone().normalize(),
-          length,
-          minT: hole.minT ?? -1,
-          radius: hole.radius + inset,
-        };
-      }),
-    };
-  });
-
-  const covered = new Uint8Array(points.length / 3);
-  const point = new Vector3();
-  const relative = new Vector3();
-  for (let i = 0; i < covered.length; i++) {
-    point.fromArray(points, i * 3);
-    let best = 0;
-    let dominant = '';
-    for (let k = 0; k < 4; k++) {
-      const weight = skinWeight.getComponent(i, k);
-      if (weight > best) {
-        best = weight;
-        dominant = names[skinIndex.getComponent(i, k)] ?? '';
-      }
-    }
-    let bits = 0;
-    for (const garment of garments) {
-      if (!garment.bones.has(dominant)) continue;
-      const inside = garment.cuts.every((cut) => {
-        if (cut.side && (point.x - hips.x) * cut.side <= 0) return true;
-        const t = relative.copy(point).sub(cut.a).dot(cut.axis) / cut.lengthSq;
-        return cut.keep === 'below' ? t <= cut.limit : t >= cut.limit;
-      });
-      if (!inside) continue;
-      const open = garment.holes.some((hole) => {
-        relative.copy(point).sub(hole.center);
-        const along = relative.dot(hole.direction);
-        if (along / hole.length < hole.minT) return false;
-        return relative.addScaledVector(hole.direction, -along).length() < hole.radius;
-      });
-      if (!open) bits |= garment.bit;
-    }
-    covered[i] = bits;
-  }
-  return covered;
-}
-
-// Copia de la geometría del cuerpo con su propio índice (los atributos se
-// comparten): así el cuerpo del caché de drei queda intacto.
-function wrap(original: BufferGeometry): { wrapper: BufferGeometry; triangles: ArrayLike<number> } {
-  const wrapper = new BufferGeometry();
-  for (const [name, attribute] of Object.entries(original.attributes)) wrapper.setAttribute(name, attribute);
-  const source = original.getIndex();
-  const count = original.getAttribute('position').count;
-  const triangles = source ? source.array : Uint32Array.from({ length: count }, (_, index) => index);
-  const Kind = count > 65535 ? Uint32Array : Uint16Array;
-  wrapper.setIndex(new BufferAttribute(new Kind(triangles.length), 1));
-  for (const group of original.groups) wrapper.addGroup(group.start, group.count, group.materialIndex);
-  wrapper.boundingBox = original.boundingBox;
-  wrapper.boundingSphere = original.boundingSphere;
-  return { wrapper, triangles };
-}
-
-// Deja en el índice solo los triángulos que no quedan del todo bajo una
-// prenda visible. Se hace una vez por cambio de prenda, nunca por cuadro.
-function applyMask(mask: BodyMask, visible: number) {
-  const index = mask.wrapper.getIndex();
-  if (!index) return;
-  const target = index.array as Uint16Array | Uint32Array;
-  const { triangles, covered } = mask;
-  let kept = 0;
-  for (let i = 0; i < triangles.length; i += 3) {
-    const a = triangles[i];
-    const b = triangles[i + 1];
-    const c = triangles[i + 2];
-    if (covered[a] & visible && covered[b] & visible && covered[c] & visible) continue;
-    target[kept++] = a;
-    target[kept++] = b;
-    target[kept++] = c;
-  }
-  index.needsUpdate = true;
-  mask.wrapper.setDrawRange(0, kept);
-}
-
 // ---------- Armado ----------
 
 interface Rigid {
@@ -263,7 +104,8 @@ interface OutfitRig {
   accessories: Record<AccessoryKey, Rigid | null>;
   materials: Record<ColorSlot, MeshStandardMaterial>;
   lens: MeshStandardMaterial;
-  body: BodyMask[];
+  // Cuerpo que cubre cada prenda (una capa del recorte del cuerpo).
+  covers: Record<GarmentKey, Uint8Array[]>;
 }
 
 const ownerOf = (object: Object3D, rules: OutfitRules): GarmentKey | AccessoryKey | null => {
@@ -274,7 +116,14 @@ const ownerOf = (object: Object3D, rules: OutfitRules): GarmentKey | AccessoryKe
   return null;
 };
 
-function buildRig(source: Object3D, avatar: Object3D, rest: Map<string, Matrix4>, lite: boolean): OutfitRig {
+function buildRig(
+  source: Object3D,
+  avatar: Object3D,
+  rest: Map<string, Matrix4>,
+  lite: boolean,
+  mask: BodyMask,
+  frames: LegFrame[],
+): OutfitRig {
   const rules = OUTFIT_RULES;
   source.updateMatrixWorld(true);
   const bones = new Map<string, Bone>();
@@ -289,13 +138,6 @@ function buildRig(source: Object3D, avatar: Object3D, rest: Map<string, Matrix4>
   // del mismo color (negro sobre negro en el tema claro) se leen como dos piezas.
   materials.bottoms.roughness = 0.7;
   materials.bottoms.envMapIntensity = 0.8;
-  // Las medias ceden ante el zapato: si una cara queda casi en el mismo
-  // lugar que el cuello del zapato, gana el zapato.
-  for (const material of [materials.socks, materials.stripes]) {
-    material.polygonOffset = true;
-    material.polygonOffsetFactor = 1;
-    material.polygonOffsetUnits = 4;
-  }
   const lens = new MeshStandardMaterial({ roughness: 0.12, metalness: 0.4, color: readColor(LENS_TOKEN), envMapIntensity: 1 });
 
   const holder = new Group();
@@ -319,6 +161,9 @@ function buildRig(source: Object3D, avatar: Object3D, rest: Map<string, Matrix4>
     // Su caja es la del reposo: sin recorte por cámara, como el cuerpo.
     copy.frustumCulled = false;
     copy.userData.outfit = true;
+    // Medias y pantalón terminan en el corte de la pierna (leg-cut.ts).
+    if (key === 'socks' || key === 'pants') makeCuttable(copy, rest, frames, key);
+    if (stripe) copy.userData.legCapMaterial = false;
     holder.add(copy);
     garments[key].push(copy);
     // Metros por unidad del atributo (la cuantización cambia la escala): se
@@ -359,17 +204,16 @@ function buildRig(source: Object3D, avatar: Object3D, rest: Map<string, Matrix4>
     addKnit(materials.socks, skinnedScale);
   }
 
-  // Cuerpo: las mallas con esqueleto del avatar (superficie y articulaciones).
-  const body: BodyMask[] = [];
-  avatar.traverse((object) => {
-    const mesh = object as SkinnedMesh;
-    if (!mesh.isSkinnedMesh || mesh.userData.outfit) return;
-    const original = (mesh.userData.outfitOriginal as BufferGeometry | undefined) ?? mesh.geometry;
-    const { wrapper, triangles } = wrap(original);
-    body.push({ mesh, original, wrapper, triangles, covered: coverage(mesh, original, rest, rules) });
-  });
+  // Corte de la pierna en la media (con las franjas del puño en el borde,
+  // del color de las franjas) y en el pantalón. La media y sus franjas,
+  // además, se ocultan dentro del pantalón. El short comparte material con
+  // el pantalón, pero sin el atributo del corte no se corta.
+  addLegCut(materials.socks, { band: materials.stripes.color });
+  addLegCut(materials.stripes, { sock: true });
+  addLegCut(materials.bottoms);
 
-  return { holder, garments, accessories, materials, lens, body };
+  const covers = Object.fromEntries(GARMENTS.map((key) => [key, mask.cover(rules.garments[key])])) as Record<GarmentKey, Uint8Array[]>;
+  return { holder, garments, accessories, materials, lens, covers };
 }
 
 // Escrituras sobre objetos de three.js (fuera de React).
@@ -378,11 +222,6 @@ const setColor = (material: MeshStandardMaterial, color: Color) => {
   material.color.copy(color);
   material.userData.colored = true;
 };
-const setGeometry = (mesh: SkinnedMesh, geometry: BufferGeometry, original?: BufferGeometry) => {
-  mesh.geometry = geometry;
-  if (original) mesh.userData.outfitOriginal = original;
-  else delete mesh.userData.outfitOriginal;
-};
 
 export interface AvatarOutfitProps {
   url: string;
@@ -390,50 +229,55 @@ export interface AvatarOutfitProps {
   avatar: Object3D;
   // Matrices de mundo de cada hueso en reposo (antes de animar).
   rest: Map<string, Matrix4>;
+  // Recorte del cuerpo bajo la ropa (compartido con las prendas del catálogo).
+  mask: BodyMask;
+  // Ejes de las canillas para el corte de las piernas.
+  frames: LegFrame[];
   lite: boolean;
   reducedMotion: boolean;
   onReady(): void;
 }
 
-export function AvatarOutfit({ url, look, avatar, rest, lite, reducedMotion, onReady }: AvatarOutfitProps) {
+export function AvatarOutfit({ url, look, avatar, rest, mask, frames, lite, reducedMotion, onReady }: AvatarOutfitProps) {
   const { scene } = useGLTF(url);
-  const rig = useMemo(() => buildRig(scene, avatar, rest, lite), [scene, avatar, rest, lite]);
+  const rig = useMemo(() => buildRig(scene, avatar, rest, lite, mask, frames), [scene, avatar, rest, lite, mask, frames]);
   const get = useThree((state) => state.get);
 
   // Monta las prendas y el cuerpo recortable; al salir, todo vuelve como estaba.
   useEffect(() => {
     avatar.add(rig.holder);
+    // Donde empiezan las franjas de arriba del puño: decide si caben las del corte.
+    const stripes = rig.garments.socks.filter((mesh) => mesh.userData.legCapMaterial === false && mesh.userData.legCut);
+    SOCK_CUFF.value = Math.min(10, lowestOnShin(stripes.map((mesh) => mesh.userData.legCut as LegCutData)));
     for (const accessory of Object.values(rig.accessories)) accessory?.bone.add(accessory.object);
-    for (const mask of rig.body) setGeometry(mask.mesh, mask.wrapper, mask.original);
     // Compila los materiales nuevos antes de mostrarlos.
     const { gl, scene: root, camera } = get();
     gl.compile(root, camera);
     onReady();
     return () => {
       avatar.remove(rig.holder);
+      SOCK_CUFF.value = 10;
       for (const accessory of Object.values(rig.accessories)) accessory?.bone.remove(accessory.object);
-      for (const mask of rig.body) setGeometry(mask.mesh, mask.original);
+      for (const key of GARMENTS) mask.setLayer(`base-${key}`, null);
       for (const material of [...Object.values(rig.materials), rig.lens]) {
         gsap.killTweensOf(material.color);
         material.dispose();
       }
     };
-  }, [rig, avatar, get, onReady]);
+  }, [rig, avatar, mask, get, onReady]);
 
   // Prendas visibles y cuerpo oculto debajo.
   const { shirt, tank, shorts, pants, socks } = look.garments;
   const { cap, glasses } = look.accessories;
   useEffect(() => {
     const shown: Record<GarmentKey, boolean> = { shirt, tank, shorts, pants, socks };
-    let bits = 0;
     for (const key of GARMENTS) {
       for (const mesh of rig.garments[key]) setVisible(mesh, shown[key]);
-      if (shown[key] && rig.garments[key].length) bits |= BIT_OF[key];
+      mask.setLayer(`base-${key}`, shown[key] && rig.garments[key].length ? rig.covers[key] : null);
     }
-    for (const mask of rig.body) applyMask(mask, bits);
     if (rig.accessories.cap) setVisible(rig.accessories.cap.object, cap);
     if (rig.accessories.glasses) setVisible(rig.accessories.glasses.object, glasses);
-  }, [rig, shirt, tank, shorts, pants, socks, cap, glasses]);
+  }, [rig, mask, shirt, tank, shorts, pants, socks, cap, glasses]);
 
   // Color de cada prenda: un fundido corto (GSAP sobre el color del material,
   // fuera de React); con movimiento reducido, directo. La primera vez, directo.

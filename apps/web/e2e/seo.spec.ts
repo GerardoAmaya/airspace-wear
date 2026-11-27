@@ -28,3 +28,21 @@ test('home and product pages share a branded large image', async ({ page, reques
   await page.goto('/es');
   await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute('content', es.Metadata.ogAlt);
 });
+
+test('catalog searches are noindex, follow; filtered, sorted and paged views keep their canonical', async ({ page }) => {
+  const canonical = page.locator('link[rel="canonical"]');
+  const robots = page.locator('meta[name="robots"]');
+  await page.goto('/es/catalog?q=jordan');
+  await expect(robots).toHaveAttribute('content', 'noindex, follow');
+  await expect(canonical).toHaveAttribute('href', /\/es\/catalog$/);
+  for (const [path, href] of [
+    ['/es/catalog', /\/es\/catalog$/],
+    ['/es/catalog?brand=nike&sort=price-asc', /\/es\/catalog$/],
+    ['/en/catalog?page=2', /\/en\/catalog\?page=2$/],
+  ] as const) {
+    await page.goto(path);
+    // La canónica ya llegó: los metadatos están completos.
+    await expect(canonical, path).toHaveAttribute('href', href);
+    await expect(robots, path).toHaveCount(0);
+  }
+});

@@ -55,6 +55,9 @@ function stockFor(product: SeedProduct, label: string): number {
   for (const char of `${product.slug}:${label}`) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
   if (product.availability === 'low_stock') return hash % 3;
   if (product.availability === 'coming_soon') return 0;
+  // Con talla única, un 0 al azar dejaría agotado un producto marcado como
+  // disponible: solo se agota una talla entre varias.
+  if (product.sizes.system === 'ONE') return 3 + (hash % 10);
   return hash % 7 === 0 ? 0 : 3 + (hash % 10);
 }
 

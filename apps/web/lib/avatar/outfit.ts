@@ -1,3 +1,4 @@
+import { type CatalogWear, sanitizeWear } from './catalog-fit';
 import rulesFile from './outfit-rules.json';
 
 // Vestuario del maniquí del Hangar 360°: qué prendas lleva y de qué color.
@@ -40,6 +41,8 @@ export interface OutfitChoice {
   // Solo los colores que eligió la persona. Sin color de camiseta, la escena
   // usa el del tema (blanco en oscuro, negro en claro).
   colors: Partial<Record<ColorSlot, GarmentColor>>;
+  // Prendas del catálogo puestas (slug por lugar). Reemplazan a su pieza base.
+  wear: CatalogWear;
 }
 
 export const DEFAULT_OUTFIT: OutfitChoice = {
@@ -50,7 +53,15 @@ export const DEFAULT_OUTFIT: OutfitChoice = {
   socks: true,
   stripes: true,
   colors: {},
+  // Prendas del catálogo puestas por defecto (visitas nuevas y "Restablecer"):
+  // la gorra NY 59FIFTY de visera plana, el anorak y sus pants. Lo ya
+  // guardado no cambia.
+  wear: sanitizeWear({ head: 'gorra-ny-59fifty-marino', top: 'anorak-gris', bottom: 'pants-anorak-gris' }),
 };
+
+// Par que lleva el maniquí al abrir el Hangar (si está en la lista de
+// calzables; si no, el primero de la vitrina).
+export const DEFAULT_PAIR = 'air-jordan-1';
 
 // Colores por defecto: short negro en ambos temas (con la camiseta negra del
 // tema claro se separan por el brillo de la tela y el canto del dobladillo),
@@ -121,6 +132,7 @@ export function sanitizeChoice(raw: unknown): OutfitChoice {
     socks: typeof data.socks === 'boolean' ? data.socks : DEFAULT_OUTFIT.socks,
     stripes: typeof data.stripes === 'boolean' ? data.stripes : DEFAULT_OUTFIT.stripes,
     colors,
+    wear: sanitizeWear(data.wear),
   };
 }
 

@@ -160,7 +160,72 @@
   --z-content: 1;
   --z-hud: 5;
   --z-header: 50;
+  /* Robot del estilista y su panel: sobre el contenido y el encabezado,
+     bajo los paneles modales (carrito). */
+  --z-assistant: 90;
   --z-overlay: 100;
+}
+
+/* Robot del estilista (components/stylist-bot). Cabeza y brazos de metal
+   claro, gorra 59FIFTY azul marino con "NY", sudadera gris carbón con "IA"
+   en lima, tenis altos estilo Air Jordan 1 blancos con el mismo azul marino
+   de la gorra, luz de antena naranja, visor oscuro y ojos claros. El metal
+   cambia con el tema para contrastar con el fondo: crema en el oscuro,
+   blanco con borde cálido en el claro. */
+:root,
+:root[data-theme='dark'] {
+  --color-robot-body-top: #fbf9f4;
+  --color-robot-body-mid: #ece8de;
+  --color-robot-body-bottom: #d6d0c3;
+  --color-robot-body-edge: #b9b2a3;
+  --color-robot-halo: color-mix(in srgb, var(--color-primary-fill) 26%, transparent);
+  --color-robot-halo-strong: color-mix(in srgb, var(--color-primary-fill) 40%, transparent);
+  --color-robot-shadow: color-mix(in srgb, var(--color-text) 22%, transparent);
+  /* Bordes claros en el oscuro para que el azul y el negro no se pierdan. */
+  --color-robot-cap-edge: #6f86bd;
+  /* Borde de los tenis: gris claro para que se lean sobre el fondo oscuro. */
+  --color-robot-shoe-edge: #74747e;
+}
+:root[data-theme='light'] {
+  --color-robot-body-top: #ffffff;
+  --color-robot-body-mid: #f7f5ef;
+  --color-robot-body-bottom: #e6e1d6;
+  --color-robot-body-edge: #c4bdae;
+  --color-robot-halo: color-mix(in srgb, var(--color-primary-fill) 45%, transparent);
+  --color-robot-halo-strong: color-mix(in srgb, var(--color-primary-fill) 65%, transparent);
+  --color-robot-shadow: color-mix(in srgb, var(--color-text) 20%, transparent);
+  --color-robot-cap-edge: #121c36;
+  --color-robot-shoe-edge: #0e0e10;
+}
+:root {
+  /* Azul marino de la mascota, el mismo en ambos temas: gorra y tenis. */
+  --color-bot-navy: #2b3f72;
+  --color-bot-navy-light: #3d5594;
+  --color-bot-navy-deep: #1b2850;
+  --color-robot-cap-top: var(--color-bot-navy-light);
+  --color-robot-cap: var(--color-bot-navy);
+  /* Paneles oscuros de los tenis (puntera, talón, cuello, ojales, swoosh). */
+  --color-robot-shoe-overlay: var(--color-bot-navy);
+  --color-robot-shoe-sole: var(--color-bot-navy-deep);
+  /* Sudadera gris carbón, igual en ambos temas: tinta fija mezclada con la
+     crema fija (nunca el fondo ni la superficie de la página). */
+  --color-robot-charcoal: color-mix(in srgb, var(--color-on-primary) 74%, var(--color-robot-cap-mark));
+  --color-robot-hoodie-top: color-mix(in srgb, var(--color-on-primary) 68%, var(--color-robot-cap-mark));
+  --color-robot-hoodie: var(--color-robot-charcoal);
+  --color-robot-hoodie-bottom: color-mix(in srgb, var(--color-on-primary) 79%, var(--color-robot-cap-mark));
+  --color-robot-hoodie-shade: color-mix(in srgb, var(--color-on-primary) 84%, var(--color-robot-cap-mark));
+  --color-robot-hoodie-edge: color-mix(in srgb, var(--color-on-primary) 90%, var(--color-robot-cap-mark));
+  --color-robot-cap-mark: #f4f1ea;
+  --color-robot-shoe: #fbf9f4; /* paneles blancos y entresuela */
+  --color-robot-visor-top: #26262d;
+  --color-robot-visor: #0b0b0d;
+  --color-robot-eye: #e3ff9e;
+  --color-robot-eye-light: #f9ffe8;
+  --color-robot-eye-deep: #9fd61c;
+  --color-robot-glint: #ffffff;
+  --color-robot-light: #ffd9cc;
+  --color-robot-accent: var(--color-secondary-fill);
+  --color-robot-star: #ffb39c;
 }
 
 /* En pantallas angostas los titulares se angostan con el eje de ancho, para

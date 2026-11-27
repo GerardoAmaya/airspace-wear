@@ -166,7 +166,11 @@ export const LICENSES = {
 //   dataTextureQuality (calidad WebP de normales, rugosidad/metal y oclusión,
 //   por defecto DATA_TEXTURE_QUALITY), textureSizeBySlot (lado máximo por slot,
 //   por ejemplo { specularTexture: 512 }) y textureSizeByMaterial (lado máximo
-//   de las texturas de un material, por nombre). Documentar la razón al lado.
+//   de las texturas de un material, por nombre), maxSimplifyError (error
+//   máximo solo para esa variante) y lockAround ({ materials, hosts, radius }:
+//   fija los vértices de los materiales hosts a menos de radius metros de los
+//   materials, para que la simplificación no mueva el cuero bajo una
+//   calcomanía). Documentar la razón al lado.
 export const MODELS = [
   {
     slug: 'air-jordan-1',
@@ -410,14 +414,16 @@ export const MODELS = [
     displayName: 'Vans Rock Haters',
     brand: 'Vans',
     source: { provider: 'sketchfab', uid: '5f1b57feaaff4078ae54dc630a65547d' },
-    foot: 'right',
+    foot: 'left',
     // El original es un par tirado en diagonal: uno de pie, inclinado, y el
-    // otro de costado. Un plano diagonal en XZ los separa y se conserva el
-    // derecho. La rotación sale de su eje largo y del plano de la suela
-    // (ángulos de Euler XYZ), más 5° en Z para bajar el talón: sin ellos
-    // apoyaba la punta y el talón flotaba 22 mm.
+    // otro de costado. Un plano diagonal en XZ los separa y se conserva el que
+    // está de pie (es el izquierdo). La rotación sale de su eje largo y del
+    // plano de la suela (ángulos de Euler XYZ), más 5° en Z para bajar el
+    // talón: sin ellos apoyaba la punta y el talón flotaba 22 mm.
+    // Antes la punta quedaba en -X (en el Hangar el par se veía al revés y
+    // por eso parecía un derecho): estos ángulos suman un giro de 180° en Y.
     extract: { normal: [0.715, 0, 0.699], offset: 0.085, side: 'positive' },
-    transform: { rotation: [52.5, 34.8, -53.2] },
+    transform: { rotation: [127.5, -34.8, 126.8] },
   },
   {
     slug: 'adidas-lightstrike',
@@ -444,12 +450,14 @@ export const MODELS = [
     displayName: 'Adidas Orange Running',
     brand: 'Adidas',
     source: { provider: 'sketchfab', uid: 'e10ac3f9959146d8b0094aff82ce5f65' },
-    foot: 'right',
+    foot: 'left',
     // El original es un par algo en diagonal: el plano que los separa está
-    // girado unos 8° respecto del eje X. Se conserva el derecho (punta a -Z).
-    // Los materiales usaban especular/brillo (ver metalRough en optimize.mjs).
+    // girado unos 8° respecto del eje X. Se conserva el izquierdo (punta a
+    // +Z; antes se giraba como si mirara a -Z y en el Hangar el par quedaba
+    // al revés). Los materiales usaban especular/brillo (ver metalRough en
+    // optimize.mjs).
     extract: { normal: [0.99, 0, -0.139], offset: 0.0082, side: 'positive' },
-    transform: { rotation: [0, -90, 0] },
+    transform: { rotation: [0, 90, 0] },
   },
   {
     slug: 'adidas-football-boot',
@@ -548,7 +556,15 @@ export const MODELS = [
     // normales y los datos bajan a 256 px, la plantilla (shoeFloor, casi no se
     // ve) a 256, la plantilla estampada (footDecal) a 512 y el hero a 35k
     // triángulos; el color de la capellada conserva 1024. En lite, normales y
-    // datos a 128 y 9k triángulos.
+    // datos a 128 y la plantilla a 256.
+    // Lite: con 9k triángulos el cuero simplificado se desviaba más que las
+    // décimas de milímetro que separan las calcomanías y tapaba parte de la
+    // estrella, la "CD" y la etiqueta de la lengüeta. lockAround fija los
+    // vértices del cuero y la goma a menos de 0,7 mm de las calcomanías (unos
+    // 3,5k triángulos quedan como en el original) y el resto se simplifica
+    // con la misma densidad de antes: 13k triángulos y 444 KB, dentro del
+    // presupuesto (fijar también cordones y espuma, o un radio de 3 mm, dejaba
+    // triángulos estirados en los cordones).
     variantOverrides: {
       hero: {
         targetTriangles: 35_000,
@@ -557,10 +573,16 @@ export const MODELS = [
         textureSizeByMaterial: { shoeFloor: 256, footDecal: 512 },
       },
       lite: {
-        targetTriangles: 9_000,
+        targetTriangles: 12_000,
         pruneSmallParts: 0,
+        lockAround: {
+          materials: ['decal1', 'dot_Decal', 'christianDiorSide_Decal', 'sideDecal'],
+          hosts: ['normalLeather_pattern', 'rubber_pattern'],
+          radius: 0.0007,
+        },
         dataTextureQuality: 85,
         textureSizeBySlot: { normalTexture: 128, metallicRoughnessTexture: 128, occlusionTexture: 128, specularTexture: 128 },
+        textureSizeByMaterial: { shoeFloor: 256 },
       },
     },
   },
@@ -595,11 +617,17 @@ export const MODELS = [
     // rugosidad/oclusión bajan a 512 px; el color conserva 1024. El lite se
     // frena cerca de 38k (cruzar las costuras rompía la textura): ahí normales
     // y datos bajan a 256 px para caber.
+    // Hero: el modelo trae paneles en capas a menos de 1 mm. Con el error
+    // máximo por defecto (0,01, unos 3 mm) la capa de abajo asomaba como
+    // manchas grises sobre la capellada (visibles en la punta y junto a la
+    // mediasuela). Con 0,003 (0,9 mm) desaparecen: 80k triángulos, y para
+    // caber en 1,1 MB rugosidad/oclusión bajan a 384 px (color q72).
     variantOverrides: {
       hero: {
         targetTriangles: 45_000,
+        maxSimplifyError: 0.003,
         dataTextureQuality: 85,
-        textureSizeBySlot: { normalTexture: 512, metallicRoughnessTexture: 512, occlusionTexture: 512 },
+        textureSizeBySlot: { normalTexture: 512, metallicRoughnessTexture: 384, occlusionTexture: 384 },
       },
       lite: { dataTextureQuality: 85, textureSizeBySlot: { normalTexture: 256, metallicRoughnessTexture: 256, occlusionTexture: 256 } },
     },
@@ -609,15 +637,16 @@ export const MODELS = [
     displayName: 'Air Jordan 1 Low Dior',
     brand: 'Nike',
     source: { provider: 'sketchfab', uid: 'cc4e34d5480b4eea80da16cfc2b95acf' },
-    foot: 'left',
+    foot: 'right',
     // El original es un par en diagonal (los dos de pie): un plano diagonal en
-    // XZ los separa. Se conserva el izquierdo, que está apoyado en el piso (el
-    // derecho está montado sobre él, inclinado unos 38°). Su punta mira a -X
-    // y estaba unos 11° fuera del eje; estos ángulos equivalen a girar 180° y
-    // 11° en Y y luego bajar el talón 1,5° en Z (flotaba 7 mm).
+    // XZ los separa. Se conserva el que está apoyado en el piso (el otro está
+    // montado sobre él, inclinado unos 38°). Es el derecho: su punta ya mira
+    // a +X, unos 11° fuera del eje. Estos ángulos lo giran 11° en Y y bajan el
+    // talón 1,5° en Z (flotaba 7 mm). Antes se giraba 180° de más y en el
+    // Hangar el par quedaba al revés.
     // La suela azul hielo es solo textura (sin transmisión ni transparencia).
     extract: { normal: [-0.146, 0, 0.989], offset: -0.0579, side: 'positive' },
-    transform: { rotation: [179.7, -11, 178.5] },
+    transform: { rotation: [0.3, 11, -1.5] },
   },
   {
     slug: 'jordan-4-black-cat',
@@ -1039,17 +1068,6 @@ export const MODELS = [
     transform: { rotation: [0, 0, 0] },
   },
   {
-    slug: 'gorra-ny-marino',
-    displayName: 'Gorra NY marino',
-    brand: 'New York Yankees',
-    category: 'apparel',
-    source: { provider: 'sketchfab', uid: '455523a744a84087b584f6a0cd8ec357' },
-    // Piloto del avatar. La visera del original apunta a +X: se gira para que
-    // mire a +Z. Escala por el ancho real de la copa (0.20 m de lado a lado).
-    size: { axis: 'x', meters: 0.2 },
-    transform: { rotation: [0, -90, 0] },
-  },
-  {
     slug: 'gorra-gris-flexfit',
     displayName: 'Gorra gris Flexfit',
     brand: 'Flexfit',
@@ -1063,6 +1081,48 @@ export const MODELS = [
     // admite 35k triángulos (dentro del techo de 40k).
     simplifyWithAttributes: true,
     variantOverrides: { lite: { targetTriangles: 35_000, pruneSmallParts: 0 } },
+  },
+  {
+    slug: 'gorra-ny-59fifty-marino',
+    // El slug dice marino, pero el modelo es negro (copa y visera, 26/255).
+    displayName: 'Gorra NY 59FIFTY',
+    brand: 'New York Yankees',
+    category: 'apparel',
+    source: { provider: 'sketchfab', uid: 'a2cd8106271a48e398962b2662db225c' },
+    // New Era 59FIFTY cerrada, visera plana. Escala por el ancho real de la
+    // copa (0.20 m de lado a lado).
+    size: { axis: 'x', meters: 0.2 },
+    transform: { rotation: [0, 0, 0] },
+  },
+  {
+    slug: 'gorra-ny-negra-logo-gris',
+    displayName: 'Gorra NY negra logo gris',
+    brand: 'New York Yankees',
+    category: 'apparel',
+    source: { provider: 'sketchfab', uid: 'b7ecae3e46554ef4ab0b43ee97106e04' },
+    // Visera plana. Escala por el ancho real de la copa.
+    size: { axis: 'x', meters: 0.2 },
+    transform: { rotation: [0, 0, 0] },
+    // Las normales del original están rotas: con las luces del sitio la copa
+    // se veía verde oliva y con bandas. Se recalculan (y las tangentes las
+    // rehace el visor).
+    recomputeNormals: true,
+    // El color del original es negro puro (0, 0, 0), que en PBR solo muestra
+    // el reflejo: se sube al negro de una tela real (como la 59FIFTY); el logo
+    // gris no cambia.
+    texturePatches: [{ material: 'Material.004', rects: [[0, 0, 1, 1]], floor: [26, 26, 26] }],
+    edits: ['recomputed the vertex normals', 'raised the pure black base color to a fabric black'],
+  },
+  {
+    slug: 'gorra-adidas-negra',
+    displayName: 'Gorra Adidas negra',
+    brand: 'Adidas',
+    category: 'apparel',
+    source: { provider: 'sketchfab', uid: '303219f514544a37916aa26842a02fcd' },
+    // Visera curva: la visera del original apunta a +X y se gira para que
+    // mire a +Z. Escala por el ancho real de la copa.
+    size: { axis: 'x', meters: 0.2 },
+    transform: { rotation: [0, -90, 0] },
   },
   {
     slug: 'gorro-gris-canale',

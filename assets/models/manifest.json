@@ -1959,13 +1959,13 @@
       },
       "pose": {
         "category": "sneaker",
-        "foot": "right",
-        "lateralSideFacing": "+z",
+        "foot": "left",
+        "lateralSideFacing": "-z",
         "extractedFromPair": true,
         "rotation": [
-          52.5,
-          34.8,
-          -53.2
+          127.5,
+          -34.8,
+          126.8
         ],
         "yawCorrection": 0.25,
         "scale": 0.0919034,
@@ -2248,12 +2248,12 @@
       },
       "pose": {
         "category": "sneaker",
-        "foot": "right",
-        "lateralSideFacing": "+z",
+        "foot": "left",
+        "lateralSideFacing": "-z",
         "extractedFromPair": true,
         "rotation": [
           0,
-          -90,
+          90,
           0
         ],
         "yawCorrection": -13.75,
@@ -2963,8 +2963,8 @@
         },
         "lite": {
           "file": "/models/dior-star-platform-lite.glb",
-          "bytes": 435164,
-          "triangles": 9000,
+          "bytes": 444088,
+          "triangles": 13056,
           "drawCalls": 16,
           "meshes": 16,
           "materials": 16,
@@ -2973,7 +2973,7 @@
           "textureFormats": [
             "webp"
           ],
-          "textureQuality": 80,
+          "textureQuality": 64,
           "simplified": true,
           "withinBudget": true,
           "validation": {
@@ -3135,8 +3135,8 @@
       "variants": {
         "hero": {
           "file": "/models/adidas-ozelia.glb",
-          "bytes": 1032016,
-          "triangles": 65627,
+          "bytes": 1096648,
+          "triangles": 79664,
           "drawCalls": 1,
           "meshes": 1,
           "materials": 1,
@@ -3145,7 +3145,7 @@
           "textureFormats": [
             "webp"
           ],
-          "textureQuality": 88,
+          "textureQuality": 72,
           "simplified": true,
           "withinBudget": true,
           "validation": {
@@ -3196,13 +3196,13 @@
       },
       "pose": {
         "category": "sneaker",
-        "foot": "left",
-        "lateralSideFacing": "-z",
+        "foot": "right",
+        "lateralSideFacing": "+z",
         "extractedFromPair": true,
         "rotation": [
-          179.7,
-          -11,
-          178.5
+          0.3,
+          11,
+          -1.5
         ],
         "yawCorrection": 0,
         "scale": 0.967086,
@@ -3236,7 +3236,7 @@
         },
         "lite": {
           "file": "/models/air-jordan-1-low-dior-lite.glb",
-          "bytes": 380436,
+          "bytes": 380432,
           "triangles": 20000,
           "drawCalls": 1,
           "meshes": 1,
@@ -6317,102 +6317,6 @@
         }
       }
     },
-    "gorra-ny-marino": {
-      "slug": "gorra-ny-marino",
-      "displayName": "Gorra NY marino",
-      "brand": "New York Yankees",
-      "source": {
-        "provider": "sketchfab",
-        "uid": "455523a744a84087b584f6a0cd8ec357",
-        "title": "Navy Baseball Cap with Embroidered NY Logo",
-        "url": "https://sketchfab.com/3d-models/navy-baseball-cap-with-embroidered-ny-logo-455523a744a84087b584f6a0cd8ec357",
-        "author": "Iffah Kashif",
-        "authorUrl": "https://sketchfab.com/IffahKash07",
-        "license": {
-          "slug": "by",
-          "name": "CC BY 4.0",
-          "url": "https://creativecommons.org/licenses/by/4.0/",
-          "commercialUse": true,
-          "shareAlike": false
-        },
-        "downloadedAt": "2026-11-26"
-      },
-      "raw": {
-        "bytes": 2171064,
-        "sketchfabFaceCount": 17334,
-        "triangles": 17334,
-        "drawCalls": 1,
-        "meshes": 1,
-        "materials": 1,
-        "textures": 3,
-        "maxTextureSize": 1024,
-        "textureFormats": [
-          "jpeg",
-          "png"
-        ]
-      },
-      "pose": {
-        "category": "apparel",
-        "extractedFromPair": false,
-        "frontFacing": "+z",
-        "rotation": [
-          0,
-          -90,
-          0
-        ],
-        "yawCorrection": 0,
-        "scale": 0.35406,
-        "dimensionsCm": {
-          "width": 20,
-          "height": 18.2,
-          "depth": 35.4
-        }
-      },
-      "variants": {
-        "hero": {
-          "file": "/models/gorra-ny-marino.glb",
-          "bytes": 266728,
-          "triangles": 17334,
-          "drawCalls": 1,
-          "meshes": 1,
-          "materials": 1,
-          "textures": 3,
-          "maxTextureSize": 1024,
-          "textureFormats": [
-            "webp"
-          ],
-          "textureQuality": 88,
-          "simplified": false,
-          "withinBudget": true,
-          "validation": {
-            "errors": 0,
-            "warnings": 0,
-            "errorMessages": []
-          }
-        },
-        "lite": {
-          "file": "/models/gorra-ny-marino-lite.glb",
-          "bytes": 187372,
-          "triangles": 17334,
-          "drawCalls": 1,
-          "meshes": 1,
-          "materials": 1,
-          "textures": 3,
-          "maxTextureSize": 512,
-          "textureFormats": [
-            "webp"
-          ],
-          "textureQuality": 88,
-          "simplified": false,
-          "withinBudget": true,
-          "validation": {
-            "errors": 0,
-            "warnings": 0,
-            "errorMessages": []
-          }
-        }
-      }
-    },
     "gorra-gris-flexfit": {
       "slug": "gorra-gris-flexfit",
       "displayName": "Gorra gris Flexfit",
@@ -6492,6 +6396,296 @@
           "drawCalls": 2,
           "meshes": 2,
           "materials": 2,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "gorra-ny-59fifty-marino": {
+      "slug": "gorra-ny-59fifty-marino",
+      "displayName": "Gorra NY 59FIFTY",
+      "brand": "New York Yankees",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "a2cd8106271a48e398962b2662db225c",
+        "title": "New York Yankees 59FIFTY Fitted Cap",
+        "url": "https://sketchfab.com/3d-models/new-york-yankees-59fifty-fitted-cap-a2cd8106271a48e398962b2662db225c",
+        "author": "Can Mustafa",
+        "authorUrl": "https://sketchfab.com/c42m05",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 4201104,
+        "sketchfabFaceCount": 34770,
+        "triangles": 34770,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 1.00124,
+        "dimensionsCm": {
+          "width": 20,
+          "height": 13.6,
+          "depth": 28.4
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/gorra-ny-59fifty-marino.glb",
+          "bytes": 763644,
+          "triangles": 34770,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/gorra-ny-59fifty-marino-lite.glb",
+          "bytes": 263988,
+          "triangles": 19998,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      }
+    },
+    "gorra-ny-negra-logo-gris": {
+      "slug": "gorra-ny-negra-logo-gris",
+      "displayName": "Gorra NY negra logo gris",
+      "brand": "New York Yankees",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "b7ecae3e46554ef4ab0b43ee97106e04",
+        "title": "Baseball Cap NY",
+        "url": "https://sketchfab.com/3d-models/baseball-cap-ny-b7ecae3e46554ef4ab0b43ee97106e04",
+        "author": "Murat Peker",
+        "authorUrl": "https://sketchfab.com/gereklessness",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 2048940,
+        "sketchfabFaceCount": 14966,
+        "triangles": 14966,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 4,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.0714238,
+        "dimensionsCm": {
+          "width": 20,
+          "height": 13.5,
+          "depth": 30.3
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/gorra-ny-negra-logo-gris.glb",
+          "bytes": 345368,
+          "triangles": 14966,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 1,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/gorra-ny-negra-logo-gris-lite.glb",
+          "bytes": 150628,
+          "triangles": 14966,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 1,
+            "errorMessages": []
+          }
+        }
+      },
+      "edits": [
+        "recomputed the vertex normals",
+        "raised the pure black base color to a fabric black"
+      ]
+    },
+    "gorra-adidas-negra": {
+      "slug": "gorra-adidas-negra",
+      "displayName": "Gorra Adidas negra",
+      "brand": "Adidas",
+      "source": {
+        "provider": "sketchfab",
+        "uid": "303219f514544a37916aa26842a02fcd",
+        "title": "Adidas Black Baseball Cap with Grey Logo",
+        "url": "https://sketchfab.com/3d-models/adidas-black-baseball-cap-with-grey-logo-303219f514544a37916aa26842a02fcd",
+        "author": "Iffah Kashif",
+        "authorUrl": "https://sketchfab.com/IffahKash07",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      },
+      "raw": {
+        "bytes": 3774688,
+        "sketchfabFaceCount": 47612,
+        "triangles": 47612,
+        "drawCalls": 1,
+        "meshes": 1,
+        "materials": 1,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ]
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          -90,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.322705,
+        "dimensionsCm": {
+          "width": 20,
+          "height": 18.4,
+          "depth": 32.3
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/gorra-adidas-negra.glb",
+          "bytes": 482456,
+          "triangles": 47612,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/gorra-adidas-negra-lite.glb",
+          "bytes": 221788,
+          "triangles": 19999,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
           "textures": 3,
           "maxTextureSize": 512,
           "textureFormats": [

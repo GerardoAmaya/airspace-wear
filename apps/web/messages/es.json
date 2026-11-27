@@ -72,6 +72,7 @@
   },
   "Catalog": {
     "metaTitle": "Catálogo",
+    "metaTitlePaged": "Catálogo, página {page, number}",
     "metaDescription": "Sneakers, tacos, ropa y balones de las marcas que amas, para ver en 3D.",
     "kicker": "Sneakers, tacos, ropa y balones · Temporada 26",
     "title": "Catálogo",
@@ -90,8 +91,36 @@
       "apparel": "Ropa"
     },
     "resultCount": "{count, plural, =0 {Sin resultados} one {# producto} other {# productos}}",
+    "resultRange": "Mostrando {start, number} a {end, number} de {total, plural, one {# producto} other {# productos}}",
+    "paginationLabel": "Páginas del catálogo",
+    "previousPage": "Anterior",
+    "nextPage": "Siguiente",
+    "pageLink": "Página {page, number}",
+    "pageOf": "Página {page, number} de {total, number}",
     "empty": "No hay productos con estos filtros.",
-    "resetFilters": "Ver todo el catálogo",
+    "searchLabel": "Buscar en el catálogo",
+    "clearSearch": "Borrar búsqueda",
+    "sortLabel": "Ordenar",
+    "sortOption": {
+      "featured": "Destacados",
+      "priceAsc": "Precio: menor a mayor",
+      "priceDesc": "Precio: mayor a menor",
+      "name": "Nombre A-Z"
+    },
+    "anyBrand": "Todas",
+    "filtersButton": "Filtros",
+    "activeCount": "{count, plural, one {# filtro activo} other {# filtros activos}}",
+    "closeFilters": "Cerrar filtros",
+    "showResults": "{count, plural, =0 {Sin resultados} one {Ver # resultado} other {Ver # resultados}}",
+    "clearSheet": "Limpiar",
+    "activeFiltersLabel": "Filtros activos",
+    "removeFilter": "Quitar filtro: {label}",
+    "queryPill": "“{q}”",
+    "clearAll": "Limpiar todo",
+    "emptyQuery": "Sin resultados para “{q}”",
+    "clearFilters": "Limpiar filtros",
+    "suggestions": "O explora una categoría:",
+    "optionCount": "{label}, {count, plural, =0 {sin productos} one {# producto} other {# productos}}",
     "reference": "Ref. {reference}",
     "has3d": "3D",
     "posterAlt": "{name}, vista de perfil",
@@ -156,7 +185,8 @@
       "loading": "Preparando la vista",
       "unsupported": "Abre esta página en tu teléfono para ver el {name} en tu espacio, a tamaño real."
     },
-    "ogAlt": "{name} en AIRSPACE Wear, {price}"
+    "ogAlt": "{name} en AIRSPACE Wear, {price}",
+    "tryInHangar": "Pruébalo en el Hangar 360°"
   },
   "Credits": {
     "metaTitle": "Créditos",
@@ -239,10 +269,47 @@
     "metaDescription": "Elige un sneaker y míralo puesto en un avatar animado, en 360°.",
     "kicker": "Hangar 360°",
     "title": "Pruébatelos en 360°",
-    "lead": "Elige un par y míralo puesto en el avatar: reposo, caminar, girar o pose. Arrastra para verlo desde cualquier ángulo.",
+    "lead": "Elige el par y la ropa, y míralos puestos en el avatar desde cualquier ángulo.",
     "wearing": "Lleva puesto",
+    "look": {
+      "sizeLabel": "Talla de {name}",
+      "sizePlaceholder": "Talla",
+      "oneSize": "Talla única",
+      "soldOut": "Agotado",
+      "base": "Base del maniquí, no se vende: {pieces}.",
+      "total": "Total del look",
+      "add": "Agregar look completo",
+      "missing": "Elige la talla de {names}.",
+      "added": "Look agregado al carrito"
+    },
     "pickerLabel": "Elige el par",
     "pickerItem": "Ponerle {name}",
+    "filters": {
+      "label": "Filtrar pares",
+      "search": "Buscar par",
+      "clearSearch": "Borrar búsqueda",
+      "brands": "Marca",
+      "allBrands": "Todas",
+      "type": "Tipo",
+      "types": {
+        "all": "Todos",
+        "sneaker": "Sneakers",
+        "cleat": "Tacos"
+      },
+      "count": "{count, plural, one {# par} other {# pares}}",
+      "empty": "Sin resultados",
+      "clear": "Limpiar filtros",
+      "worn": "Puesto",
+      "outOfFilter": "Fuera del filtro",
+      "wornAnnounce": "Puesto: {name}, movido al inicio"
+    },
+    "panelLabel": "Pares, ropa y colores",
+    "tabs": {
+      "label": "Opciones del avatar",
+      "shoes": "Zapatos",
+      "wear": "Ropa",
+      "colors": "Colores"
+    },
     "clipsLabel": "Animación",
     "clips": {
       "idle": "Reposo",
@@ -262,9 +329,7 @@
     "dragHint": "Arrastra para girar",
     "touchHint": "Desliza para girar",
     "rotation": "ROT {degrees}°",
-    "viewProduct": "Ver ficha",
     "outfit": {
-      "title": "Vestuario",
       "shirt": "Camiseta",
       "shirtStyles": {
         "sleeves": "Con mangas",
@@ -305,7 +370,52 @@
       },
       "match": "Combinar con el zapato",
       "matchHint": "La gorra y las franjas de los calcetines toman el color del par y lo siguen al cambiar de par.",
-      "reset": "Restablecer"
+      "reset": "Restablecer",
+      "catalog": {
+        "title": "Del catálogo",
+        "base": "Base",
+        "wearItem": "Ponerle {name}",
+        "slots": {
+          "top": "Torso",
+          "bottom": "Piernas",
+          "head": "Cabeza",
+          "eyes": "Ojos"
+        }
+      },
+      "baseTitle": "Base",
+      "catalogColors": "Las prendas del catálogo conservan sus colores."
     }
+  },
+  "StylistBot": {
+    "button": "Abrir el estilista IA",
+    "bubbles": [
+      "¿Buscas tenis para tu outfit? Pregúntale a mi IA.",
+      "¿Una boda, un concierto o el gym? Te digo qué ponerte.",
+      "Cuéntame tu estilo y te armo el outfit.",
+      "¿No sabes con qué combinar tus sneakers? Te ayudo."
+    ],
+    "closeBubble": "Cerrar mensaje",
+    "plate": "IA",
+    "status": "En línea",
+    "statusThinking": "Pensando",
+    "title": "Estilista IA",
+    "subtitle": "Te recomiendo sneakers, ropa y balones del catálogo, en tu idioma.",
+    "welcome": "¡Hola! Cuéntame a dónde vas o qué estilo buscas y te recomiendo productos del catálogo.",
+    "suggestionsTitle": "Prueba con",
+    "contextError": "No pude cargar el catálogo. Revisa tu conexión y vuelve a abrir el chat.",
+    "logLabel": "Conversación con tu estilista",
+    "inputLabel": "Escribe tu mensaje para el estilista",
+    "placeholder": "Pregunta por un estilo u ocasión",
+    "send": "Enviar mensaje",
+    "clear": "Nueva conversación",
+    "close": "Cerrar el estilista",
+    "disclaimer": "Las respuestas usan IA y pueden equivocarse. Revisa cada producto en su ficha.",
+    "you": "Tú",
+    "stylist": "Estilista",
+    "thinking": "Pensando en tu outfit",
+    "listLabel": "Recomendaciones del estilista",
+    "match": "Coincide {percent}%",
+    "view": "Ver producto",
+    "viewLabel": "Ver producto: {name}"
   }
 }

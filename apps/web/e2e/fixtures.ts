@@ -52,11 +52,25 @@ export async function mockStylist(page: Page, respond: (route: Route) => Promise
 interface Fixtures {
   consoleErrors: string[];
   stylistGuard: void;
+  // Entrada del robot del estilista en la primera visita (caminar, girar y
+  // su primer globo abajo a la derecha). Por defecto se da por vista, para
+  // que no tape controles en las demás pruebas; stylist-bot.spec.ts la activa.
+  stylistEntrance: boolean;
 }
 
 export const test = base.extend<Fixtures>({
+  stylistEntrance: [false, { option: true }],
   stylistGuard: [
-    async ({ page }, provide) => {
+    async ({ page, stylistEntrance }, provide) => {
+      if (!stylistEntrance) {
+        await page.addInitScript(() => {
+          try {
+            localStorage.setItem('airspace-stylist-robot-intro', '1');
+          } catch {
+            // Sin almacenamiento la entrada solo se repite.
+          }
+        });
+      }
       await page.route(STYLIST_ROUTE, (route) => handleStylist(route, (target) => fulfillSse(target, [{ type: 'error', code: 'unavailable' }])));
       // Diagnóstico: si el servidor responde 500 a una página, se imprime el
       // motivo (por ejemplo "API 429 rate_limited" si la API limitó a Next).
@@ -99,7 +113,7 @@ export { default as stylistEn } from '../messages/home/stylist.en.json' with { t
 // estado real solo en el cliente) y a que las fuentes estén listas.
 export async function waitForApp(page: Page) {
   await page.waitForFunction(() => document.readyState === 'complete');
-  // ReactLenis (MotionRoot, en el layout) pone la clase "lenis" en <html> al
+  // Lenis (lo crea MotionRoot, en el layout) pone la clase "lenis" en <html> al
   // montarse: señal de que React ya hidrató y los controles responden.
   await page.waitForFunction(() => document.documentElement.classList.contains('lenis'));
   await page.evaluate(() => document.fonts.ready.then(() => undefined));

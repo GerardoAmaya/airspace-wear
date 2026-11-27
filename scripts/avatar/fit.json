@@ -1,0 +1,284 @@
+{
+  "version": 1,
+  "items": {
+    "sudadera-nike-club-fleece": {
+      "slot": "top",
+      "kind": "skinned",
+      "fit": {
+        "position": [
+          0,
+          0.88,
+          0
+        ],
+        "scale": 1.0,
+        "pose": {
+          "arms": {
+            "down": 35,
+            "forward": 10
+          }
+        },
+        "clearance": 0.009,
+        "maxGap": 0.05,
+        "weightSmooth": 24,
+        "shoulderBlend": [
+          -0.2,
+          0.75
+        ]
+      }
+    },
+    "anorak-gris": {
+      "slot": "top",
+      "kind": "skinned",
+      "fit": {
+        "position": [
+          0,
+          0.943,
+          0
+        ],
+        "scale": 0.95,
+        "pose": {
+          "arms": {
+            "down": 55,
+            "forward": 10
+          },
+          "forearms": {
+            "down": -15,
+            "forward": 40
+          }
+        },
+        "clearance": 0.009,
+        "maxGap": 0.05,
+        "subdivide": 1,
+        "weightSmooth": 16,
+        "shoulderBlend": [
+          -0.1,
+          0.4
+        ]
+      }
+    },
+    "pants-anorak-gris": {
+      "slot": "bottom",
+      "kind": "skinned",
+      "fit": {
+        "position": [
+          0,
+          0.07,
+          0
+        ],
+        "scale": 1.0,
+        "stretch": [
+          0.95,
+          1.06,
+          1.0
+        ],
+        "pose": {
+          "legs": {
+            "spread": 3
+          }
+        },
+        "clearance": 0.008,
+        "maxGap": 0.04,
+        "shorten": [
+          {
+            "from": "LeftLeg",
+            "to": "LeftFoot",
+            "start": 0.3,
+            "factor": 0.75
+          },
+          {
+            "from": "RightLeg",
+            "to": "RightFoot",
+            "start": 0.3,
+            "factor": 0.75
+          }
+        ],
+        "subdivide": 1
+      }
+    },
+    "gorra-ny-59fifty-marino": {
+      "slot": "head",
+      "kind": "rigid",
+      "fit": {
+        "position": [
+          0,
+          0.03,
+          0.035
+        ],
+        "rotation": [
+          0,
+          0
+        ],
+        "scale": 1.15,
+        "seat": {
+          "bandFront": 0.015
+        }
+      }
+    },
+    "gorra-ny-negra-logo-gris": {
+      "slot": "head",
+      "kind": "rigid",
+      "fit": {
+        "position": [
+          0,
+          0.03,
+          0.035
+        ],
+        "rotation": [
+          0,
+          0
+        ],
+        "scale": 1.15,
+        "seat": {
+          "bandFront": 0.015
+        }
+      }
+    },
+    "gorra-adidas-negra": {
+      "slot": "head",
+      "kind": "rigid",
+      "fit": {
+        "position": [
+          0,
+          0.03,
+          0.02
+        ],
+        "rotation": [
+          5,
+          0
+        ],
+        "scale": 1.1,
+        "seat": {
+          "bandFront": 0.015
+        }
+      }
+    },
+    "lentes-sol-negros": {
+      "slot": "eyes",
+      "kind": "rigid",
+      "fit": {
+        "position": [
+          0,
+          -0.032,
+          0.05
+        ],
+        "rotation": [
+          0,
+          0
+        ],
+        "scale": 1.28,
+        "clearance": 0.003
+      }
+    }
+  },
+  "slots": {
+    "top": {
+      "hides": [
+        "shirt",
+        "tank"
+      ],
+      "bones": [
+        "Hips",
+        "Spine",
+        "Spine1",
+        "Spine2",
+        "LeftShoulder",
+        "RightShoulder",
+        "LeftArm",
+        "RightArm",
+        "LeftForeArm",
+        "RightForeArm"
+      ],
+      "rules": {
+        "cuts": [
+          {
+            "from": "Hips",
+            "to": "Spine",
+            "keep": "above",
+            "radius": 0.3
+          },
+          {
+            "from": "LeftForeArm",
+            "to": "LeftHand",
+            "keep": "below",
+            "radius": 0.12
+          },
+          {
+            "from": "RightForeArm",
+            "to": "RightHand",
+            "keep": "below",
+            "radius": 0.12
+          }
+        ],
+        "holes": [
+          {
+            "from": "Neck",
+            "to": "Head",
+            "radius": 0.066,
+            "forward": 0.01,
+            "minT": -0.6
+          }
+        ]
+      }
+    },
+    "bottom": {
+      "hides": [
+        "shorts",
+        "pants"
+      ],
+      "bones": [
+        "Hips",
+        "LeftUpLeg",
+        "RightUpLeg",
+        "LeftLeg",
+        "RightLeg"
+      ],
+      "rules": {
+        "cuts": [
+          {
+            "from": "Hips",
+            "to": "Spine",
+            "keep": "below",
+            "radius": 0.3
+          },
+          {
+            "from": "LeftLeg",
+            "to": "LeftFoot",
+            "keep": "below",
+            "radius": 0.12
+          },
+          {
+            "from": "RightLeg",
+            "to": "RightFoot",
+            "keep": "below",
+            "radius": 0.12
+          }
+        ],
+        "holes": []
+      }
+    },
+    "head": {
+      "hides": [
+        "cap"
+      ],
+      "bones": [
+        "Head"
+      ],
+      "rules": {
+        "cuts": [
+          {
+            "from": "Neck",
+            "to": "Head",
+            "keep": "above",
+            "radius": 0.095
+          }
+        ],
+        "holes": []
+      }
+    },
+    "eyes": {
+      "hides": [
+        "glasses"
+      ]
+    }
+  }
+}

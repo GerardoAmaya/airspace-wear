@@ -1,25 +1,28 @@
 'use client';
 
-import type { Model3D, Price, ProductSize } from '@airspace/contracts';
-import { useLocale, useTranslations } from 'next-intl';
+import type { AvatarSlot, Category, Model3D, Price, ProductSize } from '@airspace/contracts';
+import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
-import { type KeyboardEvent, useCallback, useLayoutEffect, useRef, useState } from 'react';
-import { AddToCart } from '@/components/cart/AddToCart';
-import { ThemedPoster } from '@/components/catalog/ThemedPoster';
+import { type KeyboardEvent, type ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createSpin, keySpin, turnOf, useSpinDrag } from '@/components/home/board/rig';
-import { Link } from '@/i18n/navigation';
+import ui from '@/components/home/board/ui.module.css';
 import { type Clip, CLIPS, OUTFIT_LITE_URL, OUTFIT_URL } from '@/lib/avatar/avatar';
+import { CATALOG_FIT, fitUrl, WEAR_SLOTS } from '@/lib/avatar/catalog-fit';
 import { FITTING } from '@/lib/avatar/fitting';
-import { resolveLook } from '@/lib/avatar/outfit';
+import { DEFAULT_PAIR, resolveLook } from '@/lib/avatar/outfit';
 import { accentProps } from '@/lib/accent';
 import { useMotionStore } from '@/lib/motion/store';
-import { formatPrice } from '@/lib/price';
 import { useThemeStore } from '@/lib/theme';
 import { useStageActivity } from '@/lib/three/director';
 import type { AvatarStatus, OutfitStatus } from './AvatarScene';
 import styles from './HangarStudio.module.css';
-import { OutfitPanel } from './OutfitPanel';
-import { useOutfitChoice } from './outfit-store';
+import type { WornGarment } from './AvatarCatalog';
+import { HangarTabs } from './HangarTabs';
+import { ColorPanel, WearPanel } from './OutfitPanel';
+import { type HangarTab, useOutfitChoice, useOutfitStore } from './outfit-store';
+import { shoeUrl } from './prefetch';
+import { ShoePicker } from './ShoePicker';
+import { type LookItem, WornLook } from './WornLook';
 import { type AvatarView, ringTransform, type StagePose, VIEWS } from './rig';
 
 // El canvas solo existe en el cliente y se descarga aparte.
@@ -29,12 +32,30 @@ export interface HangarProduct {
   slug: string;
   name: string;
   brand: string;
+  // Sneaker o tacos (filtro de tipo en la pestaña "Zapatos").
+  category: Category;
   colorway: string | null;
   price: Price;
   accent: { dark: string; light: string } | null;
   model: Model3D;
   sizes: ProductSize[];
 }
+
+// Prenda del catálogo ajustada al maniquí (pnpm avatar:fit).
+export interface HangarGarment {
+  slug: string;
+  name: string;
+  brand: string;
+  slot: AvatarSlot;
+  price: Price;
+  poster: { dark: string; light: string } | null;
+  sizes: ProductSize[];
+}
+
+// Pedido de prendas para la escena (la clave mantiene la referencia estable
+// mientras no cambie lo puesto: el compilador de React lo memoriza).
+const wornList = (key: string, lite: boolean): WornGarment[] =>
+  key ? key.split(',').map((slug) => ({ slug, slot: CATALOG_FIT[slug].slot, url: fitUrl(slug, lite) ?? '' })) : [];
 
 // Diámetro de la plataforma (m): el SVG de anillos mide 600 unidades.
 const PLATFORM = 1.2;
@@ -55,20 +76,14 @@ const TICKS = Array.from({ length: 36 }, (_, index) => {
   };
 });
 
-const requested = new Set<string>();
-// Prefetch del GLB al pasar el cursor o enfocar una tarjeta (prioridad baja).
-const prefetch = (url: string) => {
-  if (requested.has(url)) return;
-  requested.add(url);
-  void fetch(url, { priority: 'low' } as RequestInit).catch(() => requested.delete(url));
-};
-
-// Hangar 360°: avatar en la plataforma con el par elegido, chips de
-// animación y de encuadre, giro por arrastre o flechas, y el carrito del par.
-// Nada se mueve con el scroll.
-export function HangarStudio({ products }: { products: HangarProduct[] }) {
+// Hangar 360°: tres columnas. A la izquierda, "Lleva puesto" (el par y las
+// prendas del catálogo con talla, total del look y "Agregar look completo");
+// al centro, solo el escenario (avatar en la plataforma, marco HUD, giro por
+// arrastre o flechas) con los chips de animación y de encuadre debajo; a la
+// derecha, pestañas "Zapatos", "Ropa" y "Colores". En pantallas angostas:
+// escenario, pestañas y "Lleva puesto". Nada se mueve con el scroll.
+export function HangarStudio({ products, garments }: { products: HangarProduct[]; garments: HangarGarment[] }) {
   const t = useTranslations('Hangar');
-  const locale = useLocale();
   const lite = useMotionStore((state) => state.lite);
   const reducedMotion = useMotionStore((state) => state.reducedMotion);
   const [stage, setStage] = useState<HTMLDivElement | null>(null);
@@ -76,7 +91,7 @@ export function HangarStudio({ products }: { products: HangarProduct[] }) {
   const [spin] = useState(() => ({ current: createSpin() }));
   useSpinDrag(stage, spin, reducedMotion);
 
-  const [slug, setSlug] = useState(products[0]?.slug ?? '');
+  const [slug, setSlug] = useState(() => (products.find((item) => item.slug === DEFAULT_PAIR) ?? products[0])?.slug ?? '');
   const [clip, setClip] = useState<Clip>('idle');
   const [view, setView] = useState<AvatarView>('full');
   const [ready, setReady] = useState(false);
@@ -91,6 +106,27 @@ export function HangarStudio({ products }: { products: HangarProduct[] }) {
   const choice = useOutfitChoice();
   const theme = useThemeStore((state) => state.theme);
   const look = resolveLook(choice, theme, product?.accent?.dark ?? null);
+
+  // Prendas del catálogo pedidas (solo las ajustadas y presentes en la página).
+  const setWear = useOutfitStore((state) => state.setWear);
+  const setTab = useOutfitStore((state) => state.setTab);
+  const wornGarments = WEAR_SLOTS.map((slot) => garments.find((item) => item.slug === choice.wear[slot])).filter(
+    (item): item is HangarGarment => !!item,
+  );
+  const wearKey = wornGarments.map((item) => item.slug).join(',');
+  const wear = wornList(wearKey, lite);
+  // Prendas ya a la vista en el maniquí (para las pruebas y el estado de carga).
+  const [shownWear, setShownWear] = useState('');
+  const onWear = useCallback((slugs: string[]) => setShownWear(slugs.join(',')), []);
+
+  // ?wear=<slug>: la ficha de una prenda abre el Hangar con ella puesta.
+  useEffect(() => {
+    const slug = new URLSearchParams(window.location.search).get('wear');
+    const item = slug ? garments.find((garment) => garment.slug === slug) : undefined;
+    if (!item) return;
+    setWear(item.slot, item.slug);
+    setTab('wear');
+  }, [garments, setWear, setTab]);
 
   const rings = useRef<HTMLDivElement>(null);
   const rot = useRef<HTMLSpanElement>(null);
@@ -135,36 +171,57 @@ export function HangarStudio({ products }: { products: HangarProduct[] }) {
   };
 
   if (!product) return null;
-  const shoe = { slug: product.slug, url: product.model.liteUrl, foot: product.model.foot ?? 'right' };
+  // El par en su variante hero (nítido de cerca); el -lite.glb en modo liviano.
+  const shoe = { slug: product.slug, url: shoeUrl(product.model, lite), foot: product.model.foot ?? 'right' };
   const loading = !ready || status === 'loading';
+  const baseOutfit = !!outfitUrl && outfitStatus !== 'error';
+
+  // "Lleva puesto": el par y las prendas del catálogo (lo que se vende) y,
+  // aparte, las piezas base a la vista (no se venden).
+  const lookItems: LookItem[] = [
+    { slug: product.slug, name: product.name, brand: product.brand, price: product.price, poster: product.model.poster, sizes: product.sizes },
+    ...wornGarments.map((item) => ({ slug: item.slug, name: item.name, brand: item.brand, price: item.price, poster: item.poster, sizes: item.sizes })),
+  ];
+  const replaced = new Set(wornGarments.flatMap((item) => CATALOG_FIT[item.slug].hides));
+  const basePieces = baseOutfit
+    ? [
+        look.garments.shirt && !replaced.has('shirt') && t('outfit.shirtStyles.sleeves'),
+        look.garments.tank && !replaced.has('tank') && t('outfit.shirtStyles.tank'),
+        look.garments.shorts && !replaced.has('shorts') && t('outfit.bottomsStyles.shorts'),
+        look.garments.pants && !replaced.has('pants') && t('outfit.bottomsStyles.pants'),
+        look.accessories.cap && !replaced.has('cap') && t('outfit.cap'),
+        look.accessories.glasses && !replaced.has('glasses') && t('outfit.glasses'),
+        look.garments.socks && t('outfit.socks'),
+      ].filter((piece): piece is string => !!piece)
+    : [];
+
+  const panels: Array<{ tab: HangarTab; content: ReactNode }> = [
+    { tab: 'shoes', content: <ShoePicker products={products} current={product.slug} onSelect={setSlug} /> },
+  ];
+  if (baseOutfit || garments.length) panels.push({ tab: 'wear', content: <WearPanel garments={garments} lite={lite} base={baseOutfit} /> });
+  if (baseOutfit) panels.push({ tab: 'colors', content: <ColorPanel /> });
 
   return (
     <div className={styles.page} {...accentProps(product.accent)}>
       <div className={styles.layout}>
-        <div className={styles.copy}>
-          <p className={styles.kicker}>{t('kicker')}</p>
-          <h1 className={styles.title}>{t('title')}</h1>
-          <p className={styles.lead}>{t('lead')}</p>
-
-          <div className={styles.product}>
-            <p className={styles.label}>{t('wearing')}</p>
-            <h2 className={styles.name}>{product.name}</h2>
-            <p className={styles.meta}>
-              {product.brand}
-              {product.colorway ? ` · ${product.colorway}` : ''}
-            </p>
-            <p className={styles.price}>{formatPrice(product.price, locale)}</p>
-            <AddToCart key={product.slug} slug={product.slug} sizes={product.sizes} />
-            <Link href={`/products/${product.slug}`} className={styles.more}>
-              {t('viewProduct')}
-            </Link>
-          </div>
+        <div className={styles.worn}>
+          <header className={styles.intro}>
+            <p className={styles.kicker}>{t('kicker')}</p>
+            <h1 className={styles.title}>{t('title')}</h1>
+            <p className={styles.lead}>{t('lead')}</p>
+          </header>
+          <section className={styles.wornBlock} aria-labelledby="hangar-worn">
+            <h2 id="hangar-worn" className={styles.section}>
+              {t('wearing')}
+            </h2>
+            <WornLook items={lookItems} basePieces={basePieces} />
+          </section>
         </div>
 
-        <div className={styles.slot}>
+        <div className={styles.center}>
           <div
             ref={setStage}
-            className={styles.stage}
+            className={`${styles.stage} ${ui.hudFrame}`}
             tabIndex={0}
             role="slider"
             aria-label={t('stageLabel', { name: product.name })}
@@ -176,6 +233,8 @@ export function HangarStudio({ products }: { products: HangarProduct[] }) {
             data-loading={loading || undefined}
             data-view={view}
             data-outfit={outfitUrl ? outfitStatus : undefined}
+            data-wear={shownWear || undefined}
+            data-accent={product.accent ? '' : undefined}
             onKeyDown={onKeyDown}
           >
             <span className={styles.halo} aria-hidden="true" />
@@ -201,25 +260,26 @@ export function HangarStudio({ products }: { products: HangarProduct[] }) {
                 fitting={FITTING}
                 view={view}
                 spin={spin}
-                autoRotate
+                autoRotate={clip !== 'turn'}
                 outfit={outfitUrl ? { url: outfitUrl, look } : null}
                 onOutfitStatus={setOutfitStatus}
+                wear={wear}
+                onWear={onWear}
                 onReady={onReady}
                 onStatus={setStatus}
                 onFrame={onFrame}
               />
             </div>
-            <span className={styles.wait} aria-hidden="true">
-              {status === 'error' ? t('error') : t('loading')}
-            </span>
-          </div>
-          <div className={styles.hud} aria-hidden="true">
-            <span ref={rot} className={styles.rot}>
+            <span className={ui.hudCorners} aria-hidden="true" />
+            <span ref={rot} className={`${styles.hudLabel} ${styles.tl} ${styles.rot}`} aria-hidden="true">
               {t('rotation', { degrees: '000' })}
             </span>
-            <span className={styles.hint}>
+            <span className={`${styles.hudLabel} ${styles.br} ${styles.hint}`} aria-hidden="true">
               <span className={styles.hintMouse}>{t('dragHint')}</span>
               <span className={styles.hintTouch}>{t('touchHint')}</span>
+            </span>
+            <span className={styles.wait} aria-hidden="true">
+              {status === 'error' ? t('error') : t('loading')}
             </span>
           </div>
           <div className={styles.controls}>
@@ -230,6 +290,7 @@ export function HangarStudio({ products }: { products: HangarProduct[] }) {
                 </button>
               ))}
             </div>
+            <span className={styles.divider} aria-hidden="true" />
             <div className={styles.chips} role="group" aria-label={t('viewLabel')}>
               {(['full', 'feet'] as const).map((name) => (
                 <button key={name} type="button" className={styles.chip} aria-pressed={view === name} onClick={() => setView(name)}>
@@ -238,29 +299,11 @@ export function HangarStudio({ products }: { products: HangarProduct[] }) {
               ))}
             </div>
           </div>
-          {outfitUrl && outfitStatus !== 'error' && <OutfitPanel />}
         </div>
 
-        <section className={styles.picker} aria-label={t('pickerLabel')}>
-          <ul className={styles.cards}>
-            {products.map((item) => (
-              <li key={item.slug}>
-                <button
-                  type="button"
-                  className={styles.card}
-                  aria-pressed={item.slug === product.slug}
-                  aria-label={t('pickerItem', { name: item.name })}
-                  onClick={() => setSlug(item.slug)}
-                  onPointerEnter={() => prefetch(item.model.liteUrl)}
-                  onFocus={() => prefetch(item.model.liteUrl)}
-                >
-                  {item.model.poster && <ThemedPoster poster={item.model.poster} alt="" sizes="180px" className={styles.cardPoster} />}
-                  <span className={styles.cardName}>{item.name}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
+        <aside className={styles.side} aria-label={t('panelLabel')}>
+          <HangarTabs panels={panels} />
+        </aside>
       </div>
     </div>
   );

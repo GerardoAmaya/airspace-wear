@@ -1,0 +1,24 @@
+/* Marco del haz: un borde transparente que hace de máscara. Solo se ve el
+   anillo del borde (la caja de borde menos la de relleno). Los colores de la
+   máscara solo marcan qué se ve: cualquier color opaco sirve. */
+.frame {
+  position: absolute;
+  inset: 0;
+  border: var(--beam-width) solid transparent;
+  border-radius: inherit;
+  pointer-events: none;
+  -webkit-mask:
+    linear-gradient(var(--color-text), var(--color-text)) padding-box,
+    linear-gradient(var(--color-text), var(--color-text)) border-box;
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(var(--color-text), var(--color-text)) padding-box,
+    linear-gradient(var(--color-text), var(--color-text)) border-box;
+  mask-composite: exclude;
+}
+
+.beam {
+  position: absolute;
+  aspect-ratio: 1;
+  background: linear-gradient(to left, var(--beam-from), var(--beam-to), transparent);
+}

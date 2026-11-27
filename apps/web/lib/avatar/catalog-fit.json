@@ -1,0 +1,321 @@
+{
+  "version": 1,
+  "items": {
+    "sudadera-nike-club-fleece": {
+      "slot": "top",
+      "kind": "skinned",
+      "node": "Fit_sudadera_nike_club_fleece",
+      "hides": [
+        "shirt",
+        "tank"
+      ],
+      "rules": {
+        "bones": [
+          "Hips",
+          "Spine",
+          "Spine1",
+          "Spine2",
+          "LeftShoulder",
+          "RightShoulder",
+          "LeftArm",
+          "RightArm",
+          "LeftForeArm",
+          "RightForeArm"
+        ],
+        "cuts": [
+          {
+            "from": "Hips",
+            "to": "Spine",
+            "keep": "above",
+            "t": -1.565
+          },
+          {
+            "from": "LeftForeArm",
+            "to": "LeftHand",
+            "keep": "below",
+            "t": 1.234
+          },
+          {
+            "from": "RightForeArm",
+            "to": "RightHand",
+            "keep": "below",
+            "t": 1.233
+          }
+        ],
+        "holes": [
+          {
+            "from": "Neck",
+            "to": "Head",
+            "radius": 0.066,
+            "forward": 0.01,
+            "minT": -0.6
+          }
+        ]
+      },
+      "files": {
+        "hero": {
+          "url": "/avatar-fit/sudadera-nike-club-fleece.glb",
+          "bytes": 136512,
+          "triangles": 12000,
+          "sha256": "6300e5b02e6ade9f"
+        },
+        "lite": {
+          "url": "/avatar-fit/sudadera-nike-club-fleece-lite.glb",
+          "bytes": 72484,
+          "triangles": 5000,
+          "sha256": "c5305fc0ee9d0746"
+        }
+      }
+    },
+    "anorak-gris": {
+      "slot": "top",
+      "kind": "skinned",
+      "node": "Fit_anorak_gris",
+      "hides": [
+        "shirt",
+        "tank"
+      ],
+      "rules": {
+        "bones": [
+          "Hips",
+          "Spine",
+          "Spine1",
+          "Spine2",
+          "LeftShoulder",
+          "RightShoulder",
+          "LeftArm",
+          "RightArm",
+          "LeftForeArm",
+          "RightForeArm"
+        ],
+        "cuts": [
+          {
+            "from": "Hips",
+            "to": "Spine",
+            "keep": "above",
+            "t": -0.873
+          },
+          {
+            "from": "LeftForeArm",
+            "to": "LeftHand",
+            "keep": "below",
+            "t": 1.01
+          },
+          {
+            "from": "RightForeArm",
+            "to": "RightHand",
+            "keep": "below",
+            "t": 1.002
+          }
+        ],
+        "holes": [
+          {
+            "from": "Neck",
+            "to": "Head",
+            "radius": 0.066,
+            "forward": 0.01,
+            "minT": -0.6
+          }
+        ]
+      },
+      "files": {
+        "hero": {
+          "url": "/avatar-fit/anorak-gris.glb",
+          "bytes": 279032,
+          "triangles": 12000,
+          "sha256": "b8dba2ed9bff0a5d"
+        },
+        "lite": {
+          "url": "/avatar-fit/anorak-gris-lite.glb",
+          "bytes": 93836,
+          "triangles": 5000,
+          "sha256": "4ae8c740c72999ed"
+        }
+      }
+    },
+    "pants-anorak-gris": {
+      "slot": "bottom",
+      "kind": "skinned",
+      "node": "Fit_pants_anorak_gris",
+      "hides": [
+        "shorts",
+        "pants"
+      ],
+      "rules": {
+        "bones": [
+          "Hips",
+          "LeftUpLeg",
+          "RightUpLeg",
+          "LeftLeg",
+          "RightLeg"
+        ],
+        "cuts": [
+          {
+            "from": "Hips",
+            "to": "Spine",
+            "keep": "below",
+            "t": 0.778
+          },
+          {
+            "from": "LeftLeg",
+            "to": "LeftFoot",
+            "keep": "below",
+            "t": 0.846
+          },
+          {
+            "from": "RightLeg",
+            "to": "RightFoot",
+            "keep": "below",
+            "t": 0.848
+          }
+        ],
+        "holes": []
+      },
+      "files": {
+        "hero": {
+          "url": "/avatar-fit/pants-anorak-gris.glb",
+          "bytes": 250272,
+          "triangles": 12000,
+          "sha256": "2faed501e280706a"
+        },
+        "lite": {
+          "url": "/avatar-fit/pants-anorak-gris-lite.glb",
+          "bytes": 84452,
+          "triangles": 5000,
+          "sha256": "22bb129b7538bdfb"
+        }
+      }
+    },
+    "gorra-ny-59fifty-marino": {
+      "slot": "head",
+      "kind": "rigid",
+      "node": "Fit_gorra_ny_59fifty_marino",
+      "hides": [
+        "cap"
+      ],
+      "rules": {
+        "bones": [
+          "Head"
+        ],
+        "cuts": [
+          {
+            "from": "Neck",
+            "to": "Head",
+            "keep": "above",
+            "t": 3.097
+          }
+        ],
+        "holes": []
+      },
+      "files": {
+        "hero": {
+          "url": "/avatar-fit/gorra-ny-59fifty-marino.glb",
+          "bytes": 210556,
+          "triangles": 12000,
+          "sha256": "05cc6c202b7827fb"
+        },
+        "lite": {
+          "url": "/avatar-fit/gorra-ny-59fifty-marino-lite.glb",
+          "bytes": 89172,
+          "triangles": 4996,
+          "sha256": "5554b2e6fdf6d3c6"
+        }
+      }
+    },
+    "gorra-ny-negra-logo-gris": {
+      "slot": "head",
+      "kind": "rigid",
+      "node": "Fit_gorra_ny_negra_logo_gris",
+      "hides": [
+        "cap"
+      ],
+      "rules": {
+        "bones": [
+          "Head"
+        ],
+        "cuts": [
+          {
+            "from": "Neck",
+            "to": "Head",
+            "keep": "above",
+            "t": 2.967
+          }
+        ],
+        "holes": []
+      },
+      "files": {
+        "hero": {
+          "url": "/avatar-fit/gorra-ny-negra-logo-gris.glb",
+          "bytes": 135628,
+          "triangles": 12000,
+          "sha256": "d2e6672ac07d98ca"
+        },
+        "lite": {
+          "url": "/avatar-fit/gorra-ny-negra-logo-gris-lite.glb",
+          "bytes": 72644,
+          "triangles": 5000,
+          "sha256": "a5db05250495faa7"
+        }
+      }
+    },
+    "gorra-adidas-negra": {
+      "slot": "head",
+      "kind": "rigid",
+      "node": "Fit_gorra_adidas_negra",
+      "hides": [
+        "cap"
+      ],
+      "rules": {
+        "bones": [
+          "Head"
+        ],
+        "cuts": [
+          {
+            "from": "Neck",
+            "to": "Head",
+            "keep": "above",
+            "t": 2.241
+          }
+        ],
+        "holes": []
+      },
+      "files": {
+        "hero": {
+          "url": "/avatar-fit/gorra-adidas-negra.glb",
+          "bytes": 171768,
+          "triangles": 11983,
+          "sha256": "5445ee14d9449f2e"
+        },
+        "lite": {
+          "url": "/avatar-fit/gorra-adidas-negra-lite.glb",
+          "bytes": 82048,
+          "triangles": 4999,
+          "sha256": "da183e44e1ba5c40"
+        }
+      }
+    },
+    "lentes-sol-negros": {
+      "slot": "eyes",
+      "kind": "rigid",
+      "node": "Fit_lentes_sol_negros",
+      "hides": [
+        "glasses"
+      ],
+      "rules": null,
+      "files": {
+        "hero": {
+          "url": "/avatar-fit/lentes-sol-negros.glb",
+          "bytes": 137204,
+          "triangles": 11997,
+          "sha256": "def9457c8b56cf5c"
+        },
+        "lite": {
+          "url": "/avatar-fit/lentes-sol-negros-lite.glb",
+          "bytes": 81212,
+          "triangles": 4996,
+          "sha256": "3d1e902cabfb1e85"
+        }
+      }
+    }
+  }
+}

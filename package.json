@@ -31,6 +31,7 @@
     "models:preview": "node scripts/models/preview.mjs",
     "avatar:build": "node --env-file-if-exists=.env scripts/avatar/build.mjs",
     "avatar:upload": "node --env-file=.env scripts/avatar/upload.mjs",
+    "avatar:fit": "node --env-file-if-exists=.env scripts/avatar/fit.mjs",
     "design:preview": "node scripts/design/serve.mjs",
     "fx:smoke": "node scripts/fx/smoke-atlas.mjs"
   },

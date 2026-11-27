@@ -50,8 +50,11 @@ import {
   bakeSkins,
   filterParts,
   keepTrianglesOnSide,
+  lockMasksNearMaterials,
   normalizePose,
+  recomputeSmoothNormals,
   removeSmallParts,
+  simplifyPrimitiveLocked,
   simplifyPrimitivePermissive,
   simplifyPrimitiveWithAttributes,
 } from './geometry.mjs';
@@ -97,6 +100,12 @@ async function prepareGeometry(model) {
   // baseColorTexture también en los modelos especular/brillo.
   if (model.texturePatches) await patchTextures(document, model.texturePatches);
   await document.transform(dedup(), prune(), flatten(), join(), weld(), prune());
+  // Normales del original rotas (la luz cae en manchas con bandas): se
+  // recalculan suaves y se vuelve a soldar con las nuevas.
+  if (model.recomputeNormals) {
+    recomputeSmoothNormals(document);
+    await document.transform(weld(), prune());
+  }
   const category = CATEGORIES[model.category ?? 'sneaker'];
   const pose = normalizePose(document, {
     rotation: model.transform?.rotation,
@@ -124,15 +133,19 @@ function trianglesWithMaterials(document, materialNames) {
 // simplificación solo mira posiciones: en algunos modelos deforma las UV y
 // el mapa de relieve muestra reflejos falsos, así que esos materiales se
 // dejan intactos (son pocos triángulos) y la reducción se reparte en el resto.
-async function simplifyDocument(document, { ratio, error, keepMaterials, withAttributes, permissive }) {
-  if (!keepMaterials.length && !withAttributes && !permissive) {
+// lockAround fija los vértices cercanos a ciertos materiales (calcomanías):
+// esas primitivas se simplifican solo por posiciones, sin mover los fijos.
+async function simplifyDocument(document, { ratio, error, keepMaterials, withAttributes, permissive, lockAround }) {
+  if (!keepMaterials.length && !withAttributes && !permissive && !lockAround) {
     await document.transform(simplify({ simplifier: MeshoptSimplifier, ratio, error }), prune());
     return;
   }
+  const locks = lockAround ? lockMasksNearMaterials(document, lockAround) : new Map();
   for (const mesh of document.getRoot().listMeshes()) {
     for (const primitive of mesh.listPrimitives()) {
       if (keepMaterials.includes(primitive.getMaterial()?.getName())) continue;
-      if (permissive) simplifyPrimitivePermissive(document, primitive, { ratio, error });
+      if (locks.has(primitive)) simplifyPrimitiveLocked(document, primitive, { ratio, error, lock: locks.get(primitive) });
+      else if (permissive) simplifyPrimitivePermissive(document, primitive, { ratio, error });
       else if (withAttributes) simplifyPrimitiveWithAttributes(document, primitive, { ratio, error });
       else simplifyPrimitive(primitive, { simplifier: MeshoptSimplifier, ratio, error });
     }
@@ -145,7 +158,7 @@ async function simplifyDocument(document, { ratio, error, keepMaterials, withAtt
 // simplificado acumularía error por encima del límite.
 async function simplifyToTarget(
   source,
-  { targetTriangles, maxSimplifyError, keepMaterials = [], withAttributes = false, permissive = false },
+  { targetTriangles, maxSimplifyError, keepMaterials = [], withAttributes = false, permissive = false, lockAround },
 ) {
   const initialTriangles = countTriangles(source);
   if (initialTriangles <= targetTriangles) return { document: source, applied: false, reachedTarget: true };
@@ -156,7 +169,7 @@ async function simplifyToTarget(
   let best;
   for (let attempt = 0; attempt < MAX_SIMPLIFY_ATTEMPTS; attempt++) {
     const candidate = cloneDocument(source);
-    await simplifyDocument(candidate, { ratio, error: maxSimplifyError, keepMaterials, withAttributes, permissive });
+    await simplifyDocument(candidate, { ratio, error: maxSimplifyError, keepMaterials, withAttributes, permissive, lockAround });
     const triangles = countTriangles(candidate);
     best = { document: candidate, triangles };
     if (triangles <= targetTriangles) break;
@@ -250,6 +263,7 @@ async function buildVariant(model, geometry, variantName) {
     keepMaterials: model.keepMaterials ?? [],
     withAttributes: model.simplifyWithAttributes ?? false,
     permissive: model.simplifyAcrossSeams?.includes(variantName) ?? false,
+    lockAround: variant.lockAround,
   });
 
   let result;

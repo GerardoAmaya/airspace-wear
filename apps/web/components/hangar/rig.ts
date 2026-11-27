@@ -20,7 +20,9 @@ export interface StagePose {
 
 // Cuerpo entero (cabe 1,95 m de alto y 1,1 m de ancho) o primer plano de los
 // pies (unos 30 cm de alto y 55 cm de ancho).
-// `wide`: al caminar los pies se separan unos 75 cm; el primer plano se abre.
+// `wide`: al caminar, de la punta de adelante al talón de atrás hay hasta
+// 1,2 m (de perfil); el primer plano se abre para que los dos zapatos
+// queden en cuadro en todo el ciclo y a cualquier giro.
 export const VIEWS: Record<AvatarView, (width: number, height: number, wide?: boolean) => StagePose> = {
   full: (width, height) => ({
     ax: width / 2,
@@ -31,10 +33,10 @@ export const VIEWS: Record<AvatarView, (width: number, height: number, wide?: bo
   }),
   feet: (width, height, wide = false) => ({
     ax: width / 2,
-    ay: height * 0.56,
-    k: Math.min((height * 0.62) / (wide ? 0.42 : 0.3), (width * 0.8) / (wide ? 0.85 : 0.55)),
+    ay: height * (wide ? 0.6 : 0.56),
+    k: Math.min((height * 0.62) / (wide ? 0.46 : 0.3), (width * 0.84) / (wide ? 1.2 : 0.55)),
     elevation: 12,
-    target: wide ? 0.12 : 0.08,
+    target: wide ? 0.14 : 0.08,
   }),
 };
 

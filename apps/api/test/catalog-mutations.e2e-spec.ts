@@ -252,15 +252,15 @@ describe('Cambios en el catálogo (integración)', () => {
 
         const caps = productListSchema.parse(await get('/v1/products?category=apparel&subcategory=cap&locale=en'));
         expect(caps.items.map((item) => item.slug)).toEqual(otherCaps);
-        expect(otherCaps).toEqual(['gorra-ny-marino', 'gorro-gris-canale']);
-        expect(caps.items[0]).toMatchObject({ name: 'New York Yankees Cap', subcategory: 'cap', avatarSlot: 'head', sizeRange: { system: 'ONE', min: 'OS', max: 'OS' } });
+        expect(otherCaps).toEqual(['gorra-ny-59fifty-marino', 'gorro-gris-canale', 'gorra-ny-negra-logo-gris', 'gorra-adidas-negra']);
+        expect(caps.items[0]).toMatchObject({ name: 'New York Yankees 59FIFTY Cap', subcategory: 'cap', avatarSlot: 'head', sizeRange: { system: 'ONE', min: 'OS', max: 'OS' } });
         const sneakerCaps = productListSchema.parse(await get('/v1/products?category=sneaker&subcategory=cap'));
         expect(sneakerCaps.items).toEqual([]);
 
         const categories = categoryListSchema.parse(await get('/v1/categories'));
         const facet = categories.items.find((item) => item.slug === 'apparel');
         expect(facet?.productCount).toBe(apparel.size);
-        expect(facet?.subcategories.find((item) => item.slug === 'cap')).toEqual({ slug: 'cap', productCount: 2 });
+        expect(facet?.subcategories.find((item) => item.slug === 'cap')).toEqual({ slug: 'cap', productCount: otherCaps.length });
 
         // Flexfit se queda sin productos publicados: se oculta.
         const brands = brandListSchema.parse(await get('/v1/brands'));

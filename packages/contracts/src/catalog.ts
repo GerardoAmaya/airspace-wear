@@ -111,6 +111,9 @@ export const productCardSchema = z.object({
   colorway: z.string().nullable(),
   tagline: z.string(),
   edition: z.string().nullable(),
+  // Etiquetas en el idioma pedido: la búsqueda del catálogo también las mira.
+  // default([]): una API anterior que no las mande sigue siendo válida.
+  tags: z.array(z.string()).default([]),
   price: priceSchema,
   availability: availabilitySchema,
   sizeRange: sizeRangeSchema,
@@ -170,7 +173,6 @@ export const productDetailSchema = productCardSchema.extend({
   description: z.string(),
   hostCity: z.string().nullable(),
   materials: z.record(z.string(), z.string()),
-  tags: z.array(z.string()),
   attributes: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])),
   sizes: z.array(productSizeSchema),
   hotspots: z.array(hotspotSchema),

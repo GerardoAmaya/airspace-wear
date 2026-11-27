@@ -89,7 +89,7 @@ The site is full motion. Each library has one job:
 
 | Library | Owns |
 | --- | --- |
-| Lenis (`lenis/react`) | Smooth anchor jumps (`scrollTo`) only. Wheel and touch stay native (`smoothWheel: false`). One instance in the root layout. |
+| Lenis (`lenis`) | Smooth anchor jumps (`scrollTo`) only. Wheel and touch stay native (`smoothWheel: false`). One instance, created by `MotionRoot` in the root layout and kept in the motion store. |
 | GSAP + ScrollTrigger + SplitText (`@gsap/react`) | Time-based timelines: entrances that play when content enters view (ScrollTrigger only as a trigger), text reveals, 3D camera moves, autoplay sequences. |
 | Motion (`motion/react`) | UI state and interaction: hover, tap, drawers, modals, layout animations, enter and exit. |
 | React `<ViewTransition>` | Route transitions, such as the product card morphing into the product page. |
@@ -109,7 +109,7 @@ Rules:
 - Durations and easings are motion tokens defined once and shared by GSAP, Motion and CSS.
 - `prefers-reduced-motion`: no smooth anchor jumps, no autoplay or loops, sequences become static states, keep only short opacity fades.
 - Lite mode: an inline script in `<head>` adds a `lite` class to `<html>` before hydration on low-end devices (`hardwareConcurrency <= 4`, `deviceMemory <= 4`, Save-Data, or a 2g/3g connection). Lite mode loads the `-lite.glb` models, caps DPR at 1, disables postprocessing and swaps the 3D canvas for a poster image where needed.
-- The intro animation plays once per session (sessionStorage) and is skipped on deep links and with reduced motion.
+- The home hero intro (fly-in landing with smoke) plays on every load that starts at the top of the home (owner decision 2026-11-26), and is skipped on deep links, reloads below the hero, lite mode and with reduced motion.
 - Reload (Cmd+R) must land where the user was and in a correct state: set `history.scrollRestoration = 'manual'` in `<head>`, save the position on `pagehide`, restore it after every section is mounted, and set `overflow-anchor: none` on `html` (moving nodes, such as a 3D canvas changing slots, otherwise shifts the restored position). Every element that starts hidden is hidden in CSS, not only in JS. Test reloads at several scroll positions and at short viewports (the user's window is about 1720x816).
 - Content never depends on an animation finishing to be readable or focusable.
 - Budget: 60 fps on a mid-range phone, LCP under 2.5 s, INP under 200 ms. Test on a real phone.

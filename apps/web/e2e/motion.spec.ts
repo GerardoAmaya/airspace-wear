@@ -47,15 +47,66 @@ test.describe('reduced motion', () => {
     expect(stylistCalls).toBe(0);
     await expect(section.getByRole('group', { name: stylistEs.HomeStylist.controls.suggestions }).getByRole('button').first()).toHaveAttribute('aria-pressed', 'true');
 
-    // Los saltos de ancla son inmediatos (sin desplazamiento suave).
+    // Los saltos de ancla son inmediatos (sin desplazamiento suave). El
+    // enlace "Estilista IA" ya no salta: abre el panel del robot.
     await page.evaluate(() => window.scrollTo(0, 0));
-    await page.getByRole('banner').getByRole('link', { name: es.Header.stylist }).click();
-    const target = await section.evaluate((element) => Math.round(element.getBoundingClientRect().top + window.scrollY));
+    await page.getByRole('banner').getByRole('link', { name: es.Header.balls }).click();
+    const target = await page.locator('#balones').evaluate((element) => Math.round(element.getBoundingClientRect().top + window.scrollY));
     await page.waitForTimeout(150);
     const scrolled = await page.evaluate(() => window.scrollY);
     expect(Math.abs(scrolled - target)).toBeLessThan(200);
   });
 });
+
+// Saltos de ancla del encabezado (Balones en la home): los hace Lenis (suaves, con su duración; <html> lleva lenis-smooth mientras
+// dura), cada sección aterriza en su borde superior bajo el encabezado fijo,
+// la URL no cambia y, en el teléfono, el menú se cierra. "Estilista IA"
+// abre el panel del robot en la misma página, sin desplazar.
+for (const { name, viewport } of [
+  { name: 'desktop', viewport: { width: 1720, height: 816 } },
+  { name: 'phone', viewport: { width: 390, height: 844 } },
+]) {
+  test.describe(`anchor jumps (${name})`, () => {
+    test.use({ viewport });
+
+    test('header links land on their section with a smooth Lenis jump', async ({ page }) => {
+      await page.goto('/es');
+      await waitForApp(page);
+      const header = page.getByRole('banner');
+      for (const [label, id] of [[es.Header.balls, 'balones']] as const) {
+        await page.evaluate(() => window.scrollTo(0, 0));
+        await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+        await page.evaluate(() => {
+          const win = window as unknown as { __smooth: boolean };
+          win.__smooth = false;
+          new MutationObserver(() => {
+            if (document.documentElement.classList.contains('lenis-smooth')) win.__smooth = true;
+          }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+        });
+        if (name === 'phone') await header.getByRole('button', { name: es.Header.menuOpen }).click();
+        await header.getByRole('link', { name: label, exact: true }).filter({ visible: true }).click();
+        await expect.poll(() => page.evaluate((target) => Math.abs(Math.round(document.getElementById(target)!.getBoundingClientRect().top)), id)).toBeLessThanOrEqual(1);
+        expect(await page.evaluate(() => (window as unknown as { __smooth: boolean }).__smooth)).toBe(true);
+        await expect(page).toHaveURL(/\/es$/);
+        await expect(header).not.toHaveAttribute('data-menu-open');
+        // Se queda ahí (sin un segundo desplazamiento).
+        const landed = await page.evaluate(() => Math.round(window.scrollY));
+        await page.waitForTimeout(600);
+        expect(Math.abs((await page.evaluate(() => Math.round(window.scrollY))) - landed)).toBeLessThanOrEqual(1);
+      }
+
+      // Estilista IA: abre el panel sin mover la página ni cambiar la URL.
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+      if (name === 'phone') await header.getByRole('button', { name: es.Header.menuOpen }).click();
+      await header.getByRole('link', { name: es.Header.stylist, exact: true }).filter({ visible: true }).click();
+      await expect(page.getByRole('dialog', { name: es.StylistBot.title })).toBeVisible();
+      await expect(page).toHaveURL(/\/es$/);
+      expect(await page.evaluate(() => window.scrollY)).toBe(0);
+      await expect(header).not.toHaveAttribute('data-menu-open');
+    });
+  });
+}
 
 // Modo liviano: el script del <head> lo activa en equipos modestos
 // (hardwareConcurrency o deviceMemory <= 4, Save-Data, 2g/3g). No existe un

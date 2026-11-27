@@ -227,6 +227,116 @@ export function simplifyPrimitiveWithAttributes(document, primitive, { ratio, er
   compactPrimitive(primitive);
 }
 
+// Vértices que no deben moverse al simplificar: los de cualquier otro
+// material a menos de radius metros (en mundo) de las primitivas de los
+// materiales dados. Las calcomanías (logos, estrellas, texto) flotan a
+// décimas de milímetro sobre el cuero: la simplificación desvía el cuero
+// bajo ellas más que eso y las tapa. Con estos vértices fijos, el cuero bajo
+// la calcomanía y a su alrededor queda idéntico al original y el resto se
+// simplifica normal. hosts limita los materiales cuyos vértices se fijan (el
+// cuero y la goma sobre los que van las calcomanías): fijar a medias piezas
+// vecinas como los cordones deja triángulos estirados. Devuelve un Map de
+// primitiva -> Uint8Array (1 = fijo), solo con las primitivas que tienen
+// algún vértice fijo.
+export function lockMasksNearMaterials(document, { materials, radius, hosts }) {
+  // Puntos de muestra sobre los triángulos protegidos (vértices y puntos
+  // interiores cada radius / 2), en una grilla hash de celda radius.
+  const cell = radius;
+  const grid = new Map();
+  const key = (p) => `${Math.floor(p[0] / cell)},${Math.floor(p[1] / cell)},${Math.floor(p[2] / cell)}`;
+  const addPoint = (p) => {
+    const k = key(p);
+    if (!grid.has(k)) grid.set(k, []);
+    grid.get(k).push(p);
+  };
+  const instances = [];
+  defaultScene(document).traverse((node) => {
+    const mesh = node.getMesh();
+    if (!mesh) return;
+    const matrix = node.getWorldMatrix();
+    for (const primitive of mesh.listPrimitives()) instances.push({ primitive, matrix });
+  });
+  const vertex = [0, 0, 0];
+  for (const { primitive, matrix } of instances) {
+    if (!materials.includes(primitive.getMaterial()?.getName())) continue;
+    const position = primitive.getAttribute('POSITION');
+    const indices = primitive.getIndices();
+    const count = indices ? indices.getCount() : position.getCount();
+    for (let i = 0; i + 2 < count; i += 3) {
+      const [a, b, c] = [0, 1, 2].map((k) => toWorld(matrix, position.getElement(indices ? indices.getScalar(i + k) : i + k, vertex)));
+      const longest = Math.max(Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]), Math.hypot(c[0] - a[0], c[1] - a[1], c[2] - a[2]), Math.hypot(c[0] - b[0], c[1] - b[1], c[2] - b[2]));
+      const steps = Math.max(1, Math.ceil(longest / (radius / 2)));
+      for (let u = 0; u <= steps; u++) {
+        for (let v = 0; v <= steps - u; v++) {
+          const [wu, wv] = [u / steps, v / steps];
+          const wa = 1 - wu - wv;
+          addPoint([0, 1, 2].map((axis) => a[axis] * wa + b[axis] * wu + c[axis] * wv));
+        }
+      }
+    }
+  }
+  const masks = new Map();
+  for (const { primitive, matrix } of instances) {
+    const name = primitive.getMaterial()?.getName();
+    if (materials.includes(name) || (hosts && !hosts.includes(name))) continue;
+    const position = primitive.getAttribute('POSITION');
+    const mask = masks.get(primitive) ?? new Uint8Array(position.getCount());
+    let locked = 0;
+    for (let i = 0; i < position.getCount(); i++) {
+      const p = toWorld(matrix, position.getElement(i, vertex));
+      const [cx, cy, cz] = p.map((value) => Math.floor(value / cell));
+      search: for (let dx = -1; dx <= 1; dx++) {
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dz = -1; dz <= 1; dz++) {
+            for (const q of grid.get(`${cx + dx},${cy + dy},${cz + dz}`) ?? []) {
+              if (Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]) > radius) continue;
+              mask[i] = 1;
+              locked++;
+              break search;
+            }
+          }
+        }
+      }
+    }
+    if (locked || masks.has(primitive)) masks.set(primitive, mask);
+  }
+  return masks;
+}
+
+// Simplifica una primitiva (solo por posiciones, como simplifyPrimitive)
+// sin mover los vértices marcados en lock (ver lockMasksNearMaterials).
+// La proporción se aplica solo a los triángulos libres: los que tocan un
+// vértice fijo se suman aparte, así el resto de la pieza conserva la misma
+// densidad que tendría sin vértices fijos.
+// Requiere haber esperado MeshoptSimplifier.ready.
+export function simplifyPrimitiveLocked(document, primitive, { ratio, error, lock }) {
+  const indices = primitive.getIndices();
+  const position = primitive.getAttribute('POSITION');
+  if (!indices || !position) return;
+  const triangles = indices.getCount() / 3;
+  let lockedTriangles = 0;
+  for (let i = 0; i < indices.getCount(); i += 3) {
+    if (lock[indices.getScalar(i)] || lock[indices.getScalar(i + 1)] || lock[indices.getScalar(i + 2)]) lockedTriangles++;
+  }
+  const targetCount = Math.min(indices.getCount(), Math.floor((triangles - lockedTriangles) * ratio + lockedTriangles) * 3);
+  const [kept] = MeshoptSimplifier.simplifyWithAttributes(
+    new Uint32Array(indices.getArray()),
+    new Float32Array(position.getArray()),
+    3,
+    new Float32Array(0),
+    0,
+    [],
+    lock,
+    targetCount,
+    error,
+    [],
+  );
+  primitive.setIndices(
+    document.createAccessor().setType('SCALAR').setArray(new Uint32Array(kept)).setBuffer(indices.getBuffer()),
+  );
+  compactPrimitive(primitive);
+}
+
 // Cuaternión [x, y, z, w] desde ángulos de Euler en grados (orden XYZ).
 function quaternionFromEuler([x, y, z]) {
   const [cx, sx] = [Math.cos((x * DEG_TO_RAD) / 2), Math.sin((x * DEG_TO_RAD) / 2)];
@@ -485,4 +595,60 @@ export function filterParts(document, { keep, remove }) {
     }
   });
   return removed;
+}
+
+// Recalcula normales suaves (promedio de las caras, ponderado por área) para
+// modelos cuyas normales vienen rotas. Los vértices en la misma posición
+// (costuras de UV) comparten la normal, así no aparecen aristas duras. Quita
+// las tangentes: dependen de las normales viejas y el visor las rehace.
+export function recomputeSmoothNormals(document) {
+  for (const mesh of document.getRoot().listMeshes()) {
+    for (const primitive of mesh.listPrimitives()) {
+      const position = primitive.getAttribute('POSITION');
+      if (!position || primitive.getMode() !== 4) continue;
+      const count = position.getCount();
+      const indices = primitive.getIndices();
+      const index = (i) => (indices ? indices.getScalar(i) : i);
+      const triangles = (indices ? indices.getCount() : count) / 3;
+      // Clave por posición: une los vértices duplicados en las costuras.
+      const keyOf = new Array(count);
+      const groups = new Map();
+      const p = [0, 0, 0];
+      for (let v = 0; v < count; v++) {
+        position.getElement(v, p);
+        const key = p.map((value) => Math.round(value * 1e5)).join(',');
+        keyOf[v] = key;
+        if (!groups.has(key)) groups.set(key, [0, 0, 0]);
+      }
+      const a = [0, 0, 0];
+      const b = [0, 0, 0];
+      const c = [0, 0, 0];
+      for (let t = 0; t < triangles; t++) {
+        const ia = index(t * 3);
+        const ib = index(t * 3 + 1);
+        const ic = index(t * 3 + 2);
+        position.getElement(ia, a);
+        position.getElement(ib, b);
+        position.getElement(ic, c);
+        const u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
+        const w = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
+        // Producto cruz sin normalizar: su largo es el doble del área.
+        const n = [u[1] * w[2] - u[2] * w[1], u[2] * w[0] - u[0] * w[2], u[0] * w[1] - u[1] * w[0]];
+        for (const vertex of [ia, ib, ic]) {
+          const sum = groups.get(keyOf[vertex]);
+          sum[0] += n[0];
+          sum[1] += n[1];
+          sum[2] += n[2];
+        }
+      }
+      const normals = new Float32Array(count * 3);
+      for (let v = 0; v < count; v++) {
+        const [x, y, z] = groups.get(keyOf[v]);
+        const length = Math.hypot(x, y, z) || 1;
+        normals.set([x / length, y / length, z / length], v * 3);
+      }
+      primitive.setAttribute('NORMAL', document.createAccessor().setType('VEC3').setArray(normals).setBuffer(position.getBuffer()));
+      primitive.setAttribute('TANGENT', null);
+    }
+  }
 }

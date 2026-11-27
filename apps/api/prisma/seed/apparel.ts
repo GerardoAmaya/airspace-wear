@@ -9,21 +9,24 @@
 //   lentes, maletas, mochilas y relojes, { system: 'ONE' } (talla única);
 // - avatarSlot solo si la prenda ya se ajustó al avatar del Hangar 360°
 //   (top, bottom, head o eyes); sin él, la prenda es solo de catálogo. Hoy
-//   solo lo llevan los 5 pilotos de la fase 3;
+//   lo llevan 4 pilotos de la fase 3 y las 3 gorras AS-A35 a AS-A37;
 // - model: slug del manifest (pnpm models) si tiene 3D. Si el modelo todavía
 //   no está en el manifest, el seed la publica sin 3D y avisa.
 //
 // Lista de construcción: docs/catalogo-ropa-candidatos.md, sección 11 (33
 // artículos; el conjunto deportivo de mujer se separa en top y leggings, así
-// que aquí son 34 productos). Todos los modelos elegidos son CC BY 4.0: el
+// que aquí eran 34 productos), más 3 gorras agregadas después (AS-A35 a
+// AS-A37). La gorra NY marino (AS-A03, visera curva) se retiró: su lugar en
+// la vitrina lo toma la NY 59FIFTY, que conserva su referencia AS-A35. Todos los modelos elegidos son CC BY 4.0: el
 // crédito de cada uno sale del manifest de modelos cuando llegue su 3D. El
 // Nike fleece hoodie (CC BY-NC-SA) y los Shorts Pants (Free Standard) quedaron
 // fuera de esta tanda por su licencia.
 //
-// Orden: el de esta lista es el de la vitrina (y define la referencia
-// AS-A01, AS-A02...). Las seis primeras prendas publicadas salen en la
-// sección "Ropa" de la home: sudadera Nike, chaqueta roja, gorra NY, polo a
-// rayas, short GEFF y camiseta de fútbol.
+// Orden: el de esta lista es el de la vitrina. La referencia (AS-A01,
+// AS-A02...) siguió el orden original y no cambia al reordenar o retirar.
+// Las seis primeras prendas publicadas salen en la sección "Ropa" de la
+// home: sudadera Nike, chaqueta roja, gorra NY 59FIFTY, polo a rayas, short
+// GEFF y camiseta de fútbol.
 //
 // Materiales: solo el tejido, sin datos técnicos inventados. Los lentes, el
 // reloj y la chaqueta varsity (tejido sin confirmar) no llevan materiales.
@@ -98,34 +101,36 @@ export const APPAREL_PRODUCTS: SeedProduct[] = [
     },
   },
   {
-    // Piloto del avatar (head). Logo NY real de los New York Yankees (MLB).
-    slug: 'gorra-ny-marino',
-    reference: 'AS-A03',
+    // Ajustada al avatar (head): gorra por defecto del maniquí. Logo NY real
+    // de los New York Yankees (MLB) y la etiqueta 59FIFTY en la visera. El
+    // modelo es negro (la copa y la visera), con el logo blanco.
+    slug: 'gorra-ny-59fifty-marino',
+    reference: 'AS-A35',
     category: 'apparel',
     subcategory: 'cap',
     avatarSlot: 'head',
     brand: 'new-york-yankees',
-    priceCents: 3800,
-    availability: 'available',
+    priceCents: 4500,
+    availability: 'new',
     sizes: ONE,
     attributes: {},
-    model: 'gorra-ny-marino',
+    model: 'gorra-ny-59fifty-marino',
     text: {
       es: {
-        name: 'Gorra New York Yankees',
-        colorway: 'Azul marino',
-        tagline: 'El logo NY de siempre, en azul marino.',
-        description: 'Gorra de béisbol azul marino con visera curva y el logo NY al frente. Combina con sneakers claros u oscuros.',
-        materials: { fabric: 'Algodón' },
-        tags: ['béisbol', 'clásico', 'diario'],
+        name: 'Gorra New York Yankees 59FIFTY',
+        colorway: 'Negro',
+        tagline: 'Copa alta, visera plana y el logo NY en blanco.',
+        description: 'Gorra cerrada 59FIFTY de copa alta y estructurada, con visera plana y el logo NY bordado en blanco al frente. Conserva la etiqueta en la visera.',
+        materials: { fabric: 'Poliéster' },
+        tags: ['béisbol', 'visera plana', 'clásico'],
       },
       en: {
-        name: 'New York Yankees Cap',
-        colorway: 'Navy',
-        tagline: 'The classic NY logo in navy.',
-        description: 'A navy baseball cap with a curved brim and the NY logo on the front. Easy to pair with light or dark sneakers.',
-        materials: { fabric: 'Cotton' },
-        tags: ['baseball', 'classic', 'everyday'],
+        name: 'New York Yankees 59FIFTY Cap',
+        colorway: 'Black',
+        tagline: 'High crown, flat brim and a white NY logo.',
+        description: 'A fitted 59FIFTY with a tall structured crown, a flat brim and a white embroidered NY logo on the front. The brim sticker stays on.',
+        materials: { fabric: 'Polyester' },
+        tags: ['baseball', 'flat brim', 'classic'],
       },
     },
   },
@@ -1085,6 +1090,70 @@ export const APPAREL_PRODUCTS: SeedProduct[] = [
         description: 'A smartwatch with a black case and strap, and a minimalist look that works with sportswear or casual outfits.',
         materials: {},
         tags: ['minimalist', 'black', 'everyday'],
+      },
+    },
+  },  {
+    // Ajustada al avatar (head). Logo NY real en gris sobre negro.
+    slug: 'gorra-ny-negra-logo-gris',
+    reference: 'AS-A36',
+    category: 'apparel',
+    subcategory: 'cap',
+    avatarSlot: 'head',
+    brand: 'new-york-yankees',
+    priceCents: 3600,
+    availability: 'available',
+    sizes: ONE,
+    attributes: {},
+    model: 'gorra-ny-negra-logo-gris',
+    text: {
+      es: {
+        name: 'Gorra New York Yankees negra',
+        colorway: 'Negro y gris claro',
+        tagline: 'Toda negra, con el logo NY en gris claro.',
+        description: 'Gorra negra de visera plana con el logo NY en gris claro al frente. Combina con todo.',
+        materials: { fabric: 'Poliéster' },
+        tags: ['béisbol', 'visera plana', 'negro'],
+      },
+      en: {
+        name: 'New York Yankees Black Cap',
+        colorway: 'Black and light grey',
+        tagline: 'All black with a light grey NY logo.',
+        description: 'A black flat-brim cap with a light grey NY logo on the front. Easy to wear with anything.',
+        materials: { fabric: 'Polyester' },
+        tags: ['baseball', 'flat brim', 'black'],
+      },
+    },
+  },
+  {
+    // Ajustada al avatar (head). Del mismo autor que la gorra NY marino que
+    // se retiró.
+    slug: 'gorra-adidas-negra',
+    reference: 'AS-A37',
+    category: 'apparel',
+    subcategory: 'cap',
+    avatarSlot: 'head',
+    brand: 'adidas',
+    priceCents: 3200,
+    availability: 'available',
+    sizes: ONE,
+    attributes: {},
+    model: 'gorra-adidas-negra',
+    text: {
+      es: {
+        name: 'Gorra Adidas',
+        colorway: 'Negro',
+        tagline: 'Visera curva y el logo de Adidas al frente.',
+        description: 'Gorra de béisbol negra de visera curva, con el logo de las tres franjas de Adidas al frente. Ligera para el día a día.',
+        materials: { fabric: 'Poliéster' },
+        tags: ['deportiva', 'negro', 'diario'],
+      },
+      en: {
+        name: 'Adidas Cap',
+        colorway: 'Black',
+        tagline: 'A curved brim and the Adidas logo up front.',
+        description: 'A black baseball cap with a curved brim and the three-bar Adidas logo on the front. Light enough for every day.',
+        materials: { fabric: 'Polyester' },
+        tags: ['sporty', 'black', 'everyday'],
       },
     },
   },

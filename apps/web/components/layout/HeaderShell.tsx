@@ -40,11 +40,21 @@ export function HeaderShell({
     if (!menuOpen) return;
     const onKey = (event: KeyboardEvent) => event.key === 'Escape' && setOpenPath(null);
     const onPointer = (event: PointerEvent) => !header.current?.contains(event.target as Node) && setOpenPath(null);
+    // Un enlace del menú a una sección de la misma página (/#balones en la
+    // home) no cambia la ruta, así que el menú quedaba abierto tapando el
+    // destino. Se escucha en captura sobre window porque AnchorLinks
+    // (MotionRoot) detiene la propagación del clic para hacer el salto.
+    const onLink = (event: MouseEvent) => {
+      const link = (event.target as Element | null)?.closest?.('a');
+      if (link && header.current?.contains(link)) setOpenPath(null);
+    };
     document.addEventListener('keydown', onKey);
     document.addEventListener('pointerdown', onPointer);
+    window.addEventListener('click', onLink, true);
     return () => {
       document.removeEventListener('keydown', onKey);
       document.removeEventListener('pointerdown', onPointer);
+      window.removeEventListener('click', onLink, true);
     };
   }, [menuOpen]);
 

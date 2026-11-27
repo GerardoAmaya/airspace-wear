@@ -1,6 +1,7 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { HANGAR_ENABLED } from '@/lib/avatar/avatar';
+import { StylistLink } from '@/components/stylist-bot/StylistLink';
 import { HOME_ANCHORS } from '@/lib/home';
 import styles from './SiteFooter.module.css';
 
@@ -19,7 +20,8 @@ export function SiteFooter() {
           <Link href="/catalog">{t('catalog')}</Link>
           <Link href={HANGAR_ENABLED ? '/hangar' : { pathname: '/', hash: HOME_ANCHORS.hangar }}>{t('hangar')}</Link>
           <Link href={{ pathname: '/', hash: HOME_ANCHORS.balls }}>{t('balls')}</Link>
-          <Link href={{ pathname: '/', hash: HOME_ANCHORS.stylist }}>{t('stylist')}</Link>
+          {/* Abre el panel del estilista en la misma página. */}
+          <StylistLink>{t('stylist')}</StylistLink>
           <Link href="/credits">{t('credits')}</Link>
           <Link href="/legal">{t('legal')}</Link>
         </nav>

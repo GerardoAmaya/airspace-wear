@@ -1,9 +1,8 @@
 'use client';
 
-import type Lenis from 'lenis';
-import { ReactLenis, type LenisRef } from 'lenis/react';
+import Lenis from 'lenis';
 import { usePathname } from 'next/navigation';
-import { type ReactNode, useEffect, useRef } from 'react';
+import { type ReactNode, useEffect } from 'react';
 import { gsap, ScrollTrigger } from '@/lib/motion/gsap';
 import { scrollToElement } from '@/lib/motion/scroll';
 import { useMotionStore } from '@/lib/motion/store';
@@ -16,19 +15,25 @@ import { useMotionStore } from '@/lib/motion/store';
 // - ScrollTrigger se recalcula cuando cargan las fuentes.
 // - Una recarga vuelve a la posición guardada.
 export function MotionRoot({ children }: { children: ReactNode }) {
-  const lenisRef = useRef<LenisRef>(null);
   const setMotion = useMotionStore((state) => state.set);
 
+  // La instancia única de Lenis se crea aquí y queda en el store en el mismo
+  // efecto. Antes venía de <ReactLenis>, que la crea en su propio efecto y la
+  // publica recién en un render posterior: mientras la home seguía
+  // hidratando, los primeros saltos encontraban el store vacío y caían en el
+  // scroll suave nativo (sin la duración ni la curva de Lenis). Con
+  // movimiento reducido también queda guardada: scrollToElement pide saltos
+  // inmediatos en ese caso.
   useEffect(() => {
     const reducedQuery = matchMedia('(prefers-reduced-motion: reduce)');
-    const lenis: Lenis | null = reducedQuery.matches ? null : (lenisRef.current?.lenis ?? null);
+    const lenis = new Lenis({ autoRaf: false, smoothWheel: false, syncTouch: false });
     setMotion({ lenis, reducedMotion: reducedQuery.matches, lite: document.documentElement.classList.contains('lite') });
 
-    const tick = (time: number) => lenis?.raf(time * 1000);
+    const tick = (time: number) => lenis.raf(time * 1000);
     gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0);
-    lenis?.on('scroll', ScrollTrigger.update);
-    const onRefresh = () => lenis?.resize();
+    lenis.on('scroll', ScrollTrigger.update);
+    const onRefresh = () => lenis.resize();
     ScrollTrigger.addEventListener('refresh', onRefresh);
     void document.fonts.ready.then(() => ScrollTrigger.refresh());
 
@@ -37,18 +42,20 @@ export function MotionRoot({ children }: { children: ReactNode }) {
 
     return () => {
       gsap.ticker.remove(tick);
-      lenis?.off('scroll', ScrollTrigger.update);
+      lenis.off('scroll', ScrollTrigger.update);
       ScrollTrigger.removeEventListener('refresh', onRefresh);
       reducedQuery.removeEventListener('change', onReducedChange);
+      setMotion({ lenis: null });
+      lenis.destroy();
     };
   }, [setMotion]);
 
   return (
-    <ReactLenis root ref={lenisRef} options={{ autoRaf: false, smoothWheel: false, syncTouch: false }}>
+    <>
       <ScrollMemory />
       <AnchorLinks />
       {children}
-    </ReactLenis>
+    </>
   );
 }
 
@@ -98,7 +105,12 @@ function ScrollMemory() {
       if (saved > 0) {
         const restore = () => {
           const { lenis } = useMotionStore.getState();
-          if (lenis) lenis.scrollTo(saved, { immediate: true, force: true });
+          // resize(): Lenis mide el alto con una espera de 250 ms; si la
+          // página acaba de crecer, su tope quedaría corto.
+          if (lenis) {
+            lenis.resize();
+            lenis.scrollTo(saved, { immediate: true, force: true });
+          }
           else window.scrollTo(0, saved);
           ScrollTrigger.update();
           // Ya en su lugar: el contenido vuelve a verse en el cuadro siguiente
@@ -155,7 +167,8 @@ function AnchorLinks() {
     const onClick = (event: MouseEvent) => {
       if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       const link = (event.target as Element | null)?.closest?.('a[href*="#"]') as HTMLAnchorElement | null;
-      if (!link) return;
+      // El enlace "Estilista IA" abre el panel del robot (StylistLink), no salta.
+      if (!link || link.hasAttribute('data-stylist-open')) return;
       const url = new URL(link.href, location.href);
       if (url.origin !== location.origin || url.pathname !== location.pathname || url.hash.length < 2) return;
       const target = document.getElementById(decodeURIComponent(url.hash.slice(1)));
