@@ -942,6 +942,34 @@ export const MODELS = [
     transform: { rotation: [0, 0, 0] },
   },
   {
+    slug: 'hoodie-adidas-arena-camuflaje',
+    displayName: 'Hoodie Adidas arena con camuflaje',
+    brand: 'Adidas',
+    category: 'apparel',
+    source: { provider: 'sketchfab', uid: 'e4c89a5628db4c7abadbd18bb407a2a8' },
+    // Modelo de juego (Maya, ZBrush y Substance Painter), una sola malla sin
+    // capas: usa el error de simplificación por defecto. Alto de capucha a
+    // ruedo como los otros hoodies.
+    size: { axis: 'y', meters: 0.72 },
+    transform: { rotation: [0, 0, 0] },
+  },
+  {
+    slug: 'hoodie-adidas-negro-blanco',
+    displayName: 'Hoodie Adidas negro y blanco',
+    brand: 'Adidas',
+    category: 'apparel',
+    source: { provider: 'sketchfab', uid: '3c2191a4e83d46979e57512356187482' },
+    size: { axis: 'y', meters: 0.72 },
+    // Exportada de un programa de diseño de prendas (Marvelous Designer):
+    // paneles en capas a cerca de 1 mm. Con el error del lite (3%) la
+    // simplificación deformaba ruedos y costuras; con 0,5% las capas no se cruzan.
+    maxSimplifyError: 0.005,
+    // Con 90k triángulos y el color en calidad 64 el hero pesaba 1,23 MB: baja
+    // a 70k y las texturas de datos a calidad 85.
+    variantOverrides: { hero: { targetTriangles: 70_000, dataTextureQuality: 85 } },
+    transform: { rotation: [0, 0, 0] },
+  },
+  {
     slug: 'chaqueta-adidas-negra',
     displayName: 'Chaqueta Adidas negra',
     brand: 'Adidas',

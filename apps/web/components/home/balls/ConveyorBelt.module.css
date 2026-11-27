@@ -54,6 +54,26 @@
   --belt-pool-ink: color-mix(in srgb, var(--color-surface-raised) 90%, transparent);
 }
 
+/* Contenedor: la banda visual y el grupo de botones para teclado. */
+.wrap {
+  position: relative;
+  height: 100%;
+}
+
+/* Botones accesibles (ocultos a la vista, uno por balón). */
+.picks {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Foco del teclado en el grupo: el anillo cae sobre la etiqueta "En foco". */
+.wrap:has(.picks :focus-visible) .item[data-claimed] .tag {
+  outline: 2px solid var(--color-text);
+  outline-offset: 4px;
+  border-radius: 5px;
+}
+
 /* Riel trasero: el borde lejano de la banda. */
 .back {
   position: absolute;

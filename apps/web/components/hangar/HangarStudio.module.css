@@ -251,6 +251,15 @@
   display: none;
 }
 
+/* Con zoom, la pista se apaga (el botón de 1x ya dice cómo volver). */
+.hint {
+  transition: opacity var(--duration-ui) var(--ease-out);
+}
+
+.stage[data-zoomed] .hint {
+  opacity: 0;
+}
+
 @media (hover: none) {
   .hintMouse {
     display: none;
@@ -259,6 +268,47 @@
   .hintTouch {
     display: inline;
   }
+}
+
+/* Restablecer zoom: esquina superior derecha del escenario, solo con zoom
+   (oculto con visibility, así tampoco recibe el foco). */
+.center {
+  position: relative;
+}
+
+.zoomReset {
+  top: var(--space-3);
+  right: calc(var(--hud-corner) + var(--space-2));
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--hangar-ink);
+  cursor: pointer;
+  pointer-events: auto;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--duration-ui) var(--ease-out),
+    visibility 0s linear var(--duration-ui),
+    border-color var(--duration-micro) var(--ease-out);
+}
+
+.stage[data-zoomed] ~ .zoomReset {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity var(--duration-ui) var(--ease-out),
+    border-color var(--duration-micro) var(--ease-out);
+}
+
+.zoomReset:hover {
+  border-color: var(--hangar-ink);
+}
+
+.zoomReset:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 /* Animación y encuadre en una fila, separados por una línea fina. */
@@ -387,7 +437,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .stage[data-ready] .canvas,
-  .chip {
+  .chip,
+  .zoomReset,
+  .stage[data-zoomed] ~ .zoomReset {
     transition: none;
   }
 }

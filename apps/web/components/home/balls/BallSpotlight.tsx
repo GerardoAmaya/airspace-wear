@@ -10,7 +10,6 @@ import { useMotionStore } from '@/lib/motion/store';
 import { useStageActivity } from '@/lib/three/director';
 import { useInView } from '@/lib/in-view';
 import type { Ball } from './ball-data';
-import { AXIS_DEGREES } from './ball-axis';
 import type { BallControls } from './BallScene';
 import styles from './HomeBalls.module.css';
 
@@ -21,12 +20,11 @@ const STEP = Math.PI / 12; // 15° por tecla
 const POSTER_AFTER = 4; // s de carga a la vista antes de mostrar el póster de respaldo
 
 // Visor 3D del balón elegido: póster mientras carga, giro con arrastre o
-// flechas y las marcas HUD del prototipo. El lienzo se crea la primera vez
-// que el visor es el escenario activo (director de render) y deja de dibujar
-// fuera de pantalla o si otro escenario se ve más.
+// flechas y solo las esquinas HUD del prototipo (sin textos). El lienzo se
+// crea la primera vez que el visor es el escenario activo (director de
+// render) y deja de dibujar fuera de pantalla o si otro escenario se ve más.
 export function BallSpotlight({ ball, spotRef, controlsRef }: { ball: Ball; spotRef: RefObject<HTMLDivElement | null>; controlsRef: RefObject<BallControls> }) {
   const t = useTranslations('HomeBalls.spot');
-  const tRoot = useTranslations('HomeBalls');
   const [frame, setFrame] = useState<HTMLDivElement | null>(null);
   const active = useStageActivity(frame);
   const [mounted, setMounted] = useState(false);
@@ -98,7 +96,6 @@ export function BallSpotlight({ ball, spotRef, controlsRef }: { ball: Ball; spot
   };
 
   const url = lite ? ball.model.liteUrl : ball.model.heroUrl;
-  const hostYear = tRoot('hostYear', { host: ball.host, year: String(ball.year) });
 
   return (
     <div ref={setRefs} className={styles.spot} data-spot="" data-ready={ready || undefined} data-poster={posterShown || undefined} {...accentProps(ball.accent)}>
@@ -114,17 +111,6 @@ export function BallSpotlight({ ball, spotRef, controlsRef }: { ball: Ball; spot
         <span className={`${styles.corner} ${styles.cornerBl}`} />
         <span className={`${styles.corner} ${styles.cornerBr}`} />
         <span className={styles.marks} />
-        <span className={`${styles.hud} ${styles.spotLabel} ${styles.labelTl}`}>
-          {t('view3d')}
-          <span className={styles.spotExtra}>{t('inFocusSuffix')}</span>
-        </span>
-        <span className={`${styles.hud} ${styles.hudPrimary} ${styles.spotLabel} ${styles.labelTr}`} data-swap="">
-          {hostYear}
-        </span>
-        <span className={`${styles.hud} ${styles.spotLabel} ${styles.labelBl}`}>
-          {ready ? t(reducedMotion ? 'axisStill' : 'axisSpin', { degrees: AXIS_DEGREES }) : t('loading')}
-        </span>
-        <span className={`${styles.hud} ${styles.spotLabel} ${styles.labelBr}`}>{t('diameter', { cm: 22 })}</span>
       </div>
 
       <div

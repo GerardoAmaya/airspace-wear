@@ -183,7 +183,8 @@
     "ar": {
       "button": "Ver en tu espacio",
       "loading": "Preparando la vista",
-      "unsupported": "Abre esta página en tu teléfono para ver el {name} en tu espacio, a tamaño real."
+      "unsupported": "Abre esta página en tu teléfono para ver el {name} en tu espacio, a tamaño real.",
+      "recenter": "Traer al centro"
     },
     "ogAlt": "{name} en AIRSPACE Wear, {price}",
     "tryInHangar": "Pruébalo en el Hangar 360°"
@@ -322,12 +323,14 @@
       "full": "Cuerpo entero",
       "feet": "Zapatos"
     },
-    "stageLabel": "Avatar con {name}: arrastra o usa las flechas para girar",
+    "stageLabel": "Avatar con {name}: arrastra o usa las flechas para girar, y + o - para acercar",
     "stageValue": "{degrees} grados",
     "loading": "Cargando avatar",
     "error": "No se pudo cargar el avatar",
     "dragHint": "Arrastra para girar",
-    "touchHint": "Desliza para girar",
+    "touchHint": "Desliza: girar. Pellizca: zoom",
+    "zoomReset": "Restablecer zoom",
+    "zoomResetShort": "1×",
     "rotation": "ROT {degrees}°",
     "outfit": {
       "shirt": "Camiseta",

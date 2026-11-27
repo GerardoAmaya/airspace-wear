@@ -5371,6 +5371,197 @@
         }
       }
     },
+    "hoodie-adidas-arena-camuflaje": {
+      "slug": "hoodie-adidas-arena-camuflaje",
+      "displayName": "Hoodie Adidas arena con camuflaje",
+      "brand": "Adidas",
+      "raw": {
+        "bytes": 3598872,
+        "triangles": 13480,
+        "drawCalls": 5,
+        "meshes": 5,
+        "materials": 1,
+        "textures": 3,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "jpeg",
+          "png"
+        ],
+        "sketchfabFaceCount": 13480
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.242899,
+        "dimensionsCm": {
+          "width": 131.1,
+          "height": 72,
+          "depth": 42.1
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/hoodie-adidas-arena-camuflaje.glb",
+          "bytes": 553364,
+          "triangles": 13480,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/hoodie-adidas-arena-camuflaje-lite.glb",
+          "bytes": 224488,
+          "triangles": 13480,
+          "drawCalls": 1,
+          "meshes": 1,
+          "materials": 1,
+          "textures": 3,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": false,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      },
+      "source": {
+        "provider": "sketchfab",
+        "uid": "e4c89a5628db4c7abadbd18bb407a2a8",
+        "title": "Adidas Hoodie",
+        "url": "https://sketchfab.com/3d-models/adidas-hoodie-e4c89a5628db4c7abadbd18bb407a2a8",
+        "author": "Garrett Marshall Art",
+        "authorUrl": "https://sketchfab.com/GarrettMarshallArt",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      }
+    },
+    "hoodie-adidas-negro-blanco": {
+      "slug": "hoodie-adidas-negro-blanco",
+      "displayName": "Hoodie Adidas negro y blanco",
+      "brand": "Adidas",
+      "raw": {
+        "bytes": 7919864,
+        "triangles": 105152,
+        "drawCalls": 2,
+        "meshes": 2,
+        "materials": 2,
+        "textures": 6,
+        "maxTextureSize": 1024,
+        "textureFormats": [
+          "png"
+        ],
+        "sketchfabFaceCount": 105152
+      },
+      "pose": {
+        "category": "apparel",
+        "extractedFromPair": false,
+        "frontFacing": "+z",
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "yawCorrection": 0,
+        "scale": 0.732163,
+        "dimensionsCm": {
+          "width": 104.7,
+          "height": 72,
+          "depth": 37.5
+        }
+      },
+      "variants": {
+        "hero": {
+          "file": "/models/hoodie-adidas-negro-blanco.glb",
+          "bytes": 1005288,
+          "triangles": 69999,
+          "drawCalls": 2,
+          "meshes": 2,
+          "materials": 2,
+          "textures": 6,
+          "maxTextureSize": 1024,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        },
+        "lite": {
+          "file": "/models/hoodie-adidas-negro-blanco-lite.glb",
+          "bytes": 385704,
+          "triangles": 19999,
+          "drawCalls": 2,
+          "meshes": 2,
+          "materials": 2,
+          "textures": 6,
+          "maxTextureSize": 512,
+          "textureFormats": [
+            "webp"
+          ],
+          "textureQuality": 88,
+          "simplified": true,
+          "withinBudget": true,
+          "validation": {
+            "errors": 0,
+            "warnings": 0,
+            "errorMessages": []
+          }
+        }
+      },
+      "source": {
+        "provider": "sketchfab",
+        "uid": "3c2191a4e83d46979e57512356187482",
+        "title": "adidas hoodie",
+        "url": "https://sketchfab.com/3d-models/adidas-hoodie-3c2191a4e83d46979e57512356187482",
+        "author": "Protyanik25",
+        "authorUrl": "https://sketchfab.com/Protyanik25",
+        "license": {
+          "slug": "by",
+          "name": "CC BY 4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "commercialUse": true,
+          "shareAlike": false
+        },
+        "downloadedAt": "2026-11-26"
+      }
+    },
     "chaqueta-adidas-negra": {
       "slug": "chaqueta-adidas-negra",
       "displayName": "Chaqueta Adidas negra",

@@ -43,6 +43,7 @@ import { addLegCut, heightOnShin, LEG_CUT, legFrames, makeBodyCuttable } from '.
 import { CAP_ROUND, LegCaps } from './LegCaps';
 import { type AvatarView, FOV, type StagePose, TAN_HALF, VIEWS } from './rig';
 import { WalkBelt } from './WalkBelt';
+import { applyZoom, type StageZoom, stepZoom } from './zoom';
 
 // Escena 3D del Hangar 360°: el avatar de Mixamo con el sneaker elegido en
 // los dos pies (docs/avatar-fitting.md), en presentación de zapato flotante:
@@ -84,6 +85,8 @@ export interface AvatarSceneProps {
   fitting: Fitting;
   view: AvatarView;
   spin: RefObject<Spin>;
+  // Zoom del escenario (pellizco, Ctrl + rueda, teclas); se suaviza por cuadro.
+  zoom?: RefObject<StageZoom>;
   // Giro automático de la plataforma (nunca con movimiento reducido).
   autoRotate: boolean;
   playback?: RefObject<AvatarPlayback>;
@@ -352,6 +355,7 @@ function Rig({
   fitting,
   view,
   spin,
+  zoom,
   autoRotate,
   playback,
   outfit,
@@ -620,6 +624,8 @@ function Rig({
     else gsap.to(pose.current, { ...target, duration: DURATION.cinematic * 0.7, ease: EASE.inOut.gsap });
   }, [view, wide, size.width, size.height, reducedMotion]);
   useEffect(() => () => void gsap.killTweensOf(pose.current), []);
+  // Pose con el zoom aplicado (se reescribe cada cuadro, sin crear objetos).
+  const zoomed = useMemo<StagePose>(() => ({ ax: 0, ay: 0, k: 1, elevation: 0, target: 0 }), []);
 
   // ---------- Girar ----------
   // Una vuelta completa de 360° por ciclo, con entrada y salida suaves (GSAP
@@ -701,7 +707,9 @@ function Rig({
     const height = state.size.height;
     if (!width || !height) return;
     const dt = Math.min(0.05, delta || 0.016);
-    const cam = pose.current;
+    const zoomState = zoom?.current;
+    if (zoomState) stepZoom(zoomState, dt, reducedMotion);
+    const cam = zoomState ? applyZoom(pose.current, zoomState, zoomed) : pose.current;
 
     // Cámara: orbita el punto (0, target, 0); la lente lo ubica en (ax, ay).
     const focal = height / 2 / TAN_HALF;

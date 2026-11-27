@@ -24,6 +24,7 @@ import { shoeUrl } from './prefetch';
 import { ShoePicker } from './ShoePicker';
 import { type LookItem, WornLook } from './WornLook';
 import { type AvatarView, ringTransform, type StagePose, VIEWS } from './rig';
+import { createZoom, type StageZoom, isZoomed, resetZoom, setZoomView, useStageZoom, zoomStep } from './zoom';
 
 // El canvas solo existe en el cliente y se descarga aparte.
 const AvatarScene = dynamic(() => import('./AvatarScene'), { ssr: false });
@@ -90,6 +91,9 @@ export function HangarStudio({ products, garments }: { products: HangarProduct[]
   const active = useStageActivity(stage);
   const [spin] = useState(() => ({ current: createSpin() }));
   useSpinDrag(stage, spin, reducedMotion);
+  // Zoom del escenario (ref: lo leen los gestos y el bucle de cuadros).
+  const zoom = useRef<StageZoom>(createZoom());
+  useStageZoom(stage, zoom, spin);
 
   const [slug, setSlug] = useState(() => (products.find((item) => item.slug === DEFAULT_PAIR) ?? products[0])?.slug ?? '');
   const [clip, setClip] = useState<Clip>('idle');
@@ -97,6 +101,11 @@ export function HangarStudio({ products, garments }: { products: HangarProduct[]
   const [ready, setReady] = useState(false);
   const [status, setStatus] = useState<AvatarStatus>('loading');
   const onReady = useCallback(() => setReady(true), []);
+
+  // Cada encuadre o animación empieza sin zoom (y con su propio máximo).
+  useEffect(() => {
+    setZoomView(zoom.current, view);
+  }, [view, clip, zoom]);
   const product = products.find((item) => item.slug === slug) ?? products[0];
 
   // Vestuario: sin URL (producción antes de subirlo) o si el GLB no carga, el
@@ -132,6 +141,7 @@ export function HangarStudio({ products, garments }: { products: HangarProduct[]
   const rot = useRef<HTMLSpanElement>(null);
   const baseK = useRef(1);
   const shownDegrees = useRef(-1);
+  const shownZoom = useRef('');
 
   // Tamaño base de los anillos (vista de cuerpo entero); se rehace con el tamaño.
   useLayoutEffect(() => {
@@ -155,6 +165,13 @@ export function HangarStudio({ products, garments }: { products: HangarProduct[]
   const onFrame = useCallback(
     (pose: StagePose, size: { width: number; height: number }, angle: number) => {
       if (rings.current) rings.current.style.transform = `${ringTransform(pose, size, baseK.current)} rotate(${((-angle * 180) / Math.PI).toFixed(2)}deg)`;
+      // Zoom a la vista (para las pruebas) y el botón de restablecer, solo con zoom.
+      const zoomKey = `${zoom.current.shown.scale.toFixed(2)}:${isZoomed(zoom.current)}`;
+      if (stage && zoomKey !== shownZoom.current) {
+        shownZoom.current = zoomKey;
+        stage.setAttribute('data-zoom', zoom.current.shown.scale.toFixed(2));
+        stage.toggleAttribute('data-zoomed', isZoomed(zoom.current));
+      }
       const { degrees } = turnOf(angle);
       if (degrees === shownDegrees.current) return;
       shownDegrees.current = degrees;
@@ -166,6 +183,14 @@ export function HangarStudio({ products, garments }: { products: HangarProduct[]
   );
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    // + y - acercan y alejan; 0 vuelve a 1x.
+    const zoomKey = ({ '+': 1, '=': 1, '-': -1 } as Record<string, 1 | -1>)[event.key];
+    if (zoomKey || event.key === '0') {
+      event.preventDefault();
+      if (zoomKey) zoomStep(zoom.current, zoomKey);
+      else resetZoom(zoom.current);
+      return;
+    }
     if (!keySpin(spin.current, event.key, reducedMotion)) return;
     event.preventDefault();
   };
@@ -260,6 +285,7 @@ export function HangarStudio({ products, garments }: { products: HangarProduct[]
                 fitting={FITTING}
                 view={view}
                 spin={spin}
+                zoom={zoom}
                 autoRotate={clip !== 'turn'}
                 outfit={outfitUrl ? { url: outfitUrl, look } : null}
                 onOutfitStatus={setOutfitStatus}
@@ -282,6 +308,18 @@ export function HangarStudio({ products, garments }: { products: HangarProduct[]
               {status === 'error' ? t('error') : t('loading')}
             </span>
           </div>
+          {/* Fuera del control deslizante (sus hijos no llegan a los lectores de pantalla). */}
+          <button
+            type="button"
+            className={`${styles.hudLabel} ${styles.zoomReset}`}
+            aria-label={t('zoomReset')}
+            onClick={() => {
+              resetZoom(zoom.current);
+              stage?.focus({ preventScroll: true });
+            }}
+          >
+            {t('zoomResetShort')}
+          </button>
           <div className={styles.controls}>
             <div className={styles.chips} role="group" aria-label={t('clipsLabel')}>
               {CLIPS.map((name) => (

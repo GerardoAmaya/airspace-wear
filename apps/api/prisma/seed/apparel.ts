@@ -9,14 +9,15 @@
 //   lentes, maletas, mochilas y relojes, { system: 'ONE' } (talla única);
 // - avatarSlot solo si la prenda ya se ajustó al avatar del Hangar 360°
 //   (top, bottom, head o eyes); sin él, la prenda es solo de catálogo. Hoy
-//   lo llevan 4 pilotos de la fase 3 y las 3 gorras AS-A35 a AS-A37;
+//   lo llevan 4 pilotos de la fase 3, las 3 gorras AS-A35 a AS-A37 y el
+//   hoodie Adidas arena (AS-A38);
 // - model: slug del manifest (pnpm models) si tiene 3D. Si el modelo todavía
 //   no está en el manifest, el seed la publica sin 3D y avisa.
 //
 // Lista de construcción: docs/catalogo-ropa-candidatos.md, sección 11 (33
 // artículos; el conjunto deportivo de mujer se separa en top y leggings, así
 // que aquí eran 34 productos), más 3 gorras agregadas después (AS-A35 a
-// AS-A37). La gorra NY marino (AS-A03, visera curva) se retiró: su lugar en
+// AS-A37) y 2 hoodies Adidas (AS-A38 y AS-A39). La gorra NY marino (AS-A03, visera curva) se retiró: su lugar en
 // la vitrina lo toma la NY 59FIFTY, que conserva su referencia AS-A35. Todos los modelos elegidos son CC BY 4.0: el
 // crédito de cada uno sale del manifest de modelos cuando llegue su 3D. El
 // Nike fleece hoodie (CC BY-NC-SA) y los Shorts Pants (Free Standard) quedaron
@@ -721,6 +722,75 @@ export const APPAREL_PRODUCTS: SeedProduct[] = [
         description: "A women's turquoise hoodie with the Nike Swoosh. Comfortable for training or everyday wear.",
         materials: { fabric: 'Fleece' },
         tags: ['women', 'hoodie', 'colorful'],
+      },
+    },
+  },
+  {
+    // Agregado después de la lista original. Ajustado al avatar (top). Modelo
+    // de juego con los brazos abiertos: el trébol y la capucha llevan el
+    // mismo camuflaje.
+    slug: 'hoodie-adidas-arena-camuflaje',
+    reference: 'AS-A38',
+    category: 'apparel',
+    subcategory: 'sweatshirt',
+    avatarSlot: 'top',
+    brand: 'adidas',
+    priceCents: 7500,
+    availability: 'new',
+    sizes: ALPHA,
+    attributes: {},
+    model: 'hoodie-adidas-arena-camuflaje',
+    text: {
+      es: {
+        name: 'Hoodie Adidas Trefoil Camo',
+        colorway: 'Arena y camuflaje azul',
+        tagline: 'Color arena con el trébol y la capucha en camuflaje.',
+        description: 'Hoodie color arena con el trébol de Adidas al frente y la capucha en camuflaje azul, cordón y bolsillo canguro. Combina con jeans, joggers o tenis blancos.',
+        materials: { fabric: 'Felpa de algodón' },
+        tags: ['capucha', 'camuflaje', 'urbano'],
+      },
+      en: {
+        name: 'Adidas Trefoil Camo Hoodie',
+        colorway: 'Sand and blue camo',
+        tagline: 'Sand-colored, with a camo Trefoil and hood.',
+        description: 'A sand hoodie with the Adidas Trefoil on the chest in blue camo, a matching camo hood, drawstrings and a kangaroo pocket. Easy over jeans or joggers with white sneakers.',
+        materials: { fabric: 'Cotton fleece' },
+        tags: ['hoodie', 'camo', 'streetwear'],
+      },
+    },
+  },
+  {
+    // Agregado después de la lista original. Exportado de Marvelous Designer:
+    // mangas largas blancas bajo mangas cortas negras (efecto de capas). Solo
+    // catálogo: las mangas no son simétricas (ningún ángulo de brazos las
+    // alinea a las dos) y los paneles en capas de las axilas se abren hacia
+    // afuera al ajustarlo al avatar.
+    slug: 'hoodie-adidas-negro-blanco',
+    reference: 'AS-A39',
+    category: 'apparel',
+    subcategory: 'sweatshirt',
+    brand: 'adidas',
+    priceCents: 8500,
+    availability: 'new',
+    sizes: ALPHA,
+    attributes: {},
+    model: 'hoodie-adidas-negro-blanco',
+    text: {
+      es: {
+        name: 'Hoodie Adidas de capas',
+        colorway: 'Negro y blanco',
+        tagline: 'Negro con mangas blancas y las tres franjas.',
+        description: 'Hoodie negro de textura jaspeada con capucha y mangas largas en blanco, que se asoman bajo una manga corta con las tres franjas. Lleva el logo de Adidas al frente y puños y ruedo de canalé.',
+        materials: { fabric: 'Felpa' },
+        tags: ['capucha', 'tres franjas', 'deportiva'],
+      },
+      en: {
+        name: 'Adidas Layered Hoodie',
+        colorway: 'Black and white',
+        tagline: 'Black with white sleeves and the three stripes.',
+        description: 'A black heathered hoodie with a white hood and white long sleeves that peek out from short sleeves with the three stripes. The Adidas logo sits on the chest, with ribbed cuffs and hem.',
+        materials: { fabric: 'Fleece' },
+        tags: ['hoodie', 'three stripes', 'sporty'],
       },
     },
   },

@@ -42,3 +42,46 @@
   font-size: var(--text-sm);
   color: var(--color-text-muted);
 }
+
+/* Botón "Traer al centro" dentro del visor AR (capa DOM de WebXR). Va sobre la
+   imagen de la cámara, que puede ser clara u oscura: relleno sólido de acento
+   con texto oscuro (rol "relleno", igual en ambos temas). Oculto salvo con el
+   modelo ya colocado y los internos de model-viewer disponibles. */
+.recenter {
+  display: none;
+  position: absolute;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--space-6));
+  transform: translateX(-50%);
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 52px;
+  padding: 0 var(--space-6);
+  border: 1px solid color-mix(in srgb, var(--color-on-primary) 18%, transparent);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-elevated);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: auto;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
+.recenter svg {
+  width: 18px;
+  height: 18px;
+}
+
+.recenter:active {
+  transform: translateX(-50%) scale(0.96);
+}
+
+.viewer[ar-status='object-placed'][data-recenter='on'] .recenter {
+  display: inline-flex;
+}

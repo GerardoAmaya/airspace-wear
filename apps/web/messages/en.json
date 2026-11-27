@@ -183,7 +183,8 @@
     "ar": {
       "button": "View in your space",
       "loading": "Getting the view ready",
-      "unsupported": "Open this page on your phone to see the {name} in your space, at real size."
+      "unsupported": "Open this page on your phone to see the {name} in your space, at real size.",
+      "recenter": "Bring to center"
     },
     "ogAlt": "{name} at AIRSPACE Wear, {price}",
     "tryInHangar": "Try it in the Hangar 360°"
@@ -322,12 +323,14 @@
       "full": "Full body",
       "feet": "Sneakers"
     },
-    "stageLabel": "Avatar wearing {name}: drag or use the arrow keys to turn",
+    "stageLabel": "Avatar wearing {name}: drag or use the arrow keys to turn, and + or - to zoom",
     "stageValue": "{degrees} degrees",
     "loading": "Loading avatar",
     "error": "The avatar could not be loaded",
     "dragHint": "Drag to turn",
-    "touchHint": "Swipe to turn",
+    "touchHint": "Swipe to turn, pinch to zoom",
+    "zoomReset": "Reset zoom",
+    "zoomResetShort": "1×",
     "rotation": "ROT {degrees}°",
     "outfit": {
       "shirt": "Shirt",

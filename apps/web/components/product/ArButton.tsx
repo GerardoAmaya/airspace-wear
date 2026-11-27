@@ -23,7 +23,7 @@ interface ModelViewerElement extends HTMLElement {
   activateAR(): Promise<void>;
 }
 
-async function createViewer(model: Model3D, name: string): Promise<ModelViewerElement> {
+async function createViewer(model: Model3D, name: string, recenterLabel: string): Promise<ModelViewerElement> {
   // Decodificador Meshopt propio: model-viewer no trae uno y los modelos
   // optimizados lo necesitan (ver CLAUDE.md). Debe fijarse antes de importar.
   (self as unknown as { ModelViewerElement?: Record<string, string> }).ModelViewerElement = {
@@ -44,6 +44,11 @@ async function createViewer(model: Model3D, name: string): Promise<ModelViewerEl
   viewer.setAttribute('ar-scale', 'auto');
   viewer.setAttribute('alt', name);
   viewer.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;';
+  viewer.className = styles.viewer;
+  // Solo en WebXR (Android): botón "Traer al centro", regreso automático al
+  // centro tras unos 2 s fuera de cuadro y tocar el piso para mover el modelo.
+  const { attachArRecenter } = await import('./ar-recenter');
+  attachArRecenter(viewer, recenterLabel, styles.recenter);
   document.body.append(viewer);
   await viewer.updateComplete;
   // model-viewer decide el modo AR de forma asíncrona y updateComplete puede
@@ -58,6 +63,7 @@ async function createViewer(model: Model3D, name: string): Promise<ModelViewerEl
 export function ArButton({ model, name }: { model: Model3D; name: string }) {
   const t = useTranslations('Product.ar');
   const [state, setState] = useState<ArState>('idle');
+  const recenterLabel = t('recenter');
   const block = useRef<HTMLDivElement>(null);
   const prepared = useRef<Promise<ModelViewerElement> | null>(null);
   const ready = useRef<ModelViewerElement | null>(null);
@@ -71,7 +77,7 @@ export function ArButton({ model, name }: { model: Model3D; name: string }) {
       (entries) => {
         if (!entries.some((entry) => entry.isIntersecting) || prepared.current) return;
         observer.disconnect();
-        prepared.current = createViewer(model, name);
+        prepared.current = createViewer(model, name, recenterLabel);
         void prepared.current.then((viewer) => {
           if (cancelled) viewer.remove();
           else ready.current = viewer;
@@ -87,7 +93,7 @@ export function ArButton({ model, name }: { model: Model3D; name: string }) {
       ready.current = null;
       prepared.current = null;
     };
-  }, [model, name]);
+  }, [model, name, recenterLabel]);
 
   async function open() {
     const viewer = ready.current;
@@ -101,7 +107,7 @@ export function ArButton({ model, name }: { model: Model3D; name: string }) {
       return;
     }
     setState('loading');
-    const created = await (prepared.current ?? (prepared.current = createViewer(model, name)));
+    const created = await (prepared.current ?? (prepared.current = createViewer(model, name, recenterLabel)));
     ready.current = created;
     if (!created.canActivateAR) {
       setState('unsupported');

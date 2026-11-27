@@ -6,8 +6,8 @@
  */
 
 .section {
-  --deck-h: clamp(400px, 52svh, 540px);
-  --belt-h: clamp(250px, 37svh, 350px);
+  --deck-h: clamp(330px, 44svh, 470px);
+  --belt-h: clamp(200px, 28svh, 300px);
   --beam-ink: color-mix(in srgb, var(--color-text) 8%, transparent);
 
   position: relative;
@@ -15,9 +15,10 @@
   overflow-x: clip;
   background: var(--color-background);
   /* Arriba solo el alto del encabezado fijo y un respiro: al llegar por el
-     menú, título, foco y selector caben en una vista (1720x816, 1280x720). */
-  padding-top: calc(var(--header-height) + clamp(1rem, 3vh, 2rem));
-  padding-bottom: clamp(2rem, 1rem + 3vw, 4rem);
+     menú, la sección entera (título, foco y banda) cabe en una vista
+     (1720x816). */
+  padding-top: calc(var(--header-height) + clamp(0.75rem, 2.4vh, 1.5rem));
+  padding-bottom: clamp(1rem, 3vh, 2rem);
 }
 
 :global(:root[data-theme='light']) .section {
@@ -34,10 +35,6 @@
 :global(.motion-ok) .section:not([data-scene-in]) [data-enter-side] {
   opacity: 0;
   transform: translateY(16px);
-}
-
-:global(.motion-ok) .section:not([data-head-in]) [data-rule] {
-  transform: scaleX(0);
 }
 
 :global(.motion-ok) .section:not([data-head-in]) [data-heading] {
@@ -59,7 +56,7 @@
   opacity: 0;
 }
 
-:global(.motion-ok) .section:not([data-ready]) :is([data-enter-head], [data-rule], [data-heading], [data-enter], [data-enter-side], [data-spot], [data-belt-body], [data-belt-drop], [data-belt-string]) {
+:global(.motion-ok) .section:not([data-ready]) :is([data-enter-head], [data-heading], [data-enter], [data-enter-side], [data-spot], [data-belt-body], [data-belt-drop], [data-belt-string]) {
   animation: fallback 1ms 6s forwards;
 }
 
@@ -84,10 +81,6 @@
   text-transform: uppercase;
 }
 
-.hudPrimary {
-  color: var(--color-primary);
-}
-
 /* Cuadrícula de fondo, concentrada en el foco. */
 .bg {
   position: absolute;
@@ -104,130 +97,17 @@
   mask-image: radial-gradient(ellipse 55% 45% at 50% 58%, var(--color-background) 0%, transparent 78%);
 }
 
-/* ---------- Encabezado ---------- */
+/* ---------- Encabezado: título y una frase ---------- */
 
 .head {
   display: grid;
-  gap: clamp(0.5rem, 1.6vh, 1.25rem);
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: end;
+  gap: var(--space-2) var(--space-12);
   width: 100%;
   max-width: var(--container-max);
   margin-inline: auto;
   padding-inline: var(--gutter);
-}
-
-.top {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4) var(--space-6);
-}
-
-.topId {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  gap: var(--space-3);
-  margin: 0;
-}
-
-.rule {
-  flex: 1;
-  min-width: 24px;
-  height: 1px;
-  background: var(--color-line-strong);
-  transform-origin: left center;
-}
-
-.topStatus {
-  display: flex;
-  flex: none;
-  align-items: center;
-  gap: var(--space-6);
-}
-
-.status {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 5px 12px 5px 10px;
-  border: 1px solid color-mix(in srgb, var(--color-primary) 40%, transparent);
-  border-radius: var(--radius-pill);
-}
-
-/* Punto de estado: el pulso es un anillo que escala (transform y opacity) y
-   solo late con la escena a la vista. */
-.statusDot {
-  position: relative;
-  flex: none;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--color-primary);
-}
-
-.statusDot::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: var(--color-primary-glow);
-  opacity: 0;
-  animation: pulse 1.6s var(--ease-out) infinite paused;
-}
-
-.section[data-live] .statusDot::after {
-  animation-play-state: running;
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  70%,
-  100% {
-    opacity: 0;
-    transform: scale(3.2);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .statusDot::after {
-    animation: none;
-  }
-}
-
-.statusText {
-  color: var(--color-text);
-  white-space: nowrap;
-}
-
-.statusBand {
-  color: var(--color-text-muted);
-  white-space: pre;
-}
-
-/* Ancho fijo: el chip no cambia de tamaño con el estado. */
-.statusState {
-  display: inline-block;
-  min-width: calc(13 * (1ch + var(--tracking-hud)));
-}
-
-.count {
-  white-space: nowrap;
-}
-
-.countValue {
-  color: var(--color-text);
-  font-size: var(--text-sm);
-  font-weight: 500;
-}
-
-.title {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: end;
-  gap: var(--space-4) var(--space-12);
 }
 
 .heading {
@@ -235,7 +115,7 @@
   font-family: var(--font-display);
   font-stretch: var(--font-stretch-display);
   font-weight: 800;
-  font-size: min(var(--text-display), 13.5vw, 19svh);
+  font-size: min(var(--text-display), 13.5vw, 15svh);
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-display);
   text-transform: uppercase;
@@ -245,24 +125,27 @@
 .lead {
   justify-self: end;
   max-width: 34ch;
+  margin: 0;
   padding-bottom: 0.6em;
   color: var(--color-text-muted);
   font-size: var(--text-lg);
   line-height: 1.45;
 }
 
-/* ---------- Escena: detalles · foco · selector, y la banda debajo ---------- */
+/* ---------- Escena: detalles · foco · pista, y la banda debajo ---------- */
 
 .scene {
   position: relative;
   display: grid;
-  /* Mismo borde que el resto de las secciones: --page-edge a cada lado. */
-  grid-template-columns: var(--page-edge) minmax(0, 33fr) minmax(0, 41fr) minmax(0, 26fr) var(--page-edge);
+  /* Mismo borde que el resto de las secciones: --page-edge a cada lado. El
+     foco queda centrado en la página (y con él el punto de la banda); los
+     detalles a la izquierda y la pista abajo a la derecha. */
+  grid-template-columns: var(--page-edge) minmax(0, 1fr) minmax(0, clamp(340px, 34vw, 620px)) minmax(0, 1fr) var(--page-edge);
   grid-template-rows: var(--deck-h) var(--belt-h);
   grid-template-areas:
     '. details spot side .'
     'belt belt belt belt belt';
-  margin-top: clamp(0.75rem, 2.2vh, 1.5rem);
+  margin-top: clamp(0.25rem, 1.2vh, 1rem);
 }
 
 /* Haz del foco: cae desde la lámpara hasta la banda, detrás de ella. */
@@ -313,29 +196,6 @@
   container-type: inline-size;
 }
 
-.detailsTop {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.chip {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: var(--radius-pill);
-  background: var(--color-primary-fill);
-  color: var(--color-on-primary);
-  font-family: var(--font-mono);
-  font-stretch: var(--font-stretch-mono);
-  font-size: var(--text-hud);
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  line-height: 1.4;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
 .name {
   margin: 0;
   font-family: var(--font-display);
@@ -349,30 +209,14 @@
 }
 
 .name > span,
-.edition > span,
-.tagline > span {
+.edition > span {
   display: inline-block;
 }
 
 .edition {
+  margin: 0;
   color: var(--color-text);
   font-size: var(--text-base);
-}
-
-/* Dos líneas fijas: cambiar de balón nunca mueve el layout. */
-.tagline {
-  display: -webkit-box;
-  min-height: 3em;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  color: var(--color-text-muted);
-  font-size: var(--text-sm);
-  line-height: 1.5;
-}
-
-.tagline > span {
-  display: inline;
 }
 
 .specs {
@@ -391,11 +235,11 @@
   border-bottom: 1px solid var(--color-line);
 }
 
-.spec:nth-child(odd) {
+.spec:first-child {
   padding-right: var(--space-4);
 }
 
-.spec:nth-child(even) {
+.spec:last-child {
   padding-left: var(--space-4);
   border-left: 1px solid var(--color-line);
 }
@@ -655,35 +499,10 @@
     linear-gradient(var(--mark), var(--mark)) 50% 100% / 1px 10px no-repeat;
 }
 
-.spotLabel {
-  position: absolute;
-  white-space: nowrap;
-}
-
-.labelTl {
-  top: var(--space-3);
-  left: calc(var(--hud-corner) + var(--space-2));
-}
-
-.labelTr {
-  top: var(--space-3);
-  right: calc(var(--hud-corner) + var(--space-2));
-}
-
-.labelBl {
-  bottom: var(--space-3);
-  left: calc(var(--hud-corner) + var(--space-2));
-}
-
-.labelBr {
-  right: calc(var(--hud-corner) + var(--space-2));
-  bottom: var(--space-3);
-}
-
-/* Zona de arrastre: todo el visor menos las franjas de las etiquetas. */
+/* Zona de arrastre: todo el visor menos un margen junto a las esquinas. */
 .grip {
   position: absolute;
-  inset: var(--space-8) var(--space-4);
+  inset: var(--space-4);
   border-radius: var(--radius-md);
   cursor: grab;
   touch-action: pan-y;
@@ -693,75 +512,22 @@
   cursor: grabbing;
 }
 
-/* ---------- Lecturas y selector ---------- */
+/* ---------- Pista de la banda ---------- */
 
-.side {
+.hint {
   grid-area: side;
   position: relative;
   z-index: 3;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: var(--space-4);
-  min-width: 0;
-  min-height: 0;
-  padding: var(--space-2) 0 clamp(0.75rem, 2.4vh, 1.5rem) clamp(1.5rem, 2.6vw, 3rem);
-}
-
-.readouts {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--space-4);
-  margin: 0;
-  padding-bottom: var(--space-3);
-  border-bottom: 1px solid var(--color-line);
-}
-
-.readout {
-  display: grid;
-  gap: 4px;
-}
-
-.readoutValue {
-  margin: 0;
-  color: var(--color-primary);
-  font-family: var(--font-mono);
-  font-stretch: var(--font-stretch-mono);
-  font-variant-numeric: tabular-nums;
-  font-size: clamp(1.5rem, 1.1rem + 1vw, 2.125rem);
-  font-weight: 500;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.readoutSmall {
-  color: var(--color-text);
-  font-size: var(--text-sm);
-  line-height: 1.3;
-}
-
-.picker {
-  display: grid;
-  gap: var(--space-2);
-  min-width: 0;
-  container-type: inline-size;
-}
-
-.pickerList {
-  display: grid;
-  gap: 5px;
-}
-
-.pickerHint {
+  align-self: end;
+  justify-self: end;
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  margin-top: 2px;
+  padding-bottom: clamp(0.75rem, 2.4vh, 1.5rem);
   color: var(--color-text-faint);
 }
 
-.pickerHint svg {
+.hint svg {
   flex: none;
   width: 12px;
   height: 12px;
@@ -783,94 +549,6 @@
   }
 }
 
-/* Fila del selector: año, país sede, modelo y punto de estado. */
-.pick {
-  display: grid;
-  grid-template-columns: 2.6rem minmax(0, 1fr) auto 8px;
-  align-items: center;
-  gap: 0 var(--space-3);
-  height: clamp(32px, 4.4vh, 38px);
-  padding: 0 var(--space-3);
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--color-text);
-  font: inherit;
-  text-align: left;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    border-color var(--duration-ui) var(--ease-out),
-    background-color var(--duration-ui) var(--ease-out);
-}
-
-.pick:hover {
-  border-color: color-mix(in srgb, var(--color-primary) 60%, transparent);
-}
-
-.pick[aria-pressed='true'] {
-  border-color: var(--color-primary);
-  background: var(--color-primary-soft);
-}
-
-.pickYear {
-  font-family: var(--font-mono);
-  font-stretch: var(--font-stretch-mono);
-  font-variant-numeric: tabular-nums;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.pickHost {
-  overflow: hidden;
-  font-family: var(--font-display);
-  font-stretch: 100%;
-  font-size: 0.875rem;
-  font-weight: 800;
-  line-height: 1.2;
-  text-overflow: ellipsis;
-  text-transform: uppercase;
-}
-
-.pickName {
-  max-width: 7rem;
-  overflow: hidden;
-  color: var(--color-text-muted);
-  font-size: 0.75rem;
-  text-overflow: ellipsis;
-}
-
-.pickDot {
-  width: 8px;
-  height: 8px;
-  border: 1px solid var(--color-line-strong);
-  border-radius: 50%;
-  transition:
-    background-color var(--duration-ui) var(--ease-out),
-    border-color var(--duration-ui) var(--ease-out);
-}
-
-.pick[aria-pressed='true'] .pickName {
-  color: var(--color-text);
-}
-
-.pick[aria-pressed='true'] .pickDot {
-  border-color: var(--color-primary-fill);
-  background: var(--color-primary-fill);
-  box-shadow: 0 0 0 3px var(--color-primary-soft);
-}
-
-/* Columna angosta: el nombre del modelo cede su lugar al país. */
-@container (max-width: 290px) {
-  .pick {
-    grid-template-columns: 2.4rem minmax(0, 1fr) 8px;
-  }
-
-  .pickName {
-    display: none;
-  }
-}
-
 /* ---------- Banda ---------- */
 
 .beltArea {
@@ -881,19 +559,20 @@
   height: var(--belt-h);
 }
 
-/* ---------- Tableta ---------- */
+/* ---------- Tableta: detalles y foco, banda y la pista debajo ---------- */
 
 @media (max-width: 1100px) {
-  .title {
+  .head {
     grid-template-columns: minmax(0, 1fr);
   }
 
   .lead {
     justify-self: start;
+    padding-bottom: 0;
   }
 
   .scene {
-    grid-template-columns: var(--gutter) minmax(0, 0.44fr) minmax(0, 0.56fr) var(--gutter);
+    grid-template-columns: var(--gutter) minmax(0, 0.46fr) minmax(0, 0.54fr) var(--gutter);
     grid-template-rows: var(--deck-h) var(--belt-h) auto;
     grid-template-areas:
       '. details spot .'
@@ -901,65 +580,23 @@
       '. side side .';
   }
 
-  .side {
-    flex-direction: row;
-    align-items: flex-start;
-    gap: var(--space-8);
-    padding: var(--space-6) 0 0;
+  .hint {
+    justify-self: center;
+    padding: var(--space-4) 0 0;
   }
 
-  .readouts {
-    flex: 0 0 auto;
-    flex-direction: column;
-    align-items: flex-start;
-    min-width: 160px;
-    padding: var(--space-6) 0 0;
-    border-bottom: 0;
-  }
-
-  .picker {
-    flex: 1;
-  }
-
-  .pickerList {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  /* La banda queda arriba del selector. */
-  .pickerHint svg {
+  /* La banda queda arriba de la pista. */
+  .hint svg {
     transform: rotate(180deg);
   }
 }
 
-/* ---------- Móvil: foco, banda, selector y detalles apilados ---------- */
+/* ---------- Móvil: foco, banda, pista y detalles apilados ---------- */
 
 @media (max-width: 760px) {
   .section {
     --deck-h: auto;
-    --belt-h: clamp(210px, 29svh, 250px);
-  }
-
-  .top {
-    flex-wrap: wrap;
-  }
-
-  .rule {
-    display: none;
-  }
-
-  .topId {
-    flex: 1 1 100%;
-  }
-
-  .topStatus {
-    flex: 1 1 100%;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: var(--space-2) var(--space-3);
-  }
-
-  .statusBand {
-    display: none;
+    --belt-h: clamp(190px, 25svh, 230px);
   }
 
   .heading {
@@ -968,7 +605,6 @@
 
   .lead {
     max-width: none;
-    padding-bottom: 0;
     font-size: var(--text-base);
   }
 
@@ -980,77 +616,12 @@
       'belt belt belt'
       '. side .'
       '. details .';
-    margin-top: var(--space-6);
+    margin-top: var(--space-4);
   }
 
   .spot {
-    height: clamp(250px, 36svh, 320px);
+    height: clamp(230px, 32svh, 290px);
     margin-bottom: var(--space-2);
-  }
-
-  .spotExtra {
-    display: none;
-  }
-
-  .side {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-4);
-    padding: var(--space-6) 0 0;
-  }
-
-  .readouts,
-  .pickerLabel {
-    display: none;
-  }
-
-  /* Tira horizontal: solo se desplaza la tira, nunca la página. */
-  .pickerList {
-    display: flex;
-    gap: var(--space-2);
-    margin-inline: calc(var(--gutter) * -1);
-    padding-inline: var(--gutter);
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: var(--gutter);
-    scrollbar-width: none;
-  }
-
-  .pickerList::-webkit-scrollbar {
-    display: none;
-  }
-
-  .pick {
-    flex: 0 0 auto;
-    grid-template-columns: auto 8px;
-    grid-template-areas:
-      'year dot'
-      'host host'
-      'name name';
-    gap: 4px var(--space-3);
-    height: auto;
-    min-width: 128px;
-    padding: var(--space-3);
-    scroll-snap-align: start;
-  }
-
-  .pickYear {
-    grid-area: year;
-  }
-
-  .pickDot {
-    grid-area: dot;
-  }
-
-  .pickHost {
-    grid-area: host;
-    font-size: 0.9375rem;
-  }
-
-  .pickName {
-    grid-area: name;
-    max-width: none;
   }
 
   .details {
@@ -1059,10 +630,6 @@
 
   .name {
     font-size: min(var(--text-xl), 8.4cqi);
-  }
-
-  .tagline {
-    min-height: 0;
   }
 
   .buy {

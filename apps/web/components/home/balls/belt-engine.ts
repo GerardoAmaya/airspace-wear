@@ -16,10 +16,9 @@ import { DURATION, EASE } from '@/lib/motion/tokens';
 // - Arrastre: grab() la toma (la marcha propia queda en espera), drag() la
 //   mueve bajo el dedo y glide() la deja seguir por inercia hasta encajar una
 //   pieza en el foco. resume() devuelve la marcha propia pasado un tiempo.
-// - La velocidad (lecturas y balanceo de etiquetas) se mide del avance real
+// - La velocidad (balanceo de etiquetas) se mide del avance real
 //   de la banda, así que vale igual con marcha propia que con arrastre.
 
-const BALL_M = 0.22; // diámetro real del balón (m)
 const TILT_DEG = 64; // inclinación del plano
 const TILT = (TILT_DEG * Math.PI) / 180;
 
@@ -79,7 +78,7 @@ export function createBeltEngine(elements: BeltElements, balls: number[], reduce
   const drive = { factor: reducedMotion ? 0 : 1 };
   // Espera de la marcha propia mientras se arrastra (0 = en espera).
   const hold = { factor: 1 };
-  const state = { speed: 0, metersPerSecond: 0 };
+  const state = { speed: 0 };
   // px de pantalla a la altura de las piezas (objeto: lo anima la inercia).
   const track = { offset: 0 };
   let lastOffset = 0;
@@ -230,7 +229,6 @@ export function createBeltEngine(elements: BeltElements, balls: number[], reduce
     lastOffset = track.offset;
     const speed = state.speed + (measured - state.speed) * Math.min(1, dt * 14);
     state.speed = speed;
-    state.metersPerSecond = Math.abs(speed) / (geometry.D / BALL_M);
     place();
     // Etiquetas: péndulos amortiguados. El equilibrio se inclina con la
     // velocidad y la aceleración las hace oscilar al frenar o arrancar
@@ -344,6 +342,21 @@ export function createBeltEngine(elements: BeltElements, balls: number[], reduce
 
   // ---------- Pieza en el foco ----------
 
+  // Lleva la pieza al punto del foco por el camino más corto (al elegir con
+  // el teclado o al restaurar una recarga): con animación o al instante.
+  function bring(index: number, animate: boolean) {
+    const piece = pieces[index];
+    if (!piece) return;
+    const delta = mod(geometry.claimX - positionAt(piece, track.offset) + geometry.loop / 2, geometry.loop) - geometry.loop / 2;
+    gsap.killTweensOf(track);
+    gliding = false;
+    if (!animate || reducedMotion) {
+      setOffset(track.offset + delta);
+      return;
+    }
+    gsap.to(track, { offset: track.offset + delta, duration: 0.9, ease: 'power2.inOut', onUpdate: place });
+  }
+
   // El balón de la pieza sube al foco (o se oculta al instante) y la etiqueta
   // se da vuelta; el anterior vuelve a caer en su lugar de la banda.
   function claim(index: number, animate: boolean) {
@@ -387,7 +400,6 @@ export function createBeltEngine(elements: BeltElements, balls: number[], reduce
 
   return {
     geometry,
-    state,
     layout,
     setClaim,
     offsetFor,
@@ -397,6 +409,7 @@ export function createBeltEngine(elements: BeltElements, balls: number[], reduce
     place,
     nudge,
     nearest,
+    bring,
     claim,
     destroy,
     grab,

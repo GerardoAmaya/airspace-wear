@@ -137,7 +137,7 @@ Prendas propias del proyecto (no son de Mixamo ni de ninguna marca), generadas p
 
 ## 10. Ropa del catálogo en el maniquí
 
-Paso 4, fase 3 (piloto): lentes de sol negros, sudadera Nike Club Fleece, anorak gris y sus pants, más tres gorras: NY 59FIFTY (la de fábrica del maniquí), NY negra y Adidas negra. La gorra NY marino de visera curva, el primer piloto, se retiró del catálogo. `pnpm avatar:fit` (scripts/avatar/fit.mjs y fit.py en Blender) ajusta cada prenda con los valores de `scripts/avatar/fit.json`.
+Paso 4, fase 3 (piloto): lentes de sol negros, sudadera Nike Club Fleece, anorak gris y sus pants, más tres gorras: NY 59FIFTY (la de fábrica del maniquí), NY negra y Adidas negra. Después se sumó el hoodie Adidas arena con camuflaje (brazos casi abiertos en el original: `pose.arms.down` 25). El hoodie Adidas negro y blanco queda solo de catálogo: sus mangas no son simétricas (ningún ángulo de brazos alinea las dos) y los paneles en capas de las axilas (Marvelous Designer) se abren hacia afuera. La gorra NY marino de visera curva, el primer piloto, se retiró del catálogo. `pnpm avatar:fit` (scripts/avatar/fit.mjs y fit.py en Blender) ajusta cada prenda con los valores de `scripts/avatar/fit.json`.
 
 - **Entrada:** el GLB optimizado del producto (`apps/web/public/models/<slug>.glb`), en su pose canónica. Cualquier esqueleto o peso horneado se descarta (el anorak viene de un rig de MetaHuman).
 - **Colocación:** escala y posición del borde inferior en metros del avatar (`position`, `scale`, `stretch` por eje).

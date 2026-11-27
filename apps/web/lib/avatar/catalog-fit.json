@@ -133,6 +133,72 @@
         }
       }
     },
+    "hoodie-adidas-arena-camuflaje": {
+      "slot": "top",
+      "kind": "skinned",
+      "node": "Fit_hoodie_adidas_arena_camuflaje",
+      "hides": [
+        "shirt",
+        "tank"
+      ],
+      "rules": {
+        "bones": [
+          "Hips",
+          "Spine",
+          "Spine1",
+          "Spine2",
+          "LeftShoulder",
+          "RightShoulder",
+          "LeftArm",
+          "RightArm",
+          "LeftForeArm",
+          "RightForeArm"
+        ],
+        "cuts": [
+          {
+            "from": "Hips",
+            "to": "Spine",
+            "keep": "above",
+            "t": -1.449
+          },
+          {
+            "from": "LeftForeArm",
+            "to": "LeftHand",
+            "keep": "below",
+            "t": 1.14
+          },
+          {
+            "from": "RightForeArm",
+            "to": "RightHand",
+            "keep": "below",
+            "t": 1.145
+          }
+        ],
+        "holes": [
+          {
+            "from": "Neck",
+            "to": "Head",
+            "radius": 0.066,
+            "forward": 0.01,
+            "minT": -0.6
+          }
+        ]
+      },
+      "files": {
+        "hero": {
+          "url": "/avatar-fit/hoodie-adidas-arena-camuflaje.glb",
+          "bytes": 226788,
+          "triangles": 12000,
+          "sha256": "041e451dce3bcd7a"
+        },
+        "lite": {
+          "url": "/avatar-fit/hoodie-adidas-arena-camuflaje-lite.glb",
+          "bytes": 91236,
+          "triangles": 5000,
+          "sha256": "346dedefa3e78b0a"
+        }
+      }
+    },
     "pants-anorak-gris": {
       "slot": "bottom",
       "kind": "skinned",

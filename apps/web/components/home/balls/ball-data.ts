@@ -6,17 +6,14 @@ import { formatPrice } from '@/lib/price';
 export interface Ball {
   slug: string;
   name: string;
-  // Nombre sin la marca ("Adidas Trionda" -> "Trionda") para el selector y las etiquetas.
+  // Nombre sin la marca ("Adidas Trionda" -> "Trionda") para las etiquetas de la banda.
   shortName: string;
   brand: string;
-  tagline: string;
   edition: string;
   hostCity: string;
   // País sede en el idioma activo (Intl.DisplayNames), o su código si no se conoce.
   host: string;
   year: number;
-  panels: number | null;
-  finish: string | null;
   price: string;
   size: string;
   // Acento del foco (de la API); null = lima de la marca.
@@ -76,13 +73,10 @@ export function toBall(card: ProductCard, detail: ProductDetail | null, locale: 
     name: card.name,
     shortName,
     brand,
-    tagline: card.tagline,
     edition: card.edition ?? '',
     hostCity: detail.hostCity ?? '',
     host: hostCode ? countryName(hostCode, locale) : '',
     year,
-    panels: asNumber(detail.attributes.panels),
-    finish: detail.materials.finish ?? null,
     price: formatPrice(card.price, locale),
     size: detail.sizes[0]?.label ?? card.sizeRange?.min ?? '',
     accent: card.accent,
@@ -100,7 +94,7 @@ export function prefetchModel(url: string): void {
 }
 
 // Balón elegido. piece: copia de la banda que se tocó (null si vino del
-// selector: se usa la copia más cercana al foco). animate: false al
+// teclado o de una recarga: se usa la copia más cercana al foco). animate: false al
 // restaurar una recarga (cambio al instante).
 export interface Selection {
   index: number;

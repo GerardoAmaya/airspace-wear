@@ -56,6 +56,31 @@
         ]
       }
     },
+    "hoodie-adidas-arena-camuflaje": {
+      "slot": "top",
+      "kind": "skinned",
+      "fit": {
+        "position": [
+          0,
+          0.88,
+          0
+        ],
+        "scale": 1.0,
+        "pose": {
+          "arms": {
+            "down": 25,
+            "forward": 10
+          }
+        },
+        "clearance": 0.009,
+        "maxGap": 0.09,
+        "weightSmooth": 24,
+        "shoulderBlend": [
+          -0.2,
+          0.75
+        ]
+      }
+    },
     "pants-anorak-gris": {
       "slot": "bottom",
       "kind": "skinned",

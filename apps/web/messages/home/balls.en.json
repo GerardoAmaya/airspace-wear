@@ -1,24 +1,11 @@
 {
   "HomeBalls": {
-    "kicker": "World Cup collection",
-    "brandSize": "{brand} · Size {size}",
-    "status": {
-      "label": "Showcase · ",
-      "moving": "Running",
-      "showing": "Showing",
-      "paused": "Paused"
-    },
-    "count": "<value>{count}</value> {total, plural, one {ball} other {balls}} · World Cups {from} to {to}",
     "title": "Balls",
     "lead": "The official balls of {total, plural, one {one World Cup} other {# World Cups}}, from the {oldestYear} {oldest} to the {newestYear} {newest}.",
-    "hostYear": "{host} {year}",
     "details": {
       "piece": "Model {index} / {total}",
       "finalIn": "Final in",
       "year": "Year",
-      "panels": "Panels",
-      "finish": "Finish",
-      "unknown": "Not listed",
       "price": "Price",
       "addToCart": "Add to cart",
       "added": "Added to cart"
@@ -27,28 +14,15 @@
       "showing": "{name} in the 3D view. {edition}.",
       "added": "{name} added to your cart."
     },
-    "readouts": {
-      "spin": "Spin",
-      "speed": "Speed",
-      "axis": "Axis"
-    },
-    "picker": {
-      "label": "Choose your ball",
-      "item": "{year} {host} {shortName}: {name}, {edition}",
-      "hintMouse": "Or drag the belt",
-      "hintTouch": "Or swipe the belt to choose"
-    },
     "spot": {
-      "view3d": "3D view",
-      "inFocusSuffix": " · In focus",
-      "loading": "Loading 3D model",
-      "axisSpin": "Axis {degrees}° · Slow spin",
-      "axisStill": "Axis {degrees}° · Still view",
-      "diameter": "Ø {cm} cm",
       "sliderLabel": "Turn the {name}: drag or use the arrow keys",
       "turnValue": "Turned {degrees}°"
     },
     "belt": {
+      "label": "Choose your ball",
+      "item": "{year} {host} {shortName}: {name}, {edition}",
+      "hintMouse": "Pick a ball or drag the belt",
+      "hintTouch": "Tap a ball or swipe the belt",
       "focus": "Focus",
       "cup": "World Cup",
       "inFocus": "In focus"

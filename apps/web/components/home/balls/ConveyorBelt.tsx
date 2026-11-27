@@ -1,17 +1,22 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { type MouseEvent, type PointerEvent, type RefObject, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { type KeyboardEvent, type MouseEvent, type PointerEvent, type RefObject, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { ThemedPoster } from '@/components/catalog/ThemedPoster';
 import { gsap } from '@/lib/motion/gsap';
 import type { Ball, Selection } from './ball-data';
 import { type BeltEngine, createBeltEngine, type PieceElements } from './belt-engine';
 import styles from './ConveyorBelt.module.css';
 
-// Banda transportadora con los balones de la colección. Los balones son los
-// pósters del tema (fotos del mismo estudio que el foco 3D), no lienzos.
-// Es decorativa para lectores de pantalla (aria-hidden): el selector ofrece
-// lo mismo con teclado. Un clic en un balón lo elige.
+// Banda transportadora con los balones de la colección: es el selector de la
+// sección. Los balones son los pósters del tema (fotos del mismo estudio que
+// el foco 3D), no lienzos. Un clic en un balón lo elige.
+//
+// Accesibilidad: la banda visible (con copias repetidas que se mueven) queda
+// oculta para lectores de pantalla. En su lugar hay un grupo de botones, uno
+// por balón (aria-pressed), con un solo punto de tabulación: las flechas
+// eligen el anterior o el siguiente, Inicio y Fin el primero y el último.
+// Con el foco del teclado en el grupo, la etiqueta "En foco" muestra el anillo.
 //
 // Arrastre horizontal (dedo o mouse) como un carrusel: la banda sigue al
 // puntero, al soltar sigue por inercia y encaja el balón más cercano en el
@@ -54,12 +59,12 @@ interface BeltProps {
   live: boolean;
   reducedMotion: boolean;
   claimTarget: RefObject<HTMLElement | null>;
-  telemetryRef: RefObject<{ speed: number }>;
-  onPick(index: number, piece: number): void;
+  // piece: copia tocada en la banda (null desde el teclado: la más cercana al foco).
+  onPick(index: number, piece: number | null): void;
   onHover(index: number): void;
 }
 
-export function ConveyorBelt({ balls, selection, live, reducedMotion, claimTarget, telemetryRef, onPick, onHover }: BeltProps) {
+export function ConveyorBelt({ balls, selection, live, reducedMotion, claimTarget, onPick, onHover }: BeltProps) {
   const t = useTranslations('HomeBalls.belt');
   const items = useMemo(() => {
     const list: { ball: number; round: number }[] = [];
@@ -152,6 +157,9 @@ export function ConveyorBelt({ balls, selection, live, reducedMotion, claimTarge
     shownSelection.current = selection;
     const piece = selection.piece !== null && belt.pieceBall(selection.piece) === selection.index ? selection.piece : belt.nearest(selection.index);
     const animate = selection.animate && !reducedMotion && live;
+    // Desde el teclado o una recarga (sin pieza tocada) la copia elegida
+    // viaja al foco, donde se ve el anillo del teclado.
+    if (selection.piece === null) belt.bring(piece, animate);
     belt.claim(piece, animate);
     if (!animate) return;
     belt.setDrive(0, { duration: 0.8, ease: 'power2.out' });
@@ -165,17 +173,11 @@ export function ConveyorBelt({ balls, selection, live, reducedMotion, claimTarge
   // Ciclo por tiempo solo con la banda a la vista y movimiento permitido.
   useEffect(() => {
     const belt = engine.current;
-    if (!belt || !live || reducedMotion) {
-      telemetryRef.current.speed = 0;
-      return;
-    }
-    const tick = (time: number, deltaMs: number) => {
-      belt.frame(time, deltaMs);
-      telemetryRef.current.speed = belt.state.metersPerSecond;
-    };
+    if (!belt || !live || reducedMotion) return;
+    const tick = (time: number, deltaMs: number) => belt.frame(time, deltaMs);
     gsap.ticker.add(tick);
     return () => gsap.ticker.remove(tick);
-  }, [live, reducedMotion, telemetryRef]);
+  }, [live, reducedMotion]);
 
   const pieceFrom = (event: { target: EventTarget }) => {
     const hit = (event.target as Element).closest?.('[data-hit]') as HTMLElement | null;
@@ -298,87 +300,117 @@ export function ConveyorBelt({ balls, selection, live, reducedMotion, claimTarge
     onHover(items[piece].ball);
   };
 
+  // ---------- Teclado (grupo de botones accesible) ----------
+
+  const picks = useRef<HTMLDivElement>(null);
+  const onPicksKey = (event: KeyboardEvent<HTMLDivElement>) => {
+    const count = balls.length;
+    const current = selection.index;
+    const next = { ArrowRight: current + 1, ArrowDown: current + 1, ArrowLeft: current - 1, ArrowUp: current - 1, Home: 0, End: count - 1 }[event.key];
+    if (next === undefined) return;
+    event.preventDefault();
+    const index = (next + count) % count;
+    picks.current?.querySelectorAll<HTMLButtonElement>('button')[index]?.focus();
+    onPick(index, null);
+  };
+
   return (
-    // Decorativa: el selector es el control accesible (mismo efecto con teclado).
-    <div
-      ref={root}
-      className={styles.belt}
-      aria-hidden="true"
-      data-reduced={reducedMotion || undefined}
-      onClick={onClick}
-      onPointerOver={onPointerOver}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={endGesture}
-      onPointerCancel={endGesture}
-    >
-      <div className={styles.back} />
-      <div className={`${styles.plane} ${styles.base}`} />
-      <div ref={slats} className={`${styles.plane} ${styles.slats}`} />
-      <div className={`${styles.plane} ${styles.glow}`}>
-        <span ref={pool} className={styles.pool} />
+    <div className={styles.wrap}>
+      <div ref={picks} className={styles.picks} role="group" aria-label={t('label')} onKeyDown={onPicksKey}>
+        {balls.map((ball, index) => (
+          <button
+            key={ball.slug}
+            type="button"
+            className="visually-hidden"
+            tabIndex={index === selection.index ? 0 : -1}
+            aria-pressed={index === selection.index}
+            aria-label={t('item', { year: String(ball.year), host: ball.host, shortName: ball.shortName, name: ball.name, edition: ball.edition })}
+            onClick={() => onPick(index, null)}
+            onFocus={() => onHover(index)}
+          />
+        ))}
       </div>
-      <div className={styles.lip} />
-      <div className={styles.skirt}>
-        <div ref={rollers} className={styles.rollers} />
-        <span ref={claimMark} className={styles.claim}>
-          <span className={styles.claimMark} />
-          <span className={styles.claimLabel}>{t('focus')}</span>
-        </span>
-      </div>
-      <div className={styles.items}>
-        {items.map((item, index) => {
-          const ball = balls[item.ball];
-          const code = barcode(`${ball.host}${ball.year}${item.round}`);
-          return (
-            <div
-              key={`${ball.slug}-${item.round}`}
-              ref={(node) => {
-                pieceNodes.current[index] = node;
-              }}
-              className={styles.item}
-            >
-              <div className={styles.hit} data-hit={index} />
-              <div className={styles.body} data-belt-body="">
-                <div className={styles.hover}>
-                  <span className={styles.shadow} data-shadow="" />
-                  <span className={styles.ghost} data-ghost="" />
-                  <div className={styles.sprite} data-sprite="">
-                    <ThemedPoster poster={ball.model.poster} alt="" sizes="240px" />
-                  </div>
-                </div>
-              </div>
-              <svg className={styles.string} data-belt-string="">
-                <path />
-              </svg>
-              <div className={styles.tag} data-tag="">
-                <div className={styles.drop} data-belt-drop="">
-                  <div className={styles.card} data-card="">
-                    <div className={`${styles.face} ${styles.front}`}>
-                      <span className={styles.hole} />
-                      <span className={styles.cup}>{t('cup')}</span>
-                      <span className={styles.code} style={{ ['--chars' as string]: Math.max(ball.host.length, 4) }}>
-                        {ball.host}
-                      </span>
-                      <span className={styles.year}>{ball.year}</span>
-                      <svg className={styles.bars} viewBox={`0 0 ${code.width} 10`} preserveAspectRatio="none">
-                        {code.bars.map((bar) => (
-                          <rect key={bar.x} x={bar.x} width={bar.width} height={10} />
-                        ))}
-                      </svg>
-                      <span className={styles.ballName}>{ball.shortName}</span>
-                    </div>
-                    <div className={`${styles.face} ${styles.backFace}`}>
-                      <span className={styles.hole} />
-                      <span className={styles.inFocus}>{t('inFocus')}</span>
-                      <span className={styles.backYear}>{ball.year}</span>
+      {/* Parte visual: oculta para lectores de pantalla (el grupo de arriba la reemplaza). */}
+      <div
+        ref={root}
+        className={styles.belt}
+        aria-hidden="true"
+        data-reduced={reducedMotion || undefined}
+        onClick={onClick}
+        onPointerOver={onPointerOver}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endGesture}
+        onPointerCancel={endGesture}
+      >
+        <div className={styles.back} />
+        <div className={`${styles.plane} ${styles.base}`} />
+        <div ref={slats} className={`${styles.plane} ${styles.slats}`} />
+        <div className={`${styles.plane} ${styles.glow}`}>
+          <span ref={pool} className={styles.pool} />
+        </div>
+        <div className={styles.lip} />
+        <div className={styles.skirt}>
+          <div ref={rollers} className={styles.rollers} />
+          <span ref={claimMark} className={styles.claim}>
+            <span className={styles.claimMark} />
+            <span className={styles.claimLabel}>{t('focus')}</span>
+          </span>
+        </div>
+        <div className={styles.items}>
+          {items.map((item, index) => {
+            const ball = balls[item.ball];
+            const code = barcode(`${ball.host}${ball.year}${item.round}`);
+            return (
+              <div
+                key={`${ball.slug}-${item.round}`}
+                ref={(node) => {
+                  pieceNodes.current[index] = node;
+                }}
+                className={styles.item}
+              >
+                <div className={styles.hit} data-hit={index} />
+                <div className={styles.body} data-belt-body="">
+                  <div className={styles.hover}>
+                    <span className={styles.shadow} data-shadow="" />
+                    <span className={styles.ghost} data-ghost="" />
+                    <div className={styles.sprite} data-sprite="">
+                      <ThemedPoster poster={ball.model.poster} alt="" sizes="240px" />
                     </div>
                   </div>
                 </div>
+                <svg className={styles.string} data-belt-string="">
+                  <path />
+                </svg>
+                <div className={styles.tag} data-tag="">
+                  <div className={styles.drop} data-belt-drop="">
+                    <div className={styles.card} data-card="">
+                      <div className={`${styles.face} ${styles.front}`}>
+                        <span className={styles.hole} />
+                        <span className={styles.cup}>{t('cup')}</span>
+                        <span className={styles.code} style={{ ['--chars' as string]: Math.max(ball.host.length, 4) }}>
+                          {ball.host}
+                        </span>
+                        <span className={styles.year}>{ball.year}</span>
+                        <svg className={styles.bars} viewBox={`0 0 ${code.width} 10`} preserveAspectRatio="none">
+                          {code.bars.map((bar) => (
+                            <rect key={bar.x} x={bar.x} width={bar.width} height={10} />
+                          ))}
+                        </svg>
+                        <span className={styles.ballName}>{ball.shortName}</span>
+                      </div>
+                      <div className={`${styles.face} ${styles.backFace}`}>
+                        <span className={styles.hole} />
+                        <span className={styles.inFocus}>{t('inFocus')}</span>
+                        <span className={styles.backYear}>{ball.year}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );
