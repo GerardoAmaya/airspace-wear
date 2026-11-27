@@ -11,6 +11,8 @@ export interface StylistContext {
   script: StylistScript;
   chips: { id: string; label: string }[];
   catalog: Record<string, CatalogEntry>;
+  // Hay login con Google: el panel puede ofrecer "Iniciar sesión".
+  signIn: boolean;
 }
 
 const cache = new Map<Locale, Promise<StylistContext>>();

@@ -124,6 +124,7 @@ model Product {
   translations ProductTranslation[]
   sizes        ProductSize[]
   hotspots     Hotspot[]
+  orderItems   OrderItem[]
   createdAt    DateTime             @default(now())
   updatedAt    DateTime             @updatedAt
 
@@ -249,4 +250,149 @@ model AssetCredit {
   changes       String[]   @default([])
   sortOrder     Int        @default(0)
   model3d       Model3D?
+}
+
+// ---------- Cuentas (Better Auth, apps/web/lib/auth) ----------
+// Tablas del esquema base de Better Auth (user, session, account,
+// verification) con sus nombres y columnas tal cual: Better Auth las lee y
+// escribe desde la web con su propio adaptador de Postgres, y la API solo lee
+// User y Session para saber quién hace la petición (src/auth). Los ids son
+// texto que genera Better Auth. Las fechas van con zona horaria (timestamptz,
+// como la migración propia de Better Auth): así la web y la API leen la misma
+// hora aunque cada proceso corra en otra zona. Los pedidos (paso 5, fase 2)
+// apuntarán a User.id.
+
+model User {
+  id            String    @id
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  // Foto de perfil de Google (URL), si la hay.
+  image         String?
+  createdAt     DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime  @default(now()) @updatedAt @db.Timestamptz(3)
+  sessions      Session[]
+  accounts      Account[]
+  orders        Order[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime @db.Timestamptz(3)
+  // Token opaco que viaja firmado en la cookie de sesión. La web lo reenvía a
+  // la API (Authorization: Bearer) para identificar al usuario.
+  token     String   @unique
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(3)
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+// Cuenta enlazada de un proveedor (Google): providerId "google" y accountId
+// el id de Google del usuario.
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime? @db.Timestamptz(3)
+  refreshTokenExpiresAt DateTime? @db.Timestamptz(3)
+  scope                 String?
+  // Solo para correo y contraseña; aquí no se usa (solo Google).
+  password              String?
+  createdAt             DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt             DateTime  @default(now()) @updatedAt @db.Timestamptz(3)
+
+  @@index([userId])
+  @@map("account")
+}
+
+// Valores temporales de Better Auth (por ejemplo, el estado del flujo OAuth).
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime @db.Timestamptz(3)
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime @default(now()) @updatedAt @db.Timestamptz(3)
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+// ---------- Pedidos y pago de prueba (paso 5, fases 2 y 3) ----------
+// Un pedido nace "pending" al crear la sesión de Stripe Checkout y pasa a
+// "paid" cuando Stripe confirma el pago (webhook o verificación al abrir el
+// pedido); "expired" si la sesión de pago venció sin pagarse. Los precios y
+// nombres se copian del catálogo del servidor al crear el pedido (nunca del
+// navegador), así el pedido no cambia si el catálogo cambia después.
+
+enum OrderStatus {
+  pending
+  paid
+  expired
+}
+
+model Order {
+  // UUID: va en la URL del pedido y no deja adivinar otros.
+  id                      String      @id @default(uuid()) @db.Uuid
+  // Correlativo del número visible: AS-<año de creación>-<seq con 6 dígitos>.
+  seq                     Int         @unique @default(autoincrement())
+  userId                  String
+  user                    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status                  OrderStatus @default(pending)
+  currency                String      @default("USD") @db.Char(3)
+  subtotalCents           Int
+  // Hoy igual al subtotal (envío gratis, sin impuestos en el modo de prueba).
+  totalCents              Int
+  // Idioma en que se hizo la compra (Stripe Checkout y textos del pedido).
+  locale                  Locale
+  stripeCheckoutSessionId String?     @unique
+  paidAt                  DateTime?   @db.Timestamptz(3)
+  // Número de guía ficticio, asignado al confirmarse el pago.
+  trackingNumber          String?     @unique
+  createdAt               DateTime    @default(now()) @db.Timestamptz(3)
+  updatedAt               DateTime    @default(now()) @updatedAt @db.Timestamptz(3)
+  items                   OrderItem[]
+
+  @@index([userId, createdAt])
+}
+
+model OrderItem {
+  id             Int      @id @default(autoincrement())
+  orderId        String   @db.Uuid
+  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  // El producto puede despublicarse o borrarse después: el pedido conserva
+  // su copia (slug, nombres, precio e imagen).
+  productId      Int?
+  product        Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  slug           String
+  brand          String
+  // Nombre y detalle (colorway o edición) en ambos idiomas, copiados al comprar.
+  nameEs         String
+  nameEn         String
+  detailEs       String?
+  detailEn       String?
+  // Talla elegida (etiqueta del catálogo); null en talla única.
+  size           String?
+  unitPriceCents Int
+  quantity       Int
+  // Póster por tema (o la imagen propia del producto), si lo hay.
+  imageDarkUrl   String?
+  imageLightUrl  String?
+  sortOrder      Int      @default(0)
+
+  @@index([orderId])
+  @@index([productId])
 }

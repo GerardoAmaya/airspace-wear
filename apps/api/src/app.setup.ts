@@ -19,6 +19,11 @@ function resolveHelmet(candidate: unknown): HelmetFactory {
 }
 const helmet = resolveHelmet(helmetModule);
 
+// Opciones de creación de la app, compartidas por main.ts, la función de
+// Vercel (api/index.ts) y las pruebas e2e. rawBody guarda los bytes del cuerpo
+// en request.rawBody: el webhook de Stripe verifica su firma sobre ellos.
+export const APP_OPTIONS = { rawBody: true } as const;
+
 // Configuración HTTP compartida por main.ts y las pruebas e2e, para que las
 // pruebas corran contra la misma app que producción. Llamar antes de init().
 export function configureApp(app: INestApplication, config: Pick<AppConfig, 'webOrigins'> & Partial<Pick<AppConfig, 'trustProxy'>>): void {

@@ -1,6 +1,6 @@
 'use client';
 
-import type { Locale } from '@airspace/contracts';
+import type { Locale, StylistOrder } from '@airspace/contracts';
 import { create } from 'zustand';
 import type { RecommendedProduct, StylistEngine } from '@/components/home/stylist/engine';
 
@@ -22,6 +22,10 @@ export interface SharedTurn {
   // Texto acumulado (lo que va entre [corchetes] es un nombre de producto).
   answer: string;
   products: RecommendedProduct[];
+  // Pedidos del visitante citados en la respuesta (solo con sesión).
+  orders: StylistOrder[];
+  // Preguntó por sus pedidos sin sesión: el panel ofrece iniciarla.
+  signIn: boolean;
   status: 'thinking' | 'streaming' | 'done';
 }
 
@@ -109,7 +113,7 @@ export function doneTurns(locale: Locale): SharedTurn[] {
 // La consola de la home anota cada consulta del visitante al terminar.
 export function recordTurn(locale: Locale, turn: { question: string; answer: string; products: RecommendedProduct[] }) {
   syncLocale(locale);
-  useStylistStore.setState((state) => ({ turns: [...state.turns, { id: nextId++, source: 'home', status: 'done', ...turn }] }));
+  useStylistStore.setState((state) => ({ turns: [...state.turns, { id: nextId++, source: 'home', status: 'done', orders: [], signIn: false, ...turn }] }));
 }
 
 const patchTurn = (id: number, patch: (turn: SharedTurn) => Partial<SharedTurn>) =>
@@ -126,13 +130,15 @@ export async function askFromPanel(locale: Locale, question: string, engine: Sty
   useStylistStore.setState((state) => ({
     busy: true,
     // La consulta interrumpida queda con lo que alcanzó a llegar.
-    turns: [...state.turns.map((turn) => (turn.status === 'done' ? turn : { ...turn, status: 'done' as const })), { id, source: 'panel', question, answer: '', products: [], status: 'thinking' }],
+    turns: [...state.turns.map((turn) => (turn.status === 'done' ? turn : { ...turn, status: 'done' as const })), { id, source: 'panel', question, answer: '', products: [], orders: [], signIn: false, status: 'thinking' }],
   }));
   try {
     for await (const event of engine.ask(question, { locale, signal: current.signal })) {
       if (current.signal.aborted) return;
       if (event.type === 'text') patchTurn(id, (turn) => ({ answer: turn.answer + event.text, status: 'streaming' }));
       else if (event.type === 'products') patchTurn(id, (turn) => ({ products: [...turn.products, ...event.products] }));
+      else if (event.type === 'orders') patchTurn(id, (turn) => ({ orders: [...turn.orders, ...event.orders], status: turn.status === 'thinking' ? 'streaming' : turn.status }));
+      else if (event.type === 'sign_in') patchTurn(id, () => ({ signIn: true }));
     }
   } catch {
     // Interrumpida por otra consulta o por "Nueva conversación".

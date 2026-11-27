@@ -2,7 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { AppModule } from '../src/app.module.js';
-import { configureApp, initApp } from '../src/app.setup.js';
+import { APP_OPTIONS, configureApp, initApp } from '../src/app.setup.js';
 import { APP_CONFIG, type AppConfig } from '../src/config/config.module.js';
 
 // Función de Vercel para la API: Nest arranca una vez por instancia (sin
@@ -15,7 +15,7 @@ let server: Promise<Handler> | undefined;
 
 async function bootstrap(): Promise<Handler> {
   const adapter = new ExpressAdapter();
-  const app = await NestFactory.create(AppModule, adapter);
+  const app = await NestFactory.create(AppModule, adapter, APP_OPTIONS);
   configureApp(app, app.get<AppConfig>(APP_CONFIG));
   await initApp(app);
   return adapter.getInstance() as Handler;

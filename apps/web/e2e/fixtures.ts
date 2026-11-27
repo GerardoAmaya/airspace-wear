@@ -6,13 +6,14 @@ import esMessages from '../messages/es.json' with { type: 'json' };
 
 // Base de todas las pruebas E2E:
 // - El estilista nunca llega a la API real (no se gasta dinero en Anthropic):
-//   cada POST a /v1/stylist/chat se intercepta. Por defecto responde con el
+//   cada POST a /api/stylist/chat (el puente de la web hacia la API) se
+//   intercepta en el navegador. Por defecto responde con el
 //   error "unavailable", así la consola usa el motor guionado. Una prueba
 //   puede cambiar la respuesta con mockStylist().
 // - Se juntan los errores de consola y las excepciones de la página para
 //   las pruebas que exigen una consola limpia.
 
-export const STYLIST_ROUTE = '**/v1/stylist/chat';
+export const STYLIST_ROUTE = '**/api/stylist/chat';
 
 // Arma un cuerpo SSE con el formato de la API (event = type, data = JSON).
 export function sse(events: StylistEvent[]): string {
@@ -25,7 +26,7 @@ export function fulfillSse(route: Route, events: StylistEvent[]) {
     headers: {
       'content-type': 'text/event-stream; charset=utf-8',
       'cache-control': 'no-cache',
-      // La web (puerto 3000) llama a la API (puerto 4000): petición entre orígenes.
+      // Por si una prueba intercepta una llamada entre orígenes.
       'access-control-allow-origin': '*',
     },
     body: sse(events),

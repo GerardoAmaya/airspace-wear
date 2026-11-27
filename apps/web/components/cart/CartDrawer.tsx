@@ -5,6 +5,7 @@ import { useFormatter, useLocale, useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 import { DURATION, EASE } from '@/lib/motion/tokens';
 import { formatPrice } from '@/lib/price';
+import { CheckoutButton, type LineIssues } from './CheckoutButton';
 import { useCartCatalog } from './CartCatalog';
 import { MAX_QUANTITY, MIN_QUANTITY, useCartStore } from './cart-store';
 import styles from './Cart.module.css';
@@ -21,6 +22,8 @@ export function CartDrawer() {
   const closeRef = useRef<HTMLButtonElement>(null);
   // Texto de la región en vivo (cortés): cantidad nueva, máximo o línea quitada.
   const [announcement, setAnnouncement] = useState('');
+  // Problemas por línea que devolvió el pago (talla agotada, producto retirado).
+  const [lineIssues, setLineIssues] = useState<LineIssues>({});
   const reduced = typeof window !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // Escape cierra; al abrir, el foco va al botón de cerrar; al cerrar, vuelve al carrito.
@@ -122,6 +125,11 @@ export function CartDrawer() {
                           {item.size ? t('lineDetail', { detail: info.detail ?? '', size: item.size }) : info.detail}
                         </span>
                         <span className={styles.unit}>{item.quantity > 1 ? t('unitPrice', { price: formatPrice(info.price, locale) }) : null}</span>
+                        {lineIssues[item.id] && (
+                          <span className={styles.lineIssue} role="note">
+                            {t(`issue.${lineIssues[item.id]}`)}
+                          </span>
+                        )}
                         <QuantityStepper
                           name={info.name}
                           quantity={item.quantity}
@@ -141,6 +149,7 @@ export function CartDrawer() {
                     <span className={styles.totalLabel}>{t('total')}</span>
                     <span className={styles.totalValue}>{formatPrice({ amountCents: totalCents, currency }, locale)}</span>
                   </p>
+                  <CheckoutButton items={lines.map(({ item }) => item)} onIssues={setLineIssues} />
                   <p className={styles.note}>{t('note')}</p>
                   <button type="button" className={styles.clear} onClick={clear}>
                     {t('clear')}

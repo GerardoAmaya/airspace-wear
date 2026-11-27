@@ -4,6 +4,7 @@ import type { Response } from 'express';
 
 const CODE_BY_STATUS: Record<number, ApiError['code']> = {
   [HttpStatus.BAD_REQUEST]: 'invalid_request',
+  [HttpStatus.UNAUTHORIZED]: 'unauthorized',
   [HttpStatus.NOT_FOUND]: 'not_found',
   [HttpStatus.TOO_MANY_REQUESTS]: 'rate_limited',
   [HttpStatus.SERVICE_UNAVAILABLE]: 'service_unavailable',

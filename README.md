@@ -14,6 +14,7 @@ A multi-brand store for sneakers, apparel and soccer balls, built around 3D. Tur
 - **AR view** with `model-viewer`: WebXR on Android, Quick Look on iOS, placed at real size.
 - **Hangar 360°:** an animated Mixamo avatar that walks, turns and poses wearing the sneakers and the compatible apparel you pick.
 - **AI stylist** (Claude) that recommends products from the catalog only, streams its answer and replies in your language, with a scripted demo when it is offline.
+- **Login with Google** (Better Auth): a user menu with avatar in the header, sessions stored in Postgres and verified by the API.
 - **Catalog** of 78 products (sneakers, cleats, apparel and World Cup balls) with search, filters, sorting and a local cart.
 - **Spanish and English** on every screen, **light and dark themes** with no flash on load.
 - **Full motion** that never hijacks the scroll, respects `prefers-reduced-motion` and has a lite mode for modest devices.

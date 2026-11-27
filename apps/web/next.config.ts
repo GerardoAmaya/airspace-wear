@@ -1,5 +1,14 @@
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 import type { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
+
+// Next solo lee los .env de apps/web. Las variables compartidas del monorepo
+// (DATABASE_URL, BETTER_AUTH_SECRET, GOOGLE_CLIENT_ID...) viven en el .env de
+// la raíz, igual que para la API: se carga aquí sin pisar las que ya existen
+// (nunca se imprime). En Vercel y Docker llegan del entorno y no hay archivo.
+const rootEnv = path.resolve(import.meta.dirname, '../../.env');
+if (existsSync(rootEnv)) process.loadEnvFile(rootEnv);
 
 const nextConfig: NextConfig = {
   // Solo la imagen de Docker (apps/web/Dockerfile) construye con

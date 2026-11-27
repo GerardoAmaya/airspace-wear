@@ -1,10 +1,13 @@
-import { type StylistEvent as WireEvent, STYLIST_LIMITS, stylistEventSchema } from '@airspace/contracts';
+import { detectOrderQuestion, type StylistEvent as WireEvent, STYLIST_LIMITS, type StylistNotice, stylistEventSchema } from '@airspace/contracts';
 import type { RecommendedProduct, StylistEngine, StylistEvent } from './engine';
 
-// Motor real del estilista (fase 5): habla con la API (POST /v1/stylist/chat)
-// y lee la respuesta en streaming (SSE). Mantiene la conversación en memoria
-// (no se guarda en ningún lado). Si la IA no está disponible (sin clave, sin
-// presupuesto o sin conexión), responde con el motor guionado.
+// Motor real del estilista (fase 5): habla con la API a través del servidor
+// de la web (POST /api/stylist/chat, que agrega la sesión del visitante para
+// las preguntas sobre sus pedidos) y lee la respuesta en streaming (SSE).
+// Mantiene la conversación en memoria (no se guarda en ningún lado). Si la IA
+// no está disponible (sin clave, sin presupuesto o sin conexión), responde
+// con el motor guionado; las preguntas sobre pedidos siguen yendo a la API,
+// que las responde con datos reales aunque no haya IA.
 
 export type CatalogEntry = Omit<RecommendedProduct, 'match' | 'reason'>;
 
@@ -12,10 +15,15 @@ export interface ApiEngineMessages {
   rateLimited: string;
   refused: string;
   error: string;
+  // Texto de un aviso de respaldo (sin modelo) sobre pedidos, ya traducido.
+  notice: (code: StylistNotice, count: number) => string;
 }
 
+// Ruta del servidor de la web que reenvía a la API (app/api/stylist/chat).
+export const STYLIST_CHAT_ENDPOINT = '/api/stylist/chat';
+
 interface Options {
-  apiUrl: string;
+  endpoint?: string;
   catalog: Record<string, CatalogEntry>;
   fallback: StylistEngine;
   messages: ApiEngineMessages;
@@ -48,14 +56,15 @@ async function* readEvents(body: ReadableStream<Uint8Array>): AsyncGenerator<Wir
   }
 }
 
-export function createApiEngine({ apiUrl, catalog, fallback, messages }: Options): StylistEngine {
+export function createApiEngine({ endpoint = STYLIST_CHAT_ENDPOINT, catalog, fallback, messages }: Options): StylistEngine {
   const history: { role: 'user' | 'assistant'; content: string }[] = [];
   // Tras la primera falta de disponibilidad, el resto de la visita usa el guion.
   let offline = false;
 
   return {
     async *ask(message, options): AsyncGenerator<StylistEvent> {
-      if (offline) {
+      const ordersQuestion = detectOrderQuestion(message) !== null;
+      if (offline && !ordersQuestion) {
         yield* fallback.ask(message, options);
         return;
       }
@@ -66,7 +75,7 @@ export function createApiEngine({ apiUrl, catalog, fallback, messages }: Options
 
       let response: Response;
       try {
-        response = await fetch(`${apiUrl}/v1/stylist/chat`, {
+        response = await fetch(endpoint, {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ locale: options.locale, messages: history }),
@@ -95,6 +104,14 @@ export function createApiEngine({ apiUrl, catalog, fallback, messages }: Options
         } else if (event.type === 'products') {
           const products = event.items.flatMap((item) => (catalog[item.slug] ? [{ ...catalog[item.slug]!, match: item.match, reason: item.reason }] : []));
           if (products.length) yield { type: 'products', products };
+        } else if (event.type === 'orders') {
+          if (event.items.length) yield { type: 'orders', orders: event.items };
+        } else if (event.type === 'sign_in') {
+          yield { type: 'sign_in' };
+        } else if (event.type === 'notice') {
+          const text = messages.notice(event.code, event.count ?? 0);
+          answer += text;
+          yield { type: 'text', text };
         } else if (event.type === 'error') {
           if ((event.code === 'unavailable' || event.code === 'budget_exhausted') && !answer) {
             history.pop();

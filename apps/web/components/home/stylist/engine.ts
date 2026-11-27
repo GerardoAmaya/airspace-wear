@@ -1,4 +1,4 @@
-import type { Locale } from '@airspace/contracts';
+import type { Locale, StylistOrder } from '@airspace/contracts';
 
 // Motor del estilista: la consola solo conoce esta interfaz. En la fase 4 la
 // cumple un guion fijo (createScriptedEngine); en la fase 5 la cumplirá la
@@ -8,6 +8,8 @@ import type { Locale } from '@airspace/contracts';
 // - text: un trozo del texto de la respuesta (se va sumando). Lo que va
 //   entre [corchetes] se resalta como nombre de producto.
 // - products: las recomendaciones, ya resueltas con datos reales del catálogo.
+// - orders: pedidos del visitante con sesión (tarjetas con enlace al pedido).
+// - sign_in: mostrar la acción "Iniciar sesión" (preguntó por pedidos sin sesión).
 // - done: fin de la respuesta.
 
 export interface RecommendedProduct {
@@ -23,7 +25,12 @@ export interface RecommendedProduct {
   reason: string;
 }
 
-export type StylistEvent = { type: 'text'; text: string } | { type: 'products'; products: RecommendedProduct[] } | { type: 'done' };
+export type StylistEvent =
+  | { type: 'text'; text: string }
+  | { type: 'products'; products: RecommendedProduct[] }
+  | { type: 'orders'; orders: StylistOrder[] }
+  | { type: 'sign_in' }
+  | { type: 'done' };
 
 export interface StylistEngine {
   ask(message: string, options: { locale: Locale; signal?: AbortSignal }): AsyncIterable<StylistEvent>;

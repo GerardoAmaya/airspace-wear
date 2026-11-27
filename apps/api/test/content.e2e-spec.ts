@@ -28,7 +28,7 @@ describe('Contenidos y estado (integración)', () => {
   const get = (url: string) => request(app.getHttpServer()).get(url);
 
   describe('GET /v1/credits', () => {
-    it('lista un crédito por modelo listo, el avatar y 9 fuentes y librerías', async () => {
+    it('lista un crédito por modelo listo, el avatar y 11 fuentes y librerías', async () => {
       const response = await get('/v1/credits').expect(200);
       expect(response.headers['cache-control']).toBe(PUBLIC_CACHE_CONTROL);
       const { items } = creditListSchema.parse(response.body);
@@ -37,7 +37,7 @@ describe('Contenidos y estado (integración)', () => {
       const models = seeded.size + AVATAR_CREDITS.length;
       expect(items).toHaveLength(models + STATIC_CREDITS.length);
       expect(items.filter((credit) => credit.kind === 'model')).toHaveLength(models);
-      expect(items.filter((credit) => credit.kind !== 'model')).toHaveLength(9);
+      expect(items.filter((credit) => credit.kind !== 'model')).toHaveLength(11);
       expect(items.filter((credit) => credit.kind === 'font')).toHaveLength(3);
       // Primero los modelos y el avatar, luego fuentes y librerías (100+).
       const firstStatic = items.findIndex((credit) => credit.kind !== 'model');

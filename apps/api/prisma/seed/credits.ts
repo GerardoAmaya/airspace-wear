@@ -61,6 +61,8 @@ export const STATIC_CREDITS: StaticCredit[] = [
   { key: 'library:react-three-fiber', kind: 'library', name: 'React Three Fiber · drei', author: 'Poimandres', authorUrl: 'https://pmnd.rs', sourceUrl: 'https://github.com/pmndrs/react-three-fiber', ...MIT },
   { key: 'library:gsap', kind: 'library', name: 'GSAP', author: 'GreenSock (Webflow)', authorUrl: 'https://gsap.com', sourceUrl: 'https://gsap.com', licenseName: 'GSAP Standard License', licenseUrl: 'https://gsap.com/standard-license' },
   { key: 'library:lenis', kind: 'library', name: 'Lenis', author: 'darkroom.engineering', authorUrl: 'https://darkroom.engineering', sourceUrl: 'https://github.com/darkroomengineering/lenis', ...MIT },
+  { key: 'library:better-auth', kind: 'library', name: 'Better Auth', author: 'Better Auth contributors', authorUrl: 'https://www.better-auth.com', sourceUrl: 'https://github.com/better-auth/better-auth', ...MIT },
+  { key: 'library:stripe-node', kind: 'library', name: 'stripe-node', author: 'Stripe', authorUrl: 'https://stripe.com', sourceUrl: 'https://github.com/stripe/stripe-node', ...MIT },
   { key: 'library:meshoptimizer', kind: 'library', name: 'meshoptimizer', author: 'Arseny Kapoulkine', authorUrl: 'https://github.com/zeux', sourceUrl: 'https://github.com/zeux/meshoptimizer', ...MIT },
   { key: 'library:gltf-transform', kind: 'library', name: 'glTF Transform', author: 'Don McCurdy', authorUrl: 'https://www.donmccurdy.com', sourceUrl: 'https://github.com/donmccurdy/glTF-Transform', ...MIT },
 ];

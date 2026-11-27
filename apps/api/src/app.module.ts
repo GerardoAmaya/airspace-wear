@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, APP_PIPE } from '@nestjs/core';
+import { AuthModule } from './auth/auth.module.js';
 import { CatalogModule } from './catalog/catalog.module.js';
 import { ApiExceptionFilter } from './common/api-exception.filter.js';
 import { RateLimitGuard } from './common/rate-limit.js';
@@ -7,6 +8,7 @@ import { createValidationPipe } from './common/validation.js';
 import { ConfigModule } from './config/config.module.js';
 import { ContentModule } from './content/content.module.js';
 import { HealthModule } from './health/health.module.js';
+import { OrdersModule } from './orders/orders.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { StylistModule } from './stylist/stylist.module.js';
 
@@ -20,6 +22,8 @@ import { StylistModule } from './stylist/stylist.module.js';
     CatalogModule,
     ContentModule,
     StylistModule,
+    AuthModule,
+    OrdersModule,
   ],
   providers: [
     { provide: APP_PIPE, useFactory: createValidationPipe },

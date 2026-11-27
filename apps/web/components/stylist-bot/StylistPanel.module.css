@@ -388,6 +388,100 @@
   transform: translate(2px, -2px);
 }
 
+/* ---------- Pedidos ---------- */
+
+/* Tarjeta de un pedido del visitante: número en mono, estado del envío
+   (chip de la página de pedidos), fecha y unidades, siguiente paso y total.
+   Esquinas HUD en el color de acento, como el panel. */
+.orderCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-background);
+}
+
+.orderCard::before {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background:
+    linear-gradient(var(--color-primary), var(--color-primary)) top left / 10px 1px no-repeat,
+    linear-gradient(var(--color-primary), var(--color-primary)) top left / 1px 10px no-repeat,
+    linear-gradient(var(--color-primary), var(--color-primary)) bottom right / 10px 1px no-repeat,
+    linear-gradient(var(--color-primary), var(--color-primary)) bottom right / 1px 10px no-repeat;
+  content: '';
+  pointer-events: none;
+}
+
+.orderHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.orderNumber {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.orderMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  color: var(--color-text-faint);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+}
+
+.allOrders {
+  align-self: flex-start;
+}
+
+/* Acción de iniciar sesión junto a la respuesta (preguntó por sus pedidos). */
+.signIn {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 36px;
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.signIn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.signIn:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.signIn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 /* ---------- Campo ---------- */
 
 .foot {

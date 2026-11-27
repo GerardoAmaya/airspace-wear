@@ -1,0 +1,848 @@
+/* Mis pedidos y página de un pedido (paso 5, fase 3): estilo HUD del sitio
+   (líneas, etiquetas mono, esquinas). Solo se animan transform y opacidad;
+   sin desenfoques. Colores siempre por tokens. */
+
+.page {
+  display: grid;
+  gap: var(--space-8);
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding: calc(var(--header-height) + var(--space-12)) var(--gutter) var(--space-24);
+}
+
+.intro {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 60ch;
+}
+
+.kicker,
+.hud {
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+}
+
+.kicker {
+  color: var(--color-primary);
+}
+
+.hud {
+  color: var(--color-text-muted);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+.title,
+.detailTitle {
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 800;
+  font-size: var(--text-2xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.lead {
+  font-size: var(--text-lg);
+  color: var(--color-text-muted);
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 800;
+  font-size: var(--text-xl);
+  text-transform: uppercase;
+}
+
+.message {
+  color: var(--color-secondary);
+}
+
+/* Botón principal (relleno lima con texto oscuro, ver CLAUDE.md). */
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: start;
+  min-height: 48px;
+  padding-inline: var(--space-8);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  font-weight: 700;
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: box-shadow var(--duration-ui) var(--ease-out);
+}
+
+.primaryButton:hover:not(:disabled) {
+  box-shadow: 0 0 0 6px var(--color-primary-soft);
+}
+
+.primaryButton:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+/* Paneles */
+.gate,
+.emptyPanel,
+.listPanel,
+.itemsPanel,
+.tracking {
+  position: relative;
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+/* Esquinas HUD (arriba a la izquierda y abajo a la derecha). */
+.gate::before,
+.tracking::before,
+.gate::after,
+.tracking::after {
+  content: '';
+  position: absolute;
+  width: var(--hud-corner);
+  height: var(--hud-corner);
+  border: 1.5px solid var(--color-primary);
+  pointer-events: none;
+}
+
+.gate::before,
+.tracking::before {
+  top: -1px;
+  left: -1px;
+  border-right: 0;
+  border-bottom: 0;
+  border-top-left-radius: var(--radius-sm);
+}
+
+.gate::after,
+.tracking::after {
+  right: -1px;
+  bottom: -1px;
+  border-top: 0;
+  border-left: 0;
+  border-bottom-right-radius: var(--radius-sm);
+}
+
+.gateTitle {
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 800;
+  font-size: var(--text-xl);
+  text-transform: uppercase;
+}
+
+.gateText {
+  max-width: 60ch;
+  color: var(--color-text-muted);
+}
+
+.gateError:empty {
+  display: none;
+}
+
+.gateError {
+  color: var(--color-secondary);
+}
+
+/* Lista */
+.listHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-line-strong);
+}
+
+.list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.orderRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, 0.9fr) 15rem;
+  align-items: center;
+  gap: var(--space-2) var(--space-6);
+  padding: var(--space-4) var(--space-2);
+  border-bottom: 1px solid var(--color-line);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color var(--duration-micro) var(--ease-out);
+}
+
+.orderRow:hover {
+  background: var(--color-surface-raised);
+}
+
+.orderRow:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.cell {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.cellStatus {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+.orderNumber {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.chevron {
+  width: 14px;
+  height: 14px;
+  color: var(--color-text-muted);
+  transition: transform var(--duration-micro) var(--ease-out);
+}
+
+.orderRow:hover .chevron {
+  transform: translateX(3px);
+}
+
+/* Estado */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  justify-self: start;
+  padding: 4px var(--space-3);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.chip::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.chip[data-tone='live'] {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.chip[data-tone='done'] {
+  border-color: var(--color-primary-fill);
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+}
+
+.chip[data-tone='pending'] {
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+}
+
+.chip[data-tone='expired'] {
+  color: var(--color-text-muted);
+}
+
+/* Pedido */
+.detail {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.detailHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.detailTitleGroup {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.meta {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.banner[data-tone='ok'] {
+  justify-content: flex-start;
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.bannerMark {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-primary-fill);
+  position: relative;
+}
+
+.bannerMark::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 13px;
+  width: 9px;
+  height: 15px;
+  border: solid var(--color-on-primary);
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+}
+
+.bannerTitle {
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 800;
+  font-size: var(--text-lg);
+  text-transform: uppercase;
+}
+
+/* Seguimiento */
+.trackingHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-line-strong);
+}
+
+.trackingNumber {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.steps {
+  --node: 18px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 0;
+  padding: var(--space-4) 0 0;
+  list-style: none;
+}
+
+.step {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  align-content: start;
+  gap: var(--space-2);
+  padding-right: var(--space-3);
+}
+
+/* Tramo de línea hacia el paso siguiente: base tenue y relleno que GSAP
+   dibuja (--draw de 0 a 1, solo transform). Sin JS o con movimiento
+   reducido, el relleno queda en su estado final. */
+.link {
+  position: absolute;
+  top: calc(var(--node) / 2 - 1px);
+  left: calc(var(--node) + 6px);
+  right: 6px;
+  height: 2px;
+  overflow: hidden;
+  background: var(--color-line-strong);
+}
+
+.linkFill {
+  position: absolute;
+  inset: 0;
+  background: var(--color-primary);
+  transform: scaleX(var(--draw, 0));
+  transform-origin: left center;
+}
+
+.step[data-state='done'] .linkFill {
+  --draw: 1;
+}
+
+:global(html.motion-ok) .tracking:not([data-drawn]) .step:not([data-state='upcoming']) .node {
+  transform: scale(0.4);
+}
+
+.node {
+  position: relative;
+  width: var(--node);
+  height: var(--node);
+  border: 2px solid var(--color-line-strong);
+  border-radius: 50%;
+  background: var(--color-background);
+}
+
+.step[data-state='done'] .node {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+}
+
+.step[data-state='current'] .node {
+  border-color: var(--color-primary);
+  background: var(--color-primary-fill);
+}
+
+/* Pulso del paso en curso: anillo que crece y se apaga (transform y
+   opacidad). Solo con movimiento permitido y mientras está a la vista. */
+.step[data-state='current'] .node::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border: 2px solid var(--color-primary);
+  border-radius: 50%;
+  opacity: 0;
+}
+
+:global(html.motion-ok) .tracking[data-live][data-drawn] .step[data-state='current'] .node::after {
+  animation: pulse 1.8s var(--ease-out) infinite;
+}
+
+@keyframes pulse {
+  from {
+    opacity: 0.8;
+    transform: scale(0.7);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+.stepIndex {
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  color: var(--color-text-faint);
+}
+
+.stepLabel {
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 800;
+  font-size: var(--text-base);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.step[data-state='done'] .stepLabel,
+.step[data-state='current'] .stepLabel {
+  color: var(--color-text);
+}
+
+.step[data-state='current'] .stepLabel {
+  color: var(--color-primary);
+}
+
+.stepTime {
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.progressRow {
+  display: grid;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-line);
+}
+
+.progressText {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.progressText[data-done] {
+  color: var(--color-primary);
+}
+
+.bar {
+  height: 4px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--color-line);
+}
+
+/* Avance hacia el siguiente paso, por tiempo: arranca en la fracción ya
+   recorrida (--from) y llega al final a la hora estimada (--remaining).
+   Fuera de pantalla se pausa (y se recalcula al volver); con movimiento
+   reducido queda fija en la fracción actual. */
+.barFill {
+  display: block;
+  height: 100%;
+  background: var(--color-primary);
+  transform: scaleX(var(--from, 0));
+  transform-origin: left center;
+}
+
+:global(html.motion-ok) .barFill {
+  animation: fill var(--remaining, 0ms) linear forwards;
+}
+
+.tracking:not([data-live]) .barFill {
+  animation-play-state: paused;
+}
+
+@keyframes fill {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Productos y totales */
+.items {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  align-items: center;
+  gap: var(--space-4);
+  padding-block: var(--space-4);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.thumb {
+  position: relative;
+  display: block;
+  width: 72px;
+  height: 72px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: var(--color-background);
+}
+
+.thumb img {
+  position: absolute;
+  inset: 4px;
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
+  object-fit: contain;
+}
+
+.thumbLight {
+  display: none;
+}
+
+:global(html[data-theme='light']) .thumbDark {
+  display: none;
+}
+
+:global(html[data-theme='light']) .thumbLight {
+  display: block;
+}
+
+.itemText {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.itemName {
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  color: inherit;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.itemName:hover {
+  color: var(--color-primary);
+}
+
+.itemMeta {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.itemPrice {
+  font-family: var(--font-mono);
+}
+
+.totals {
+  display: grid;
+  gap: var(--space-2);
+  justify-self: end;
+  width: min(100%, 360px);
+  margin: 0;
+}
+
+.totals div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-6);
+}
+
+.totals dt {
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.totals dd {
+  margin: 0;
+  font-family: var(--font-mono);
+}
+
+.totals [data-total] {
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-line-strong);
+}
+
+.totals [data-total] dd {
+  font-size: var(--text-lg);
+}
+
+.backLink {
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-primary);
+  text-underline-offset: 3px;
+}
+
+/* Esqueletos (sin animación: solo bloques). */
+.skeletonRow,
+.skeletonTitle,
+.skeletonBlock {
+  display: block;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+}
+
+.skeletonRow {
+  height: 56px;
+}
+
+.skeletonTitle {
+  width: min(70%, 520px);
+  height: 64px;
+}
+
+.skeletonBlock {
+  height: 180px;
+  border-radius: var(--radius-md);
+}
+
+/* Teléfono: filas apiladas y línea de tiempo vertical. */
+@media (max-width: 720px) {
+  .orderRow {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .cellStatus {
+    grid-column: 1 / -1;
+    justify-content: space-between;
+  }
+
+  .steps {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    padding-top: var(--space-2);
+  }
+
+  .step {
+    grid-template-columns: var(--node) auto 1fr;
+    grid-template-rows: auto auto;
+    column-gap: var(--space-3);
+    row-gap: 2px;
+    padding-right: 0;
+  }
+
+  .node {
+    grid-row: 1 / span 2;
+  }
+
+  .stepIndex {
+    grid-row: 1;
+    grid-column: 2;
+  }
+
+  .stepLabel {
+    grid-row: 1;
+    grid-column: 3;
+  }
+
+  .stepTime {
+    grid-row: 2;
+    grid-column: 2 / -1;
+  }
+
+  /* El tramo de línea baja hasta el paso siguiente. */
+  .link {
+    top: calc(var(--node) + 4px);
+    bottom: calc(-1 * var(--space-4) + 4px);
+    left: calc(var(--node) / 2 - 1px);
+    right: auto;
+    width: 2px;
+    height: auto;
+  }
+
+  .linkFill {
+    transform: scaleY(var(--draw, 0));
+    transform-origin: center top;
+  }
+
+  .item {
+    grid-template-columns: 56px 1fr;
+  }
+
+  .thumb {
+    width: 56px;
+    height: 56px;
+  }
+
+  .itemPrice {
+    grid-column: 2;
+  }
+
+  .totals {
+    justify-self: stretch;
+  }
+}
+
+/* ---------- Movimiento (paso 5): estados iniciales en CSS ---------- */
+
+/* Titular del pedido (OrderTitle, SplitText): oculto solo con movimiento
+   permitido y hasta que GSAP lo toma; si el JS no llega, aparece a los 6 s. */
+:global(html.motion-ok) .detailTitle[data-split='idle'] {
+  opacity: 0;
+  animation: title-fallback 1ms 6s forwards;
+}
+
+@keyframes title-fallback {
+  to {
+    opacity: 1;
+  }
+}
+
+.detailBody {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.chipText {
+  display: inline-block;
+}
+
+/* Marca del pago confirmado: anillo y rayos HUD (PaidBanner, Motion). */
+.bannerMarkWrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+}
+
+.bannerRing {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--color-primary);
+  border-radius: 50%;
+}
+
+.bannerRayArm {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+}
+
+.bannerRay {
+  position: absolute;
+  top: -1px;
+  left: 12px;
+  width: 10px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--color-primary);
+  transform-origin: left center;
+}
+
+.moreButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  justify-self: start;
+  min-height: 40px;
+  padding-inline: var(--space-4);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.moreButton:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}

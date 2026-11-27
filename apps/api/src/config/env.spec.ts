@@ -11,6 +11,7 @@ describe('parseEnv', () => {
       databaseUrl: LOCAL_DATABASE_URL,
       internalApiKey: null,
       stylist: { enabled: false, model: 'claude-opus-5-5', dailyBudgetUsd: 2 },
+      payments: { stripeSecretKey: null, rejectedLiveKey: false, webhookSecret: null, webUrl: 'http://localhost:3000' },
     });
   });
 
@@ -36,5 +37,18 @@ describe('parseEnv', () => {
 
   it('rechaza un puerto que no es número', () => {
     expect(() => parseEnv({ API_PORT: 'abc' })).toThrow(/API_PORT/);
+  });
+
+  it('acepta solo claves de prueba de Stripe y nunca una real', () => {
+    expect(parseEnv({ STRIPE_SECRET_KEY: 'sk_test_abc123' }).payments.stripeSecretKey).toBe('sk_test_abc123');
+    expect(parseEnv({ STRIPE_SECRET_KEY: 'rk_test_abc123' }).payments.stripeSecretKey).toBe('rk_test_abc123');
+    const live = parseEnv({ STRIPE_SECRET_KEY: 'sk_live_abc123' }).payments;
+    expect(live.stripeSecretKey).toBeNull();
+    expect(live.rejectedLiveKey).toBe(true);
+  });
+
+  it('arma las URLs de retorno con WEB_PUBLIC_URL o el primer origen de la web', () => {
+    expect(parseEnv({ WEB_ORIGIN: 'https://web.example, https://otra.example' }).payments.webUrl).toBe('https://web.example');
+    expect(parseEnv({ WEB_ORIGIN: 'https://web.example', WEB_PUBLIC_URL: 'https://tienda.example/' }).payments.webUrl).toBe('https://tienda.example');
   });
 });

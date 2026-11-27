@@ -17,6 +17,17 @@ export function LazyCartDrawer() {
   // Una vez abierto queda montado, para que AnimatePresence anime la salida.
   if (open && !mounted) setMounted(true);
 
+  // ?cart=open abre el carrito al llegar: vuelta de Google al pagar y
+  // "Volver" desde la página de pago de Stripe. El parámetro se quita de la
+  // URL para que una recarga no lo vuelva a abrir.
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get('cart') !== 'open') return;
+    url.searchParams.delete('cart');
+    history.replaceState(history.state, '', url);
+    useCartStore.getState().setOpen(true);
+  }, []);
+
   useEffect(() => {
     const preload = () => void loadDrawer();
     if ('requestIdleCallback' in window) {

@@ -11,6 +11,8 @@ Technical notes for working on AIRSPACE Wear: every script, environment variable
 - [Hangar 360° avatar](#hangar-360-avatar-scriptsavatar)
 - [Hero smoke](#hero-smoke-scriptsfx)
 - [AI stylist](#ai-stylist)
+- [Login with Google](#login-with-google)
+- [Test payments and orders](#test-payments-and-orders)
 - [Testing](#testing)
 - [Building the web](#building-the-web)
 - [Docker](#docker)
@@ -52,13 +54,14 @@ The web package also has its own Playwright end-to-end suite in `apps/web/e2e` (
 
 ## Environment variables
 
-Every variable is documented in [`.env.example`](../.env.example). Copy it to `.env` at the repository root. Scripts and apps load that file at runtime; it is ignored by git and never baked into a Docker image.
+Every variable is documented in [`.env.example`](../.env.example). Copy it to `.env` at the repository root. Scripts and apps load that file at runtime (the web loads it from `next.config.ts` without overriding variables already set); it is ignored by git and never baked into a Docker image.
 
 In development all of them are optional:
 
 - **API:** `DATABASE_URL` (defaults to the local Compose database), `DATABASE_URL_TEST`, `API_PORT`, `API_HOST`, `WEB_ORIGIN` (CORS), `TRUST_PROXY`.
 - **AI stylist:** `ANTHROPIC_API_KEY`, `STYLIST_ENABLED`, `STYLIST_MODEL`, `STYLIST_DAILY_BUDGET_USD`.
-- **Web:** `API_URL` (server side), `NEXT_PUBLIC_API_URL` (browser, stylist stream only), `SITE_URL` (absolute URLs in metadata, the sitemap and share images, read at build time), `REVALIDATE_SECRET` (required in production).
+- **Web:** `API_URL` (server side), `NEXT_PUBLIC_API_URL` (no longer used: the browser reaches the stylist through the web server), `SITE_URL` (absolute URLs in metadata, the sitemap and share images, read at build time), `REVALIDATE_SECRET` (required in production).
+- **Login with Google (web):** `BETTER_AUTH_SECRET` (signs the session cookies; without it there are no sessions), `BETTER_AUTH_URL` (public web address, defaults to `SITE_URL`, then `http://localhost:3000` in development), `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` (without them the sign in button is hidden and the site works as before). The web also reads `DATABASE_URL` now (the same database as the API). See [Login with Google](#login-with-google).
 - **Web and API:** `INTERNAL_API_KEY`, a shared secret. The web server sends it in the `x-internal-key` header, and the API then skips its rate limit for it (regenerating the home asks for every product, many requests per locale from one IP). In development, requests from 127.0.0.1 skip the limit without it.
 - **Hangar 360°:** `NEXT_PUBLIC_AVATAR_URL` and `NEXT_PUBLIC_AVATAR_LITE_URL` (the avatar GLB files on Vercel Blob), `NEXT_PUBLIC_OUTFIT_URL` and `NEXT_PUBLIC_OUTFIT_LITE_URL` (its base outfit). In development they default to `apps/web/public/avatar-local/`. In production, without `NEXT_PUBLIC_AVATAR_URL` the `/hangar` page answers 404 and the site links to the home section instead. They are read at build time.
 - **3D pipeline:** `SKETCHFAB_TOKEN`.
@@ -73,16 +76,16 @@ In production the API refuses to start without `DATABASE_URL`, and configuration
 ```
 apps/web  (Next.js)  ──server fetch──▶  apps/api  (NestJS)  ──Prisma──▶  PostgreSQL
     │                                       │
-    └──browser, stylist stream (SSE)───────▶│──▶  Anthropic API
+    └─/api/stylist/chat, SSE + session─────▶│──▶  Anthropic API
               packages/contracts: zod schemas shared by both sides
 ```
 
 ### Web (`apps/web`)
 
 - App Router with locale routes (`/es`, `/en`) through next-intl. Every UI string lives in `messages/` (`es.json`, `en.json` and the per-section files in `messages/home/`), with the same keys in both languages. Product names and descriptions come translated from the API.
-- Pages: home, catalog (search, category and brand filters, sorting, pagination), product pages, balls, Hangar 360°, club, credits and legal. The cart is local to the browser and survives reloads.
+- Pages: home, catalog (search, category and brand filters, sorting, pagination), product pages, balls, Hangar 360°, club, credits, legal, account and orders (a placeholder until test payments arrive). The cart is local to the browser and survives reloads.
 - The server reads the catalog from the API only (one source of truth) and validates every response with the shared contracts. Reads are cached with `'use cache'` and tagged, and `POST /api/revalidate` (called by the seed) expires those tags.
-- The browser never calls the API, except for the stylist stream. The floating stylist panel loads its catalog data through the web's own `/api/stylist/context` route.
+- The browser never calls the API. The floating stylist panel loads its catalog data through the web's own `/api/stylist/context` route and chats through `/api/stylist/chat`, which forwards to the API with the visitor's session token (when signed in), the internal key and the visitor's IP, and streams the SSE answer back unchanged.
 - One React Three Fiber canvas per area, created on demand. Canvases stop rendering when offscreen, only one draws at a time and the pixel ratio is capped at 1.5 (1 in lite mode).
 - AR uses `model-viewer` with a self-hosted Meshopt decoder (`public/vendor/`). Android tries WebXR first (Scene Viewer cannot read Meshopt and WebP GLB files, so it is only a fallback); iOS uses Quick Look, with the USDZ generated from the GLB.
 - Motion has clear owners: GSAP for timelines, Motion for UI state, Lenis only for anchor jumps, React `<ViewTransition>` for route changes. `prefers-reduced-motion` turns sequences into static states. Scroll never drives animation.
@@ -90,7 +93,7 @@ apps/web  (Next.js)  ──server fetch──▶  apps/api  (NestJS)  ──Pris
 
 ### API (`apps/api`)
 
-- NestJS modules for the catalog (`/v1/products`, `/v1/brands`, `/v1/categories`), content (`/v1/credits`), health (`/health`) and the stylist (`/v1/stylist/status`, `/v1/stylist/chat`).
+- NestJS modules for the catalog (`/v1/products`, `/v1/brands`, `/v1/categories`), content (`/v1/credits`), health (`/health`), the stylist (`/v1/stylist/status`, `/v1/stylist/chat`) and the signed-in user (`/v1/me`).
 - Requests and responses are validated with the zod schemas from `packages/contracts`. Errors are returned as `{ code }`, which the web translates.
 - Prisma 7 with the `prisma-client` generator (ESM, output in `src/generated`) and the `pg` driver adapter, so no query engine binary ships at runtime.
 - Helmet, CORS limited to `WEB_ORIGIN`, and a global rate limit (120 requests per minute per IP and route).
@@ -127,9 +130,70 @@ The home hero intro lands the shoe with a puff of textured smoke. `pnpm fx:smoke
 
 - Runs on `claude-opus-5-5` (configurable with `STYLIST_MODEL`) with low effort and a capped number of output tokens per answer.
 - Recommends only catalog products through a strict `show_products` tool whose slugs are limited to the catalog. The API checks every slug against the database and builds the cards from real data, so the model never writes prices or sizes.
-- Answers in the visitor's locale, streams over Server-Sent Events (`text`, `products`, `done`, `error`) and treats the visitor's text as data, not instructions. Messages are limited in length and number, and conversations are not stored.
-- **Budget:** every answer's token usage is priced and added to a daily total. When it reaches `STYLIST_DAILY_BUDGET_USD` (default 2 USD, reset at 00:00 UTC), the stylist turns off until the next day. The chat endpoint also has its own rate limit (10 requests per minute per IP), and `STYLIST_ENABLED=false` turns it off by hand.
-- **Fallback:** without an API key, over budget or switched off, `/v1/stylist/status` reports it as unavailable and the web plays a scripted demo conversation with the suggested ideas instead, so the section always works.
+- Answers in the visitor's locale, streams over Server-Sent Events (`text`, `products`, `orders`, `sign_in`, `notice`, `done`, `error`) and treats the visitor's text as data, not instructions. Messages are limited in length and number, and conversations are not stored.
+- **Orders:** the session is optional. With a valid session (forwarded by `/api/stylist/chat`) the model gets `get_my_orders` and `get_order`, which read only that user's orders (status, items, total, current tracking step and the time of the next one, from the same tracking function as the order pages). The answer is plain text (on Opus 5.5, text between two tool calls comes back as a hidden progress note), and the API turns the order numbers it mentions, only among the orders it read, into cards linking to `/[locale]/orders/[id]`. Signed out it only gets `ask_to_sign_in`, and the panel shows a "Sign in" action.
+- **Budget:** every answer's token usage is priced and added to a daily total. When it reaches `STYLIST_DAILY_BUDGET_USD` (default 2 USD, reset at 00:00 UTC), the stylist turns off until the next day. The chat endpoint also has its own rate limit (10 requests per minute per IP; through the web server it counts the visitor's forwarded IP), and `STYLIST_ENABLED=false` turns it off by hand.
+- **Fallback:** without an API key, over budget or switched off, `/v1/stylist/status` reports it as unavailable and the web plays a scripted demo conversation with the suggested ideas instead, so the section always works. Questions about orders (detected in Spanish and English by `detectOrderQuestion` in the contracts) still go to the API, which answers them without the model: real order cards when signed in, or the sign-in action.
+
+## Login with Google
+
+Accounts use [Better Auth](https://www.better-auth.com) inside the web app with Google as the only provider. The plan is in [`plan-paso-5.md`](plan-paso-5.md).
+
+**How it works.**
+
+- `apps/web/app/api/auth/[...all]/route.ts` mounts Better Auth (`/api/auth/*`; `proxy.ts` skips `api/`). The configuration is in `apps/web/lib/auth/`.
+- Better Auth stores users, sessions, linked Google accounts and OAuth state in the `user`, `session`, `account` and `verification` tables. They are defined in `apps/api/prisma/schema.prisma` and created by the `auth_tables` migration, so `pnpm db:migrate` (and the API's Vercel build against Neon) creates them like every other table. The web talks to them through Better Auth's own Postgres adapter (a `pg` pool on `DATABASE_URL`), and Better Auth checks the columns on first use.
+- The session cookie is httpOnly and `SameSite=Lax`; with an https base URL (production) it is also `Secure` with the `__Secure-` prefix. Sessions last 7 days and refresh once a day while used.
+- The browser reads the session from `/api/auth/get-session`, so every page stays static. The header shows "Sign in" (only when the Google keys exist) or the user's avatar with a menu (My orders, My account, Sign out). Below 520 px the account lives in the phone menu. Sign in returns to the same page; a Google error (or a cancelled sign in) lands on `/[locale]/account?error=<code>`, which explains it in the visitor's language.
+- **API side.** The session cookie belongs to the web's domain, so it never reaches the API. The web server reads its session and forwards the opaque session token as `Authorization: Bearer <token>` (`apps/web/lib/auth/api-session.ts`). The API's `SessionAuthGuard` (`apps/api/src/auth/`) looks the token up in the shared `session` table, checks that it has not expired and exposes the user with `@CurrentUser()`. `GET /v1/me` returns `{ id, name, email, image }` or `401 { code: 'unauthorized' }`. A signed-out session (row deleted) stops working on the next request, and the API never needs the cookie secret.
+- The cart stays in the browser; signing in does not change it. Linking it to the account comes with orders.
+
+**Create the Google OAuth client** (free, once per Google Cloud project):
+
+1. In the [Google Cloud console](https://console.cloud.google.com/), create or pick a project.
+2. **APIs & Services > OAuth consent screen** (Google Auth Platform > Branding): app name "AIRSPACE Wear", a support email and a developer contact email. Audience: **External**. While the app is in **Testing**, add the Google accounts that may sign in as test users (or publish it; the `openid`, `email` and `profile` scopes need no verification).
+3. **Clients > Create client**, type **Web application**:
+   - Authorized JavaScript origins: `http://localhost:3000` and `https://airspace-wear-web.vercel.app`.
+   - Authorized redirect URIs: `http://localhost:3000/api/auth/callback/google` and `https://airspace-wear-web.vercel.app/api/auth/callback/google`.
+4. Copy the client ID and secret to `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in the root `.env`, add `BETTER_AUTH_SECRET` (`openssl rand -base64 32`) and restart `pnpm dev`. The "Sign in" button appears in the header.
+5. In production, set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `BETTER_AUTH_SECRET` (its own value), `BETTER_AUTH_URL=https://airspace-wear-web.vercel.app` and `DATABASE_URL` (Neon's pooled connection) in the web project, then redeploy (the button's visibility is decided at build time).
+
+**Testing without Google.** The API e2e suite (`apps/api/test/me.e2e-spec.ts`) seeds sessions directly in `airspace_test`. The web suite (`apps/web/e2e/auth.spec.ts`) inserts a user and a session in the development database and sets the cookie Better Auth would set (the token signed with `BETTER_AUTH_SECRET`), then deletes them. It checks the header in both states, the keyboard menu, sign out, the phone menu, the error page, that the cart survives, and that "Sign in" redirects to Google with the right client and redirect URI (the request to Google is intercepted).
+
+## Test payments and orders
+
+Checkout uses [Stripe Checkout](https://docs.stripe.com/payments/checkout) in **test mode only**: no real money is ever charged. The plan is in [`plan-paso-5.md`](plan-paso-5.md) (phases 2 and 3).
+
+**Flow.**
+
+1. The cart's "Pay" button calls a server action (`apps/web/lib/orders/actions.ts`). Signed out, it starts Google sign in and comes back to the same page with `?cart=open` (the cart opens on its own).
+2. Signed in, the web server forwards only `slug`, `size` and `quantity` per line to `POST /v1/checkout` with the session token (`Authorization: Bearer`) and the internal key. The request schema is strict, so a price or any extra field is rejected.
+3. The API (`apps/api/src/orders/`) prices every line from the database (published, on sale, valid size, enough stock), creates a `pending` order with a snapshot of names (es and en), sizes, prices and posters, and creates a Checkout Session (`mode: payment`, `price_data` from server prices, `client_reference_id` and `metadata.orderId`, the user's email, the Stripe locale, 30 minute expiry, idempotency key = order id). It returns the session URL and the browser goes there.
+4. Stripe returns to `/[locale]/orders/<id>?paid=1&session_id=...` (cancel returns to `/[locale]/catalog?cart=open`).
+5. `checkout.session.completed` (webhook) marks the order `paid` with `paidAt` and a fake tracking number. The update only touches a `pending` order whose session id and amount match, so retried events are harmless. `checkout.session.expired` marks it `expired`.
+6. **Fallback without webhook:** `GET /v1/orders/:id` asks Stripe for the session while the order is still pending, so local development works without `stripe listen`. The order page also refreshes itself for a few seconds after `?paid=1` until the payment shows up, and only then clears the local cart.
+
+**Tracking** is simulated: one step every 5 minutes after payment (Paid, Preparing, Shipped, On the way, Delivered). `apps/api/src/orders/tracking.ts` is a pure function with unit tests; the API returns every step with its reached or estimated time.
+
+**Endpoints.** `POST /v1/checkout` (session required, 10 attempts per minute per user and per IP), `GET /v1/orders` (mine, newest first), `GET /v1/orders/:id?locale=` (mine only, `404` otherwise), `POST /v1/stripe/webhook` (no session; the `Stripe-Signature` header is verified against the raw body, which every entry point keeps through `APP_OPTIONS = { rawBody: true }` in `app.setup.ts`: `src/main.ts`, `api/index.ts` and the e2e app). Without `STRIPE_SECRET_KEY` checkout answers `503` and the cart shows "test payments are not set up"; without `STRIPE_WEBHOOK_SECRET` the webhook answers `503` and orders are confirmed by the fallback. Only `sk_test_` / `rk_test_` keys are accepted: a live key turns payments off.
+
+**Web.** `/[locale]/orders` (list) and `/[locale]/orders/[id]` (confirmation, items, totals, tracking timeline) read the session behind `<Suspense>`, are `noindex`, and show a sign in panel when signed out. `apps/web/lib/orders/` holds the server client (`fetchOrders`, `fetchOrder`, `createCheckout`) that other pages (such as the account page) can reuse.
+
+**Local setup.**
+
+1. Put the Stripe test keys in the root `.env` (`STRIPE_SECRET_KEY=sk_test_...`; the Vercel Marketplace sandbox provides them) and restart `pnpm dev`.
+2. Optional, to receive webhooks locally with the [Stripe CLI](https://docs.stripe.com/stripe-cli):
+
+   ```bash
+   stripe listen --forward-to localhost:4000/v1/stripe/webhook
+   ```
+
+   Copy the printed `whsec_...` to `STRIPE_WEBHOOK_SECRET` and restart the API. Without it, the fallback above confirms payments when the order page opens.
+3. Pay with the card `4242 4242 4242 4242`, any future date and any CVC.
+
+**Production webhook.** In the Stripe dashboard (test mode) go to **Developers > Webhooks > Add endpoint**: URL `https://airspace-wear-api.vercel.app/v1/stripe/webhook`, events `checkout.session.completed` (and optionally `checkout.session.expired` and `checkout.session.async_payment_succeeded`). Copy its signing secret to `STRIPE_WEBHOOK_SECRET` in the API project on Vercel, set `WEB_PUBLIC_URL=https://airspace-wear-web.vercel.app` there too (return URLs; otherwise the first `WEB_ORIGIN` is used) and redeploy. Run `pnpm db:migrate` against Neon (the API build does it) so the `orders` migration creates the `Order` and `OrderItem` tables.
+
+**Tests.** `apps/api/test/orders.e2e-spec.ts` replaces the Stripe network calls with a fake (no network) and keeps the real signature check with a test secret: checkout pricing and validation, price tampering, 503 without keys or when Stripe fails, webhook signature, idempotency, amount or session mismatch, expiry, ownership (404), the fallback and tracking. `apps/web/e2e/orders.spec.ts` seeds orders in the development database for the list, detail, confirmation and phone layout, and clicks "Pay" (the Stripe page is intercepted; with keys the API creates a real test-mode session).
 
 ## Testing
 
@@ -239,7 +303,7 @@ The live site runs on two Vercel projects (Hobby plan) connected to this reposit
 | Project | Variables |
 | --- | --- |
 | API | `DATABASE_URL` and `DATABASE_URL_UNPOOLED` (added by the Neon integration), `ANTHROPIC_API_KEY`, `INTERNAL_API_KEY`, `WEB_ORIGIN`, `TRUST_PROXY=1`, `STYLIST_DAILY_BUDGET_USD`, `ENABLE_EXPERIMENTAL_COREPACK=1` |
-| Web | `API_URL`, `NEXT_PUBLIC_API_URL`, `SITE_URL`, `INTERNAL_API_KEY` (same value as the API), `REVALIDATE_SECRET`, `NEXT_PUBLIC_AVATAR_URL`, `NEXT_PUBLIC_AVATAR_LITE_URL`, `NEXT_PUBLIC_OUTFIT_URL`, `NEXT_PUBLIC_OUTFIT_LITE_URL`, `ENABLE_EXPERIMENTAL_COREPACK=1` |
+| Web | `API_URL`, `NEXT_PUBLIC_API_URL`, `SITE_URL`, `DATABASE_URL` (Neon, pooled), `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `INTERNAL_API_KEY` (same value as the API), `REVALIDATE_SECRET`, `NEXT_PUBLIC_AVATAR_URL`, `NEXT_PUBLIC_AVATAR_LITE_URL`, `NEXT_PUBLIC_OUTFIT_URL`, `NEXT_PUBLIC_OUTFIT_LITE_URL`, `ENABLE_EXPERIMENTAL_COREPACK=1` |
 
 **Avatar hosting.** The Hangar 360° avatar is not in the repository (Mixamo license), so the web cannot serve it from `public/`. It lives in a public Vercel Blob store: run `pnpm avatar:build` and `pnpm avatar:upload` locally, set the printed `NEXT_PUBLIC_*` variables in the web project and redeploy (they are read at build time). The fitted apparel in `public/avatar-fit/` is committed and deploys with the web.
 

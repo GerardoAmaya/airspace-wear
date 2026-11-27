@@ -293,3 +293,75 @@
     display: none;
   }
 }
+
+/* Pago (paso 5): aviso de prueba, botón "Pagar" y error. */
+.checkout {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.pay {
+  height: 52px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  font-weight: 700;
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: box-shadow var(--duration-ui) var(--ease-out), opacity var(--duration-ui) var(--ease-out);
+}
+
+.pay:hover:not(:disabled) {
+  box-shadow: 0 0 0 6px var(--color-primary-soft);
+}
+
+.pay:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+/* Sin error, el párrafo no ocupa lugar (sigue en el DOM para el lector). */
+.checkoutError:not(:has(*)) {
+  display: none;
+}
+
+.checkoutErrorText {
+  display: block;
+}
+
+.payInner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.payLabel {
+  display: inline-block;
+}
+
+.payDots {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.payDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.checkoutError,
+.lineIssue {
+  font-size: var(--text-sm);
+  color: var(--color-secondary);
+}
+
+.lineIssue {
+  grid-column: 1 / -1;
+}

@@ -3,16 +3,22 @@ import { Anthropic } from '@anthropic-ai/sdk';
 import { Module } from '@nestjs/common';
 import { CatalogModule } from '../catalog/catalog.module.js';
 import { APP_CONFIG, type AppConfig } from '../config/config.module.js';
+import { StylistOrders } from './stylist-orders.js';
+import { StylistThrottle } from './stylist-throttle.js';
 import { StylistController } from './stylist.controller.js';
 import { ANTHROPIC_CLIENT, StylistService } from './stylist.service.js';
 
-// Estilista IA: Claude con la herramienta show_products, en streaming (SSE).
-// Sin clave de Anthropic queda apagado y la web usa el guion.
+// Estilista IA: Claude con la herramienta show_products y, con sesión, las
+// de pedidos del usuario, en streaming (SSE). Sin clave de Anthropic queda
+// apagado y la web usa el guion (las preguntas sobre pedidos se responden
+// igual, con datos y sin modelo).
 @Module({
   imports: [CatalogModule],
   controllers: [StylistController],
   providers: [
     StylistService,
+    StylistOrders,
+    StylistThrottle,
     {
       provide: ANTHROPIC_CLIENT,
       inject: [APP_CONFIG],

@@ -1,10 +1,12 @@
 import { useTranslations } from 'next-intl';
 import { Suspense } from 'react';
+import { AccountButton, AccountMenuEntries } from '@/components/account/AccountButton';
 import { CartButton } from '@/components/cart/CartButton';
 import { LocaleSwitch } from '@/components/i18n/LocaleSwitch';
 import { StylistLink } from '@/components/stylist-bot/StylistLink';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { Link } from '@/i18n/navigation';
+import { AUTH_ENABLED, GOOGLE_LOGIN_ENABLED } from '@/lib/auth/config';
 import { HANGAR_ENABLED } from '@/lib/avatar/avatar';
 import { HOME_ANCHORS } from '@/lib/home';
 import { HeaderShell } from './HeaderShell';
@@ -47,12 +49,17 @@ export function SiteHeader() {
             </Suspense>
           </div>
           <CartButton />
+          {/* Cuenta (Google). Sin las claves de Google no hay botón de entrar. */}
+          <AccountButton authEnabled={AUTH_ENABLED} googleEnabled={GOOGLE_LOGIN_ENABLED} />
         </>
       }
       menuExtras={
-        <Suspense fallback={<LocaleSwitch withQuery={false} />}>
-          <LocaleSwitch />
-        </Suspense>
+        <>
+          <AccountMenuEntries authEnabled={AUTH_ENABLED} googleEnabled={GOOGLE_LOGIN_ENABLED} />
+          <Suspense fallback={<LocaleSwitch withQuery={false} />}>
+            <LocaleSwitch />
+          </Suspense>
+        </>
       }
     />
   );

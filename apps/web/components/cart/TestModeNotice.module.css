@@ -1,0 +1,39 @@
+/* Aviso del modo de prueba: marco HUD con borde naranja (tinta) y la
+   tarjeta de prueba en mono. Sin desenfoques ni animación. */
+.notice {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 1px dashed var(--color-secondary);
+  border-radius: var(--radius-sm);
+  background: var(--color-secondary-soft);
+}
+
+.badge {
+  justify-self: start;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-secondary-fill);
+  color: var(--color-on-primary);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  font-weight: 700;
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+}
+
+.text {
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+  color: var(--color-text);
+}
+
+.card {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.notice[data-compact] .text {
+  font-size: 0.8125rem;
+}

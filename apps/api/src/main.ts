@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
-import { configureApp, initApp } from './app.setup.js';
+import { APP_OPTIONS, configureApp, initApp } from './app.setup.js';
 import { APP_CONFIG, type AppConfig } from './config/config.module.js';
 import { loadWorkspaceEnv } from './config/load-env.js';
 
@@ -9,7 +9,7 @@ import { loadWorkspaceEnv } from './config/load-env.js';
 loadWorkspaceEnv();
 if (process.env.VERCEL) console.log('API: arrancando en Vercel');
 
-const app = await NestFactory.create(AppModule);
+const app = await NestFactory.create(AppModule, APP_OPTIONS);
 const config = app.get<AppConfig>(APP_CONFIG);
 configureApp(app, config);
 await initApp(app);

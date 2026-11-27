@@ -287,10 +287,6 @@ interface Runtime {
   intro: gsap.core.Timeline | null;
 }
 
-// API pública para el navegador (el estilista es lo único que la web llama
-// desde el cliente: la respuesta llega en streaming). Sin ella, el guion.
-const PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:4000';
-
 export function StylistSection({
   script,
   chips,
@@ -303,6 +299,7 @@ export function StylistSection({
   catalog: Record<string, CatalogEntry>;
 }) {
   const t = useTranslations('HomeStylist');
+  const bot = useTranslations('StylistBot');
   const locale = useLocale() as Locale;
   const format = useFormatter();
   const narrow = useSyncExternalStore(
@@ -390,10 +387,14 @@ export function StylistSection({
       lazyEngine(async () => {
         const { createApiEngine } = await import('./api-engine');
         return createApiEngine({
-          apiUrl: PUBLIC_API_URL,
           catalog,
           fallback: createScriptedEngine(script, { latencyMs: prefersReduced() ? 0 : 700 }),
-          messages: { rateLimited: t('errors.rateLimited'), refused: t('errors.refused'), error: t('errors.generic') },
+          messages: {
+            rateLimited: t('errors.rateLimited'),
+            refused: t('errors.refused'),
+            error: t('errors.generic'),
+            notice: (code, count) => bot(`notice.${code}`, { count }),
+          },
         });
       }),
     );

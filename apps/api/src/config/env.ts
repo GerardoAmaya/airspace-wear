@@ -4,6 +4,9 @@ import { z } from 'zod';
 // en producción DATABASE_URL es obligatoria.
 export const LOCAL_DATABASE_URL = 'postgresql://airspace:airspace@127.0.0.1:5434/airspace';
 
+// Solo claves de prueba de Stripe: este proyecto nunca cobra dinero real.
+const STRIPE_TEST_KEY = /^(sk|rk)_test_[A-Za-z0-9]+$/;
+
 const envSchema = z
   .object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -41,6 +44,16 @@ const envSchema = z
     // peticiones (cabecera x-internal-key). Opcional; mínimo 24 caracteres.
     // Vacía equivale a no configurada (docker-compose pasa "" si falta).
     INTERNAL_API_KEY: z.union([z.literal(''), z.string().min(24)]).optional(),
+    // Pago de prueba con Stripe Checkout (paso 5). Solo claves de prueba
+    // (sk_test_ o rk_test_): con una clave real o sin clave, el pago queda
+    // apagado y POST /v1/checkout responde 503. Nunca se imprimen.
+    STRIPE_SECRET_KEY: z.string().optional(),
+    // Secreto de firma del webhook (whsec_...). Sin él, el webhook responde
+    // 503 y el pedido se confirma al abrirlo (GET /v1/orders/:id).
+    STRIPE_WEBHOOK_SECRET: z.string().optional(),
+    // Dirección pública de la web para las URLs de retorno de Stripe (sin
+    // barra final). Si falta, el primer origen de WEB_ORIGIN.
+    WEB_PUBLIC_URL: z.url().optional(),
   })
   .transform((env, context) => {
     if (!env.DATABASE_URL && env.NODE_ENV === 'production') {
@@ -55,6 +68,13 @@ const envSchema = z
       webOrigins: env.WEB_ORIGIN,
       databaseUrl: env.DATABASE_URL ?? LOCAL_DATABASE_URL,
       internalApiKey: env.INTERNAL_API_KEY || null,
+      payments: {
+        stripeSecretKey: env.STRIPE_SECRET_KEY && STRIPE_TEST_KEY.test(env.STRIPE_SECRET_KEY) ? env.STRIPE_SECRET_KEY : null,
+        // Se avisa al arrancar (sin el valor) si hay una clave que no es de prueba.
+        rejectedLiveKey: Boolean(env.STRIPE_SECRET_KEY && !STRIPE_TEST_KEY.test(env.STRIPE_SECRET_KEY)),
+        webhookSecret: env.STRIPE_WEBHOOK_SECRET || null,
+        webUrl: new URL(env.WEB_PUBLIC_URL ?? env.WEB_ORIGIN[0] ?? 'http://localhost:3000').origin,
+      },
       stylist: {
         enabled: env.STYLIST_ENABLED === 'true' && Boolean(env.ANTHROPIC_API_KEY),
         model: env.STYLIST_MODEL,

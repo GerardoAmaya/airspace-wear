@@ -223,8 +223,9 @@ export type Credit = z.infer<typeof creditSchema>;
 export const creditListSchema = z.object({ items: z.array(creditSchema) });
 export type CreditList = z.infer<typeof creditListSchema>;
 
-// Errores: la API responde { code } y la web lo traduce.
-export const API_ERROR_CODES = ['invalid_request', 'not_found', 'rate_limited', 'internal_error', 'service_unavailable'] as const;
+// Errores: la API responde { code } y la web lo traduce. unauthorized: falta
+// la sesión o ya no es válida (rutas de cuenta, como GET /v1/me).
+export const API_ERROR_CODES = ['invalid_request', 'unauthorized', 'not_found', 'rate_limited', 'internal_error', 'service_unavailable'] as const;
 export const apiErrorSchema = z.object({
   code: z.enum(API_ERROR_CODES),
   issues: z.array(z.object({ path: z.string(), message: z.string() })).optional(),

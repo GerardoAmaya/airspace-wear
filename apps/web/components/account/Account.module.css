@@ -1,0 +1,273 @@
+/* Cuenta en el encabezado: mismo lenguaje que el tema y el carrito (píldora
+   de 30 px con borde de línea, etiqueta mono en mayúsculas). */
+
+.signIn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 30px;
+  padding-inline: 10px 12px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-ui) var(--ease-out),
+    opacity var(--duration-ui) var(--ease-out);
+}
+
+.signIn:hover {
+  border-color: var(--color-primary);
+}
+
+.signIn:disabled {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+.signIn svg {
+  width: 14px;
+  height: 14px;
+  color: var(--color-primary);
+}
+
+/* Lugar reservado mientras llega la sesión: no mueve el resto del encabezado. */
+.placeholder {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--color-line);
+  border-radius: 50%;
+}
+
+.menuRoot {
+  position: relative;
+}
+
+.userButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 2px 8px 2px 2px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: border-color var(--duration-ui) var(--ease-out);
+}
+
+.userButton:hover,
+.userButton[aria-expanded='true'] {
+  border-color: var(--color-primary);
+}
+
+.chevron {
+  color: var(--color-text-muted);
+  transition: transform var(--duration-ui) var(--ease-out);
+}
+
+.userButton[aria-expanded='true'] .chevron {
+  transform: rotate(180deg);
+}
+
+/* Avatar: foto de Google o iniciales sobre el relleno lima (texto oscuro
+   encima del relleno, en ambos temas). */
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.avatar[data-size='large'] {
+  width: 64px;
+  height: 64px;
+  font-size: var(--text-lg);
+}
+
+.avatar[data-size='xl'] {
+  width: 112px;
+  height: 112px;
+  font-family: var(--font-display);
+  font-stretch: var(--font-stretch-display);
+  font-size: var(--text-xl);
+  font-weight: 800;
+}
+
+@media (max-width: 640px) {
+  .avatar[data-size='xl'] {
+    width: 88px;
+    height: 88px;
+  }
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Menú: se abre encima del contenido (absoluto), alineado al borde derecho. */
+.menu {
+  position: absolute;
+  top: calc(100% + var(--space-3));
+  right: 0;
+  display: grid;
+  min-width: 16rem;
+  max-width: min(20rem, calc(100vw - 2 * var(--page-edge)));
+  padding: var(--space-2);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-elevated);
+}
+
+.menuHead {
+  display: grid;
+  gap: 2px;
+  margin-bottom: var(--space-2);
+  padding: var(--space-2) var(--space-3) var(--space-3);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.menuKicker {
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.menuName {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menuEmail {
+  overflow: hidden;
+  font-size: var(--text-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: var(--text-hud);
+  letter-spacing: 0.1em;
+  text-align: start;
+  text-transform: uppercase;
+  cursor: pointer;
+  outline: none;
+}
+
+.menuItem:hover,
+.menuItem:focus-visible {
+  background: var(--color-line);
+}
+
+.menuItem:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+
+.menuItem[data-tone='exit'] {
+  color: var(--color-secondary);
+}
+
+.menuItem:disabled {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+/* Menú del teléfono: filas como las del panel de navegación. */
+.entries {
+  display: grid;
+  margin-bottom: var(--space-4);
+}
+
+.entryUser {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-block: var(--space-3);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.entryText {
+  display: grid;
+  min-width: 0;
+}
+
+.entryLink,
+.entryButton {
+  display: block;
+  width: 100%;
+  padding: var(--space-4) 0;
+  border: 0;
+  border-bottom: 1px solid var(--color-line);
+  background: none;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-hud);
+  text-align: start;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.entryButton[data-tone='exit'] {
+  color: var(--color-secondary);
+}
+
+.entryButton:disabled {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+/* Por debajo de 520 px la cuenta vive en el menú del teléfono. */
+@media (max-width: 520px) {
+  .signIn,
+  .placeholder,
+  .menuRoot {
+    display: none;
+  }
+}
+
+/* Entre 520 y 960 px, solo el ícono del botón de entrar (como el tema). */
+@media (max-width: 960px) {
+  .signIn {
+    padding-inline: 8px;
+  }
+
+  .signInText {
+    display: none;
+  }
+}

@@ -1,13 +1,16 @@
 'use client';
 
-import { type Locale, STYLIST_LIMITS } from '@airspace/contracts';
+import { type Locale, STYLIST_LIMITS, type StylistOrder, TRACKING_STEPS } from '@airspace/contracts';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useFormatter, useLocale, useNow, useTranslations } from 'next-intl';
 import { type FormEvent, Fragment, useEffect, useId, useRef, useState, useSyncExternalStore } from 'react';
 import { ThemedPoster } from '@/components/catalog/ThemedPoster';
+import { LocalTime } from '@/components/orders/LocalTime';
+import { StatusChip } from '@/components/orders/StatusChip';
 import { createScriptedEngine, type RecommendedProduct, type StylistEngine } from '@/components/home/stylist/engine';
 import { Link } from '@/i18n/navigation';
 import { EASE } from '@/lib/motion/tokens';
+import { formatPrice } from '@/lib/price';
 import { readPlacement } from './placement';
 import { RobotMini } from './Robot';
 import { loadStylistContext, type StylistContext } from './stylist-context';
@@ -23,9 +26,8 @@ import styles from './StylistPanel.module.css';
 // La conversación es la misma que la de la consola de la home
 // (stylist-store): lo que se pregunta aquí aparece allá y al revés.
 
-// API pública para el navegador (el estilista es lo único que la web llama
-// desde el cliente: la respuesta llega en streaming). Sin ella, el guion.
-const PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:4000';
+// El estilista responde por el servidor de la web (app/api/stylist/chat),
+// que agrega la sesión del visitante para las preguntas sobre sus pedidos.
 const NO_TURNS: SharedTurn[] = [];
 
 const NARROW = '(max-width: 640px)';
@@ -143,10 +145,14 @@ export function StylistPanel() {
       lazyEngine(async () => {
         const { createApiEngine } = await import('@/components/home/stylist/api-engine');
         return createApiEngine({
-          apiUrl: PUBLIC_API_URL,
           catalog: data.catalog,
           fallback: createScriptedEngine(data.script, { latencyMs: reduced ? 0 : 700 }),
-          messages: { rateLimited: home('errors.rateLimited'), refused: home('errors.refused'), error: home('errors.generic') },
+          messages: {
+            rateLimited: home('errors.rateLimited'),
+            refused: home('errors.refused'),
+            error: home('errors.generic'),
+            notice: (code, count) => t(`notice.${code}`, { count }),
+          },
         });
       }),
     );
@@ -283,7 +289,7 @@ export function StylistPanel() {
               ) : null}
 
               {turns.map((turn) => (
-                <TurnView key={turn.id} turn={turn} plate={t('plate')} reduced={reduced} />
+                <TurnView key={turn.id} turn={turn} plate={t('plate')} reduced={reduced} signInEnabled={context?.signIn ?? false} />
               ))}
             </div>
 
@@ -326,8 +332,9 @@ export function StylistPanel() {
 
 const MESSAGE_SPRING = { type: 'spring', stiffness: 380, damping: 26 } as const;
 
-function TurnView({ turn, plate, reduced }: { turn: SharedTurn; plate: string; reduced: boolean }) {
+function TurnView({ turn, plate, reduced, signInEnabled }: { turn: SharedTurn; plate: string; reduced: boolean; signInEnabled: boolean }) {
   const t = useTranslations('StylistBot');
+  const orders = useTranslations('Orders');
   const enter = reduced ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.15 } } : { initial: { opacity: 0, y: 12, scale: 0.96 }, animate: { opacity: 1, y: 0, scale: 1 }, transition: MESSAGE_SPRING };
   const thinking = turn.status === 'thinking';
   return (
@@ -366,6 +373,20 @@ function TurnView({ turn, plate, reduced }: { turn: SharedTurn; plate: string; r
                 ))}
               </ul>
             ) : null}
+            {turn.orders.length ? (
+              <>
+                <ul className={styles.recs} aria-label={t('ordersLabel')}>
+                  {turn.orders.map((order, index) => (
+                    <OrderCard key={order.id} order={order} index={index} reduced={reduced} />
+                  ))}
+                </ul>
+                <Link href="/orders" className={`${styles.view} ${styles.allOrders}`} onClick={() => closeStylist()}>
+                  {orders('viewAll')}
+                  <ArrowIcon />
+                </Link>
+              </>
+            ) : null}
+            {turn.signIn && turn.status === 'done' ? <SignInAction enabled={signInEnabled} reduced={reduced} /> : null}
           </div>
         </motion.div>
       )}
@@ -404,6 +425,96 @@ function ProductCard({ product, index, reduced }: { product: RecommendedProduct;
         </p>
       </div>
     </motion.li>
+  );
+}
+
+// Tarjeta de un pedido del visitante: número, estado del envío (el mismo
+// chip de "Mis pedidos"), fecha, unidades, siguiente paso y total. Navega a
+// la página del pedido, con su línea de tiempo.
+function OrderCard({ order, index, reduced }: { order: StylistOrder; index: number; reduced: boolean }) {
+  const t = useTranslations('StylistBot');
+  const orders = useTranslations('Orders');
+  const locale = useLocale();
+  const format = useFormatter();
+  // La hora del siguiente paso se vuelve a leer cada 30 s (el seguimiento avanza solo).
+  const now = useNow({ updateInterval: 30_000 });
+  const stageIndex = order.trackingStage ? TRACKING_STEPS.indexOf(order.trackingStage) : -1;
+  const nextStage = stageIndex >= 0 ? TRACKING_STEPS[stageIndex + 1] : undefined;
+  const nextAt = order.nextStepAt ? new Date(order.nextStepAt) : null;
+  const showNext = nextStage && nextAt && nextAt.getTime() > now.getTime();
+  return (
+    <motion.li
+      className={styles.orderCard}
+      initial={reduced ? { opacity: 0 } : { opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={reduced ? { duration: 0.15 } : { duration: 0.5, delay: 0.08 * index, ease: EASE.out.bezier }}
+    >
+      <div className={styles.orderHead}>
+        <h3 className={styles.orderNumber}>{order.number}</h3>
+        <StatusChip status={order.status} stage={order.trackingStage} />
+      </div>
+      <p className={styles.orderMeta}>
+        <LocalTime iso={order.createdAt} format="date" />
+        <span>{orders('itemCount', { count: order.itemCount })}</span>
+      </p>
+      {showNext ? <p className={styles.cardReason}>{t('nextStep', { step: orders(`stage.${nextStage}`), when: format.relativeTime(nextAt, now) })}</p> : null}
+      <p className={styles.cardFoot}>
+        <span className={styles.price}>{t('orderTotal', { total: formatPrice(order.total, locale) })}</span>
+        <Link href={`/orders/${order.id}`} className={styles.view} aria-label={t('viewOrderLabel', { number: order.number })} onClick={() => closeStylist()}>
+          {t('viewOrder')}
+          <ArrowIcon />
+        </Link>
+      </p>
+    </motion.li>
+  );
+}
+
+// "Iniciar sesión" junto a la respuesta (preguntó por sus pedidos sin
+// sesión). Lleva a Google y vuelve a la misma página. El código de la cuenta
+// (Better Auth) se carga solo al tocarlo.
+function SignInAction({ enabled, reduced }: { enabled: boolean; reduced: boolean }) {
+  const t = useTranslations('StylistBot');
+  const locale = useLocale();
+  const [state, setState] = useState<'idle' | 'busy' | 'failed'>('idle');
+  const enter = reduced ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.15 } } : { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.4, ease: EASE.out.bezier } };
+  if (!enabled) {
+    return (
+      <motion.p className={styles.notice} {...enter}>
+        {t('signInUnavailable')}
+      </motion.p>
+    );
+  }
+  return (
+    <motion.div className={styles.answer} {...enter}>
+      <button
+        type="button"
+        className={styles.signIn}
+        disabled={state === 'busy'}
+        aria-busy={state === 'busy' || undefined}
+        onClick={async () => {
+          setState('busy');
+          try {
+            const { signInWithGoogle } = await import('@/components/account/account-actions');
+            // Si se pudo empezar, el navegador ya va camino a Google.
+            if (await signInWithGoogle(locale)) return;
+          } catch {
+            // Sin red: se avisa abajo.
+          }
+          setState('failed');
+        }}
+      >
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <circle cx="8" cy="5.4" r="2.6" fill="none" stroke="currentColor" strokeWidth="1.4" />
+          <path fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" d="M2.8 14a5.2 5.2 0 0 1 10.4 0" />
+        </svg>
+        {state === 'busy' ? t('signingIn') : t('signIn')}
+      </button>
+      {state === 'failed' ? (
+        <p className={styles.notice} role="alert">
+          {t('signInFailed')}
+        </p>
+      ) : null}
+    </motion.div>
   );
 }
 

@@ -20,8 +20,23 @@ function sameKey(received: string, expected: string): boolean {
 // - en desarrollo, viene de la misma máquina (127.0.0.1).
 // En las pruebas (NODE_ENV=test) el límite se mantiene siempre.
 export function shouldSkipThrottle(context: ExecutionContext, config: AppConfig): boolean {
-  const request = context.switchToHttp().getRequest<{ headers: Record<string, string | string[] | undefined>; socket?: { remoteAddress?: string } }>();
+  return isWebServerRequest(context.switchToHttp().getRequest<InternalRequest>(), config);
+}
+
+export interface InternalRequest {
+  headers: Record<string, string | string[] | undefined>;
+  socket?: { remoteAddress?: string };
+}
+
+// La petición viene del servidor de la web (misma regla que arriba). Lo usa
+// también el estilista, que con esa señal limita por la IP del visitante que
+// la web reenvía (CLIENT_IP_HEADER) en vez de por la IP del servidor.
+export function isWebServerRequest(request: InternalRequest, config: Pick<AppConfig, 'internalApiKey' | 'nodeEnv'>): boolean {
   const header = request.headers[INTERNAL_KEY_HEADER];
   if (config.internalApiKey && typeof header === 'string' && sameKey(header, config.internalApiKey)) return true;
   return config.nodeEnv === 'development' && LOOPBACK.has(request.socket?.remoteAddress ?? '');
 }
+
+// IP del visitante que reenvía el servidor de la web. Solo se cree si
+// isWebServerRequest es verdadero (cualquiera podría mandar la cabecera).
+export const CLIENT_IP_HEADER = 'x-client-ip';
