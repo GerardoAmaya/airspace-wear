@@ -68,7 +68,12 @@
   min-height: 0;
   padding-top: var(--space-4);
   overflow-y: auto;
-  overscroll-behavior: contain;
+  /* Al llegar al final de la lista, la rueda sigue bajando la página (antes
+     se quedaba atrapada en la lista y se sentía como un scroll infinito). */
+  overscroll-behavior: auto;
+  /* Desvanecido abajo: deja claro que la lista sigue y dónde termina el panel. */
+  mask-image: linear-gradient(to bottom, black calc(100% - 3rem), transparent);
+  padding-bottom: 3rem;
 }
 
 /* Teléfono: el panel crece con su contenido y no se desplaza por dentro. Un
@@ -78,7 +83,8 @@
 @media (max-width: 720px) {
   .panel {
     overflow: visible;
-    overscroll-behavior: auto;
+    mask-image: none;
+    padding-bottom: 0;
   }
 }
 

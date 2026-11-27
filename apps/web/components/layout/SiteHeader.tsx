@@ -18,7 +18,7 @@ export function SiteHeader() {
   // Balones es una sección de la home (ancla en español, ver lib/home.ts);
   // Catálogo y Hangar 360° son páginas propias (el Hangar vuelve a su
   // sección de la home si el avatar no está configurado). Estilista IA abre
-  // el panel del robot en la misma página (sin JS, lleva a #estilista).
+  // el panel del robot en la misma página (sin JS, ver StylistLink).
   const nav = (
     <>
       <Link href="/catalog">{t('catalog')}</Link>

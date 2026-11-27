@@ -1,4 +1,6 @@
 import type { Page } from '@playwright/test';
+import { HOME_HANGAR_TEASER, HOME_SECTIONS } from '../lib/home';
+import boardEs from '../messages/home/board.es.json' with { type: 'json' };
 import { es, expect, mockStylist, fulfillSse, stylistEs, test, waitForApp } from './fixtures';
 
 // Movimiento: movimiento reducido, modo liviano y recarga en la misma
@@ -39,13 +41,16 @@ test.describe('reduced motion', () => {
     await page.waitForTimeout(2000);
     expect(await hiddenEntrances(page)).toEqual([]);
 
-    // El estilista muestra el primer intercambio ya resuelto (estado
-    // estático) y no reproduce el guion por su cuenta.
-    const section = page.getByRole('region', { name: stylistEs.HomeStylist.title });
-    const log = section.getByRole('log', { name: stylistEs.HomeStylist.console.logLabel });
-    await expect(log).toContainText(stylistEs.HomeStylist.scenarios.comfort.question);
+    // El estilista de la home (si está a la vista, lib/home.ts) muestra el
+    // primer intercambio ya resuelto (estado estático) y no reproduce el
+    // guion por su cuenta. Oculto, nada llama a la API por sí solo.
+    if (HOME_SECTIONS.stylist) {
+      const section = page.getByRole('region', { name: stylistEs.HomeStylist.title });
+      const log = section.getByRole('log', { name: stylistEs.HomeStylist.console.logLabel });
+      await expect(log).toContainText(stylistEs.HomeStylist.scenarios.comfort.question);
+      await expect(section.getByRole('group', { name: stylistEs.HomeStylist.controls.suggestions }).getByRole('button').first()).toHaveAttribute('aria-pressed', 'true');
+    }
     expect(stylistCalls).toBe(0);
-    await expect(section.getByRole('group', { name: stylistEs.HomeStylist.controls.suggestions }).getByRole('button').first()).toHaveAttribute('aria-pressed', 'true');
 
     // Los saltos de ancla son inmediatos (sin desplazamiento suave). El
     // enlace "Estilista IA" ya no salta: abre el panel del robot.
@@ -149,6 +154,98 @@ test('a capable device does not enter lite mode and loads the hero model', async
   await waitForApp(page);
   await expect(page.locator('html')).not.toHaveClass(/(^|\s)lite(\s|$)/);
   await expect.poll(() => models, { timeout: 20_000 }).toContain(`/models/${MODEL_PRODUCT}.glb`);
+});
+
+// Adelanto del Hangar 360° con el maniquí (HOME_HANGAR_TEASER en lib/home.ts):
+// el avatar, la ropa y el par se piden solo cuando la sección se acerca, y en
+// modo liviano nunca (queda la foto fija).
+const AVATAR_FILES = /\/(avatar-local|avatar-fit)\/|\/models\/air-jordan-1-lite\.glb/;
+const scrollToHangar = (page: Page) =>
+  page.evaluate(() => {
+    const section = document.getElementById('hangar')!;
+    window.scrollTo(0, section.getBoundingClientRect().top + window.scrollY);
+  });
+
+test.describe('home hangar teaser', () => {
+  test.skip(HOME_HANGAR_TEASER !== 'avatar', 'The shoe teaser is on');
+
+  test('loads the walking avatar only when the section comes near', async ({ page }) => {
+    await emulateDevice(page, 12, 8);
+    const files: string[] = [];
+    page.on('request', (request) => {
+      if (AVATAR_FILES.test(request.url())) files.push(new URL(request.url()).pathname);
+    });
+    await page.goto('/es');
+    await waitForApp(page);
+    await page.waitForTimeout(2000);
+    expect(files).toEqual([]);
+
+    await scrollToHangar(page);
+    const stage = page.locator('#hangar[data-teaser="avatar"] [data-ready]');
+    await expect(stage).toHaveCount(1, { timeout: 30_000 });
+    expect(files.some((path) => path.startsWith('/avatar-local/'))).toBe(true);
+    expect(files.filter((path) => path.startsWith('/avatar-fit/'))).toHaveLength(3);
+    // El escenario y el botón llevan al Hangar.
+    await expect(page.locator('#hangar').getByRole('link', { name: boardEs.HomeBoard.hangar.cta })).toHaveAttribute('href', '/es/hangar');
+  });
+
+  test('the platform turns with drag and arrow keys, and the labels never clip', async ({ page }) => {
+    await emulateDevice(page, 12, 8);
+    await page.goto('/es');
+    await waitForApp(page);
+    await scrollToHangar(page);
+    const stage = page.locator('#hangar').getByRole('slider', { name: boardEs.HomeBoard.hangar.avatar.sliderLabel });
+    await expect(stage).toHaveAttribute('data-ready', 'true', { timeout: 30_000 });
+    const degrees = async () => Number(await stage.getAttribute('aria-valuenow'));
+
+    // Arrastre horizontal: gira la plataforma (y no navega).
+    const box = (await stage.boundingBox())!;
+    const before = await degrees();
+    await page.mouse.move(box.x + box.width * 0.3, box.y + box.height * 0.5);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width * 0.7, box.y + box.height * 0.5, { steps: 12 });
+    await page.mouse.up();
+    await expect.poll(async () => Math.abs((await degrees()) - before)).toBeGreaterThan(20);
+    await expect(page).toHaveURL(/\/es$/);
+
+    // Flechas con el foco en la plataforma: pasos de 15°.
+    await stage.focus();
+    await page.waitForTimeout(1200);
+    const start = await degrees();
+    await page.keyboard.press('ArrowRight');
+    await expect.poll(async () => ((await degrees()) - start + 360) % 360).toBeGreaterThanOrEqual(14);
+
+    // Los rótulos caben a cualquier ancho (escritorio y teléfono).
+    for (const width of [1720, 1534, 1280, 1024, 900, 768, 390]) {
+      await page.setViewportSize({ width, height: 816 });
+      await scrollToHangar(page);
+      const clipped = await page.evaluate(() =>
+        Array.from(document.querySelectorAll<HTMLElement>('#hangar [data-h-reveal] > span')).filter((label) => {
+          const rect = label.getBoundingClientRect();
+          return rect.width > 0 && (label.scrollWidth > Math.ceil(rect.width) + 1 || rect.right > document.documentElement.clientWidth || rect.left < 0);
+        }).map((label) => label.textContent),
+      );
+      expect(clipped, `${width}px`).toEqual([]);
+    }
+  });
+
+  test('lite mode keeps the still image and never loads the avatar', async ({ page }) => {
+    await emulateDevice(page, 2, 2);
+    const files: string[] = [];
+    page.on('request', (request) => {
+      if (AVATAR_FILES.test(request.url())) files.push(new URL(request.url()).pathname);
+    });
+    await page.goto('/es');
+    await expect(page.locator('html')).toHaveClass(/(^|\s)lite(\s|$)/);
+    await waitForApp(page);
+    await scrollToHangar(page);
+    const still = page.locator('#hangar [data-still] img').filter({ visible: true });
+    await expect(still).toHaveCount(1);
+    await expect.poll(() => still.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
+    await page.waitForTimeout(2000);
+    expect(files).toEqual([]);
+    await expect(page.locator('#hangar canvas')).toHaveCount(0);
+  });
 });
 
 // Recarga (Cmd+R) a media página: vuelve a la misma posición.

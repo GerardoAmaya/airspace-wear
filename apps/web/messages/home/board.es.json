@@ -25,8 +25,8 @@
           "text": "Un avatar que camina, gira y posa con animaciones reales."
         },
         "shoes": {
-          "title": "Solo cambian los zapatos",
-          "text": "El avatar se queda igual; tú eliges el par que lleva."
+          "title": "Zapatos y outfit",
+          "text": "Cambia el par y prueba gorra, chaqueta y pants."
         },
         "view": {
           "title": "Vista 360°",
@@ -44,7 +44,12 @@
       "platform": "Plataforma giratoria",
       "sliderLabel": "Girar el zapato en la plataforma",
       "sliderValue": "{degrees} grados",
-      "posterAlt": "{name} en la plataforma"
+      "posterAlt": "{name} en la plataforma",
+      "avatar": {
+        "wearing": "Lleva puesto",
+        "hint": "Pruébate el look en el Hangar 360°",
+        "sliderLabel": "Girar el avatar en la plataforma"
+      }
     }
   }
 }

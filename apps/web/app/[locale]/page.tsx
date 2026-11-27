@@ -5,6 +5,7 @@ import { HomeHero } from '@/components/home/hero/HomeHero';
 import { HomeClub } from '@/components/home/stylist/HomeClub';
 import { HomeStylist } from '@/components/home/stylist/HomeStylist';
 import { pageLocale } from '@/i18n/locale';
+import { HOME_SECTIONS } from '@/lib/home';
 
 // La validación de navegación instantánea (solo en desarrollo) no logra
 // simular esta página completa y lo informa sin errores reales. Ambos idiomas
@@ -24,7 +25,8 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
       <HomeHero locale={locale} />
       <HomeBoard locale={locale} />
       <HomeBalls locale={locale} />
-      <HomeStylist locale={locale} />
+      {/* Oculta tras su bandera en lib/home.ts (el robot flotante la reemplaza). */}
+      {HOME_SECTIONS.stylist && <HomeStylist locale={locale} />}
       <HomeClub locale={locale} />
     </>
   );

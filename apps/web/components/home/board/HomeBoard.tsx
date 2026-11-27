@@ -5,9 +5,12 @@ import { ProductCard } from '@/components/catalog/ProductCard';
 import { Reveal } from '@/components/motion/Reveal';
 import { Link } from '@/i18n/navigation';
 import { getProducts } from '@/lib/api';
+import { CATALOG_FIT, fitUrl } from '@/lib/avatar/catalog-fit';
+import { DEFAULT_OUTFIT, DEFAULT_PAIR } from '@/lib/avatar/outfit';
 import { HOME_ANCHORS, HOME_HANGAR_SLUG } from '@/lib/home';
 import { FeaturedHead } from './FeaturedHead';
 import styles from './Featured.module.css';
+import type { TeaserLook } from './HangarAvatarTeaser';
 import { HangarMount } from './HangarMount';
 import type { BoardProduct } from './types';
 import ui from './ui.module.css';
@@ -60,6 +63,18 @@ export async function HomeBoard({ locale }: { locale: Locale }) {
     accent: first.accent,
   };
 
+  // Adelanto con el maniquí: el look de fábrica del Hangar (DEFAULT_PAIR y
+  // las prendas de DEFAULT_OUTFIT), solo con lo publicado en el catálogo.
+  const pairItem = all.items.find((item) => item.slug === DEFAULT_PAIR && item.model?.foot);
+  const look: TeaserLook | null = pairItem?.model?.foot
+    ? {
+        pair: { slug: pairItem.slug, name: pairItem.name, liteUrl: pairItem.model.liteUrl, foot: pairItem.model.foot, accent: pairItem.accent },
+        wear: Object.values(DEFAULT_OUTFIT.wear)
+          .filter((slug): slug is string => !!slug && all.items.some((item) => item.slug === slug))
+          .map((slug) => ({ slug, slot: CATALOG_FIT[slug].slot, url: fitUrl(slug, false) ?? '', liteUrl: fitUrl(slug, true) ?? '' })),
+      }
+    : null;
+
   return (
     <>
       {/* tabIndex -1: destino de anclas. scrollToElement lo agrega al saltar a
@@ -91,7 +106,7 @@ export async function HomeBoard({ locale }: { locale: Locale }) {
       {/* "Ropa": justo después de Destacados; no se pinta sin prendas publicadas. */}
       <HomeApparel locale={locale} />
 
-      <HangarMount product={hangarProduct} />
+      <HangarMount product={hangarProduct} look={look} />
     </>
   );
 }

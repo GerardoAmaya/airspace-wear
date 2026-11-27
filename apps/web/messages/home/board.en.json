@@ -25,8 +25,8 @@
           "text": "An avatar that walks, turns and poses with real animations."
         },
         "shoes": {
-          "title": "Only the shoes change",
-          "text": "The avatar stays the same; you choose the pair it wears."
+          "title": "Shoes and outfit",
+          "text": "Swap the pair and try on a cap, jacket and pants."
         },
         "view": {
           "title": "360° view",
@@ -44,7 +44,12 @@
       "platform": "Turntable",
       "sliderLabel": "Rotate the shoe on the platform",
       "sliderValue": "{degrees} degrees",
-      "posterAlt": "{name} on the platform"
+      "posterAlt": "{name} on the platform",
+      "avatar": {
+        "wearing": "Wearing",
+        "hint": "Try the look on in Hangar 360°",
+        "sliderLabel": "Rotate the avatar on the platform"
+      }
     }
   }
 }

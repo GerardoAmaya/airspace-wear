@@ -1,5 +1,6 @@
 import type { StylistRequest } from '@airspace/contracts';
 import type { Page } from '@playwright/test';
+import { HOME_SECTIONS } from '../lib/home';
 import { en, es, expect, fulfillSse, mockStylist, stylistEs, test, waitForApp } from './fixtures';
 
 // Estilista flotante (robot abajo a la derecha y panel del chat). La IA se
@@ -106,6 +107,8 @@ test('the header link opens the panel in English, ideas answer with products', a
 });
 
 test('the home console shows what was asked in the panel (shared conversation)', async ({ page }) => {
+  // La consola de la home está oculta tras HOME_SECTIONS.stylist (lib/home.ts).
+  test.skip(!HOME_SECTIONS.stylist, 'Home stylist section hidden by its flag');
   await mockAnswer(page);
   await page.goto('/es/catalog');
   await waitForApp(page);

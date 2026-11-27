@@ -1,9 +1,15 @@
 import type { StylistRequest } from '@airspace/contracts';
+import { HOME_SECTIONS } from '../lib/home';
 import { expect, fulfillSse, mockStylist, stylistEn, stylistEs, test, waitForApp } from './fixtures';
 
 // Estilista IA con la respuesta SSE simulada (route de Playwright): nunca se
 // llama a la API real ni a Anthropic. Un caso feliz (texto en trozos,
 // productos y fin) y un caso de error que vuelve al motor guionado.
+
+// Estas pruebas usan la consola de la home: con la sección oculta
+// (HOME_SECTIONS.stylist en lib/home.ts) se saltan. El chat sigue probado en
+// stylist-bot.spec.ts (panel del robot).
+test.skip(!HOME_SECTIONS.stylist, 'Home stylist section hidden by its flag');
 
 const QUESTION = 'Busco algo para correr por la mañana';
 // Slugs reales del catálogo (la web arma las tarjetas con sus propios datos).

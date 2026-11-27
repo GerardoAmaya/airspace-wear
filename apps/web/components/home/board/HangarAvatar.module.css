@@ -1,0 +1,60 @@
+/*
+ * Adelanto del Hangar 360° con el maniquí (HangarAvatarTeaser). Usa la base
+ * de Hangar.module.css (plataforma, anillos, HUD); aquí solo lo propio.
+ */
+
+/* La plataforma se arrastra (cursor y touch-action: pan-y de Hangar.module.css).
+   Con la foto fija (modo liviano o movimiento reducido) no hay nada que girar. */
+.stage[data-still] {
+  cursor: default;
+}
+
+/* Foto fija del maniquí (public/posters/hangar-teaser-*.webp). Es una franja
+   del lienzo a toda su altura, con la misma cámara (VIEWS.full en
+   components/hangar/rig.ts): a la altura del escenario coincide con el
+   modelo en vivo y el cambio es un fundido. */
+.still {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  transition: opacity var(--duration-reveal) var(--ease-out);
+}
+
+.still img {
+  width: auto;
+  max-width: none;
+  height: 100%;
+}
+
+.stage[data-ready] .still {
+  opacity: 0;
+}
+
+/* El lienzo en vivo entra con un fundido sobre la foto fija. */
+.canvas {
+  transition: opacity var(--duration-reveal) var(--ease-out);
+}
+
+/* La pista de abajo se parte en líneas si no cabe (Hangar.module.css la deja en una). */
+.hint {
+  max-width: 100%;
+  white-space: normal;
+  text-wrap: balance;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 860px) {
+  .stage:not([data-still]) ~ * .hintLead,
+  .hintSep {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .still,
+  .canvas {
+    transition-duration: var(--duration-ui);
+  }
+}
