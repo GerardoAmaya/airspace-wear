@@ -3,6 +3,7 @@ import type { StylistOrder, StylistRequest } from '@airspace/contracts';
 import type { Page } from '@playwright/test';
 import { Pool } from 'pg';
 import { HOME_SECTIONS } from '../lib/home';
+import { HEADER_LINKS } from '../lib/nav';
 import { formatPrice } from '../lib/price';
 import { AUTH_ENABLED, createTestSession, deleteTestUser, GOOGLE_LOGIN_ENABLED, signIn } from './auth';
 import { en, es, expect, fulfillSse, mockStylist, stylistEs, test, translate, waitForApp } from './fixtures';
@@ -92,11 +93,16 @@ test('opens from the robot without moving the page, answers and closes with Esca
   expect(await page.evaluate(() => window.scrollY)).toBe(scrollY);
 });
 
-test('the header link opens the panel in English, ideas answer with products', async ({ page }) => {
+// El enlace "AI stylist" vive en el pie (el encabezado lo quita, lib/nav.ts);
+// si vuelve al encabezado, se prueba ese.
+test('the stylist link opens the panel in English, ideas answer with products', async ({ page }) => {
   await page.goto('/en/catalog');
   await waitForApp(page);
   const url = page.url();
-  await page.getByRole('navigation', { name: en.Header.navLabel }).getByRole('link', { name: en.Header.stylist }).click();
+  const link = HEADER_LINKS.includes('stylist')
+    ? page.getByRole('navigation', { name: en.Header.navLabel }).getByRole('link', { name: en.Header.stylist })
+    : page.getByRole('navigation', { name: en.Footer.navLabel }).getByRole('link', { name: en.Footer.stylist });
+  await link.click();
   const dialog = panel(page, 'en');
   await expect(dialog).toBeVisible();
   expect(page.url()).toBe(url);

@@ -37,7 +37,8 @@
     "menuOpen": "Abrir menú",
     "menuClose": "Cerrar menú",
     "hangar": "Hangar 360°",
-    "stylist": "Estilista IA"
+    "stylist": "Estilista IA",
+    "orders": "Mis pedidos"
   },
   "Theme": {
     "night": "Noche",
@@ -587,7 +588,18 @@
   },
   "Checkout": {
     "testModeLabel": "Aviso de modo de prueba",
-    "testModeBadge": "Modo de prueba",
-    "testMode": "No se cobra dinero real. Usa la tarjeta <card>4242 4242 4242 4242</card>, cualquier fecha futura y cualquier CVC."
+    "testMode": "<strong>Modo de prueba:</strong> no se cobra dinero real.",
+    "testModeHint": "Paga con esta tarjeta, cualquier fecha futura y cualquier CVC. Tócala o haz clic para copiar el número.",
+    "testCard": {
+      "copy": "Copiar el número de la tarjeta de prueba",
+      "description": "Tarjeta de prueba {number}, vence en cualquier fecha futura, cualquier CVC.",
+      "tag": "Prueba",
+      "expiryLabel": "Vence",
+      "cvcLabel": "CVC",
+      "copied": "Número copiado",
+      "failed": "Cópialo a mano",
+      "announceCopied": "Número de la tarjeta de prueba copiado.",
+      "announceFailed": "No se pudo copiar. El número es {number}."
+    }
   }
 }

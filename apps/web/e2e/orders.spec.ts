@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { Page } from '@playwright/test';
 import { Pool } from 'pg';
+import { HEADER_LINKS } from '../lib/nav';
 import { formatPrice } from '../lib/price';
 import { AUTH_ENABLED, createTestSession, deleteTestUser, GOOGLE_LOGIN_ENABLED, signIn, type TestUser } from './auth';
 import { en, es, expect, test, translate, waitForApp } from './fixtures';
@@ -52,6 +53,26 @@ test.describe('carrito: pagar', () => {
     await expect(page).not.toHaveURL(/cart=open/);
     await expect(drawer.getByRole('complementary', { name: es.Checkout.testModeLabel })).toContainText('4242 4242 4242 4242');
     await expect(drawer.getByRole('button', { name: es.Cart.pay })).toBeEnabled();
+  });
+
+  test('la tarjeta de prueba copia su número al tocarla', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await seedCart(page, [{ slug: BALL, size: '5', quantity: 1 }]);
+    await page.goto('/es/catalog?cart=open');
+    await waitForApp(page);
+    const notice = page.getByRole('dialog', { name: es.Cart.title }).getByRole('complementary', { name: es.Checkout.testModeLabel });
+    const card = notice.getByRole('button', { name: es.Checkout.testCard.copy });
+    await expect(card).toHaveAccessibleDescription(translate('es', 'Checkout.testCard.description', { number: '4242 4242 4242 4242' }));
+    await card.click();
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('4242 4242 4242 4242');
+    // El aviso se anuncia y la tarjeta vuelve sola al frente.
+    await expect(notice.locator('[data-copy-status]')).toHaveText(es.Checkout.testCard.announceCopied);
+    await expect(notice.locator('[data-copy-status]')).toHaveText('', { timeout: 4000 });
+    // Con el teclado (Enter) también copia.
+    await page.evaluate(() => navigator.clipboard.writeText(''));
+    await card.focus();
+    await page.keyboard.press('Enter');
+    await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe('4242 4242 4242 4242');
   });
 
   test('sin sesión, Pagar lleva a Google y vuelve con el carrito abierto', async ({ page }) => {
@@ -125,6 +146,7 @@ test.describe('carrito: pagar', () => {
 test.describe('mis pedidos', () => {
   test('sin sesión pide iniciar sesión y no se indexa', async ({ page }) => {
     await page.goto('/es/orders');
+    await expect(page.getByRole('complementary', { name: es.Checkout.testModeLabel })).toContainText('4242 4242 4242 4242');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(es.Orders.title);
     await expect(page.getByRole('heading', { name: es.Orders.signInTitle })).toBeVisible();
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
@@ -208,4 +230,29 @@ test.describe('mis pedidos', () => {
       await deleteTestUser(user);
     }
   });
+
+  // "Mis pedidos" en el encabezado (lib/nav.ts): en el escritorio y en el
+  // menú del teléfono, marcado como página actual en /orders y sus pedidos.
+  for (const { name, viewport } of [
+    { name: 'escritorio', viewport: { width: 1720, height: 816 } },
+    { name: 'teléfono', viewport: { width: 390, height: 844 } },
+  ]) {
+    test(`el encabezado lleva a Mis pedidos (${name})`, async ({ page }) => {
+      test.skip(!HEADER_LINKS.includes('orders'), 'Mis pedidos fuera del encabezado');
+      await page.setViewportSize(viewport);
+      await page.goto('/es/catalog');
+      await waitForApp(page);
+      const header = page.getByRole('banner');
+      if (name === 'teléfono') await header.getByRole('button', { name: es.Header.menuOpen }).click();
+      const nav = page.getByRole('navigation', { name: es.Header.navLabel });
+      await expect(nav.getByRole('link', { name: es.Header.stylist })).toHaveCount(0);
+      await expect(nav.getByRole('link', { name: es.Header.catalog })).toHaveAttribute('aria-current', 'page');
+      await nav.getByRole('link', { name: es.Header.orders, exact: true }).click();
+      await expect(page).toHaveURL(/\/es\/orders$/);
+      await expect(page.getByRole('heading', { name: es.Orders.signInTitle })).toBeVisible();
+      if (name === 'teléfono') await header.getByRole('button', { name: es.Header.menuOpen }).click();
+      await expect(nav.getByRole('link', { name: es.Header.orders, exact: true })).toHaveAttribute('aria-current', 'page');
+      await expect(nav.getByRole('link', { name: es.Header.catalog })).not.toHaveAttribute('aria-current', 'page');
+    });
+  }
 });

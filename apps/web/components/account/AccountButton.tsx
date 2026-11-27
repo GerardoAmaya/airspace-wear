@@ -7,6 +7,7 @@ import { Link, useRouter } from '@/i18n/navigation';
 import { authClient } from '@/lib/auth/client';
 import { useMotionStore } from '@/lib/motion/store';
 import { DURATION, EASE } from '@/lib/motion/tokens';
+import { HEADER_LINKS } from '@/lib/nav';
 import { signInWithGoogle, signOut } from './account-actions';
 import { Avatar } from './Avatar';
 import styles from './Account.module.css';
@@ -251,9 +252,12 @@ function AccountEntries({ googleEnabled }: { googleEnabled: boolean }) {
           <span className={styles.menuEmail}>{user.email}</span>
         </span>
       </div>
-      <Link href="/orders" className={styles.entryLink}>
-        {t('orders')}
-      </Link>
+      {/* Si el encabezado ya trae "Mis pedidos" (lib/nav.ts), no se repite. */}
+      {!HEADER_LINKS.includes('orders') && (
+        <Link href="/orders" className={styles.entryLink}>
+          {t('orders')}
+        </Link>
+      )}
       <Link href="/account" className={styles.entryLink}>
         {t('account')}
       </Link>

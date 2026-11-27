@@ -1,5 +1,6 @@
 import type { Page } from '@playwright/test';
 import { HOME_HANGAR_TEASER, HOME_SECTIONS } from '../lib/home';
+import { HEADER_LINKS } from '../lib/nav';
 import boardEs from '../messages/home/board.es.json' with { type: 'json' };
 import { es, expect, mockStylist, fulfillSse, stylistEs, test, waitForApp } from './fixtures';
 
@@ -66,7 +67,8 @@ test.describe('reduced motion', () => {
 // Saltos de ancla del encabezado (Balones en la home): los hace Lenis (suaves, con su duración; <html> lleva lenis-smooth mientras
 // dura), cada sección aterriza en su borde superior bajo el encabezado fijo,
 // la URL no cambia y, en el teléfono, el menú se cierra. "Estilista IA"
-// abre el panel del robot en la misma página, sin desplazar.
+// (en el pie, o en el encabezado si lib/nav.ts lo incluye) abre el panel del
+// robot en la misma página, sin desplazar.
 for (const { name, viewport } of [
   { name: 'desktop', viewport: { width: 1720, height: 816 } },
   { name: 'phone', viewport: { width: 390, height: 844 } },
@@ -101,10 +103,24 @@ for (const { name, viewport } of [
       }
 
       // Estilista IA: abre el panel sin mover la página ni cambiar la URL.
-      await page.evaluate(() => window.scrollTo(0, 0));
-      await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
-      if (name === 'phone') await header.getByRole('button', { name: es.Header.menuOpen }).click();
-      await header.getByRole('link', { name: es.Header.stylist, exact: true }).filter({ visible: true }).click();
+      // Fuera del encabezado (lib/nav.ts), se prueba con el enlace del pie.
+      if (HEADER_LINKS.includes('stylist')) {
+        await page.evaluate(() => window.scrollTo(0, 0));
+        await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+        if (name === 'phone') await header.getByRole('button', { name: es.Header.menuOpen }).click();
+        await header.getByRole('link', { name: es.Header.stylist, exact: true }).filter({ visible: true }).click();
+      } else {
+        await expect(header.locator('a[data-stylist-open]')).toHaveCount(0);
+        const footerLink = page.getByRole('contentinfo').getByRole('link', { name: es.Footer.stylist, exact: true });
+        await footerLink.scrollIntoViewIfNeeded();
+        await page.waitForTimeout(300);
+        const before = await page.evaluate(() => Math.round(window.scrollY));
+        await footerLink.click();
+        await expect(page.getByRole('dialog', { name: es.StylistBot.title })).toBeVisible();
+        expect(Math.abs((await page.evaluate(() => Math.round(window.scrollY))) - before)).toBeLessThanOrEqual(1);
+        await expect(page).toHaveURL(/\/es$/);
+        return;
+      }
       await expect(page.getByRole('dialog', { name: es.StylistBot.title })).toBeVisible();
       await expect(page).toHaveURL(/\/es$/);
       expect(await page.evaluate(() => window.scrollY)).toBe(0);

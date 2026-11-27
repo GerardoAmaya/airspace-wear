@@ -1,5 +1,5 @@
 import { useTranslations } from 'next-intl';
-import { Suspense } from 'react';
+import { Fragment, type ReactNode, Suspense } from 'react';
 import { AccountButton, AccountMenuEntries } from '@/components/account/AccountButton';
 import { CartButton } from '@/components/cart/CartButton';
 import { LocaleSwitch } from '@/components/i18n/LocaleSwitch';
@@ -9,7 +9,9 @@ import { Link } from '@/i18n/navigation';
 import { AUTH_ENABLED, GOOGLE_LOGIN_ENABLED } from '@/lib/auth/config';
 import { HANGAR_ENABLED } from '@/lib/avatar/avatar';
 import { HOME_ANCHORS } from '@/lib/home';
+import { HEADER_LINKS, type HeaderLink } from '@/lib/nav';
 import { HeaderShell } from './HeaderShell';
+import { NavLink } from './NavLink';
 import styles from './SiteHeader.module.css';
 
 // Encabezado fijo con la navegación principal.
@@ -18,17 +20,19 @@ export function SiteHeader() {
   const brand = useTranslations('Brand');
 
   // Balones es una sección de la home (ancla en español, ver lib/home.ts);
-  // Catálogo y Hangar 360° son páginas propias (el Hangar vuelve a su
-  // sección de la home si el avatar no está configurado). Estilista IA abre
-  // el panel del robot en la misma página (sin JS, ver StylistLink).
-  const nav = (
-    <>
-      <Link href="/catalog">{t('catalog')}</Link>
-      <Link href={HANGAR_ENABLED ? '/hangar' : { pathname: '/', hash: HOME_ANCHORS.hangar }}>{t('hangar')}</Link>
-      <Link href={{ pathname: '/', hash: HOME_ANCHORS.balls }}>{t('balls')}</Link>
-      <StylistLink>{t('stylist')}</StylistLink>
-    </>
-  );
+  // Catálogo, Hangar 360° y Mis pedidos son páginas propias (el Hangar
+  // vuelve a su sección de la home si el avatar no está configurado). Mis
+  // pedidos sin sesión muestra el aviso para entrar. Estilista IA abre el
+  // panel del robot en la misma página (sin JS, ver StylistLink). Qué enlaces
+  // se muestran y en qué orden lo decide HEADER_LINKS (lib/nav.ts).
+  const links: Record<HeaderLink, ReactNode> = {
+    catalog: <NavLink href="/catalog">{t('catalog')}</NavLink>,
+    hangar: HANGAR_ENABLED ? <NavLink href="/hangar">{t('hangar')}</NavLink> : <Link href={{ pathname: '/', hash: HOME_ANCHORS.hangar }}>{t('hangar')}</Link>,
+    balls: <Link href={{ pathname: '/', hash: HOME_ANCHORS.balls }}>{t('balls')}</Link>,
+    orders: <NavLink href="/orders">{t('orders')}</NavLink>,
+    stylist: <StylistLink>{t('stylist')}</StylistLink>,
+  };
+  const nav = HEADER_LINKS.map((id) => <Fragment key={id}>{links[id]}</Fragment>);
 
   return (
     <HeaderShell

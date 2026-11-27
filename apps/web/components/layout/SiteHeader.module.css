@@ -87,6 +87,20 @@
   color: var(--color-text);
 }
 
+/* Página actual: texto pleno y una raya de tinta primaria debajo. */
+.nav > a[aria-current='page'] {
+  position: relative;
+  color: var(--color-text);
+}
+
+.nav > a[aria-current='page']::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 -6px;
+  height: 2px;
+  background: var(--color-primary);
+}
+
 .tools {
   display: flex;
   align-items: center;
@@ -168,6 +182,17 @@
     border-bottom: 1px solid var(--color-line);
     font-size: var(--text-sm);
     color: var(--color-text);
+  }
+
+  /* En el menú la raya va a la izquierda, sobre la línea de la fila. */
+  .nav > a[aria-current='page'] {
+    color: var(--color-primary);
+  }
+
+  .nav > a[aria-current='page']::after {
+    inset: var(--space-4) auto var(--space-4) calc(-1 * var(--space-3));
+    width: 2px;
+    height: auto;
   }
 }
 

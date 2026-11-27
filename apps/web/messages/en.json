@@ -37,7 +37,8 @@
     "menuOpen": "Open menu",
     "menuClose": "Close menu",
     "hangar": "Hangar 360°",
-    "stylist": "AI stylist"
+    "stylist": "AI stylist",
+    "orders": "My orders"
   },
   "Theme": {
     "night": "Night",
@@ -587,7 +588,18 @@
   },
   "Checkout": {
     "testModeLabel": "Test mode notice",
-    "testModeBadge": "Test mode",
-    "testMode": "No real money is charged. Use the card <card>4242 4242 4242 4242</card>, any future date and any CVC."
+    "testMode": "<strong>Test mode:</strong> no real money is charged.",
+    "testModeHint": "Pay with this card, any future date and any CVC. Tap or click it to copy the number.",
+    "testCard": {
+      "copy": "Copy the test card number",
+      "description": "Test card {number}, any future expiry date, any CVC.",
+      "tag": "Test",
+      "expiryLabel": "Exp",
+      "cvcLabel": "CVC",
+      "copied": "Number copied",
+      "failed": "Copy it by hand",
+      "announceCopied": "Test card number copied.",
+      "announceFailed": "Could not copy. The number is {number}."
+    }
   }
 }
