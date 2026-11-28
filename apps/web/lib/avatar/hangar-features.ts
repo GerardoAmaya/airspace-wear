@@ -12,8 +12,11 @@ export const HANGAR_FEATURES = {
   // sección "Base" en "Ropa", el chip "Base" de cada lugar y la línea "Base
   // del maniquí" de "Lleva puesto". Apagado, el maniquí no lleva capa base:
   // al quitar una prenda del catálogo se ve el cuerpo del maniquí en esa zona.
-  // Para volver: true (y que exista NEXT_PUBLIC_OUTFIT_URL en producción).
-  baseOutfit: false,
+  // Encendido (pedido del dueño): el maniquí lleva siempre la camiseta base
+  // de manga corta y el short (DEFAULT_OUTFIT en lib/avatar/outfit.ts), así
+  // no queda desnudo. Necesita NEXT_PUBLIC_OUTFIT_URL y
+  // NEXT_PUBLIC_OUTFIT_LITE_URL en producción.
+  baseOutfit: true,
   // Calcetines del vestuario base y sus franjas (las del puño y las del corte
   // de la pierna, leg-cut.ts). Solo cuenta con baseOutfit en true. Para
   // volver: true; los botones "Calcetines" y "Franjas" y sus colores reaparecen.
@@ -25,6 +28,17 @@ export const HANGAR_FEATURES = {
   // al comportamiento anterior: el look de fábrica (DEFAULT_OUTFIT, con la
   // gorra, la camiseta Nike Flight negra y los pants).
   resetToBare: true,
+  // Pestaña "Ropa" (piezas base, colores y prendas del catálogo). Apagada, el
+  // vestuario queda fijo: siempre DEFAULT_OUTFIT (camiseta gris y short
+  // negro), sin importar lo guardado en el navegador. Para volver a dejar
+  // elegir la ropa: true.
+  wearTab: false,
+  // Prendas del catálogo en el maniquí (gorras, hoodies, camiseta Nike Flight,
+  // anorak y pants). Apagado, el Hangar no ofrece ninguna (lista vacía): las
+  // fichas no enlazan al Hangar con ?wear= y lo guardado se limpia. Para
+  // volver: true (usa HANGAR_WEAR_CATALOG) y, si se quiere de fábrica, el
+  // look de CATALOG_DEFAULT_WEAR en lib/avatar/outfit.ts.
+  catalogWear: false,
 } as const;
 
 // Chips de animación, en este orden. El clip "idle" (Reposo) sigue en el GLB
@@ -37,14 +51,15 @@ export const HANGAR_CLIPS: readonly Clip[] = ['pose', 'turn', 'walk'];
 // clip queda quieto (AvatarScene).
 export const DEFAULT_CLIP: Clip = 'pose';
 
-// Prendas del catálogo que el Hangar ofrece en "Ropa" (slugs de
+// Prendas del catálogo que el Hangar ofrecía en "Ropa" (slugs de
 // apps/api/prisma/seed/apparel.ts ajustados en lib/avatar/catalog-fit.json).
-// Arriba: la camiseta Nike Flight negra (la de fábrica), el hoodie Nike Air negro,
-// el hoodie Nike blanco y el anorak gris. Las demás prendas ajustadas (sudadera Nike, hoodie Adidas, lentes) siguen en
-// el catálogo y en catalog-fit.json, pero el Hangar no las muestra, su ficha
-// no enlaza al Hangar y lo guardado con ellas se limpia. Para volver a
-// mostrarlas: agregar su slug aquí, o poner null para ofrecer todas las ajustadas.
-export const HANGAR_WEAR_ALLOWLIST: readonly string[] | null = [
+// Arriba: la camiseta Nike Flight negra, el hoodie Nike Air negro, el hoodie
+// Nike blanco y el anorak gris. Las demás prendas ajustadas (sudadera Nike,
+// hoodie Adidas, lentes) siguen en el catálogo y en catalog-fit.json, pero el
+// Hangar no las muestra, su ficha no enlaza al Hangar y lo guardado con ellas
+// se limpia. Para volver a mostrarlas: agregar su slug aquí. Hoy no se usa
+// (HANGAR_FEATURES.catalogWear en false).
+export const HANGAR_WEAR_CATALOG: readonly string[] = [
   'gorra-ny-59fifty-marino',
   'gorra-ny-negra-logo-gris',
   'gorra-adidas-negra',
@@ -54,5 +69,9 @@ export const HANGAR_WEAR_ALLOWLIST: readonly string[] | null = [
   'anorak-gris',
   'pants-anorak-gris',
 ];
+
+// Lista que el Hangar ofrece de verdad: vacía con catalogWear en false; null
+// ofrecería todas las ajustadas.
+export const HANGAR_WEAR_ALLOWLIST: readonly string[] | null = HANGAR_FEATURES.catalogWear ? HANGAR_WEAR_CATALOG : [];
 
 export const allowedInHangar = (slug: string): boolean => HANGAR_WEAR_ALLOWLIST === null || HANGAR_WEAR_ALLOWLIST.includes(slug);

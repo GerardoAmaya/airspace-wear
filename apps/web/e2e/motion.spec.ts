@@ -1,5 +1,6 @@
 import type { Page } from '@playwright/test';
 import { HOME_HANGAR_TEASER, HOME_SECTIONS } from '../lib/home';
+import { HANGAR_FEATURES } from '../lib/avatar/hangar-features';
 import { HEADER_LINKS } from '../lib/nav';
 import boardEs from '../messages/home/board.es.json' with { type: 'json' };
 import { es, expect, mockStylist, fulfillSse, stylistEs, test, waitForApp } from './fixtures';
@@ -200,7 +201,9 @@ test.describe('home hangar teaser', () => {
     const stage = page.locator('#hangar[data-teaser="avatar"] [data-ready]');
     await expect(stage).toHaveCount(1, { timeout: 30_000 });
     expect(files.some((path) => path.startsWith('/avatar-local/'))).toBe(true);
-    expect(files.filter((path) => path.startsWith('/avatar-fit/'))).toHaveLength(3);
+    // Prendas del catálogo del look de fábrica: la gorra, la camiseta y los
+    // pants con HANGAR_FEATURES.catalogWear; ninguna con el vestuario fijo.
+    expect(files.filter((path) => path.startsWith('/avatar-fit/'))).toHaveLength(HANGAR_FEATURES.catalogWear ? 3 : 0);
     // El escenario y el botón llevan al Hangar.
     await expect(page.locator('#hangar').getByRole('link', { name: boardEs.HomeBoard.hangar.cta })).toHaveAttribute('href', '/es/hangar');
   });

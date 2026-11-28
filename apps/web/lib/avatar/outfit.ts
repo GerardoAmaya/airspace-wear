@@ -46,25 +46,32 @@ export interface OutfitChoice {
   wear: CatalogWear;
 }
 
+// Look de fábrica con prendas del catálogo (antes de fijar el vestuario
+// base): la gorra NY 59FIFTY, la camiseta Nike Flight negra y los pants
+// grises. Para volver a él: HANGAR_FEATURES.catalogWear en true y `wear:
+// sanitizeWear(CATALOG_DEFAULT_WEAR)` en DEFAULT_OUTFIT.
+export const CATALOG_DEFAULT_WEAR: CatalogWear = { head: 'gorra-ny-59fifty-marino', top: 'camiseta-nike-flight-negra', bottom: 'pants-anorak-gris' };
+
+// Vestuario de fábrica (pedido del dueño): la camiseta base de manga corta en
+// gris y el short negro, en ambos temas (el gris se separa del fondo crema
+// del tema claro y del casi negro del oscuro), sin gorra, lentes, calcetines
+// ni prendas del catálogo. Con HANGAR_FEATURES.wearTab en false es fijo:
+// el Hangar y el adelanto de la home lo usan siempre.
 export const DEFAULT_OUTFIT: OutfitChoice = {
   shirt: 'sleeves',
   bottoms: 'shorts',
-  cap: true,
+  cap: false,
   glasses: false,
-  socks: true,
+  socks: false,
   stripes: true,
-  colors: {},
-  // Prendas del catálogo puestas por defecto (visitas nuevas y "Restablecer"):
-  // la gorra NY 59FIFTY de visera plana, la camiseta Nike Flight negra (prenda
-  // propia, pnpm garments) y los pants grises. Lo ya guardado no cambia: un
-  // anorak o un hoodie guardados siguen puestos.
-  wear: sanitizeWear({ head: 'gorra-ny-59fifty-marino', top: 'camiseta-nike-flight-negra', bottom: 'pants-anorak-gris' }),
+  colors: { shirt: 'grey', bottoms: 'black' },
+  wear: {},
 };
 
 // "Restablecer" con HANGAR_FEATURES.resetToBare: el maniquí sin prendas del
-// catálogo y, si el vestuario base está a la vista, sin gorra, lentes ni
-// calcetines (la camiseta y la parte de abajo base no se pueden quitar).
-export const BARE_OUTFIT: OutfitChoice = { ...DEFAULT_OUTFIT, cap: false, glasses: false, socks: false, colors: {}, wear: {} };
+// catálogo y sin gorra, lentes ni calcetines, con la camiseta y el short de
+// fábrica (y sus colores).
+export const BARE_OUTFIT: OutfitChoice = { ...DEFAULT_OUTFIT, cap: false, glasses: false, socks: false, wear: {} };
 
 // Par que lleva el maniquí al abrir el Hangar (si está en la lista de
 // calzables; si no, el primero de la vitrina).

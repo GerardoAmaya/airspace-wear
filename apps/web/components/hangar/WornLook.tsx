@@ -31,7 +31,9 @@ const isSoldOut = (item: LookItem) => item.sizes.length > 0 && item.sizes.every(
 // nombran (no se venden). Al pie, el total del look y "Agregar look completo",
 // que agrega todo lo vendible con su talla. Mientras falte una talla, el
 // botón queda deshabilitado a la vista (aria-disabled, sigue enfocable): al
-// pulsarlo, el foco va a la primera talla que falta.
+// pulsarlo, el foco va a la primera talla que falta. Con solo el par a la
+// venta (vestuario fijo, sin prendas del catálogo), el botón dice "Agregar
+// al carrito" como en la ficha del producto.
 export function WornLook({ items, basePieces }: { items: LookItem[]; basePieces: string[] }) {
   const t = useTranslations('Hangar.look');
   const product = useTranslations('Product');
@@ -48,6 +50,7 @@ export function WornLook({ items, basePieces }: { items: LookItem[]; basePieces:
   const missing = sellable.filter((item) => needsSize(item) && !sizeOf(item));
   const total = sellable.reduce((sum, item) => sum + item.price.amountCents, 0);
   const currency = sellable[0]?.price.currency ?? items[0]?.price.currency ?? 'USD';
+  const single = items.length === 1;
 
   const addLook = () => {
     if (missing.length) {
@@ -129,11 +132,13 @@ export function WornLook({ items, basePieces }: { items: LookItem[]; basePieces:
           aria-describedby={hintId}
           onClick={sellable.length ? addLook : undefined}
         >
-          {t('add')}
+          {single ? product('addToCart') : t('add')}
         </button>
         <p id={hintId} className={styles.hint} data-alert={status === 'missing' || undefined} role="status">
           {status === 'added'
-            ? t('added')
+            ? single
+              ? product('added')
+              : t('added')
             : status === 'max'
               ? product('maxInCart', { max: MAX_QUANTITY })
               : missing.length

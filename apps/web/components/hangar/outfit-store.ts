@@ -48,9 +48,16 @@ const safeStorage: StateStorage = {
 export const HANGAR_TABS = ['shoes', 'wear', 'colors'] as const;
 export type HangarTab = (typeof HANGAR_TABS)[number];
 const DEFAULT_TAB: HangarTab = 'shoes';
-// Pestañas que el Hangar ofrece hoy: "Colores" solo con su bandera
+// Pestañas que el Hangar ofrece hoy: "Ropa" y "Colores" solo con sus banderas
 // (lib/avatar/hangar-features.ts). Una pestaña oculta guardada vuelve a "Zapatos".
-const SHOWN_TABS: readonly HangarTab[] = HANGAR_TABS.filter((tab) => tab !== 'colors' || (HANGAR_FEATURES.colorsTab && HANGAR_FEATURES.baseOutfit));
+const SHOWN_TABS: readonly HangarTab[] = HANGAR_TABS.filter(
+  (tab) =>
+    (tab !== 'wear' || HANGAR_FEATURES.wearTab) &&
+    (tab !== 'colors' || (HANGAR_FEATURES.wearTab && HANGAR_FEATURES.colorsTab && HANGAR_FEATURES.baseOutfit)),
+);
+// Vestuario fijo (sin pestaña "Ropa"): lo guardado por visitas anteriores
+// (musculosa, pantalón, colores, hoodies) no cuenta.
+const FIXED_OUTFIT = !HANGAR_FEATURES.wearTab;
 const sanitizeTab = (value: unknown): HangarTab => (SHOWN_TABS.includes(value as HangarTab) ? (value as HangarTab) : DEFAULT_TAB);
 
 // Filtros de la pestaña "Zapatos" (se recuerdan como la pestaña): texto
@@ -134,8 +141,8 @@ export const useOutfitStore = create<OutfitState>()(
           colors: { ...state.colors, ...Object.fromEntries(MATCH_SLOTS.map((slot) => [slot, 'match'])) },
         })),
       reset: () => {
-        const target = HANGAR_FEATURES.resetToBare ? BARE_OUTFIT : DEFAULT_OUTFIT;
-        set({ ...target, colors: {}, wear: { ...target.wear } });
+        const target = HANGAR_FEATURES.resetToBare && !FIXED_OUTFIT ? BARE_OUTFIT : DEFAULT_OUTFIT;
+        set({ ...target, colors: { ...target.colors }, wear: { ...target.wear } });
       },
     }),
     {
@@ -155,10 +162,11 @@ export const useOutfitStore = create<OutfitState>()(
         shoeFilter,
       }),
       // Sin nada guardado (visita nueva), zustand igual llama a merge: se
-      // quedan los valores de fábrica (con el hoodie Nike Air negro puesto).
+      // quedan los valores de fábrica. Con el vestuario fijo, lo guardado
+      // solo aporta la pestaña y los filtros de "Zapatos".
       merge: (persisted, current) => (persisted == null ? current : {
         ...current,
-        ...sanitizeChoice(persisted),
+        ...(FIXED_OUTFIT ? DEFAULT_OUTFIT : sanitizeChoice(persisted)),
         tab: sanitizeTab((persisted as { tab?: unknown } | undefined)?.tab),
         shoeFilter: sanitizeShoeFilter((persisted as { shoeFilter?: unknown } | undefined)?.shoeFilter),
       }),
@@ -186,7 +194,8 @@ export function useOutfitChoice(): OutfitChoice {
   const stripes = useOutfitStore((state) => state.stripes);
   const colors = useOutfitStore((state) => state.colors);
   const wear = useOutfitStore((state) => state.wear);
-  return hydrated ? { shirt, bottoms, cap, glasses, socks, stripes, colors, wear } : DEFAULT_OUTFIT;
+  // Vestuario fijo: siempre el de fábrica.
+  return hydrated && !FIXED_OUTFIT ? { shirt, bottoms, cap, glasses, socks, stripes, colors, wear } : DEFAULT_OUTFIT;
 }
 
 // Pestaña del panel: la de fábrica en el servidor y la hidratación.

@@ -4,9 +4,10 @@ import { HANGAR_CLIPS, HANGAR_FEATURES, HANGAR_WEAR_ALLOWLIST } from '../lib/ava
 import { es, expect, test, translate, waitForApp } from './fixtures';
 
 // Hangar 360°: el avatar con el par elegido. Un solo lienzo; la pestaña
-// "Zapatos" cambia el par, los chips cambian la animación, "Ropa" viste al
-// maniquí con la lista corta de prendas (lib/avatar/hangar-features.ts) y
-// "Lleva puesto" agrega el look al carrito.
+// "Zapatos" cambia el par, los chips cambian la animación y "Lleva puesto"
+// agrega el par (o el look) al carrito. Hoy el vestuario es fijo (camiseta
+// base y short, HANGAR_FEATURES.wearTab y catalogWear en false): las pruebas
+// de "Ropa" y de las prendas del catálogo corren solo si se vuelven a encender.
 
 const cartLabel = (count: number) => translate('es', 'Cart.buttonLabel', { count });
 const h = es.Hangar;
@@ -29,14 +30,27 @@ async function openTab(page: Page, name: string): Promise<Locator> {
 
 const worn = (page: Page) => page.getByRole('region', { name: h.wearing, exact: true });
 
-// Look por defecto (DEFAULT_PAIR y DEFAULT_OUTFIT.wear): Air Jordan 1, gorra
-// NY 59FIFTY, camiseta Nike Flight negra y los pants grises. data-wear lista las prendas en el orden de
-// los lugares (cabeza, ojos, torso, piernas).
+// Look por defecto (DEFAULT_PAIR y DEFAULT_OUTFIT.wear): Air Jordan 1 y,
+// con las prendas del catálogo encendidas, gorra NY 59FIFTY, camiseta Nike
+// Flight negra y los pants grises. data-wear lista las prendas en el orden de
+// los lugares (cabeza, ojos, torso, piernas); sin prendas no hay atributo.
+// (CATALOG_DEFAULT_WEAR en lib/avatar/outfit.ts; ese módulo importa JSON y
+// no se carga aquí.)
 const DEFAULT_PAIR = 'air-jordan-1';
 const DEFAULT_CAP = 'gorra-ny-59fifty-marino';
 const DEFAULT_TOP = 'camiseta-nike-flight-negra';
 const DEFAULT_BOTTOM = 'pants-anorak-gris';
-const DEFAULT_WEAR = `${DEFAULT_CAP},${DEFAULT_TOP},${DEFAULT_BOTTOM}`;
+const CATALOG_WEAR = HANGAR_FEATURES.catalogWear && HANGAR_FEATURES.wearTab;
+const DEFAULT_WEAR = CATALOG_WEAR ? `${DEFAULT_CAP},${DEFAULT_TOP},${DEFAULT_BOTTOM}` : '';
+
+// Lo puesto del catálogo: el valor esperado o ningún atributo.
+// Línea de las piezas base del maniquí en "Lleva puesto" (camiseta y short).
+const BASE_LINE = translate('es', 'Hangar.look.base', { pieces: new Intl.ListFormat('es', { type: 'unit' }).format([h.outfit.slots.shirt, h.outfit.bottomsStyles.shorts]) });
+
+async function expectWear(stage: Locator, value: string) {
+  if (value) await expect(stage).toHaveAttribute('data-wear', value, { timeout: 30_000 });
+  else await expect(stage).not.toHaveAttribute('data-wear');
+}
 
 test('hangar loads one canvas, switches the pair and the clip, and adds the look to the cart', async ({ page, consoleErrors }) => {
   await page.goto('/es/hangar');
@@ -53,7 +67,7 @@ test('hangar loads one canvas, switches the pair and the clip, and adds the look
   const picker = shoes.getByRole('region', { name: h.pickerLabel });
   // Al abrir lleva el par por defecto.
   await expect(picker.locator(`li[data-key="${DEFAULT_PAIR}"] button`)).toHaveAttribute('aria-pressed', 'true');
-  await expect(stage).toHaveAttribute('data-wear', DEFAULT_WEAR, { timeout: 30_000 });
+  await expectWear(stage, DEFAULT_WEAR);
   const cards = picker.getByRole('button');
   expect(await cards.count()).toBeGreaterThan(5);
   // Por su slug: al elegirlo, la tarjeta queda en su lugar.
@@ -82,10 +96,11 @@ test('hangar loads one canvas, switches the pair and the clip, and adds the look
   await page.keyboard.press('ArrowRight');
   await expect(stage).not.toHaveAttribute('aria-valuenow', '0');
 
-  // "Agregar look completo": sin talla, lleva el foco a la talla que falta.
+  // "Agregar look completo" (o "Agregar al carrito" con solo el par): sin
+  // talla, lleva el foco a la talla que falta.
   const cartButton = page.locator('[aria-controls="cart-panel"]');
   await expect(cartButton).toHaveAccessibleName(cartLabel(0));
-  const addLook = worn(page).getByRole('button', { name: h.look.add });
+  const addLook = worn(page).getByRole('button', { name: DEFAULT_WEAR ? h.look.add : es.Product.addToCart, exact: true });
   await expect(addLook).toHaveAttribute('aria-disabled', 'true');
   const size = worn(page).getByRole('combobox', { name: translate('es', 'Hangar.look.sizeLabel', { name }) });
   // aria-disabled sigue enfocable y pulsable (Playwright lo trata como
@@ -95,40 +110,62 @@ test('hangar loads one canvas, switches the pair and the clip, and adds the look
   await expect(size).toBeFocused();
   await expect(cartButton).toHaveAccessibleName(cartLabel(0));
 
-  // Con talla del par, de la camiseta y de los pants (puestos por defecto),
-  // agrega el look entero: el par, la camiseta, los pants y la gorra NY
-  // 59FIFTY (talla única, también puesta por defecto).
   const option = await size.locator('option:not([disabled])').first().getAttribute('value');
   await size.selectOption(option ?? '');
-  await expect(addLook).toHaveAttribute('aria-disabled', 'true');
-  const tee = worn(page).getByRole('combobox', { name: /nike flight/i });
-  await tee.selectOption('M');
-  await expect(addLook).toHaveAttribute('aria-disabled', 'true');
-  const pants = worn(page).getByRole('combobox', { name: /pants/i });
-  await pants.selectOption('M');
-  await expect(addLook).not.toHaveAttribute('aria-disabled', 'true');
-  const capLink = worn(page).locator(`a[href="/es/products/${DEFAULT_CAP}"]`);
-  await expect(capLink).toHaveCount(1);
-  const capName = ((await capLink.textContent()) ?? '').trim();
-  expect(capName).not.toBe('');
-  await addLook.click();
-  await expect(cartButton).toHaveAccessibleName(cartLabel(4));
-  await cartButton.click();
-  const cart = page.getByRole('dialog', { name: es.Cart.title });
-  await expect(cart).toContainText(name);
-  await expect(cart).toContainText(capName);
+  if (DEFAULT_WEAR) {
+    // Con talla del par, de la camiseta y de los pants (puestos por defecto),
+    // agrega el look entero: el par, la camiseta, los pants y la gorra NY
+    // 59FIFTY (talla única, también puesta por defecto).
+    await expect(addLook).toHaveAttribute('aria-disabled', 'true');
+    const tee = worn(page).getByRole('combobox', { name: /nike flight/i });
+    await tee.selectOption('M');
+    await expect(addLook).toHaveAttribute('aria-disabled', 'true');
+    const pants = worn(page).getByRole('combobox', { name: /pants/i });
+    await pants.selectOption('M');
+    await expect(addLook).not.toHaveAttribute('aria-disabled', 'true');
+    const capLink = worn(page).locator(`a[href="/es/products/${DEFAULT_CAP}"]`);
+    await expect(capLink).toHaveCount(1);
+    const capName = ((await capLink.textContent()) ?? '').trim();
+    expect(capName).not.toBe('');
+    await addLook.click();
+    await expect(cartButton).toHaveAccessibleName(cartLabel(4));
+    await cartButton.click();
+    const cart = page.getByRole('dialog', { name: es.Cart.title });
+    await expect(cart).toContainText(name);
+    await expect(cart).toContainText(capName);
+  } else {
+    // Vestuario fijo: solo el par se vende (una fila, total = su precio) y
+    // las piezas base se nombran aparte.
+    await expect(worn(page).getByRole('heading', { level: 3 })).toHaveCount(1);
+    await expect(worn(page).getByText(BASE_LINE)).toBeVisible();
+    await expect(addLook).not.toHaveAttribute('aria-disabled', 'true');
+    await addLook.click();
+    await expect(cartButton).toHaveAccessibleName(cartLabel(1));
+    await cartButton.click();
+    await expect(page.getByRole('dialog', { name: es.Cart.title })).toContainText(name);
+  }
 
   expect(consoleErrors, consoleErrors.join('\n')).toEqual([]);
 });
 
-// Pestañas: solo "Zapatos" y "Ropa" ("Colores" oculta), flechas del
-// teclado, y la última elegida se recuerda.
+// Pestañas: "Zapatos" y, con su bandera, "Ropa" ("Colores" oculta), flechas
+// del teclado, y la última elegida se recuerda. Con el vestuario fijo solo
+// queda "Zapatos".
 test('the panel tabs move with the arrow keys and remember the last one', async ({ page }) => {
-  test.skip(HANGAR_FEATURES.colorsTab && HANGAR_FEATURES.baseOutfit, 'Con "Colores" a la vista hay tres pestañas.');
+  test.skip(HANGAR_FEATURES.colorsTab && HANGAR_FEATURES.baseOutfit && HANGAR_FEATURES.wearTab, 'Con "Colores" a la vista hay tres pestañas.');
   await openHangar(page);
   const tablist = page.getByRole('tablist', { name: h.tabs.label });
-  await expect(tablist.getByRole('tab')).toHaveText([h.tabs.shoes, h.tabs.wear]);
   const shoes = tablist.getByRole('tab', { name: h.tabs.shoes, exact: true });
+  if (!HANGAR_FEATURES.wearTab) {
+    await expect(tablist.getByRole('tab')).toHaveText([h.tabs.shoes]);
+    await expect(shoes).toHaveAttribute('aria-selected', 'true');
+    await shoes.focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(shoes).toBeFocused();
+    await expect(shoes).toHaveAttribute('aria-selected', 'true');
+    return;
+  }
+  await expect(tablist.getByRole('tab')).toHaveText([h.tabs.shoes, h.tabs.wear]);
   await expect(shoes).toHaveAttribute('aria-selected', 'true');
   await shoes.focus();
   await page.keyboard.press('ArrowRight');
@@ -163,7 +200,31 @@ test('old saved state with hidden tabs or garments is sanitized', async ({ page 
   const stage = await openHangar(page);
   const tablist = page.getByRole('tablist', { name: h.tabs.label });
   await expect(tablist.getByRole('tab', { name: h.tabs.shoes, exact: true })).toHaveAttribute('aria-selected', 'true');
-  await expect(stage).toHaveAttribute('data-wear', `gorra-adidas-negra,${DEFAULT_TOP}`, { timeout: 30_000 });
+  await expectWear(stage, CATALOG_WEAR ? `gorra-adidas-negra,${DEFAULT_TOP}` : DEFAULT_WEAR);
+});
+
+// Vestuario fijo (HANGAR_FEATURES.wearTab en false): el maniquí lleva siempre
+// la camiseta base y el short, aunque una visita anterior haya guardado otra
+// ropa, otros colores o la pestaña "Ropa"; no hay prendas del catálogo.
+test('the fixed base outfit ignores old saved choices and shows the tee and shorts', async ({ page, consoleErrors }) => {
+  test.skip(HANGAR_FEATURES.wearTab || !HANGAR_FEATURES.baseOutfit, 'El vestuario se elige en "Ropa".');
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'airspace-hangar-outfit',
+      JSON.stringify({
+        state: { tab: 'wear', shirt: 'tank', bottoms: 'pants', cap: true, colors: { shirt: 'lime' }, wear: { top: 'hoodie-nike-air-negro' } },
+        version: 1,
+      }),
+    );
+  });
+  const stage = await openHangar(page);
+  await expect(stage).not.toHaveAttribute('data-outfit', 'loading', { timeout: 30_000 });
+  test.skip((await stage.getAttribute('data-outfit')) !== 'ready', 'Sin vestuario local (pnpm avatar:build).');
+  await expect(stage).not.toHaveAttribute('data-wear');
+  const tablist = page.getByRole('tablist', { name: h.tabs.label });
+  await expect(tablist.getByRole('tab')).toHaveText([h.tabs.shoes]);
+  await expect(worn(page).getByText(BASE_LINE)).toBeVisible();
+  expect(consoleErrors, consoleErrors.join('\n')).toEqual([]);
 });
 
 // Filtros de "Zapatos": búsqueda sin acentos ni mayúsculas, chip de marca,
@@ -260,7 +321,7 @@ test.describe('shoes tab filters', () => {
 // Oculto hoy (HANGAR_FEATURES.baseOutfit y colorsTab en false): corre solo si
 // se vuelven a encender.
 test('the base outfit toggles garments, picks colors and remembers them', async ({ page, consoleErrors }) => {
-  test.skip(!HANGAR_FEATURES.baseOutfit || !HANGAR_FEATURES.colorsTab || !HANGAR_FEATURES.socks || HANGAR_FEATURES.resetToBare, 'Vestuario base oculto (hangar-features.ts).');
+  test.skip(!HANGAR_FEATURES.wearTab || !HANGAR_FEATURES.baseOutfit || !HANGAR_FEATURES.colorsTab || !HANGAR_FEATURES.socks || HANGAR_FEATURES.resetToBare, 'Vestuario base fijo u oculto (hangar-features.ts).');
   const o = h.outfit;
   const stage = await openHangar(page);
   await expect(stage).not.toHaveAttribute('data-outfit', 'loading');
@@ -374,7 +435,7 @@ test('the home Hangar 360° section links to the hangar page', async ({ page }) 
 // se quita (con "Ninguna" o pulsándola otra vez), aparece en "Lleva puesto"
 // con enlace a su ficha, y "Restablecer" deja el maniquí sin ropa con el par.
 test('the wear tab offers only the allowlist, garments come off and reset leaves the bare mannequin', async ({ page, consoleErrors }) => {
-  test.skip(HANGAR_FEATURES.baseOutfit || !HANGAR_FEATURES.resetToBare, 'Con vestuario base, "Ropa" cambia.');
+  test.skip(!CATALOG_WEAR || HANGAR_FEATURES.baseOutfit || !HANGAR_FEATURES.resetToBare, 'Sin "Ropa" ni prendas del catálogo, o con vestuario base.');
   const c = h.outfit.catalog;
   const stage = await openHangar(page);
   await expect(stage).not.toHaveAttribute('data-outfit');
@@ -436,6 +497,7 @@ test('the wear tab offers only the allowlist, garments come off and reset leaves
 });
 
 test('the product page of a fitted garment opens the hangar with it preselected', async ({ page, consoleErrors }) => {
+  test.skip(!CATALOG_WEAR, 'El Hangar no ofrece prendas del catálogo.');
   // La gorra Adidas (la NY 59FIFTY ya viene puesta por defecto).
   const slug = 'gorra-adidas-negra';
   await page.goto(`/es/products/${slug}`);
@@ -471,7 +533,19 @@ test('a fitted garment outside the hangar allowlist has no hangar link', async (
   await expect(page.getByRole('link', { name: es.Product.tryInHangar })).toHaveCount(0);
 
   const stage = await openHangar(page, '/es/hangar?wear=sudadera-nike-club-fleece');
-  await expect(stage).toHaveAttribute('data-wear', DEFAULT_WEAR, { timeout: 30_000 });
+  await expectWear(stage, DEFAULT_WEAR);
+});
+
+// Sin prendas del catálogo en el Hangar: la ficha del hoodie (ajustado) no
+// enlaza al Hangar y ?wear= no lo pone.
+test('with catalog wear off, fitted garments have no hangar link', async ({ page }) => {
+  test.skip(CATALOG_WEAR, 'El Hangar ofrece prendas del catálogo.');
+  await page.goto('/es/products/hoodie-nike-air-negro');
+  await waitForApp(page);
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await expect(page.getByRole('link', { name: es.Product.tryInHangar })).toHaveCount(0);
+  const stage = await openHangar(page, '/es/hangar?wear=hoodie-nike-air-negro');
+  await expectWear(stage, '');
 });
 
 test('a product without avatar fit has no hangar link', async ({ page }) => {

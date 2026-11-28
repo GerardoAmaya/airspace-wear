@@ -82,8 +82,9 @@ const TICKS = Array.from({ length: 36 }, (_, index) => {
 // prendas del catálogo con talla, total del look y "Agregar look completo");
 // al centro, solo el escenario (avatar en la plataforma, marco HUD, giro por
 // arrastre o flechas) con los chips de animación y de encuadre debajo; a la
-// derecha, pestañas "Zapatos" y "Ropa" ("Colores" y el vestuario base quedan
-// ocultos tras sus banderas en lib/avatar/hangar-features.ts). En pantallas angostas:
+// derecha, pestañas "Zapatos" y "Ropa" ("Ropa" y "Colores" quedan ocultas
+// tras sus banderas en lib/avatar/hangar-features.ts: hoy el maniquí lleva
+// un vestuario base fijo, camiseta y short). En pantallas angostas:
 // escenario, pestañas y "Lleva puesto". Nada se mueve con el scroll.
 export function HangarStudio({ products, garments }: { products: HangarProduct[]; garments: HangarGarment[] }) {
   const t = useTranslations('Hangar');
@@ -213,7 +214,8 @@ export function HangarStudio({ products, garments }: { products: HangarProduct[]
   const replaced = new Set(wornGarments.flatMap((item) => CATALOG_FIT[item.slug].hides));
   const basePieces = baseOutfit
     ? [
-        look.garments.shirt && !replaced.has('shirt') && t('outfit.shirtStyles.sleeves'),
+        // La camiseta de manga corta se nombra "Camiseta" (no "Con mangas").
+        look.garments.shirt && !replaced.has('shirt') && t('outfit.slots.shirt'),
         look.garments.tank && !replaced.has('tank') && t('outfit.shirtStyles.tank'),
         look.garments.shorts && !replaced.has('shorts') && t('outfit.bottomsStyles.shorts'),
         look.garments.pants && !replaced.has('pants') && t('outfit.bottomsStyles.pants'),
@@ -226,8 +228,10 @@ export function HangarStudio({ products, garments }: { products: HangarProduct[]
   const panels: Array<{ tab: HangarTab; content: ReactNode }> = [
     { tab: 'shoes', content: <ShoePicker products={products} current={product.slug} onSelect={setSlug} /> },
   ];
-  if (baseOutfit || garments.length) panels.push({ tab: 'wear', content: <WearPanel garments={garments} lite={lite} base={baseOutfit} /> });
-  if (baseOutfit && HANGAR_FEATURES.colorsTab) panels.push({ tab: 'colors', content: <ColorPanel /> });
+  // "Ropa" y "Colores" solo con sus banderas: con HANGAR_FEATURES.wearTab en
+  // false el vestuario es fijo (DEFAULT_OUTFIT) y el panel solo tiene "Zapatos".
+  if (HANGAR_FEATURES.wearTab && (baseOutfit || garments.length)) panels.push({ tab: 'wear', content: <WearPanel garments={garments} lite={lite} base={baseOutfit} /> });
+  if (HANGAR_FEATURES.wearTab && baseOutfit && HANGAR_FEATURES.colorsTab) panels.push({ tab: 'colors', content: <ColorPanel /> });
 
   return (
     <div className={styles.page} {...accentProps(product.accent)}>

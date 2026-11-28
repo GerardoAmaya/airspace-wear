@@ -8,11 +8,15 @@ import { ThemedPoster } from '@/components/catalog/ThemedPoster';
 import { ringTransform, type StagePose, VIEWS } from '@/components/hangar/rig';
 import { Link } from '@/i18n/navigation';
 import { accentProps } from '@/lib/accent';
+import { OUTFIT_LITE_URL, OUTFIT_URL } from '@/lib/avatar/avatar';
 import { FITTING } from '@/lib/avatar/fitting';
+import { HANGAR_FEATURES } from '@/lib/avatar/hangar-features';
+import { DEFAULT_OUTFIT, resolveLook } from '@/lib/avatar/outfit';
 import { HOME_ANCHORS } from '@/lib/home';
 import { gsap, ScrollTrigger, useGSAP } from '@/lib/motion/gsap';
 import { SplitText } from '@/lib/motion/split-text';
 import { DURATION, EASE } from '@/lib/motion/tokens';
+import { useThemeStore } from '@/lib/theme';
 import { useStageActivity } from '@/lib/three/director';
 import styles from './Hangar.module.css';
 import own from './HangarAvatar.module.css';
@@ -84,7 +88,7 @@ const subscribeVisibility = (callback: () => void) => {
 };
 
 // Adelanto del Hangar 360° con el maniquí: camina en su lugar con el look de
-// fábrica (gorra, hoodie Nike Air negro, pants y el par) sobre la plataforma, que gira
+// fábrica (camiseta base gris, short negro y el par) sobre la plataforma, que gira
 // despacio. Es un bucle por tiempo mientras se ve (nunca ligado al scroll) y
 // el canvas solo dibuja si el director de render lo elige y la pestaña está
 // visible. La plataforma se gira con arrastre (inercia; en táctil solo el
@@ -121,6 +125,13 @@ export function HangarAvatarTeaser({ look, lite, reducedMotion }: { look: Teaser
   // el hero (texturas de 2048 px) pesaría más del doble sin verse distinto.
   const shoe = useMemo(() => ({ slug: look.pair.slug, url: look.pair.liteUrl, foot: look.pair.foot }), [look.pair]);
   const wear = useMemo(() => look.wear.map((item) => ({ slug: item.slug, slot: item.slot, url: lite ? item.liteUrl : item.url })), [look.wear, lite]);
+  // Vestuario base fijo del maniquí (camiseta y short), el mismo del Hangar.
+  const theme = useThemeStore((state) => state.theme);
+  const outfitUrl = HANGAR_FEATURES.baseOutfit ? (lite ? OUTFIT_LITE_URL : OUTFIT_URL) : '';
+  const outfit = useMemo(
+    () => (outfitUrl ? { url: outfitUrl, look: resolveLook(DEFAULT_OUTFIT, theme, look.pair.accent?.dark ?? null) } : null),
+    [outfitUrl, theme, look.pair.accent],
+  );
 
   // Listo: avatar y par dibujados y las prendas a la vista (o pasó el margen).
   const [ready, setReady] = useState(false);
@@ -360,7 +371,7 @@ export function HangarAvatarTeaser({ look, lite, reducedMotion }: { look: Teaser
                   view="full"
                   spin={spin}
                   autoRotate
-                  outfit={null}
+                  outfit={outfit}
                   wear={wear}
                   onWear={onWear}
                   onReady={onReady}
