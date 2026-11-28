@@ -65,6 +65,10 @@
 }
 
 .panel {
+  /* Contiene los textos ocultos (visually-hidden, en absoluto) de la lista:
+     sin esto se ubicaban respecto de la página y la alargaban hasta el final
+     de la lista, con un scroll vacío bajo el pie. */
+  position: relative;
   min-height: 0;
   padding-top: var(--space-4);
   overflow-y: auto;
