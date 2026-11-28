@@ -10,8 +10,9 @@
 // - avatarSlot solo si la prenda ya se ajustó al avatar del Hangar 360°
 //   (top, bottom, head o eyes); sin él, la prenda es solo de catálogo. Hoy
 //   lo llevan 4 pilotos de la fase 3, las 3 gorras AS-A35 a AS-A37, el
-//   hoodie Adidas arena (AS-A38) y los dos hoodies Nike propios (AS-A40 y
-//   AS-A41, modelados sobre el maniquí con pnpm garments);
+//   hoodie Adidas arena (AS-A38), los dos hoodies Nike propios (AS-A40 y
+//   AS-A41) y la camiseta Nike Flight propia (AS-A42), modelados sobre el maniquí
+//   con pnpm garments;
 // - model: slug del manifest (pnpm models) si tiene 3D. Si el modelo todavía
 //   no está en el manifest, el seed la publica sin 3D y avisa.
 //
@@ -796,6 +797,40 @@ export const APPAREL_PRODUCTS: SeedProduct[] = [
     },
   },
   {
+    // Prenda propia (pnpm garments): camiseta de manga corta modelada sobre
+    // el maniquí, con estampado propio. Es la parte de arriba por defecto del
+    // Hangar y del adelanto de la home.
+    slug: 'camiseta-nike-flight-negra',
+    reference: 'AS-A42',
+    category: 'apparel',
+    subcategory: 'tshirt',
+    avatarSlot: 'top',
+    brand: 'nike',
+    priceCents: 4000,
+    availability: 'new',
+    sizes: ALPHA,
+    attributes: {},
+    model: 'camiseta-nike-flight-negra',
+    text: {
+      es: {
+        name: 'Camiseta Nike Flight',
+        colorway: 'Negro, blanco y amarillo',
+        tagline: 'Negra, de corte regular, con NIKE al frente y un basquetbolista amarillo atrás.',
+        description: 'Camiseta negra de manga corta y corte regular, cerca del cuerpo. Al frente, NIKE con el swoosh debajo, en blanco. En la espalda, un basquetbolista amarillo que sube a una bandeja, rodeado de un salpicado del mismo color, con la palabra "Flight" en cursiva debajo. Cuello redondo de canalé.',
+        materials: { fabric: 'Algodón' },
+        tags: ['básico', 'corte regular', 'básquet'],
+      },
+      en: {
+        name: 'Nike Flight T-Shirt',
+        colorway: 'Black, white and yellow',
+        tagline: 'Black, regular fit, with NIKE up front and a yellow baller on the back.',
+        description: 'A black short-sleeve tee with a regular, close fit. The chest reads NIKE over a swoosh in white. The back shows a yellow player rising for a layup inside a burst of yellow speckles, with "Flight" in script underneath. Ribbed crew neck.',
+        materials: { fabric: 'Cotton' },
+        tags: ['staple', 'regular fit', 'basketball'],
+      },
+    },
+  },
+  {
     // Prenda propia (pnpm garments): modelada sobre el cuerpo del maniquí,
     // así que calza en el avatar sin retoques. Mismo hoodie que AS-A41 (la
     // parte de arriba por defecto del Hangar), otro color y estampado.
@@ -831,7 +866,8 @@ export const APPAREL_PRODUCTS: SeedProduct[] = [
   },
   {
     // Mismo hoodie propio que AS-A40, en negro con bandas blancas en las
-    // mangas. Es la parte de arriba por defecto del Hangar.
+    // mangas. Fue la parte de arriba por defecto del Hangar hasta la
+    // camiseta Nike Flight (AS-A42).
     slug: 'hoodie-nike-air-negro',
     reference: 'AS-A41',
     category: 'apparel',

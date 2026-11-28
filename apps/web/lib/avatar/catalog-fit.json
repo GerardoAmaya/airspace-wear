@@ -67,6 +67,73 @@
         }
       }
     },
+    "camiseta-nike-flight-negra": {
+      "slot": "top",
+      "kind": "skinned",
+      "node": "Fit_camiseta_nike_flight_negra",
+      "hides": [
+        "shirt",
+        "tank"
+      ],
+      "rules": {
+        "bones": [
+          "Hips",
+          "Spine",
+          "Spine1",
+          "Spine2",
+          "LeftShoulder",
+          "RightShoulder",
+          "LeftArm",
+          "RightArm",
+          "LeftForeArm",
+          "RightForeArm"
+        ],
+        "cuts": [
+          {
+            "from": "Hips",
+            "to": "Spine",
+            "keep": "above",
+            "t": -0.705
+          },
+          {
+            "from": "LeftForeArm",
+            "to": "LeftHand",
+            "keep": "below",
+            "t": -0.348
+          },
+          {
+            "from": "RightForeArm",
+            "to": "RightHand",
+            "keep": "below",
+            "t": -0.348
+          }
+        ],
+        "holes": [
+          {
+            "from": "Neck",
+            "to": "Head",
+            "radius": 0.066,
+            "forward": 0.01,
+            "minT": -0.6
+          }
+        ],
+        "hidesBottoms": true
+      },
+      "files": {
+        "hero": {
+          "url": "/avatar-fit/camiseta-nike-flight-negra.glb",
+          "bytes": 292312,
+          "triangles": 11999,
+          "sha256": "3905a12462ba582f"
+        },
+        "lite": {
+          "url": "/avatar-fit/camiseta-nike-flight-negra-lite.glb",
+          "bytes": 109468,
+          "triangles": 4999,
+          "sha256": "a5966fef09e2dd48"
+        }
+      }
+    },
     "hoodie-nike-blanco": {
       "slot": "top",
       "kind": "skinned",

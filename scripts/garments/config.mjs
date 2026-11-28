@@ -1,6 +1,7 @@
 // Prendas propias del proyecto, modeladas en Blender a partir del cuerpo del
 // Y Bot (como el vestuario base de scripts/avatar/outfit.py) y texturizadas
-// con dibujos vectoriales propios. Hoy: el hoodie, en dos colores.
+// con dibujos vectoriales propios. Hoy: el hoodie, en dos colores, y la
+// camiseta de manga corta.
 //
 // Uso: pnpm garments (scripts/garments/build.mjs). Después: pnpm models:optimize
 // --only <slug>, pnpm models:posters --only <slug> y pnpm avatar:fit --only <slug>.
@@ -126,11 +127,86 @@ export const HOODIE = {
   textureSize: 2048,
 };
 
-// Colores de cada producto (sRGB). Los estampados se dibujan en
-// scripts/garments/prints.mjs.
+// Camiseta de manga corta, cerca del cuerpo como el anorak gris: misma base
+// que el hoodie (piezas del maniquí infladas y remalladas, corte en A desde la
+// sisa), sin capucha, bolsillo ni cordones. Mangas que terminan a media parte
+// alta del brazo, abiertas (sin puño), ruedo en la cadera alta que la abraza y
+// cuello redondo de canalé (el rollo de la capucha, bajo y delgado). Va por
+// fuera del pantalón (hidesBottoms en scripts/avatar/fit.json).
+export const TEE = {
+  heightMeters: 1.75,
+  shell: {
+    ...HOODIE.shell,
+    // Ruedo en la cadera alta, con una banda lisa de 2 cm (dobladillo, sin
+    // canalé) que se junta apenas.
+    hemHeight: 0.94,
+    hemRib: 0.02,
+    hemGather: 0.004,
+    // Corte regular, sin vuelo: la tela no crece hacia el ruedo.
+    torsoEase: { chest: 0.002, hem: 0 },
+    // Manga corta: el corte cae a media parte alta del brazo (0 hombro, 1
+    // mano), abierta y algo más holgada que la del hoodie, sin puño.
+    sleeveEnd: 0.32,
+    sleeveEase: 0.004,
+    sleeveTaper: 0.985,
+    cuff: false,
+    // Dobladillo de la manga (solo el pespunte de la textura).
+    cuffLength: 0.02,
+    cuffEase: 0,
+    cuffBunch: 0,
+    // Cuello redondo, un poco más abierto que el escote del hoodie.
+    neckHole: { radius: 0.08, forward: 0.014, minT: -0.6 },
+    hem: 0.003,
+    folds: { elbow: 0, lowerBack: 0.0015, cuff: 0, hem: 0.002 },
+  },
+  // Cuello de canalé: un rollo cerrado de 1,3 cm de alto y 4 mm de grosor.
+  collar: {
+    segments: 72,
+    profile: 6,
+    stand: [0.011, 0.013],
+    drop: [0.006, 0.006, 0.006],
+    thickness: [0.0035, 0.0035],
+    spread: 0,
+    gap: 0.002,
+  },
+  // Canalé solo en el cuello; ruedo y mangas con dobladillo liso.
+  ribs: { hem: false, cuffs: false, collar: true },
+  displayPose: HOODIE.displayPose,
+  // Atlas: el frente (NIKE y el swoosh) y la espalda (figura, salpicado fino
+  // y la palabra en cursiva) llevan estampados con bordes finos, así que cada
+  // uno se queda con media columna y 80 % del alto (su lado limitante es el
+  // ancho: unos 2450 px por metro en 2048 px). Las mangas cortas y el cuello
+  // son tela lisa.
+  atlas: {
+    front: [0, 0, 0.5, 0.8],
+    back: [0.5, 0, 1, 0.8],
+    sleeveL: [0, 0.8, 0.5, 0.97],
+    sleeveR: [0.5, 0.8, 1, 0.97],
+    collar: [0, 0.97, 1, 1],
+  },
+  textureSize: 2048,
+};
+
+// Prendas que genera pnpm garments: la geometría de cada una se modela una
+// vez (Blender) y sirve a todos sus colores.
+export const GARMENTS = { hoodie: HOODIE, tee: TEE };
+
+// Colores de cada producto (sRGB) y la prenda que usan. Los estampados se
+// dibujan en scripts/garments/prints.mjs.
 export const COLORWAYS = [
   {
+    slug: 'camiseta-nike-flight-negra',
+    garment: 'tee',
+    fabric: [22, 22, 24],
+    rib: [18, 18, 20],
+    stitch: [36, 36, 39],
+    cord: [22, 22, 24],
+    metal: [0.72, 0.72, 0.74],
+    print: 'nike-flight-black',
+  },
+  {
     slug: 'hoodie-nike-blanco',
+    garment: 'hoodie',
     // Crema (cerca del 70 % de blanco, apenas cálido): con las luces de la
     // escena (y la luz de borde) se lee como felpa, más oscuro que el blanco
     // de un sneaker y cerca del gris más claro del anorak.
@@ -143,6 +219,7 @@ export const COLORWAYS = [
   },
   {
     slug: 'hoodie-nike-air-negro',
+    garment: 'hoodie',
     fabric: [24, 24, 26],
     rib: [20, 20, 22],
     stitch: [36, 36, 39],

@@ -24,7 +24,7 @@ export const HOME_SECTIONS = {
 
 // Adelanto del Hangar 360° en la home:
 // - 'avatar': el maniquí del Hangar camina con el look de fábrica (gorra,
-//   hoodie Nike Air negro, pants y Air Jordan 1) sobre la plataforma (HangarAvatarTeaser).
+//   camiseta Nike Flight negra, pants y Air Jordan 1) sobre la plataforma (HangarAvatarTeaser).
 // - 'shoe': el adelanto anterior, el par de HOME_HANGAR_SLUG girando solo
 //   en la plataforma (HangarTeaser). Para volver a él: 'shoe'.
 // Sin avatar publicado (HANGAR_ENABLED en false) se usa 'shoe' siempre.

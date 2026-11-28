@@ -1,10 +1,14 @@
-# Modela el hoodie propio del proyecto a partir del cuerpo del Y Bot.
-# Lo ejecuta scripts/garments/build.mjs (pnpm garments); no hace falta llamarlo a mano.
+# Modela las prendas propias del proyecto (el hoodie y la camiseta) a partir
+# del cuerpo del Y Bot. Lo ejecuta scripts/garments/build.mjs (pnpm garments);
+# no hace falta llamarlo a mano. --name elige los archivos de salida y la
+# configuración dice qué piezas lleva: el hoodie suma capucha, bolsillo y
+# cordones; la camiseta, mangas cortas sin puño y un cuello redondo de canalé
+# (el mismo rollo de la capucha, bajo y delgado).
 #
 # Uso:
 #   blender --background --factory-startup --python-exit-code 1 \
 #     --python scripts/garments/hoodie.py -- \
-#     --character ybot.fbx --config hoodie-config.json --out-dir carpeta
+#     --character ybot.fbx --config hoodie-config.json --out-dir carpeta [--name hoodie]
 #
 # Pasos:
 #   1. Cuerpo de la prenda: las piezas del torso y los brazos del maniquí,
@@ -241,7 +245,10 @@ def shape_sleeves(body, frame, bm, spec):
             row = table[s]
             table[s] = [max(row[i], (row[i - 1] + 2 * row[i] + row[(i + 1) % bins]) / 4) for i in range(bins)]
         ease = body.m(spec["sleeveEase"])
-        bunch = body.m(spec["cuffBunch"])
+        # Sin puño (manga corta): la manga termina abierta, sin canalé ni tela
+        # que se junte sobre el borde.
+        cuffed = spec.get("cuff", True)
+        bunch = body.m(spec["cuffBunch"]) if cuffed else 0.0
         folds = spec["folds"]
         for vert, t, angle, radial, s, b in chosen:
             if radial.length < 1e-9:
@@ -258,7 +265,7 @@ def shape_sleeves(body, frame, bm, spec):
             above = math.exp(-((t - (cuff_start - 0.06)) / 0.05) ** 2)
             target += body.m(folds["cuff"]) * above * math.sin(t * length / body.m(0.022) * 2 * math.pi + angle)
             # Puño de canalé: radio fijo (redondo) desde cuff_start.
-            rib = smoothstep(cuff_start - 0.008, cuff_start + 0.004, t)
+            rib = smoothstep(cuff_start - 0.008, cuff_start + 0.004, t) if cuffed else 0.0
             final = lerp(target, cuff_radius, rib)
             vert.co += radial.normalized() * (final - radial.length)
         log(f"manga {side}: muñeca {wrist / unit:.3f} m, puño {cuff_radius / unit:.3f} m, costura del hombro t={seam_t:.2f}")
@@ -359,7 +366,10 @@ def straighten_edges(body, frame, bm, spec):
         start, end = arm_axis(body, side)
         point = start + (end - start) * spec["sleeveEnd"]
         sign = 1 if side == "Left" else -1
-        planes.append((point, (end - start).normalized(), lambda p, sign=sign: frame.to_avatar(p).x * sign > 0.4))
+        # Borde de la manga: más allá de 5 cm antes del corte (0,4 m en las
+        # mangas largas; las cortas terminan antes).
+        reach = min(0.4, abs(frame.to_avatar(point).x) - 0.05)
+        planes.append((point, (end - start).normalized(), lambda p, sign=sign, reach=reach: frame.to_avatar(p).x * sign > reach))
     for point, normal, select in planes:
         loop = [v for v in bm.verts if v.is_boundary and select(v.co)]
         members = set(loop)
@@ -620,7 +630,7 @@ def march_down(tree, start, radial, up, distance, count, lateral=Vector((0, 0, 0
     return points
 
 
-def build_hood(body, frame, shell, spec, atlas):
+def build_hood(body, frame, shell, spec, atlas, island="hood"):
     # Rollo cerrado alrededor del cuello: por dentro se apoya en la prenda y
     # por fuera tiene el grosor del rollo; cae poco adelante y mucho atrás.
     ring, center = neck_ring(body, frame, shell)
@@ -676,8 +686,8 @@ def build_hood(body, frame, shell, spec, atlas):
         a = frame.to_avatar(rows[i][0].co)
         b = frame.to_avatar(rows[(i + 1) % segments][0].co)
         perimeter += (a - b).length
-    atlas.fit("hood", [(0, 0), (perimeter, 0.5)], uniform=False)
-    atlas.islands["hood"]["perimeter"] = perimeter
+    atlas.fit(island, [(0, 0), (perimeter, 0.5)], uniform=False)
+    atlas.islands[island]["perimeter"] = perimeter
     faces = []
     for i in range(segments):
         for j in range(count):
@@ -691,14 +701,14 @@ def build_hood(body, frame, shell, spec, atlas):
             s0 = coords[i][j]
             s1 = coords[i][(j + 1) % count] if j + 1 < count else 2.0
             for loop, (u, s) in zip(face.loops, ((u0, s0), (u0, s1), (u1, s1), (u1, s0))):
-                loop[uv_layer].uv = atlas.uv("hood", u * perimeter, s * 0.25)
+                loop[uv_layer].uv = atlas.uv(island, u * perimeter, s * 0.25)
             faces.append(face)
     bm.normal_update()
     # Normales hacia afuera: el centro del rollo queda adentro.
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
     obj = mesh_object("tmp-hood", bm)
     bm.free()
-    log(f"capucha: {triangle_count(obj)} caras, perímetro {perimeter:.2f} m")
+    log(f"{'capucha' if island == 'hood' else 'cuello'}: {triangle_count(obj)} caras, perímetro {perimeter:.2f} m")
     return obj
 
 
@@ -963,6 +973,7 @@ def main():
     with open(options["config"], encoding="utf-8") as file:
         config = json.load(file)
     out_dir = options["out-dir"]
+    name = options.get("name", "hoodie")
     os.makedirs(out_dir, exist_ok=True)
 
     import_fbx(options["character"])
@@ -975,13 +986,20 @@ def main():
     atlas = Atlas(config["atlas"], config["textureSize"])
     face_island = unwrap_shell(body, frame, shell, atlas, seam_x, axis_at)
     seams = seam_lines(shell, face_island, atlas)
-    hood = build_hood(body, frame, shell, config["hood"], atlas)
+    # Capucha (hoodie) o cuello redondo (camiseta): el mismo rollo alrededor
+    # del escote, con otras medidas y su propia isla del atlas.
+    neck_spec = config.get("hood") or config.get("collar")
+    neck_island = "hood" if config.get("hood") else "collar"
+    hood = build_hood(body, frame, shell, neck_spec, atlas, neck_island)
     # Bolsillo canguro: relieve en la misma malla (sin capa aparte, que se
     # cruzaba con el cuerpo al ajustar); el contorno va en la textura.
-    pocket_relief(body, frame, shell, config["pocket"])
+    if config.get("pocket"):
+        pocket_relief(body, frame, shell, config["pocket"])
     fabric = material("hoodie-fabric", (0.9, 0.9, 0.9), 0.0, 0.92)
     metal = material("hoodie-metal", (0.75, 0.75, 0.78), 1.0, 0.35)
-    cords, eyelets = build_cords(body, frame, shell, hood, config["cords"], atlas, [fabric, metal])
+    cords, eyelets = (None, [])
+    if config.get("cords"):
+        cords, eyelets = build_cords(body, frame, shell, hood, config["cords"], atlas, [fabric, metal])
     # Canto del ruedo y los puños.
     apply_modifier(shell, "SOLIDIFY", thickness=body.m(spec["hem"]), offset=-1.0, use_rim=True, use_rim_only=True, use_even_offset=True)
 
@@ -992,14 +1010,14 @@ def main():
     for obj in (shell, hood):
         for polygon in obj.data.polygons:
             polygon.material_index = 0
-    garment = join([shell, hood, cords], "Hoodie")
+    garment = join([shell, hood] + ([cords] if cords else []), "Hoodie")
     for polygon in garment.data.polygons:
         polygon.use_smooth = True
     garment.data.update()
     log(f"prenda: {triangle_count(garment)} triángulos")
 
     # Reposo (T-pose) para el ajuste al avatar.
-    export_static(frame, garment.data, os.path.join(out_dir, "hoodie-rest.glb"), [fabric, metal])
+    export_static(frame, garment.data, os.path.join(out_dir, f"{name}-rest.glb"), [fabric, metal])
 
     # Pose de exhibición: pesos del cuerpo y brazos abajo.
     bones = ["Hips", "Spine", "Spine1", "Spine2", "Neck", "LeftShoulder", "RightShoulder", "LeftArm", "RightArm", "LeftForeArm", "RightForeArm"]
@@ -1023,7 +1041,7 @@ def main():
             vertex.co = garment.matrix_world @ source.co
     posed.update()
     log(f"pose de exhibición: {len(posed.vertices)} vértices")
-    export_static(frame, posed, os.path.join(out_dir, "hoodie-display.glb"), [fabric, metal])
+    export_static(frame, posed, os.path.join(out_dir, f"{name}-display.glb"), [fabric, metal])
     reset_pose(body)
 
     # Medidas de la pose de exhibición (para config.mjs del pipeline).
@@ -1040,11 +1058,13 @@ def main():
         "cuffLength": spec["cuffLength"],
         "sleeveEnd": spec["sleeveEnd"],
         "armLength": (body.heads["LeftHand"] - body.heads["LeftArm"]).length / body.unit,
-        "pocket": config["pocket"],
+        "pocket": config.get("pocket"),
+        # Zonas de canalé de la textura (ruedo, puños y cuello).
+        "ribs": config.get("ribs", {"hem": True, "cuffs": True, "collar": False}),
         "eyelets": [[round(p.x, 4), round(p.y, 4), round(p.z, 4)] for p in eyelets],
         "display": {"bottom": round(low, 4), "top": round(high, 4), "height": round(high - low, 4)},
     }
-    with open(os.path.join(out_dir, "layout.json"), "w", encoding="utf-8") as file:
+    with open(os.path.join(out_dir, f"{name}-layout.json"), "w", encoding="utf-8") as file:
         json.dump(layout, file, indent=1)
     log(f"exhibición: alto {high - low:.3f} m (de {low:.3f} a {high:.3f})")
 

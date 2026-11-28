@@ -392,11 +392,13 @@ def layer_outside(body, bm, trees, gap, reach, neighbours, rounds=3):
             vert.co += offset * 1.3
 
 
-def cover_band(body, bm, trees, gap, bins=72):
+def cover_band(body, bm, trees, gap, below=0.03, bins=72):
     # Banda del ruedo por fuera de los pantalones: por ángulo alrededor del
     # eje vertical de la cadera, el radio de la prenda en la banda (del ruedo
-    # a 6 cm arriba, y 3 cm por debajo, donde el pantalón ya se ensancha)
-    # debe superar al del pantalón más `gap`. El factor se
+    # a 6 cm arriba, y `below` m por debajo, donde el pantalón ya se ensancha)
+    # debe superar al del pantalón más `gap`. La camiseta mira solo 1 cm por
+    # debajo (bandBelow en fit.json): su ruedo abraza la cadera sin abrirse
+    # como campana sobre los muslos. El factor se
     # suaviza entre ángulos y se apaga hacia arriba (hasta 18 cm): la banda
     # se abre de a poco, sin escalones.
     hips = body.heads["Hips"]
@@ -418,7 +420,7 @@ def cover_band(body, bm, trees, gap, bins=72):
         angle = 2 * math.pi * b / bins
         need = 1.0
         for step in range(7):
-            z = hem - body.m(0.03) + (band + body.m(0.03)) * step / 6
+            z = hem - body.m(below) + (band + body.m(below)) * step / 6
             mine = radius(own, angle, z)
             if not mine:
                 continue
@@ -601,7 +603,7 @@ def build_skinned(body, item, layers):
             # prenda está puesta (AvatarCatalog, hidesBottoms en catalog-fit.json).
             # Solo la banda del ruedo se abre lo justo para cubrir la cintura
             # del pantalón (así el corte del pantalón nunca queda a la vista).
-            cover_band(body, bm, layers["under_tops"], body.m(spec.get("bandGap", 0.006)))
+            cover_band(body, bm, layers["under_tops"], body.m(spec.get("bandGap", 0.006)), spec.get("bandBelow", 0.03))
         else:
             layer_outside(body, bm, layers["under_tops"], gap, reach, neighbours)
     # La holgura con el cuerpo manda sobre las capas.

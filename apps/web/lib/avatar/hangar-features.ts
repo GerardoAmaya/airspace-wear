@@ -23,7 +23,7 @@ export const HANGAR_FEATURES = {
   colorsTab: false,
   // "Restablecer" deja el maniquí sin ropa (conserva el par). En false vuelve
   // al comportamiento anterior: el look de fábrica (DEFAULT_OUTFIT, con la
-  // gorra, el hoodie Nike Air negro y los pants).
+  // gorra, la camiseta Nike Flight negra y los pants).
   resetToBare: true,
 } as const;
 
@@ -39,8 +39,8 @@ export const DEFAULT_CLIP: Clip = 'pose';
 
 // Prendas del catálogo que el Hangar ofrece en "Ropa" (slugs de
 // apps/api/prisma/seed/apparel.ts ajustados en lib/avatar/catalog-fit.json).
-// Arriba: el hoodie Nike Air negro (el de fábrica), el hoodie Nike blanco y
-// el anorak gris. Las demás prendas ajustadas (sudadera Nike, hoodie Adidas, lentes) siguen en
+// Arriba: la camiseta Nike Flight negra (la de fábrica), el hoodie Nike Air negro,
+// el hoodie Nike blanco y el anorak gris. Las demás prendas ajustadas (sudadera Nike, hoodie Adidas, lentes) siguen en
 // el catálogo y en catalog-fit.json, pero el Hangar no las muestra, su ficha
 // no enlaza al Hangar y lo guardado con ellas se limpia. Para volver a
 // mostrarlas: agregar su slug aquí, o poner null para ofrecer todas las ajustadas.
@@ -48,6 +48,7 @@ export const HANGAR_WEAR_ALLOWLIST: readonly string[] | null = [
   'gorra-ny-59fifty-marino',
   'gorra-ny-negra-logo-gris',
   'gorra-adidas-negra',
+  'camiseta-nike-flight-negra',
   'hoodie-nike-air-negro',
   'hoodie-nike-blanco',
   'anorak-gris',

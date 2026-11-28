@@ -76,7 +76,7 @@ const section = [
   '',
   `${origin} for the web with this repository's pipeline (\`pnpm models\`). Each one is published in two versions: a full version and a lighter one for low-end devices.`,
   ...(ownWork.length
-    ? ['', `${ownWork.join(' and ')} are this project's own work (geometry and textures). The brand logos on them only illustrate this portfolio project, which is not affiliated with the brand.`]
+    ? ['', `${ownWork.length > 1 ? `${ownWork.slice(0, -1).join(', ')} and ${ownWork.at(-1)}` : ownWork[0]} ${ownWork.length > 1 ? 'are' : 'is'} this project's own work (geometry and textures). The brand logos on them only illustrate this portfolio project, which is not affiliated with the brand.`]
     : []),
   ...(notes.length ? ['', '**License notes**', '', ...notes] : []),
 ].join('\n');

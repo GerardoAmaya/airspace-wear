@@ -1,16 +1,19 @@
-// Genera las prendas propias del proyecto (hoy, el hoodie en dos colores).
+// Genera las prendas propias del proyecto (hoy, el hoodie en dos colores y
+// la camiseta de manga corta).
 //
 // Uso:
 //   pnpm garments                    geometría (Blender) y texturas
 //   pnpm garments --skip-blender     solo texturas (reusa la geometría)
+//   pnpm garments --only <slug>      solo ese producto (y la geometría de su prenda)
 //
 // Requisitos: el FBX del Y Bot en assets/avatar/raw (pnpm avatar:build lo usa
 // también) y Blender (BLENDER_PATH, PATH o /Applications/Blender.app).
 //
 // Pasos:
-//   1. Blender (hoodie.py): la prenda modelada sobre el cuerpo del maniquí,
-//      con UV en un atlas, en dos poses: reposo (T-pose) y exhibición (brazos
-//      abajo). También layout.json: islas del atlas, costuras y medidas.
+//   1. Blender (hoodie.py): cada prenda (GARMENTS) modelada sobre el cuerpo
+//      del maniquí, con UV en un atlas, en dos poses: reposo (T-pose) y
+//      exhibición (brazos abajo). También <prenda>-layout.json: islas del
+//      atlas, costuras y medidas.
 //   2. Aquí: las texturas de cada color (textures.mjs y prints.mjs) y un GLB
 //      por producto y pose:
 //      - assets/models/raw/<slug>.glb: exhibición, el "original" del pipeline
@@ -27,11 +30,11 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { parseArgs, promisify } from 'node:util';
 import { createIO } from '../models/shared.mjs';
-import { COLORWAYS, GARMENT_PATHS, HOODIE, ROOT_DIR } from './config.mjs';
+import { COLORWAYS, GARMENT_PATHS, GARMENTS, ROOT_DIR } from './config.mjs';
 import { buildTextures } from './textures.mjs';
 
 const execFileAsync = promisify(execFile);
-const { values: cli } = parseArgs({ options: { 'skip-blender': { type: 'boolean' } } });
+const { values: cli } = parseArgs({ options: { 'skip-blender': { type: 'boolean' }, only: { type: 'string', multiple: true } } });
 
 const CHARACTER = path.join(ROOT_DIR, 'assets/avatar/raw/ybot.fbx');
 const SCRIPT = path.join(ROOT_DIR, 'scripts/garments/hoodie.py');
@@ -52,27 +55,39 @@ async function findBlender() {
 await mkdir(OUT, { recursive: true });
 await mkdir(GARMENT_PATHS.rawModelsDir, { recursive: true });
 
+const unknown = (cli.only ?? []).filter((slug) => !COLORWAYS.some((colorway) => colorway.slug === slug));
+if (unknown.length) {
+  console.error(`Producto desconocido: ${unknown.join(', ')}. Revisa COLORWAYS en scripts/garments/config.mjs.`);
+  process.exit(1);
+}
+const colorways = cli.only?.length ? COLORWAYS.filter((colorway) => cli.only.includes(colorway.slug)) : COLORWAYS;
+const garments = [...new Set(colorways.map((colorway) => colorway.garment))];
+
 if (!cli['skip-blender']) {
   const blender = await findBlender();
   if (!blender) {
     console.error('No se encontró Blender (BLENDER_PATH, PATH o /Applications/Blender.app).');
     process.exit(1);
   }
-  const configFile = path.join(OUT, 'hoodie-config.json');
-  await writeFile(configFile, `${JSON.stringify(HOODIE, null, 2)}\n`);
-  const args = ['--background', '--factory-startup', '--python-exit-code', '1', '--python', SCRIPT, '--'];
-  args.push('--character', CHARACTER, '--config', configFile, '--out-dir', OUT);
-  try {
-    const { stdout } = await execFileAsync(blender, args, { maxBuffer: 256 * 1024 * 1024, timeout: 1_800_000 });
-    for (const line of stdout.split('\n')) if (line.startsWith('[garment]')) console.log(`  ${line.slice(10)}`);
-  } catch (error) {
-    const output = `${error.stdout ?? ''}\n${error.stderr ?? ''}`.trim().split('\n').slice(-30).join('\n');
-    console.error(`Blender no pudo modelar el hoodie.\n\n${output}`);
-    process.exit(1);
+  for (const garment of garments) {
+    const configFile = path.join(OUT, `${garment}-config.json`);
+    await writeFile(configFile, `${JSON.stringify(GARMENTS[garment], null, 2)}\n`);
+    const args = ['--background', '--factory-startup', '--python-exit-code', '1', '--python', SCRIPT, '--'];
+    args.push('--character', CHARACTER, '--config', configFile, '--out-dir', OUT, '--name', garment);
+    console.log(`${garment}:`);
+    try {
+      const { stdout } = await execFileAsync(blender, args, { maxBuffer: 256 * 1024 * 1024, timeout: 1_800_000 });
+      for (const line of stdout.split('\n')) if (line.startsWith('[garment]')) console.log(`  ${line.slice(10)}`);
+    } catch (error) {
+      const output = `${error.stdout ?? ''}\n${error.stderr ?? ''}`.trim().split('\n').slice(-30).join('\n');
+      console.error(`Blender no pudo modelar ${garment}.\n\n${output}`);
+      process.exit(1);
+    }
   }
 }
 
-const layout = JSON.parse(await readFile(path.join(OUT, 'layout.json'), 'utf8'));
+const layouts = {};
+for (const garment of garments) layouts[garment] = JSON.parse(await readFile(path.join(OUT, `${garment}-layout.json`), 'utf8'));
 const io = await createIO();
 
 // Asigna las texturas de un color a la tela y el color del metal.
@@ -97,15 +112,15 @@ function dress(document, textures, colorway) {
   }
 }
 
-for (const colorway of COLORWAYS) {
+for (const colorway of colorways) {
   const started = performance.now();
-  const textures = await buildTextures(layout, colorway);
+  const textures = await buildTextures(layouts[colorway.garment], colorway);
   await writeFile(path.join(OUT, `${colorway.slug}-color.png`), textures.baseColor);
   for (const [pose, target] of [
     ['display', path.join(GARMENT_PATHS.rawModelsDir, `${colorway.slug}.glb`)],
     ['rest', path.join(OUT, `${colorway.slug}-rest.glb`)],
   ]) {
-    const document = await io.read(path.join(OUT, `hoodie-${pose}.glb`));
+    const document = await io.read(path.join(OUT, `${colorway.garment}-${pose}.glb`));
     dress(document, textures, colorway);
     await writeFile(target, await io.writeBinary(document));
   }

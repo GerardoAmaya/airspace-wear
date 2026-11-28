@@ -102,6 +102,7 @@ describe('Catálogo (integración)', () => {
         'air-jordan-1',
         'air-jordan-1-low-dior',
         'air-jordan-1-mid-particle-beige',
+        'camiseta-nike-flight-negra',
         'hoodie-nike-air-negro',
         'hoodie-nike-blanco',
         'hoodie-nike-turquesa-mujer',

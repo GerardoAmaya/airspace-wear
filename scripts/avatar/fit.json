@@ -26,6 +26,29 @@
         ]
       }
     },
+    "camiseta-nike-flight-negra": {
+      "slot": "top",
+      "kind": "skinned",
+      "source": "assets/garments/out/camiseta-nike-flight-negra-rest.glb",
+      "fit": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "scale": 1.0,
+        "clearance": 0.009,
+        "maxGap": 0.2,
+        "weightSmooth": 24,
+        "shoulderBlend": [
+          -0.2,
+          0.75
+        ],
+        "hidesBottoms": true,
+        "bandGap": 0.008,
+        "bandBelow": 0.01
+      }
+    },
     "hoodie-nike-blanco": {
       "slot": "top",
       "kind": "skinned",

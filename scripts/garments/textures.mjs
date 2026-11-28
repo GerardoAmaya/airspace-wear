@@ -1,5 +1,6 @@
-// Texturas del hoodie: color, relieve (mapa de normales) y rugosidad, en el
-// atlas que describe layout.json (lo escribe hoodie.py). Todo es obra propia:
+// Texturas de las prendas propias (hoodie y camiseta): color, relieve (mapa
+// de normales) y rugosidad, en el atlas que describe <prenda>-layout.json (lo
+// escribe hoodie.py). Todo es obra propia:
 // ruido procedural para la felpa, canalé y costuras calculados por píxel y
 // los estampados vectoriales de prints.mjs.
 
@@ -66,13 +67,17 @@ function islandGroup(layout, name, content) {
   return `<g transform="matrix(${scale[0]} 0 0 ${scale[1]} ${offset[0]} ${offset[1]})">${content}</g>`;
 }
 
-// Zonas de canalé: banda del ruedo (frente y espalda) y puños (mangas).
+// Zonas de canalé: banda del ruedo (frente y espalda), puños (mangas) y
+// cuello redondo, según layout.ribs (la camiseta lleva dobladillo liso en el
+// ruedo y las mangas).
 function ribAt(layout, name, a, b) {
-  if (name === 'front' || name === 'back') {
+  const ribs = layout.ribs ?? { hem: true, cuffs: true, collar: false };
+  if (name === 'collar') return ribs.collar ? { along: a } : null;
+  if ((name === 'front' || name === 'back') && ribs.hem) {
     const y = -b;
     return y >= layout.hemHeight - 0.01 && y <= layout.hemHeight + layout.hemRib ? { along: a } : null;
   }
-  if (name === 'sleeveL' || name === 'sleeveR') {
+  if ((name === 'sleeveL' || name === 'sleeveR') && ribs.cuffs) {
     const end = layout.armLength * layout.sleeveEnd;
     return a >= end - layout.cuffLength && a <= end + 0.02 ? { along: b } : null;
   }
@@ -108,7 +113,16 @@ function stitchesSvg(layout, color, width, dash) {
     const a = layout.armLength * layout.sleeveEnd - layout.cuffLength;
     parts.push(islandGroup(layout, name, `<path d="M${a},${b0}V${b1}" ${strokeFor(name)}/>`));
   }
+  // Costura central del cuello (capucha o cuello redondo, atrás).
+  for (const name of ['hood', 'collar']) {
+    const island = layout.islands[name];
+    if (!island) continue;
+    for (const u of [0.006, island.perimeter - 0.006]) {
+      parts.push(islandGroup(layout, name, `<path d="M${u},0V0.5" ${strokeFor(name)}/>`));
+    }
+  }
   const p = layout.pocket;
+  if (!p) return parts.join('');
   const inset = 0.006;
   const outline = [
     [-p.halfWidthBottom + inset, -p.bottom - inset],
@@ -120,10 +134,6 @@ function stitchesSvg(layout, color, width, dash) {
   parts.push(
     islandGroup(layout, 'front', `<path d="M${outline.map((q) => q.join(',')).join('L')}Z" ${strokeFor('front')}/>`),
   );
-  const hood = layout.islands.hood;
-  for (const u of [0.006, hood.perimeter - 0.006]) {
-    parts.push(islandGroup(layout, 'hood', `<path d="M${u},0V0.5" ${strokeFor('hood')}/>`));
-  }
   return parts.join('');
 }
 
@@ -131,6 +141,7 @@ function stitchesSvg(layout, color, width, dash) {
 // línea oscura fina, la sombra de la abertura.
 function pocketSvg(layout, color, width) {
   const p = layout.pocket;
+  if (!p) return '';
   const scale = layout.islands.front.scale[0];
   const w = width / scale;
   const left = `M${-p.halfWidthTop},${-p.top}L${-p.halfWidthBottom + 0.01},${-p.bottom - 0.055}`;
@@ -145,7 +156,8 @@ function printsSvg(layout, colorway, maskColor) {
   for (const name of ['front', 'back', 'sleeveL', 'sleeveR']) {
     let content = (art[name] ?? []).join('');
     if (!content) continue;
-    if (maskColor) content = content.replace(/(fill|stroke)="(?!none)[^"]*"/g, `$1="${maskColor}"`);
+    // El borde del color de la tela (halo) no es estampado: fuera de la máscara.
+    if (maskColor) content = content.replace(/<!--halo-->[\s\S]*?<!--\/halo-->/g, '').replace(/(fill|stroke)="(?!none)[^"]*"/g, `$1="${maskColor}"`);
     parts.push(islandGroup(layout, name, content));
   }
   return parts.join('');
@@ -166,7 +178,7 @@ export async function buildTextures(layout, colorway) {
   // estampado y máscara de las costuras (para el relieve).
   const fabric = rgb(colorway.fabric);
   const cords = layout.rects.cords;
-  const cordRect = `<rect x="${cords[0] * size}" y="${cords[1] * size}" width="${(cords[2] - cords[0]) * size}" height="${(cords[3] - cords[1]) * size}" fill="${rgb(colorway.cord)}"/>`;
+  const cordRect = !cords ? '' : `<rect x="${cords[0] * size}" y="${cords[1] * size}" width="${(cords[2] - cords[0]) * size}" height="${(cords[3] - cords[1]) * size}" fill="${rgb(colorway.cord)}"/>`;
   const colorBody = [cordRect, seamsSvg(layout, rgb(colorway.stitch), 1.4), stitchesSvg(layout, rgb(colorway.stitch), 1.6, [5, 3]), pocketSvg(layout, rgb(colorway.fabric.map((c) => Math.round(c * 0.72))), 2.4), printsSvg(layout, colorway, null)].join('');
   const [color, printMask, seamMask] = await Promise.all([
     rasterize(size, colorBody, fabric),

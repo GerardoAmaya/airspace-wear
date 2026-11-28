@@ -64,18 +64,20 @@ const VARIANTS = {
   lite: { suffix: '-lite', maxTriangles: 5_000, maxTextureSize: 512, quality: 72, budget: { bytes: 160_000, triangles: 7_000 } },
 };
 
-// Ajustes por prenda sobre VARIANTS. Los hoodies propios (pnpm garments)
-// llevan estampados con letras chicas (NIKE, AIR, SWOOSH BY NIKE y las
-// etiquetas tejidas) que a 1024 px se veían borrosos de cerca en el teléfono:
-// el hero conserva la textura de color de 2048 px y el lite sube a 1024 px,
-// con más calidad WebP en el color (bordes de letra limpios). Los mapas de
-// datos siguen a la mitad. Por eso su presupuesto de bytes es mayor que el
-// de las demás prendas (solo estos dos).
+// Ajustes por prenda sobre VARIANTS. Las prendas propias (pnpm garments)
+// llevan estampados finos (en los hoodies, letras chicas como NIKE, AIR,
+// SWOOSH BY NIKE y las etiquetas tejidas; en la camiseta Nike Flight, el
+// salpicado y la palabra en cursiva de la espalda) que a 1024 px se veían
+// borrosos de cerca en el teléfono: el hero conserva la textura de color de
+// 2048 px y el lite sube a 1024 px, con más calidad WebP en el color (bordes
+// limpios). Los mapas de datos siguen a la mitad. Por eso su presupuesto de
+// bytes es mayor que el de las demás prendas (solo estas tres).
 const HD_PRINTS = {
   hero: { maxTextureSize: 2048, colorQuality: 90, budget: { bytes: 520_000 } },
   lite: { maxTextureSize: 1024, colorQuality: 85, budget: { bytes: 200_000 } },
 };
 const VARIANT_OVERRIDES = {
+  'camiseta-nike-flight-negra': HD_PRINTS,
   'hoodie-nike-blanco': HD_PRINTS,
   'hoodie-nike-air-negro': HD_PRINTS,
 };

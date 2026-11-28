@@ -65,6 +65,7 @@ AIRSPACE Wear is a portfolio project. It is not affiliated with, endorsed by or 
 | Hoodie Nike turquesa de mujer | [Women's Sportswear](https://sketchfab.com/3d-models/womens-sportswear-132697d70644446aab83c6fb41040076) | [Dave N.](https://sketchfab.com/davidnunes) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | Reoriented and rescaled to real size, meshes merged, mesh simplified, textures converted to WebP, Meshopt compression. |
 | Hoodie Adidas arena con camuflaje | [Adidas Hoodie](https://sketchfab.com/3d-models/adidas-hoodie-e4c89a5628db4c7abadbd18bb407a2a8) | [Garrett Marshall Art](https://sketchfab.com/GarrettMarshallArt) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | Reoriented and rescaled to real size, meshes merged, textures converted to WebP, Meshopt compression. |
 | Hoodie Adidas negro y blanco | [adidas hoodie](https://sketchfab.com/3d-models/adidas-hoodie-3c2191a4e83d46979e57512356187482) | [Protyanik25](https://sketchfab.com/Protyanik25) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | Reoriented and rescaled to real size, mesh simplified, textures converted to WebP, Meshopt compression. |
+| Camiseta Nike Flight negra | AIRSPACE Wear T-shirt (scripts/garments) | AIRSPACE Wear | Own work | Own work: modeled on the Hangar avatar's body and textured with this repository's scripts (`pnpm garments`), textures converted to WebP, Meshopt compression. |
 | Hoodie Nike blanco | AIRSPACE Wear hoodie (scripts/garments) | AIRSPACE Wear | Own work | Own work: modeled on the Hangar avatar's body and textured with this repository's scripts (`pnpm garments`), textures converted to WebP, Meshopt compression. |
 | Hoodie Nike Air negro | AIRSPACE Wear hoodie (scripts/garments) | AIRSPACE Wear | Own work | Own work: modeled on the Hangar avatar's body and textured with this repository's scripts (`pnpm garments`), textures converted to WebP, Meshopt compression. |
 | Chaqueta Adidas negra | [Adidas Jacket](https://sketchfab.com/3d-models/adidas-jacket-2f69634f33ee4173beba410a673da22c) | [Ryan Maduro](https://sketchfab.com/rmaduro) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | Reoriented and rescaled to real size, meshes merged, textures converted to WebP, Meshopt compression. |
@@ -90,7 +91,7 @@ AIRSPACE Wear is a portfolio project. It is not affiliated with, endorsed by or 
 
 All third-party models were downloaded from Sketchfab and optimized for the web with this repository's pipeline (`pnpm models`). Each one is published in two versions: a full version and a lighter one for low-end devices.
 
-Hoodie Nike blanco and Hoodie Nike Air negro are this project's own work (geometry and textures). The brand logos on them only illustrate this portfolio project, which is not affiliated with the brand.
+Camiseta Nike Flight negra, Hoodie Nike blanco and Hoodie Nike Air negro are this project's own work (geometry and textures). The brand logos on them only illustrate this portfolio project, which is not affiliated with the brand.
 
 **License notes**
 
